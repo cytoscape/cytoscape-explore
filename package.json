@@ -82,7 +82,7 @@
     "eslint": "^5.15.1"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "browserslist": "> 0.5%, last 2 versions, Firefox ESR, not dead"
 }
