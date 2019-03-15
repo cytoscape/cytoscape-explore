@@ -1,6 +1,6 @@
 import debug from './debug';
-import React from 'react';
 import ReactDOM from 'react-dom';
+import h from 'react-hyperscript';
 
 if( debug.enabled() ){
   debug.init();
@@ -12,6 +12,6 @@ let div = document.createElement('div');
 document.body.appendChild( div );
 
 ReactDOM.render(
-  <h1>Hello, world!</h1>,
+  h('h1', 'Hello world!'),
   div
 );
