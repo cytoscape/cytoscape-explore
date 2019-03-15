@@ -3,7 +3,7 @@
 
 ## Required software
 
-- [Node.js](https://nodejs.org/en/) >=8.15.0
+- [Node.js](https://nodejs.org/en/) >=10.15.0
 
 
 

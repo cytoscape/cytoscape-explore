@@ -2,7 +2,7 @@
 # https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
 # https://github.com/nodejs/docker-node
 
-FROM node:8
+FROM node:10
 
 # Create app directory
 RUN mkdir -p /usr/src/app
