@@ -1,18 +1,16 @@
 /* css entry point for dependencies bundle */
 
 @import "normalize.css";
-
 @import "./vars.css";
-
 
 /* fonts */
 
 /* main sans serif font */
-/*@import "./vendor/fonts/open-sans.css";*/
+/* @import "./vendor/fonts/open-sans.css"; */
 @import "./vendor/fonts/open-sans-latin-greek.css"; /* latin/greek subset to save space */
 
 /* fixed-width font */
-/*@import "./vendor/fonts/inconsolata.css";*/
+/* @import "./vendor/fonts/inconsolata.css"; */
 @import "./vendor/fonts/inconsolata-ascii.css"; /* ascii-only subset to save space */
 
 /* font awesome icons and form widget styling with font awesome */
