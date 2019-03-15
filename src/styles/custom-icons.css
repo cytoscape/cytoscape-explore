@@ -1,0 +1,9 @@
+.icon {
+  &.icon-spinner {
+    transform: translate3d(0, 0, 0);
+    background-image: url('./image/spinner.svg');
+    animation: spin 750ms infinite linear;
+  }
+
+  /* add custom icons here: */
+}

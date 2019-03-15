@@ -1,0 +1,9 @@
+@keyframes spin {
+  0% {
+    transform: rotate(45deg);
+  }
+
+  100% {
+    transform: rotate(404deg);
+  }
+}

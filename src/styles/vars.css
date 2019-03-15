@@ -1,0 +1,19 @@
+/* constants that can be used in other css files, e.g. background-color:var(--buttonActiveColor) */
+
+:root {
+  --widgetBorderColor: #aaa;
+  --widgetBorderRadius: 4px;
+  --widgetDisabledBorderColor: #ddd;
+  --widgetDisabledTextColor: #bbb;
+  --widgetActiveColor: #aaa;
+  --widgetToggleColor: #ccc;
+  --buttonActiveColor: #000;
+  --widgetTransitionDuration: 500ms;
+  --widgetHeight: 1.75em;
+  --defaultWidgetWidth: 12em;
+  --activeColor: #3996db;
+  --smallFontSize: 0.8em;
+  --fadedColor: #888;
+  --invalidColor: #b53535;
+  --completeColor: #38af58;
+}

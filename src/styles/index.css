@@ -1,0 +1,8 @@
+/* css entry point */
+
+/* app styles */
+@import "./vars.css";
+@import "./animations.css";
+@import "./base.css";
+@import "./custom-icons.css";
+
