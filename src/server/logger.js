@@ -4,9 +4,8 @@ import { LOG_LEVEL, NODE_ENV } from './env';
 const logger = winston.createLogger({
   level: LOG_LEVEL,
   format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
   transports: [
-    new winston.transports.File({ filename: 'error.log', level: LOG_LEVEL })
+    new winston.transports.File({ filename: 'out.log', level: LOG_LEVEL })
   ]
 });
 
