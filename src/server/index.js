@@ -9,7 +9,10 @@ import http from 'http';
 import logger from './logger';
 import stream from 'stream';
 import fs from 'fs';
-import { NODE_ENV, PORT } from './env';
+import { NODE_ENV, PORT, COUCHDB_URL } from './env';
+import PouchDB from 'pouchdb';
+import expressPouchDB from 'express-pouchdb';
+import httpPouchDB from 'http-pouchdb';
 
 const debugLog = debug('cytoscape-drive:server');
 const app = express();
@@ -30,6 +33,7 @@ app.engine('html', function (filePath, options, callback){
 app.set('view engine', 'html');
 
 app.use(favicon(path.join(__dirname, '../..', 'public', 'icon.png')));
+
 app.use(morgan('dev', {
   stream: new stream.Writable({
     write( chunk, encoding, next ){
@@ -39,12 +43,16 @@ app.use(morgan('dev', {
     }
   })
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../..', 'public')));
 
-app.use( '/', require('./routes/index') );
+app.use('/', require('./routes/index'));
+
+// proxy requests under /db to the CouchDB server
+app.use('/db', expressPouchDB(httpPouchDB(PouchDB, COUCHDB_URL)));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

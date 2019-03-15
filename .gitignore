@@ -3,3 +3,7 @@ node_modules
 npm-debug.log
 /build
 out.log
+_replicator
+_users
+pouch__all_dbs__
+/config.json
