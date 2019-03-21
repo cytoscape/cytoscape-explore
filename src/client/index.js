@@ -1,17 +1,18 @@
 import debug from './debug';
 import ReactDOM from 'react-dom';
 import h from 'react-hyperscript';
+import PouchExample from './pouch-example';
 
 if( debug.enabled() ){
   debug.init();
 }
 
-// TODO client
-// react example
 let div = document.createElement('div');
+div.setAttribute('id', 'root');
+
 document.body.appendChild( div );
 
 ReactDOM.render(
-  h('h1', 'Hello world!'),
+  h(PouchExample),
   div
 );

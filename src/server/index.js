@@ -13,6 +13,7 @@ import { NODE_ENV, PORT, COUCHDB_URL } from './env';
 import PouchDB from 'pouchdb';
 import expressPouchDB from 'express-pouchdb';
 import httpPouchDB from 'http-pouchdb';
+import proxy from 'express-http-proxy';
 
 const debugLog = debug('cytoscape-drive:server');
 const app = express();
@@ -34,15 +35,27 @@ app.set('view engine', 'html');
 
 app.use(favicon(path.join(__dirname, '../..', 'public', 'icon.png')));
 
-app.use(morgan('dev', {
-  stream: new stream.Writable({
-    write( chunk, encoding, next ){
-      logger.info( chunk.toString('utf8').trim() );
+// app.use(morgan('dev', {
+//   stream: new stream.Writable({
+//     write( chunk, encoding, next ){
+//       logger.info( chunk.toString('utf8').trim() );
 
-      next();
+//       next();
+//     }
+//   })
+// }));
+
+const notDb = function(fn){
+  return function(req, res, next){
+    if( req.path.indexOf('/db') === 0 ){
+      next(); // skip for db
+    } else {
+      fn(req, res, next);
     }
-  })
-}));
+  };
+};
+
+app.use('/db', proxy(COUCHDB_URL));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,11 +65,11 @@ app.use(express.static(path.join(__dirname, '../..', 'public')));
 app.use('/', require('./routes/index'));
 
 // proxy requests under /db to the CouchDB server
-app.use('/db', expressPouchDB(httpPouchDB(PouchDB, COUCHDB_URL)));
+// app.use('/db', expressPouchDB(httpPouchDB(PouchDB, COUCHDB_URL)));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  let err = new Error('Not Found');
+  let err = new Error(`Not Found ${req.path}`);
   err.status = 404;
   next(err);
 });
