@@ -3,8 +3,18 @@
 
 ## Required software
 
-- [Node.js](https://nodejs.org/en/) >=10.15.0
+- [Node.js](https://nodejs.org/en/) ^10.15.0
+- [CouchDB](http://couchdb.apache.org) ^2.3.1
 
+
+## Getting started
+
+- Start off by running `npm install`.
+- The main target you will run during development is `npm run watch`.
+  - This automatically builds the clientside code in the background.  The browser will refresh automatically when the code is rebuilt.
+  - The server will automatically reload when you change the server code.  That way new HTTP requests from the client will use the updated code right away.
+- If you have CouchDB running locally on the default port, you don't need to configure any environment variables to get things working.  The defaults are preset for local development.
+- The Chrome debugger can be used for the clientside code (Chrome > View > Developer > Developer Tools) or the serverside code (`npm run inspect` and go to [chrome://inspect](chrome://inspect)).  There is also an included launch config file that allows you to debug the client or the server directly in VSC.
 
 
 ## Configuration
@@ -21,7 +31,7 @@ The following environment variables can be used to configure the server:
 
 - `npm start` : start the server (usually for prod mode)
 - `npm run watch` : watch mode (debug mode enabled, autorebuild, autoreload)
-- `npm run inspect` : start the server in inspection mode, with server-side code debuggable via the chrome debugger with a breakpoint automatically set on the first line
+- `npm run inspect` : start the server in inspection mode, with server-side code debuggable via the chrome debugger with a breakpoint automatically set on the first line ([chrome://inspect](chrome://inspect))
 - `npm run build` : build project
 - `npm run build-prod` : build the project for production
 - `npm run bundle-profile` : visualise the bundle dependencies
