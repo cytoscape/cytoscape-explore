@@ -7,13 +7,10 @@ import bodyParser from 'body-parser';
 import debug from 'debug';
 import http from 'http';
 import logger from './logger';
-import stream from 'stream';
 import fs from 'fs';
 import { NODE_ENV, PORT, COUCHDB_URL } from './env';
-import PouchDB from 'pouchdb';
-import expressPouchDB from 'express-pouchdb';
-import httpPouchDB from 'http-pouchdb';
 import proxy from 'express-http-proxy';
+import stream from 'stream';
 
 const debugLog = debug('cytoscape-drive:server');
 const app = express();
@@ -35,26 +32,17 @@ app.set('view engine', 'html');
 
 app.use(favicon(path.join(__dirname, '../..', 'public', 'icon.png')));
 
-// app.use(morgan('dev', {
-//   stream: new stream.Writable({
-//     write( chunk, encoding, next ){
-//       logger.info( chunk.toString('utf8').trim() );
+app.use(morgan('dev', {
+  stream: new stream.Writable({
+    write( chunk, encoding, next ){
+      logger.info( chunk.toString('utf8').trim() );
 
-//       next();
-//     }
-//   })
-// }));
-
-const notDb = function(fn){
-  return function(req, res, next){
-    if( req.path.indexOf('/db') === 0 ){
-      next(); // skip for db
-    } else {
-      fn(req, res, next);
+      next();
     }
-  };
-};
+  })
+}));
 
+// proxy requests under /db to the CouchDB server
 app.use('/db', proxy(COUCHDB_URL));
 
 app.use(bodyParser.json());
@@ -63,9 +51,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../..', 'public')));
 
 app.use('/', require('./routes/index'));
-
-// proxy requests under /db to the CouchDB server
-// app.use('/db', expressPouchDB(httpPouchDB(PouchDB, COUCHDB_URL)));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
