@@ -114,7 +114,7 @@ class SynchedCounter {
   }
 }
 
-class PouchExample extends Component {
+class CounterComponent extends Component {
   constructor(props){
     super(props);
 
@@ -160,4 +160,4 @@ class PouchExample extends Component {
   }
 }
 
-export default PouchExample;
+export default CounterComponent;
