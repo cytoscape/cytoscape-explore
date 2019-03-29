@@ -14,7 +14,10 @@ let conf = {
 
   devtool: isProd ? false : 'inline-source-map',
 
-  entry: './src/client/index.js',
+  entry: {
+    main: './src/client/index.js',
+    polyfills: './src/client/polyfills.js'
+  },
 
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -31,16 +34,24 @@ let conf = {
     splitChunks: {
       chunks: 'all',
       cacheGroups: {
-        deps: {
-          test: /[\\/]node_modules[\\/]/,
+        vendors: {
           name: 'deps',
-          chunks: 'all',
+          test: (mod, chunks) => {
+            let context = mod.context || '';
+
+            return context.indexOf('node_modules') >= 0 && !chunks.some(chunk => chunk.name === 'polyfills');
+          }
         },
         default: {
           name: 'main',
           minChunks: 2,
           priority: -20,
-          reuseExistingChunk: true
+          reuseExistingChunk: true,
+          test: (mod) => {
+            let context = mod.context || '';
+
+            return context.indexOf('node_modules') < 0;
+          }
         }
       }
     }

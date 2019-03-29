@@ -51,6 +51,7 @@
     "react-dom": "^16.8.4",
     "react-hyperscript": "^3.2.0",
     "serve-favicon": "^2.5.0",
+    "whatwg-fetch": "^3.0.0",
     "winston": "^3.2.1",
     "xmlhttprequest-cookie": "^0.9.7"
   },
