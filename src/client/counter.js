@@ -22,26 +22,38 @@ class SynchedCounter {
     const { location } = window;
     const emitter = this.emitter = new EventEmitter();
     const db = this.db = new PouchDB(DB_NAME);
-    const remoteDb = this.remoteDb = new PouchDB(`${location.origin}/db/${DB_NAME}`);
+    const remoteCouchUrlBase = location.origin + '/db';
+    const remoteDb = this.remoteDb = new PouchDB(`${remoteCouchUrlBase}/${DB_NAME}`);
 
     this.syncHandler = db.sync(remoteDb, {
       live: true,
       retry: true
     }).on('change', change => {
       log('change', change);
+
+      change.change.docs.forEach(doc => {
+        if( this.doc._id === doc._id ){
+          this.doc._rev = doc._rev;
+          this.doc.count = doc.count;
+        }
+      });
+
       emitter.emit('change', change);
 
-      if( change.direction === 'pull' ){
-        this.load();
-      }
+      // if( change.direction === 'pull' ){
+      //   this.load();
+      // }
     }).on('paused', info => { // replication was paused, usually because of a lost connection
       log('paused', info);
       emitter.emit('paused', info);
     }).on('active', info => { // replication was resumed
       log('active', info);
       emitter.emit('active', info);
+    }).on('complete', info => { // replication was resumed
+      log('complete', info);
+      emitter.emit('complete', info);
     }).on('error', err => { // totally unhandled error (shouldn't happen)
-      log('Error', err);
+      log('error', err);
       emitter.emit('error', err);
     });
   }
@@ -86,17 +98,21 @@ class SynchedCounter {
    * @returns {Promise} A promise that resolves to the entire updated document object.
    */
   update(data){
-    const { db, loadPromise } = this;
+    const { db } = this;
 
-    const ensureLoadComplete = () => loadPromise || Promise.resolve();
+    const updateRev = res => this.doc._rev = res.rev;
+
+    const handleErr = err => {
+      log('update err', err);
+    };
 
     const updateDoc = () => {
       Object.assign(this.doc, data);
 
-      return db.put(this.doc).then(res => this.doc._rev = res.rev);
+      return db.put(this.doc).then(updateRev).catch(handleErr);
     };
 
-    return ensureLoadComplete().then(updateDoc).then(() => this.doc);
+    return updateDoc().then(() => this.doc);
   }
 
   /**
@@ -118,8 +134,8 @@ class CounterComponent extends Component {
   constructor(props){
     super(props);
 
-    const counter = this.counter = new SynchedCounter();
-    const refreshCount = () => this.setState({ count: counter.getCount() });
+    const counter = window.counter = this.counter = new SynchedCounter();
+    const refreshCount = () => this.refreshCount();
 
     counter.load();
 
@@ -130,17 +146,19 @@ class CounterComponent extends Component {
   }
 
   refreshCount(){
-
+    this.setState({ count: this.counter.getCount() });
   }
 
   increment(){
+    log('increment view');
+
     const { counter } = this;
 
-    // update the view optimistically
-    this.setState({ count: counter.getCount() + 1 });
-
     // update the synched model
-    this.counter.increment();
+    counter.increment();
+
+    // update the view state
+    this.refreshCount();
   }
 
   componentWillUnmount(){
