@@ -1,7 +1,7 @@
 import debug from './debug';
 import ReactDOM from 'react-dom';
 import h from 'react-hyperscript';
-import Counter from './counter';
+import { Router } from './router';
 
 if( debug.enabled() ){
   debug.init();
@@ -13,6 +13,6 @@ div.setAttribute('id', 'root');
 document.body.appendChild( div );
 
 ReactDOM.render(
-  h(Counter),
+  h(Router),
   div
 );

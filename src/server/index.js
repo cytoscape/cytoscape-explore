@@ -53,10 +53,8 @@ app.use(express.static(path.join(__dirname, '../..', 'public')));
 app.use('/', require('./routes/index'));
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  let err = new Error(`Not Found ${req.path}`);
-  err.status = 404;
-  next(err);
+app.use(function(req, res) {
+  res.render('index.html');
 });
 
 // development error handler
