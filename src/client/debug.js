@@ -1,5 +1,11 @@
 import domReady from 'fready';
-import sync from './sync';
+
+const sync = function(){
+  let script = document.createElement('script');
+  script.src = 'http://' + window.location.hostname + ':35729/livereload.js';
+
+  document.head.insertBefore( script, document.head.firstChild );
+};
 
 export const debug = {
   enabled: function( on ){
