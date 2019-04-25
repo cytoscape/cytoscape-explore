@@ -36,7 +36,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
-    "cytoscape": "^3.5.0",
+    "cytoscape": "^3.5.4",
     "dotenv": "^6.2.0",
     "esm": "^3.2.14",
     "eventemitter3": "^3.1.0",
