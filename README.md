@@ -1,4 +1,4 @@
-# cytoscape-drive
+# Cytoscape Home
 
 
 ## Required software
@@ -42,17 +42,17 @@ The following environment variables can be used to configure the server:
 
 ## Running via Docker
 
-Build the container.  Here, `cytoscape-drive` is used as the container name.
+Build the container.  Here, `cytoscape-home` is used as the container name.
 
 ```
-cd cytoscape-drive
-docker build -t cytoscape-drive .
+cd cytoscape-home
+docker build -t cytoscape-home .
 ```
 
 Run the container:
 
 ```
-docker run -it -p 12345:3000 -u "node" -e "NODE_ENV=production" --name "cytoscape-drive" cytoscape-drive
+docker run -it -p 12345:3000 -u "node" -e "NODE_ENV=production" --name "cytoscape-home" cytoscape-home
 ```
 
 Notes:

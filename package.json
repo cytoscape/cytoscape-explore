@@ -1,15 +1,15 @@
 {
-  "name": "cytoscape-drive",
+  "name": "cytoscape-home",
   "version": "0.0.0",
   "description": "WIP",
   "repository": {
     "type": "git",
-    "url": "https://github.com/maxkfranz/cytoscape-drive.git"
+    "url": "https://github.com/maxkfranz/cytoscape-home.git"
   },
   "bugs": {
-    "url": "https://github.com/maxkfranz/cytoscape-drive/issues"
+    "url": "https://github.com/maxkfranz/cytoscape-home/issues"
   },
-  "homepage": "https://github.com/maxkfranz/cytoscape-drive",
+  "homepage": "https://github.com/maxkfranz/cytoscape-home",
   "scripts": {
     "start": "node -r dotenv/config -r esm ./src/server",
     "inspect": "node inspect --inspect-brk -r dotenv/config -r esm ./src/server",
