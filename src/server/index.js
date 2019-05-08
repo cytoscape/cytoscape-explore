@@ -12,7 +12,7 @@ import { NODE_ENV, PORT, COUCHDB_URL } from './env';
 import proxy from 'express-http-proxy';
 import stream from 'stream';
 
-const debugLog = debug('cytoscape-drive:server');
+const debugLog = debug('cytoscape-home:server');
 const app = express();
 const server = http.createServer(app);
 
