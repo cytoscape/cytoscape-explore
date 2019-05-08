@@ -9,6 +9,20 @@
 
 ## Getting started
 
+- Prerequisites:
+  - Node.js
+    - Option 1: Install [nvm](https://github.com/nvm-sh/nvm) so you can have multiple versions of node installed.
+      - Install version 10 with `nvm install 10`.
+      - Set version 10 as your default: `nvm alias default 10`.
+      - To use a particular version, do `nvm use 12.0.1` or set up a `.nvmrc` file in the CWD and do `nvm use`.
+    - Option 2: Install node manually:
+      - Mac: `brew install node@10`
+      - Linux: Use `dnf`, `zypper`, `apt`, etc.
+      - Or use [the installer](https://nodejs.org/en/download/) for Mac or Windows
+  - CouchDB
+    - Mac: `brew install couchdb && brew services start couchdb`
+    - Linux: Use `dnf`, `zypper`, `apt`, etc.
+    - Or use [the installer](http://couchdb.apache.org)
 - Start off by running `npm install`.
 - The main target you will run during development is `npm run watch`.
   - This automatically builds the clientside code in the background.  The browser will refresh automatically when the code is rebuilt.
