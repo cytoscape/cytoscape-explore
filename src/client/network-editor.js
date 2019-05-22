@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { CytoscapeSyncher } from '../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../model/event-emitter-proxy';
 
-export class Network extends Component {
+export class NetworkEditor extends Component {
   constructor(props){
     super(props);
 
@@ -75,4 +75,4 @@ export class Network extends Component {
   }
 }
 
-export default Network;
+export default NetworkEditor;
