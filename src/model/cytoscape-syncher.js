@@ -5,7 +5,19 @@ import { JsonSyncher, DocumentNotFoundError } from './json-syncher';
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
 
+/**
+ * A client creates an instance of `CytoscapeSyncher` to automatically manage synchronisation
+ * of the Cytoscape network with the server.
+ */
 export class CytoscapeSyncher {
+  /**
+   * Create the `CytoscapeSyncher`.  The network will be loaded from the server.  If it does
+   * not already exist, an empty network will be created on the server.
+   *
+   * @param {Cytoscape} cy The Cytoscape instance to synchronise.
+   * @param {String} networkId The ID used as the primary key of the network in the backend database.
+   * @param {String} secret The secret token used for write authenication.
+   */
   constructor(cy, networkId, secret){
     if( !cy ){
       throw new Error(`Can't create an CytoscapeSyncher without a cy`);
@@ -15,7 +27,8 @@ export class CytoscapeSyncher {
     // const elSynchers = this.elSynchers = new Map();
     const cyEmitter = this.emitter = new EventEmitterProxy(this.cy);
     const defaultJson = { elements: [] };
-    const jsonSyncher = this.jsonSyncher = new JsonSyncher(networkId, networkId, secret);
+    const db = JsonSyncher.makeDb(networkId);
+    const jsonSyncher = this.jsonSyncher = new JsonSyncher(db, networkId, secret);
 
     let updatingCyFromRemoteOp = false;
 
@@ -107,6 +120,10 @@ export class CytoscapeSyncher {
     });
   }
 
+  /**
+   * A destructor method for the `CytoscapeSyncher`.  This cleans up renderences and
+   * listeners such that the object can be purged by the garbage collector.
+   */
   destroy(){
     const { elSynchers } = this;
 
