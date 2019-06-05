@@ -4,6 +4,7 @@ import { Component } from 'react';
 import _ from 'lodash';
 import { CytoscapeSyncher } from '../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../model/event-emitter-proxy';
+import { NODE_ENV } from './env';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -25,10 +26,15 @@ export class NetworkEditor extends Component {
       ]
     });
 
+    if( NODE_ENV !== 'production' ){
+      window.cy = this.cy;
+    }
+
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
     // use placeholder id and secret for now...
-    this.cySyncher = new CytoscapeSyncher(this.cy, 'networkid', 'secret');
+    this.cy.data('id', 'networkid');
+    this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
     // use some basic listeners for testing add/remove
     this.cyEmitter.on('tap', event => {
@@ -42,20 +48,13 @@ export class NetworkEditor extends Component {
         node.remove();
       }
     });
-
-    // run a layout on every add just so we can see things for now...
-    this.cyEmitter.on('add remove', _.debounce(() => {
-      this.cy.layout({
-        name: 'grid',
-        animate: true,
-        avoidOverlap: true,
-        nodeDimensionsIncludeLabels: true
-      }).run();
-    }, 100));
   }
 
   componentDidMount(){
     const container = document.getElementById('cy');
+
+    // TODO remove hack
+    this.cy._private.options.renderer = { name: 'canvas' };
 
     this.cy.mount(container);
 

@@ -1,6 +1,8 @@
 import { EventEmitterProxy } from './event-emitter-proxy';
 import _ from 'lodash';
-import { JsonSyncher, DocumentNotFoundError } from './json-syncher';
+import { JsonSyncher, DocumentNotFoundError, LoadConflictError } from './json-syncher';
+import { assertIsConf } from './db-conf';
+import { ElementSyncher } from './element-syncher';
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
@@ -15,20 +17,29 @@ export class CytoscapeSyncher {
    * not already exist, an empty network will be created on the server.
    *
    * @param {Cytoscape} cy The Cytoscape instance to synchronise.
-   * @param {String} networkId The ID used as the primary key of the network in the backend database.
+   *
    * @param {String} secret The secret token used for write authenication.
    */
-  constructor(cy, networkId, secret){
+  constructor(cy, secret){
     if( !cy ){
-      throw new Error(`Can't create an CytoscapeSyncher without a cy`);
+      throw new Error(`Can't create a 'CytoscapeSyncher' without a 'cy'.`);
+    }
+
+    if( cy.data('id') == null ){
+      throw new Error(`'cy' must have a data ID to be used as a primary key.`);
     }
 
     this.cy = cy;
-    // const elSynchers = this.elSynchers = new Map();
+
+    const networkId = cy.data('id');
+    const conf = { dbName: networkId, docId: networkId, secret };
+
+    assertIsConf(conf);
+
+    const elSynchers = this.elSynchers = new Map();
     const cyEmitter = this.emitter = new EventEmitterProxy(this.cy);
     const defaultJson = { elements: [] };
-    const db = JsonSyncher.makeDb(networkId);
-    const jsonSyncher = this.jsonSyncher = new JsonSyncher(db, networkId, secret);
+    const jsonSyncher = this.jsonSyncher = new JsonSyncher(conf);
 
     let updatingCyFromRemoteOp = false;
 
@@ -45,16 +56,29 @@ export class CytoscapeSyncher {
         idSet.add(elId);
 
         if( existingEl.empty() ){
-          cy.add({ data: { id: elId } }); // just add a node for each el for now as a test...
+          const el = cy.add({ data: { id: elId } }); // just add a node for each el for now as a test...
+          const elSyncher = new ElementSyncher(el, secret);
+
+          elSynchers.set(elId, elSyncher);
         }
       });
 
       // remove all stale elements
       cy.elements().forEach(el => {
-        if( !idSet.has(el.id()) ){
+        const elId = el.id();
+
+        if( !idSet.has(elId) ){
           el.remove();
+
+          const elSyncher = elSynchers.get(elId);
+          elSynchers.delete(elId);
+          elSyncher.destroy();
         }
       });
+
+      if( json.data != null ){
+        cy.data(json.data);
+      }
 
       updatingCyFromRemoteOp = false;
     };
@@ -65,17 +89,21 @@ export class CytoscapeSyncher {
 
       const el = event.target;
       const elId = el.id();
-      // const elSyncher = new ElementSyncher(el, networkId, secret);
+      const elSyncher = new ElementSyncher(el, secret);
 
-      // elSynchers.set(elId, elSyncher);
+      elSynchers.set(elId, elSyncher);
 
-      ( jsonSyncher
-        .update({ elements: _.concat(jsonSyncher.get('elements'), elId) })
-        .catch(err => {
-          // TODO handle error
-          log('Error for cy add update', err);
-        })
-      );
+      elSyncher.create().then(() => {
+        // update of list must be after ele creation in the remote db s.t.
+        // other clients can load() the ele successfully
+        ( jsonSyncher
+          .update({ elements: _.concat(jsonSyncher.get('elements'), elId) })
+          .catch(err => {
+            // TODO handle error
+            log('Error for cy add update', err);
+          })
+        );
+      });
     });
 
     // locally remove an element:
@@ -84,13 +112,27 @@ export class CytoscapeSyncher {
 
       const el = event.target;
       const elId = el.id();
-      // const elSyncher = elSynchers.get(elId);
+      const elSyncher = elSynchers.get(elId);
 
-      // elSynchers.delete(elId);
-      // elSyncher.destroy();
+      elSynchers.delete(elId);
+      elSyncher.destroy();
 
       ( jsonSyncher
         .update({ elements: _.difference(jsonSyncher.get('elements'), [elId]) })
+        .catch(err => {
+          // TODO handle error
+          log('Error for cy remove update', err);
+        })
+      );
+    });
+
+    // locally update data:
+    cyEmitter.on('data', event => {
+      if( updatingCyFromRemoteOp ){ return; } // ignore remote ops
+      if( event.target !== cy ){ return; } // only for cy.data()
+
+      ( jsonSyncher
+        .update({ data: cy.data() })
         .catch(err => {
           // TODO handle error
           log('Error for cy remove update', err);
@@ -102,13 +144,18 @@ export class CytoscapeSyncher {
       .load()
       .catch(err => {
         if( err instanceof DocumentNotFoundError ){
+          log('Creating network since the cytoscape syncher did not find it');
           return jsonSyncher.create(defaultJson);
+        } else if( err instanceof LoadConflictError ){
+          // TODO handle the error with a user selection of which version to use
+          log('Swallowed LoadConflictError when loading cytoscape syncher');
+          return jsonSyncher.get();
         } else {
           throw err;
         }
       })
       .then(updateCyFromRemoteOp)
-      .then(() => log('Loaded CytoscapeSyncher'))
+      .then(() => log(`Loaded CytoscapeSyncher ${conf.docId}`))
       .catch(err => {
         log('Unhandled error loading cytoscape syncher', err);
         // TODO handle err
@@ -127,15 +174,12 @@ export class CytoscapeSyncher {
   destroy(){
     const { elSynchers } = this;
 
-    // TODO decide how we want to handle this in the db...
-
-    elSynchers.forEach(([id, elSyncher]) => {
+    elSynchers.forEach(([id, elSyncher]) => { // eslint-disable-line no-unused-vars
       elSyncher.destroy();
-
-      elSynchers.delete(id);
     });
 
     this.emitter.removeAllListeners();
+    this.jsonSyncher.destroy();
   }
 }
 
