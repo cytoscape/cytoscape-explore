@@ -6,4 +6,4 @@
 @import "./base.css";
 @import "./custom-icons.css";
 @import "./app.css";
-@import "./network-editor.css";
+@import "./components/index.css";

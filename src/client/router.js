@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import h from 'react-hyperscript';
 import _ from 'lodash';
-import NetworkEditor from './network-editor';
-import PageNotFound from './page-not-found';
+import NetworkEditor from './components/network-editor';
+import PageNotFound from './components/page-not-found';
 
 const routes = [
   {

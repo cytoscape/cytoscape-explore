@@ -2,9 +2,9 @@ import h from 'react-hyperscript';
 import Cytoscape from 'cytoscape';
 import { Component } from 'react';
 import _ from 'lodash';
-import { CytoscapeSyncher } from '../model/cytoscape-syncher';
-import { EventEmitterProxy } from '../model/event-emitter-proxy';
-import { NODE_ENV } from './env';
+import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
+import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
+import { NODE_ENV } from '../../env';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -70,7 +70,7 @@ export class NetworkEditor extends Component {
   }
 
   render(){
-    return h('div#cy');
+    return h('div#cy.cy');
   }
 }
 
