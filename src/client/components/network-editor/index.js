@@ -1,14 +1,53 @@
 import h from 'react-hyperscript';
 import Cytoscape from 'cytoscape';
 import { Component } from 'react';
-import _ from 'lodash';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
+import { ToolPanel } from './tool-panel';
+import EventEmitter from 'eventemitter3';
+
+class NetworkEditorController {
+  constructor(cy, bus, eh){
+    this.cy = cy;
+    this.bus = bus || new EventEmitter();
+    this.eh = eh; // edgehandles extension instance
+  }
+
+  addNode(){
+    const node = this.cy.add({
+      renderedPosition: { x: 100, y: 50 }
+    });
+
+    this.bus.emit('addNode', node);
+  }
+
+  enableDrawMode(){
+    this.eh.enableDrawMode();
+
+    this.bus.emit('enableDrawMode');
+    this.bus.emit('toggleDrawMode', true);
+  }
+
+  disableDrawMode(){
+    this.eh.disableDrawMode();
+
+    this.bus.emit('disableDrawMode');
+    this.bus.emit('toggleDrawMode', false);
+  }
+
+  deletedSelectedElements(){
+    const deletedEls = this.cy.$(':selected').remove();
+
+    this.bus.emit('deletedSelectedElements', deletedEls);
+  }
+}
 
 export class NetworkEditor extends Component {
   constructor(props){
     super(props);
+
+    this.bus = new EventEmitter();
 
     this.cy = new Cytoscape({
       headless: true,
@@ -22,6 +61,28 @@ export class NetworkEditor extends Component {
             'text-max-width': 60,
             'font-size': 8
           }
+        },
+        {
+          selector: '.eh-preview, .eh-ghost-edge',
+          style: {
+            'background-color': 'red',
+            'line-color': 'red',
+            'target-arrow-color': 'red',
+            'source-arrow-color': 'red'
+          }
+        },
+        {
+          selector: '.eh-handle',
+          style: {
+            'opacity': 0,
+            'events': 'no'
+          }
+        },
+        {
+          selector: '.eh-ghost-edge.eh-preview-active',
+          style: {
+            'opacity': 0
+          }
         }
       ]
     });
@@ -32,22 +93,17 @@ export class NetworkEditor extends Component {
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
+    this.eh = this.cy.edgehandles({
+      snap: true
+    });
+
+    this.controller = new NetworkEditorController(this.cy, this.bus, this.eh);
+
     // use placeholder id and secret for now...
     this.cy.data('id', 'networkid');
     this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
-    // use some basic listeners for testing add/remove
-    this.cyEmitter.on('tap', event => {
-      if( event.target === this.cy ){ // background
-        this.cy.add({
-          position: _.clone(event.position)
-        });
-      } else { // node
-        const node = event.target;
-
-        node.remove();
-      }
-    });
+    this.cySyncher.enable();
   }
 
   componentDidMount(){
@@ -70,7 +126,12 @@ export class NetworkEditor extends Component {
   }
 
   render(){
-    return h('div#cy.cy');
+    const { controller } = this;
+
+    return h('div.network-editor', [
+      h('div#cy.cy'),
+      h(ToolPanel, { controller })
+    ]);
   }
 }
 

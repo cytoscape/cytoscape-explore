@@ -116,6 +116,7 @@ class DbFactory {
   /**
    * Returns a `SynchedDb` with the given database name.  At most one `SynchedDb` will be
    * created per `dbName`.  The `SynchedDb`
+   *
    * @param {String} dbName The database name.
    */
   makeSynchedDb(dbName){
@@ -192,8 +193,6 @@ export class JsonSyncher {
     this.changeEmitterProxy = changeEmitterProxy;
 
     changeEmitterProxy.on(docId, doc => {
-      console.log('***ON ' + docId);
-
       // TODO enable descendant detection
 
       // // TODO is there a faster way to determine this?
@@ -219,6 +218,8 @@ export class JsonSyncher {
           this.doc[key] = doc[key]; // update field
         }
       });
+
+      log('JsonSyncher:change', this.doc, this.doc);
 
       emitter.emit('change', this.doc);
       emitter.emit('remotechange', this.doc);

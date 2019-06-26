@@ -1,7 +1,7 @@
-import { EventEmitterProxy } from './event-emitter-proxy';
 import { JsonSyncher, LoadConflictError } from './json-syncher';
 import _ from 'lodash';
 import { assertIsConf } from './db-conf';
+import EventEmitterProxy from './event-emitter-proxy';
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
@@ -12,37 +12,68 @@ const log = console.log; // eslint-disable-line
  */
 export class ElementSyncher {
   /**
-   * Create the `ElementSyncher`.  The element will be loaded from the server.  If it does
-   * not already exist, an empty network will be created on the server.
+   * Create the `ElementSyncher`.  The element will be loaded from the server and
+   * added to the passed `cy` instance.
    *
-   * @param {Collection} el The Cytoscape element to synchronise.
-   *
+   * @param {Cytoscape} cy The Cytoscape instance that holds the element.
+   * @param {String} elId The ID of the element.
    * @param {String} secret The secret token used for write authenication.
    */
-  constructor(el, secret){
-    if( !el ){
-      throw new Error(`Can't create an ElementSyncher without an element`);
+  constructor(cy, elId, secret){
+    if( !cy ){
+      throw new Error(`Can't create an ElementSyncher without a 'cy'`);
     }
 
-    const elId = el.id();
-    const networkId = el.cy().data('id');
-    const conf = { dbName: networkId, docId: elId, secret };
+    if( !elId ){
+      throw new Error(`Can't create an ElementSyncher without an element ID`);
+    }
+
+    const netId = cy.data('id');
+    const conf = { dbName: netId, docId: elId, secret };
 
     assertIsConf(conf);
-
-    this.el = el;
-
-    const emitter = this.emitter = new EventEmitterProxy(el);
-    const jsonSyncher = this.jsonSyncher = new JsonSyncher(conf);
-    let updatingFromRemoteOp = false;
 
     if( elId !== conf.docId ){
       throw new Error(`The element ID '${elId}' mismatches the database document ID '${conf.docId}'`);
     }
 
+    this.elId = elId;
+    this.jsonSyncher = new JsonSyncher(conf);
+    this.enabled = false;
+    this.loaded = false;
+    this.updatingFromRemoteOp = false;
+
+    this.addListeners();
+  }
+
+  /**
+   * Create the element in the server.
+   *
+   * @returns {Promise} A promise that is resolved when the element has been created on the server.
+   */
+  create(){
+    const { jsonSyncher, el } = this;
+
+    return jsonSyncher.create({
+      data: el.data(),
+      position: el.position()
+    });
+  }
+
+  addListeners(){
+    const canUpdate = () => (
+      this.enabled // must be enabled to consider event for update
+      && this.loaded // if not loaded yet, then events are from loading the eles into cy
+      && !this.updatingFromRemoteOp // avoid loops
+    );
+
     // element data is updated locally:
-    emitter.on('data', () => {
-      if( updatingFromRemoteOp ){ return; } // ignore remote ops
+    this.emitter.on('data', () => {
+      if( !canUpdate() ){ return; }
+
+      const { el, jsonSyncher } = this;
+
+      log('ElementSyncher:data', el.id(), el.data());
 
       ( jsonSyncher
         .update({ data: el.data() })
@@ -54,6 +85,8 @@ export class ElementSyncher {
     });
 
     const schedulePositionUpdate = _.debounce(() => {
+      const { jsonSyncher, el } = this;
+
       ( jsonSyncher
         .update({ position: el.position() })
         .catch(err => {
@@ -65,57 +98,93 @@ export class ElementSyncher {
 
     // element position is updated locally:
     // TODO throttle & batch position updates
-    emitter.on('position', () => {
-      if( updatingFromRemoteOp ){ return; } // ignore remote ops
+    this.emitter.on('position', () => {
+      if( !canUpdate() ){ return; }
+
+      const { el } = this;
+
+      log('ElementSyncher:position', el.id(), el.position());
 
       schedulePositionUpdate();
     });
 
-    // TODO this might be optimised or animated...
-    const updateElFromRemoteOp = json => {
-      updatingFromRemoteOp = true;
+    // handle remote updates:
+    this.jsonSyncher.emitter.on('change', json => {
+      if( !canUpdate() ){ return; }
 
-      el.json(json);
-
-      updatingFromRemoteOp = false;
-    };
-
-    ( jsonSyncher
-      .load()
-      .catch(err => {
-        if( err instanceof LoadConflictError ){
-          // TODO handle the error with a user selection of which version to use
-
-          log('Swallowed LoadConflictError when loading element syncher');
-
-          return jsonSyncher.get();
-        } else {
-          throw err;
-        }
-      })
-      .then(updateElFromRemoteOp)
-      .then(() => log(`Loaded ElementSyncher ${conf.docId}`))
-      .catch(err => {
-        log('Error loading element syncher', err);
-        // TODO handle err
-      })
-    );
-
-    jsonSyncher.emitter.on('change', json => {
-      updateElFromRemoteOp(json);
+      this.updateFromRemoteOp(json);
     });
   }
 
-  /**
-   * Create the element in the server.
-   */
-  create(){
-    const { jsonSyncher, el } = this;
+  updateFromRemoteOp(json){
+    // TODO this might be optimised or animated...
+    this.updatingFromRemoteOp = true;
 
-    return jsonSyncher.create({
-      data: el.data(),
-      position: el.position()
-    });
+    this.el.json(json);
+
+    this.updatingFromRemoteOp = false;
+  }
+
+  enable(){
+    if( this.enabled ){
+      throw new Error(`Can not activate an already active CytoscapeSyncher`);
+    }
+
+    const { cy, jsonSyncher, elId } = this;
+
+    this.enabled = true;
+
+    if( !this.loaded ){
+      const addEl = json => {
+        if( this.el == null ){
+          const elFromCyWithId = cy.getElementById(elId);
+
+          if( elFromCyWithId.nonempty() ){
+            this.el = elFromCyWithId;
+          } else {
+            this.el = cy.add(json);
+          }
+
+          this.emitter = new EventEmitterProxy(this.el);
+        }
+
+        return this.el;
+      };
+
+      ( jsonSyncher
+        .load()
+        .catch(err => {
+          if( err instanceof LoadConflictError ){
+            // TODO handle the error with a user selection of which version to use
+
+            log('Swallowed LoadConflictError when loading element syncher');
+
+            return jsonSyncher.get();
+          } else {
+            throw err;
+          }
+        })
+        .then(addEl)
+        .then(() => this.addListeners())
+        .then(() => {
+          this.loaded = true;
+
+          log(`Loaded ElementSyncher ${this.elId}`, jsonSyncher.get());
+        })
+        .catch(err => {
+          log('Error loading element syncher', err);
+          // TODO handle err
+        })
+      );
+    }
+  }
+
+  disable(){
+    if( !this.enabled ){
+      throw new Error(`Can not disable an inactive ElementSyncher`);
+    }
+
+    this.enabled = false;
   }
 
   /**
