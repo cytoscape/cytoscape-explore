@@ -41,8 +41,6 @@ export class CytoscapeSyncher {
     this.elSynchers = new Map();
     this.emitter = new EventEmitterProxy(this.cy);
     this.jsonSyncher = new JsonSyncher(conf);
-
-    this.addListeners();
   }
 
   create(){
@@ -157,8 +155,9 @@ export class CytoscapeSyncher {
 
     const idArr = json.elements || [];
     const idSet = new Set();
+    const enablePromises = [];
 
-    // add all new elements
+    // add new elements
     idArr.forEach(elId => {
       const existingEl = cy.getElementById(elId);
 
@@ -168,10 +167,12 @@ export class CytoscapeSyncher {
         const elSyncher = new ElementSyncher(cy, elId, secret);
 
         elSynchers.set(elId, elSyncher);
+
+        enablePromises.push(elSyncher.enable());
       }
     });
 
-    // remove all stale elements
+    // remove stale elements
     cy.elements().forEach(el => {
       const elId = el.id();
 
@@ -188,7 +189,9 @@ export class CytoscapeSyncher {
       cy.data(json.data);
     }
 
-    this.updatingFromRemoteOp = false;
+    return Promise.all(enablePromises).then(() => {
+      this.updatingFromRemoteOp = false;
+    });
   }
 
   enable(){
@@ -198,12 +201,14 @@ export class CytoscapeSyncher {
 
     this.enabled = true;
 
+    let load;
+
     if( !this.loaded ){
       const { jsonSyncher, cy } = this;
       const defaultJson = { elements: [] };
 
-      ( jsonSyncher
-        .load()
+      load = () => (
+        jsonSyncher.load()
         .catch(err => {
           if( err instanceof DocumentNotFoundError ){
             log('Creating network since the cytoscape syncher did not find it');
@@ -217,19 +222,24 @@ export class CytoscapeSyncher {
           }
         })
         .then(json => this.updateFromRemoteOp(json))
+        .then(() => this.addListeners())
         .then(() => {
           this.loaded = true;
 
-          log(`Loaded CytoscapeSyncher ${cy.id()}`);
+          log(`Loaded CytoscapeSyncher ${cy.data('id')}`);
         })
         .catch(err => {
           log('Unhandled error loading cytoscape syncher', err);
           // TODO handle err
         })
       );
+    } else {
+      load = () => Promise.resolve();
     }
 
     // TODO enable all elements
+
+    return load();
   }
 
   disable(){
@@ -238,6 +248,8 @@ export class CytoscapeSyncher {
     }
 
     this.enabled = false;
+
+    return Promise.resolve();
 
     // TODO disable all elements
   }

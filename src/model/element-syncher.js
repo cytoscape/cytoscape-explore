@@ -37,13 +37,12 @@ export class ElementSyncher {
       throw new Error(`The element ID '${elId}' mismatches the database document ID '${conf.docId}'`);
     }
 
+    this.cy = cy;
     this.elId = elId;
     this.jsonSyncher = new JsonSyncher(conf);
     this.enabled = false;
     this.loaded = false;
     this.updatingFromRemoteOp = false;
-
-    this.addListeners();
   }
 
   /**
@@ -52,7 +51,8 @@ export class ElementSyncher {
    * @returns {Promise} A promise that is resolved when the element has been created on the server.
    */
   create(){
-    const { jsonSyncher, el } = this;
+    const { jsonSyncher, cy } = this;
+    const el = cy.getElementById(this.elId);
 
     return jsonSyncher.create({
       data: el.data(),
@@ -61,6 +61,8 @@ export class ElementSyncher {
   }
 
   addListeners(){
+    console.log('ADD LISTENERS');
+
     const canUpdate = () => (
       this.enabled // must be enabled to consider event for update
       && this.loaded // if not loaded yet, then events are from loading the eles into cy
@@ -101,6 +103,8 @@ export class ElementSyncher {
     this.emitter.on('position', () => {
       if( !canUpdate() ){ return; }
 
+      console.log('POSITION');
+
       const { el } = this;
 
       log('ElementSyncher:position', el.id(), el.position());
@@ -127,12 +131,14 @@ export class ElementSyncher {
 
   enable(){
     if( this.enabled ){
-      throw new Error(`Can not activate an already active CytoscapeSyncher`);
+      throw new Error(`Can not activate an already active ElementSyncher`);
     }
 
     const { cy, jsonSyncher, elId } = this;
 
     this.enabled = true;
+
+    let load;
 
     if( !this.loaded ){
       const addEl = json => {
@@ -151,7 +157,7 @@ export class ElementSyncher {
         return this.el;
       };
 
-      ( jsonSyncher
+      load = () => ( jsonSyncher
         .load()
         .catch(err => {
           if( err instanceof LoadConflictError ){
@@ -176,7 +182,11 @@ export class ElementSyncher {
           // TODO handle err
         })
       );
+    } else {
+      load = () => Promise.resolve();
     }
+
+    return load();
   }
 
   disable(){

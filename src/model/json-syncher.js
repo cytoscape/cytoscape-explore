@@ -279,7 +279,7 @@ export class JsonSyncher {
   load(){
     const { synchedDb, emitter, docId, dbName } = this;
 
-    // TODO enable conflicts
+    // TODO handle conflicts
     return synchedDb.remote.get(docId, { conflicts: true }).catch(err => {
       if( err.name === 'not_found' ){
         throw new DocumentNotFoundError(dbName, docId);
