@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "body-parser": "^1.18.3",
+    "classnames": "^2.2.6",
     "cookie-parser": "^1.4.3",
     "cytoscape": "^3.7.3",
     "cytoscape-edgehandles": "^3.5.1",

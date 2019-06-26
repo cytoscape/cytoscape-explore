@@ -8,10 +8,10 @@ import { ToolPanel } from './tool-panel';
 import EventEmitter from 'eventemitter3';
 
 class NetworkEditorController {
-  constructor(cy, bus, eh){
+  constructor(cy, bus){
     this.cy = cy;
     this.bus = bus || new EventEmitter();
-    this.eh = eh; // edgehandles extension instance
+    this.drawModeEnabled = false;
   }
 
   addNode(){
@@ -22,18 +22,30 @@ class NetworkEditorController {
     this.bus.emit('addNode', node);
   }
 
-  enableDrawMode(){
-    this.eh.enableDrawMode();
+  toggleDrawMode(bool){
+    if( bool == null ){
+      bool = !this.drawModeEnabled;
+    }
 
-    this.bus.emit('enableDrawMode');
-    this.bus.emit('toggleDrawMode', true);
+    if( bool ){
+      this.eh.enableDrawMode();
+      this.bus.emit('enableDrawMode');
+    } else {
+      this.eh.disableDrawMode();
+      this.bus.emit('disableDrawMode');
+    }
+
+    this.drawModeEnabled = bool;
+
+    this.bus.emit('toggleDrawMode', bool);
+  }
+
+  enableDrawMode(){
+    return this.toggleDrawMode(true);
   }
 
   disableDrawMode(){
-    this.eh.disableDrawMode();
-
-    this.bus.emit('disableDrawMode');
-    this.bus.emit('toggleDrawMode', false);
+    this.toggleDrawMode(false);
   }
 
   deletedSelectedElements(){
@@ -93,11 +105,7 @@ export class NetworkEditor extends Component {
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    this.eh = this.cy.edgehandles({
-      snap: true
-    });
-
-    this.controller = new NetworkEditorController(this.cy, this.bus, this.eh);
+    this.controller = new NetworkEditorController(this.cy, this.bus);
 
     // use placeholder id and secret for now...
     this.cy.data('id', 'networkid');
@@ -110,18 +118,31 @@ export class NetworkEditor extends Component {
   componentDidMount(){
     const container = document.getElementById('cy');
 
-    // TODO remove hack
-    this.cy._private.options.renderer = { name: 'canvas' };
-
     this.cy.mount(container);
 
     this.cy.resize();
+
+    this.eh = this.controller.eh = this.cy.edgehandles({
+      snap: true
+    });
+
+    this.cyEmitter.on('tap', event => {
+      // consider only tap on bg
+      if( event.target !== this.cy ){ return; }
+
+      this.controller.disableDrawMode();
+    }).on('ehstop', () => {
+      this.controller.disableDrawMode();
+    });
   }
 
   componentWillUnmount(){
+    this.eh.destroy();
+
     this.cyEmitter.removeAllListeners();
 
-    this.cySyncher.destroy();
+    // disable live synch for now...
+    // this.cySyncher.destroy();
 
     this.cy.destroy();
   }
