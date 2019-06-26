@@ -101,9 +101,10 @@ export class NetworkEditor extends Component {
 
     // use placeholder id and secret for now...
     this.cy.data('id', 'networkid');
-    this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
-    this.cySyncher.enable();
+    // disable live synch stuff for now...
+    // this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
+    // this.cySyncher.enable();
   }
 
   componentDidMount(){
