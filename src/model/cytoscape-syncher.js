@@ -2,14 +2,10 @@ import { EventEmitterProxy } from './event-emitter-proxy';
 import EventEmitter from 'eventemitter3';
 import { isClient } from '../util';
 import PouchDB  from 'pouchdb';
-import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
 
 const PORT = process.env.PORT;
-
-// TODO move this plugin registration to a common location, at app init
-PouchDB.plugin(PouchDBMemoryAdapter);
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
