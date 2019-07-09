@@ -6,6 +6,7 @@ import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
 import { ToolPanel } from './tool-panel';
 import EventEmitter from 'eventemitter3';
+import { DocumentNotFoundError } from '../../../model/errors';
 
 class NetworkEditorController {
   constructor(cy, bus){
@@ -110,9 +111,19 @@ export class NetworkEditor extends Component {
     // use placeholder id and secret for now...
     this.cy.data('id', 'networkid');
 
-    // disable live synch stuff for now...
-    // this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
-    // this.cySyncher.enable();
+    this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
+
+    ( Promise.resolve()
+      .then(() => this.cySyncher.load())
+      .catch(err => {
+        if( err instanceof DocumentNotFoundError ){
+          return this.cySyncher.create();
+        } else {
+          throw err;
+        }
+      })
+      .then(() => this.cySyncher.enable())
+    );
   }
 
   componentDidMount(){
