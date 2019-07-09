@@ -73,7 +73,17 @@ export class CytoscapeSyncher {
       data: _.clone(cy.data())
     };
 
-    await Promise.all([ localDb.put(_.clone(doc)), remoteDb.put(_.clone(doc)) ]);
+    await localDb.put(_.clone(doc));
+
+    // do initial, one-way synch from local db to server db
+    const info = await localDb.replicate.to(remoteDb);
+
+    if( info.errors != null && info.errors.length > 0 ){
+      const err = new Error('CytoscapeSyncher create failed');
+      err.info = info;
+
+      throw err;
+    }
   }
 
   async load(){
