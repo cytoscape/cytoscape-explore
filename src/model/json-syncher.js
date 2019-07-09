@@ -5,6 +5,7 @@ import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import { assertIsConf } from './db-conf';
 import { isClient } from '../util';
 import EventEmitterProxy from './event-emitter-proxy';
+import { DocumentNotFoundError, LoadConflictError } from './errors';
 
 const NODE_ENV = process.env.NODE_ENV;
 const PORT = process.env.PORT;
@@ -13,33 +14,6 @@ PouchDB.plugin(PouchDBMemoryAdapter);
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
-
-/**
- * A `DocumentNotFoundError` is thrown when a `JsonSyncher` is not stored in the database and
- * a read operation fails.
- */
-export class DocumentNotFoundError extends Error {
-  constructor(dbName, docId){
-    super(`The document in database '${dbName}' with ID '${docId}' could not be found`);
-
-    this.dbName = dbName;
-    this.docId = docId;
-  }
-}
-
-/**
- * A `LoadConflictError` is thrown when a `JsonSyncher` has conflicting revisions on load.
- */
-export class LoadConflictError extends Error {
-  constructor(dbName, docId, rev, conflictingRevs){
-    super(`The document in database '${dbName}' with ID '${docId}' and revision '${rev}' has conflicting revisions '[${conflictingRevs.join(', ')}]'`);
-
-    this.dbName = dbName;
-    this.docId = docId;
-    this.rev = rev;
-    this.conflictingRevs = conflictingRevs;
-  }
-}
 
 /**
  * A `SynchedDb` contains all of the PouchDB objects necessary for client-server
