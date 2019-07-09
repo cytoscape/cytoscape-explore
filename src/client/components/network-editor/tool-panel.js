@@ -29,14 +29,14 @@ export class ToolPanel extends Component {
       }, [
         h('i.material-icons', 'fiber_manual_record')
       ]),
-      h('button.tool-panel-button.plain-button.button-toggle', {
-        className: classNames({
-          'button-toggle-on': controller.drawModeEnabled
-        }),
-        onClick: () => controller.toggleDrawMode()
-      }, [
-        h('i.material-icons.icon-rot-330', 'arrow_forward')
-      ]),
+      // h('button.tool-panel-button.plain-button.button-toggle', {
+      //   className: classNames({
+      //     'button-toggle-on': controller.drawModeEnabled
+      //   }),
+      //   onClick: () => controller.toggleDrawMode()
+      // }, [
+      //   h('i.material-icons.icon-rot-330', 'arrow_forward')
+      // ]),
       h('button.tool-panel-button.plain-button', {
         onClick: () => controller.deletedSelectedElements()
       }, [
