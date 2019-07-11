@@ -6,6 +6,7 @@ import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
 
 const PORT = process.env.PORT;
+const SYNC_INTERVAL = 1000;
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
@@ -33,6 +34,7 @@ export class CytoscapeSyncher {
     }
 
     this.enabled = false;
+    this.loadedOrCreated = false;
 
     this.cy = cy;
     this.secret = secret;
@@ -66,6 +68,10 @@ export class CytoscapeSyncher {
   }
 
   async create(){
+    if( this.loadedOrCreated ){
+      throw new Error(`Can't create a CytoscapeSyncher after it's already been loaded or created`);
+    }
+
     const { localDb, remoteDb, cy, docId } = this;
 
     const doc = {
@@ -84,9 +90,15 @@ export class CytoscapeSyncher {
 
       throw err;
     }
+
+    this.loadedOrCreated = true;
   }
 
   async load(){
+    if( this.loadedOrCreated ){
+      throw new Error(`Can't load a CytoscapeSyncher after it's already been loaded or created`);
+    }
+
     const { cy, localDb, remoteDb, dbName, docId } = this;
 
     // do initial, one-way synch from server db to local db
@@ -102,8 +114,6 @@ export class CytoscapeSyncher {
     const res = await localDb.allDocs({
       include_docs: true
     });
-
-    console.log('loaded all', res);
 
     if( res.total_rows === 0 ){
       throw new DocumentNotFoundError(dbName, docId, 'The database is empty');
@@ -142,6 +152,8 @@ export class CytoscapeSyncher {
     if( eleJsons.length > 0 ){
       cy.add(eleJsons);
     }
+
+    this.loadedOrCreated = true;
   }
 
   /**
@@ -151,7 +163,12 @@ export class CytoscapeSyncher {
     this.dirtyEles = this.cy.collection();
     this.dirtyCy = false;
 
-    const ignoreTargetEle = target => target.hasClass('eh-handle') || target.hasClass('eh-preview') || target.hasClass('eh-ghost-edge');
+    const ignoreTargetEle = target => (
+      target.hasClass('eh-handle')
+      || target.hasClass('eh-preview')
+      || target.hasClass('eh-ghost')
+    );
+
     const isValidTargetEle = target => !ignoreTargetEle(target);
 
     const canUpdate = () => this.enabled && !this.updatingFromRemoteChange;
@@ -160,8 +177,6 @@ export class CytoscapeSyncher {
       if( !canUpdate() ){ return; }
 
       this.runningSyncLoop = true;
-
-      log('sync loop');
 
       const docsToWrite = this.dirtyEles.map(ele => ({
         _id: ele.id(),
@@ -184,9 +199,7 @@ export class CytoscapeSyncher {
       this.dirtyEles = this.cy.collection();
 
       if( docsToWrite.length > 0 ){
-        log('updating db', docsToWrite);
         const res = await this.localDb.bulkDocs(docsToWrite);
-        log('updated', res);
 
         res.forEach((doc) => {
           const { ok, id, rev } = doc;
@@ -203,14 +216,12 @@ export class CytoscapeSyncher {
         });
       }
 
-      this.synchTimeout = setTimeout(synchLoop, 1000);
+      this.synchTimeout = setTimeout(synchLoop, SYNC_INTERVAL);
 
       this.runningSyncLoop = false;
     };
 
-    const onDirty = event => {
-      const { target } = event;
-
+    const onDirtyTarget = target => {
       if( canUpdate() ){
         if( target === this.cy ){
           this.dirtyCy = true;
@@ -220,12 +231,23 @@ export class CytoscapeSyncher {
       }
     };
 
+    const onDirtyEvent = event => onDirtyTarget(event.target);
+
     // on local modifications to the network, request the change be synched
     ( this.cyEmitter
-      .on('add', onDirty)
-      .on('remove', onDirty)
-      .on('data', onDirty)
-      .on('position', onDirty)
+      .on('add', onDirtyEvent)
+      .on('ehcomplete', (event, sourceNode, targetNode, addedEles) => {
+        onDirtyTarget(addedEles); // assume only one edge added
+      })
+      .on('remove', onDirtyEvent)
+      .on('data', onDirtyEvent)
+      .on('position', event => {
+        const syncPosAni = event.target.scratch('syncPosAni');
+
+        if( syncPosAni == null || !syncPosAni.playing() ){
+          onDirtyEvent(event);
+        }
+      })
     );
 
     // handle remote updates:
@@ -257,8 +279,27 @@ export class CytoscapeSyncher {
                   ele.remove();
                 } else {
                   ele.data(_.clone(doc.data));
-                  ele.position(_.clone(doc.position));
                   ele.scratch({ rev });
+
+                  const elePos = ele.position();
+
+                  if( doc.position.x !== elePos.x || doc.position.y !== elePos.y ){
+                    const syncPosAni = ele.animation({
+                      position: _.clone(doc.position),
+                      duration: 250,
+                      easing: 'ease-out'
+                    });
+
+                    const oldPosAni = ele.scratch('syncPosAni');
+
+                    if( oldPosAni != null ){
+                      oldPosAni.stop();
+                    }
+
+                    ele.scratch('syncPosAni', syncPosAni);
+
+                    syncPosAni.play();
+                  }
                 }
               } else {
                 this.cy.add({
