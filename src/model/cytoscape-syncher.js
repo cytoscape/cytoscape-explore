@@ -174,7 +174,12 @@ export class CytoscapeSyncher {
     const canUpdate = () => this.enabled && !this.updatingFromRemoteChange;
 
     const synchLoop = async () => {
-      if( !canUpdate() ){ return; }
+      if( !canUpdate() ){
+        // try next time
+        this.synchTimeout = setTimeout(synchLoop, SYNC_INTERVAL);
+
+        return;
+      }
 
       this.runningSyncLoop = true;
 
@@ -274,7 +279,7 @@ export class CytoscapeSyncher {
             } else {
               const ele = this.cy.getElementById(id);
 
-              if( ele.nonempty() ){
+              if( ele.nonempty() || deleted ){
                 if( deleted ){
                   ele.remove();
                 } else {
@@ -325,7 +330,7 @@ export class CytoscapeSyncher {
       })
     );
 
-    // start the async
+    // start the async loop
     synchLoop();
   }
 
