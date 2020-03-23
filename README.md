@@ -12,11 +12,11 @@
 - Prerequisites:
   - Node.js
     - Option 1: Install [nvm](https://github.com/nvm-sh/nvm) so you can have multiple versions of node installed.
-      - Install version 10 with `nvm install 10`.
-      - Set version 10 as your default: `nvm alias default 10`.
+      - Install version 12 with `nvm install 12`.
+      - Set version 12 as your default: `nvm alias default 12`.
       - To use a particular version, do `nvm use 12.0.1` or set up a `.nvmrc` file in the CWD and do `nvm use`.
     - Option 2: Install node manually:
-      - Mac: `brew install node@10`
+      - Mac: `brew install node@12`
       - Linux: Use `dnf`, `zypper`, `apt`, etc.
       - Or use [the installer](https://nodejs.org/en/download/) for Mac or Windows
   - CouchDB
@@ -50,9 +50,9 @@ The following environment variables can be used to configure the server:
 - `npm run build-prod` : build the project for production
 - `npm run bundle-profile` : visualise the bundle dependencies
 - `npm run clean` : clean the project
-- `npm test` : run tests
 - `npm run lint` : lint the project
-- `npm run ci` : run linting & tests (like Travis CI)
+- `npm run test:mocha` : run model tests
+- `npm test` : run model tests, linting, and a build (run this before doing a pull request)
 
 ## Running via Docker
 
@@ -84,9 +84,11 @@ Notes:
 
 ## Testing
 
-All files `/test` will be run by [Mocha](https://mochajs.org/).  You can `npm test` to run all tests, or you can run `npm test -- -g specific-test-name` to run specific tests.
+All files `/test` will be run by [Mocha](https://mochajs.org/).  You can `npm run test:mocha` to run all tests, or you can run `npm run test:mocha -- -g specific-test-name` to run specific tests.
 
 [Chai](http://chaijs.com/) is included to make the tests easier to read and write.
+
+By running `npm test`, you will run the tests, the linting, and a test build.
 
 
 

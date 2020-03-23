@@ -4,12 +4,12 @@
   "description": "WIP",
   "repository": {
     "type": "git",
-    "url": "https://github.com/maxkfranz/cytoscape-home.git"
+    "url": "https://github.com/cytoscape/cytoscape-home.git"
   },
   "bugs": {
-    "url": "https://github.com/maxkfranz/cytoscape-home/issues"
+    "url": "https://github.com/cytoscape/cytoscape-home/issues"
   },
-  "homepage": "https://github.com/maxkfranz/cytoscape-home",
+  "homepage": "https://github.com/cytoscape/cytoscape-home",
   "scripts": {
     "start": "node -r dotenv/config -r esm ./src/server",
     "inspect": "node inspect --inspect-brk -r dotenv/config -r esm ./src/server",
