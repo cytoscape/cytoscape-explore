@@ -1,5 +1,6 @@
 import h from 'react-hyperscript';
 import Cytoscape from 'cytoscape';
+import _ from 'lodash';
 import { Component } from 'react';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
@@ -7,54 +8,7 @@ import { NODE_ENV } from '../../env';
 import { ToolPanel } from './tool-panel';
 import EventEmitter from 'eventemitter3';
 import { DocumentNotFoundError } from '../../../model/errors';
-
-class NetworkEditorController {
-  constructor(cy, bus){
-    this.cy = cy;
-    this.bus = bus || new EventEmitter();
-    this.drawModeEnabled = false;
-  }
-
-  addNode(){
-    const node = this.cy.add({
-      renderedPosition: { x: 100, y: 50 }
-    });
-
-    this.bus.emit('addNode', node);
-  }
-
-  toggleDrawMode(bool){
-    if( bool == null ){
-      bool = !this.drawModeEnabled;
-    }
-
-    if( bool ){
-      this.eh.enableDrawMode();
-      this.bus.emit('enableDrawMode');
-    } else {
-      this.eh.disableDrawMode();
-      this.bus.emit('disableDrawMode');
-    }
-
-    this.drawModeEnabled = bool;
-
-    this.bus.emit('toggleDrawMode', bool);
-  }
-
-  enableDrawMode(){
-    return this.toggleDrawMode(true);
-  }
-
-  disableDrawMode(){
-    this.toggleDrawMode(false);
-  }
-
-  deletedSelectedElements(){
-    const deletedEls = this.cy.$(':selected').remove();
-
-    this.bus.emit('deletedSelectedElements', deletedEls);
-  }
-}
+import { NetworkEditorController } from './controller';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -137,13 +91,24 @@ export class NetworkEditor extends Component {
       snap: true
     });
 
-    this.cyEmitter.on('tap', event => {
-      // consider only tap on bg
+    this.updateStyleTargetSelection = _.debounce(() => {
+      const selectedEles = this.cy.elements(':selected');
+
+      this.controller.setStyleTargets(selectedEles);
+    }, 100);
+
+    this.cyEmitter.on('tap', event => { // tap on bg
       if( event.target !== this.cy ){ return; }
 
       this.controller.disableDrawMode();
+    }).on('select', () => {
+      this.updateStyleTargetSelection();
     }).on('ehstop', () => {
       this.controller.disableDrawMode();
+    });
+
+    this.bus.on('setStyleTargets', eles => {
+      console.log('setStyleTargets', eles);
     });
   }
 
@@ -156,6 +121,8 @@ export class NetworkEditor extends Component {
     // this.cySyncher.destroy();
 
     this.cy.destroy();
+
+    this.bus.removeAllListeners();
   }
 
   render(){
