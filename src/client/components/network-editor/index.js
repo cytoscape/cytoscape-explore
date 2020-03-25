@@ -67,17 +67,19 @@ export class NetworkEditor extends Component {
 
     this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
-    ( Promise.resolve()
-      .then(() => this.cySyncher.load())
-      .catch(err => {
+    const enableSync = async () => {
+      try {
+        await this.cySyncher.load();
+      } catch(err){
         if( err instanceof DocumentNotFoundError ){
-          return this.cySyncher.create();
-        } else {
-          throw err;
+          await this.cySyncher.create();
         }
-      })
-      .then(() => this.cySyncher.enable())
-    );
+      } finally {
+        await this.cySyncher.enable();
+      }
+    };
+
+    enableSync();
   }
 
   componentDidMount(){
