@@ -105,6 +105,8 @@ export class NetworkEditor extends Component {
       this.controller.disableDrawMode();
     }).on('select', () => {
       this.updateStyleTargetSelection();
+    }).on('unselect', () => {
+      this.updateStyleTargetSelection();
     }).on('ehstop', () => {
       this.controller.disableDrawMode();
     });
