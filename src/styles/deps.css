@@ -20,3 +20,7 @@
 /* google material icons and form widget style with material icons */
 @import "./vendor/fonts/material-icons.css";
 @import "./vendor/fonts/material-form.css";
+
+/* libraries */
+@import "tippy.js/dist/tippy.css";
+@import "tippy.js/themes/light.css";

@@ -5,11 +5,15 @@ export class NetworkEditorController {
     this.cy = cy;
     this.bus = bus || new EventEmitter();
     this.drawModeEnabled = false;
+    this.styleTargets = cy.collection();
   }
 
   addNode(){
     const node = this.cy.add({
-      renderedPosition: { x: 100, y: 50 }
+      renderedPosition: { x: 100, y: 50 },
+      data: {
+        color: 'rgb(128, 128, 128)'
+      }
     });
 
     this.bus.emit('addNode', node);
@@ -57,5 +61,12 @@ export class NetworkEditorController {
     const emptyEles = this.cy.collection();
 
     this.setStyleTargets(emptyEles);
+  }
+
+  setColor(color){
+    const [r, g, b] = color.rgb;
+    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
+
+    eles.data('color', `rgb(${r}, ${g}, ${b})`);
   }
 }

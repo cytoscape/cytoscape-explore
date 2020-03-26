@@ -6,6 +6,7 @@ import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
 import { ToolPanel } from './tool-panel';
+import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
 import { DocumentNotFoundError } from '../../../model/errors';
 import { NetworkEditorController } from './controller';
@@ -26,7 +27,20 @@ export class NetworkEditor extends Component {
             'label': el => el.id().replace(/-/g, ' '),
             'text-wrap': 'wrap',
             'text-max-width': 60,
-            'font-size': 8
+            'font-size': 8,
+            'background-color': 'data(color)'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'line-color': 'data(color)'
+          }
+        },
+        {
+          selector: '.unselected',
+          style: {
+            'opacity': 0.333
           }
         },
         {
@@ -90,7 +104,12 @@ export class NetworkEditor extends Component {
     this.cy.resize();
 
     this.eh = this.controller.eh = this.cy.edgehandles({
-      snap: true
+      snap: true,
+      edgeParams: {
+        data: {
+          color: 'rgb(128, 128, 128)'
+        }
+      }
     });
 
     this.updateStyleTargetSelection = _.debounce(() => {
@@ -99,13 +118,30 @@ export class NetworkEditor extends Component {
       this.controller.setStyleTargets(selectedEles);
     }, 100);
 
+    this.updateSelectionClass = _.debounce(() => {
+      const allEles = this.cy.elements();
+      const selectedEles = allEles.filter(':selected');
+      const unselectedEles = allEles.subtract(selectedEles);
+
+      this.cy.batch(() => {
+        if( allEles.length === unselectedEles.length ){
+          allEles.removeClass('unselected');
+        } else {
+          selectedEles.removeClass('unselected');
+          unselectedEles.addClass('unselected');
+        }
+      });
+    }, 64);
+
     this.cyEmitter.on('tap', event => { // tap on bg
       if( event.target !== this.cy ){ return; }
 
       this.controller.disableDrawMode();
     }).on('select', () => {
+      this.updateSelectionClass();
       this.updateStyleTargetSelection();
     }).on('unselect', () => {
+      this.updateSelectionClass();
       this.updateStyleTargetSelection();
     }).on('ehstop', () => {
       this.controller.disableDrawMode();
@@ -134,7 +170,8 @@ export class NetworkEditor extends Component {
 
     return h('div.network-editor', [
       h('div#cy.cy'),
-      h(ToolPanel, { controller })
+      h(ToolPanel, { controller }),
+      h(StylePanel, { controller })
     ]);
   }
 }

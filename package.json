@@ -35,8 +35,10 @@
     "test": "run-s lint test:*"
   },
   "dependencies": {
+    "@tippy.js/react": "^3.1.1",
     "body-parser": "^1.19.0",
     "classnames": "^2.2.6",
+    "color-convert": "^2.0.1",
     "cookie-parser": "^1.4.5",
     "cytoscape": "^3.14.1",
     "cytoscape-edgehandles": "^3.6.0",
