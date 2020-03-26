@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import h from 'react-hyperscript';
-import classNames from 'classnames';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import Tippy from '@tippy.js/react';
 import { ColorSwatches } from '../color-swatches';
