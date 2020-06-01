@@ -1,4 +1,4 @@
-# Cytoscape Home
+# Cytoscape Explore
 
 
 ## Required software
