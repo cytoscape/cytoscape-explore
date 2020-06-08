@@ -35,11 +35,14 @@
     "test": "run-s lint test:*"
   },
   "dependencies": {
+    "@tippy.js/react": "^3.1.1",
     "body-parser": "^1.19.0",
     "classnames": "^2.2.6",
+    "color-convert": "^2.0.1",
     "cookie-parser": "^1.4.5",
     "cytoscape": "^3.14.1",
     "cytoscape-edgehandles": "^3.6.0",
+    "cytoscape-popper": "^1.0.6",
     "dotenv": "^6.2.0",
     "esm": "^3.2.25",
     "eventemitter3": "^3.1.2",
@@ -57,6 +60,7 @@
     "react-router-dom": "^5.1.2",
     "regenerator-runtime": "^0.13.5",
     "serve-favicon": "^2.5.0",
+    "tippy.js": "^5.2.1",
     "uuid": "^3.4.0",
     "whatwg-fetch": "^3.0.0",
     "winston": "^3.2.1",
