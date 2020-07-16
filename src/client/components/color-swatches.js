@@ -1,5 +1,4 @@
-import { Component } from 'react';
-import h from 'react-hyperscript';
+import React, { Component } from 'react';
 import colorConvert from 'color-convert';
 
 // TODO improve defaults
@@ -60,18 +59,21 @@ export class ColorSwatches extends Component {
   render(){
     const { groups } = this.state;
 
-    return h('div.color-swatches', groups.map(group => {
-      return h('div.color-swatches-hue', group.colors.map(color => {
-        const [r, g, b] = color.rgb;
-
-        return h('div.color-swatches-color', {
-          onClick: () => this.state.onSelectColor(color),
-          style: {
-            backgroundColor: `rgb(${r}, ${g}, ${b})`
-          }
-        });
-      }));
-    }));
+    return (
+      <div className="color-swatches">
+        { groups.map(group => 
+          <div className="color-swatches-hue">
+            { group.colors.map(c => 
+              <div 
+                className="color-swatches-color"
+                onClick = {() => this.state.onSelectColor(c)}
+                style={{ backgroundColor: `rgb(${c.rgb[0]}, ${c.rgb[1]}, ${c.rgb[2]})` }} >
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
   }
 }
 

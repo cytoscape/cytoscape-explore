@@ -1,5 +1,4 @@
-import { Component } from 'react';
-import h from 'react-hyperscript';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 
@@ -23,26 +22,30 @@ export class ToolPanel extends Component {
   render(){
     const { controller } = this.props;
 
-    return h('div.tool-panel', [
-      h('button.tool-panel-button.plain-button', {
-        onClick: () => controller.addNode()
-      }, [
-        h('i.material-icons', 'fiber_manual_record')
-      ]),
-      h('button.tool-panel-button.plain-button.button-toggle', {
-        className: classNames({
-          'button-toggle-on': controller.drawModeEnabled
-        }),
-        onClick: () => controller.toggleDrawMode()
-      }, [
-        h('i.material-icons.icon-rot-330', 'arrow_forward')
-      ]),
-      h('button.tool-panel-button.plain-button', {
-        onClick: () => controller.deletedSelectedElements()
-      }, [
-        h('i.material-icons', 'close')
-      ])
-    ]);
+    return (
+      <div className="tool-panel">
+        <button 
+          onClick={() => controller.addNode()}
+          className="tool-panel-button plain-button">
+          <i className="material-icons">fiber_manual_record</i>
+        </button>
+        <button 
+          onClick={() => controller.toggleDrawMode()}
+          className={classNames({
+            'tool-panel-button': true,
+            'plain-button': true,
+            'button-toggle': true,
+            'button-toggle-on': controller.drawModeEnabled
+          })}>
+          <i className="material-icons icon-rot-330">arrow_forward</i>
+        </button>
+        <button 
+          onClick={() => controller.deletedSelectedElements()}
+          className="tool-panel-button plain-button">
+          <i className="material-icons">close</i>
+        </button>
+      </div>
+    );
   }
 }
 

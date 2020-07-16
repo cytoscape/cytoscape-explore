@@ -5,8 +5,8 @@ import 'regenerator-runtime/runtime';
 import PouchDB from 'pouchdb';
 import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import debug from './debug';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import h from 'react-hyperscript';
 import { Router } from './router';
 import { registerCytoscapeExtensions } from './cy';
 
@@ -24,6 +24,6 @@ div.setAttribute('id', 'root');
 document.body.appendChild( div );
 
 ReactDOM.render(
-  h(Router),
+  <Router/>,
   div
 );

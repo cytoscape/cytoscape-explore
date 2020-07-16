@@ -1,7 +1,6 @@
-import h from 'react-hyperscript';
 import Cytoscape from 'cytoscape';
 import _ from 'lodash';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
@@ -165,15 +164,17 @@ export class NetworkEditor extends Component {
     this.bus.removeAllListeners();
   }
 
-  render(){
+  render() {
     const { controller } = this;
 
-    return h('div.network-editor', [
-      h('div#cy.cy'),
-      h(ToolPanel, { controller }),
-      h(StylePanel, { controller })
-    ]);
+    return (
+      <div className="network-editor">
+        <div id="cy" className="cy" />
+        <ToolPanel controller={controller} />
+        <StylePanel controller={controller} />
+      </div>
+    );
   }
 }
 
-export default NetworkEditor;
+export default NetworkEditor; 
