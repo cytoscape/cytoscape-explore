@@ -56,7 +56,6 @@
     "pouchdb-adapter-memory": "^7.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-hyperscript": "^3.2.0",
     "react-router-dom": "^5.1.2",
     "regenerator-runtime": "^0.13.5",
     "serve-favicon": "^2.5.0",

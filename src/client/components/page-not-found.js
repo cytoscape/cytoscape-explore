@@ -1,7 +1,7 @@
-import h from 'react-hyperscript';
+import React from 'react';
 
 export const PageNotFound = () => {
-  return h('span', 'Page not found');
+  return <span>Page not found</span>
 };
 
 export default PageNotFound;

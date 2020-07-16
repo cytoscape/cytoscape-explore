@@ -1,5 +1,4 @@
-import { Component } from 'react';
-import h from 'react-hyperscript';
+import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import Tippy from '@tippy.js/react';
 import { ColorSwatches } from '../color-swatches';
@@ -24,43 +23,41 @@ export class StylePanel extends Component {
   render(){
     const { controller } = this.props;
 
-    return h('div.style-panel', [
-      h(Tippy, {
-        interactive: true,
-        trigger: 'click',
-        theme: 'light',
-        content: (
-          h('div', [
-            h(ColorSwatches, {
-              onSelectColor: color => controller.setColor(color)
-            })
-          ])
-        )
-      }, [
-        h('button.style-panel-button.plain-button', {
-          onClick: () => { console.log('set bg colour'); }
-        }, [
-          h('i.material-icons', 'opacity')
-        ])
-      ]),
-
-      // just some dummy buttons to give a better visual sense of things
-      h('button.style-panel-button.plain-button', {
-        onClick: () => { console.log('dummy button'); }
-      }, [
-        h('i.material-icons', 'grade')
-      ]),
-      h('button.style-panel-button.plain-button', {
-        onClick: () => { console.log('dummy button'); }
-      }, [
-        h('i.material-icons', 'grade')
-      ]),
-      h('button.style-panel-button.plain-button', {
-        onClick: () => { console.log('dummy button'); }
-      }, [
-        h('i.material-icons', 'grade')
-      ])
-    ]);
+    return (
+      <div className="style-panel">
+        <Tippy
+          interactive={true}
+          trigger='click'
+          theme='light'
+          content={
+            <div>
+              <ColorSwatches 
+                onSelectColor={color => controller.setColor(color)} />
+            </div>
+          }>
+          <button 
+            onClick={() => console.log('set bg colour')}
+            className="style-panel-button plain-button">
+            <i className="material-icons">opacity</i>
+          </button>
+        </Tippy>
+        <button 
+          onClick={() => console.log('dummy button')}
+          className="button style-panel-button plain-button">
+          <i className="material-icons">grade</i>
+        </button>
+        <button 
+          onClick={() => console.log('dummy button')}
+          className="button style-panel-button plain-button">
+          <i className="material-icons">grade</i>
+        </button>
+        <button 
+          onClick={() => console.log('dummy button')}
+          className="button style-panel-button plain-button">
+          <i className="material-icons">grade</i>
+        </button>
+      </div>
+    );
   }
 }
 
