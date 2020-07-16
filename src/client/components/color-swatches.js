@@ -66,7 +66,7 @@ export class ColorSwatches extends Component {
             { group.colors.map(c => 
               <div 
                 className="color-swatches-color"
-                onClick = {() => this.state.onSelectColor(color)}
+                onClick = {() => this.state.onSelectColor(c)}
                 style={{ backgroundColor: `rgb(${c.rgb[0]}, ${c.rgb[1]}, ${c.rgb[2]})` }} >
               </div>
             )}
