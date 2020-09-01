@@ -21,7 +21,22 @@ const defaults = {
 };
 
 function rgbCss(color) {
-  return `rgb(${color.rgb[0]}, ${color.rgb[1]}, ${color.rgb[2]})`;
+  let [r, g, b] = color.rgb || color;
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+
+export class ColorSwatch extends Component {
+  render() {
+    let color = this.props.color;
+    return (
+      <div 
+        className="color-swatches-color"
+        onClick = {() => this.state.onSelectColor(color)}
+        style={{ backgroundColor: rgbCss(color) }} >
+      </div>
+    );
+  }
 }
 
 
@@ -69,11 +84,7 @@ export class ColorSwatches extends Component {
         { groups.map(group => 
           <div className="color-swatches-hue">
             { group.colors.map(c => 
-              <div 
-                className="color-swatches-color"
-                onClick = {() => this.state.onSelectColor(c)}
-                style={{ backgroundColor: rgbCss(c) }} >
-              </div>
+              <ColorSwatch color={c} onClick={this.state.onClick} />
             )}
           </div>
         )}
@@ -81,6 +92,20 @@ export class ColorSwatches extends Component {
     );
   }
 }
+
+export class ColorGradient extends Component {
+  render() {
+    let start = this.props.start;
+    let end   = this.props.end;
+    return (
+      <div 
+        className="color-gradients-color"
+        style={{ background: `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` }}>
+      </div>
+    );
+  }
+}
+
 
 export class ColorGradients extends Component {
   constructor(props){
@@ -95,12 +120,10 @@ export class ColorGradients extends Component {
     } = this.state;
 
     this.state.gradients = this.state.hues.map(hue => {
-      let start = colorConvert.hsl.rgb(hue, maxS, maxL);
-      let end   = colorConvert.hsl.rgb(hue, minS, minL);
       return {
         hue,
-        start: { rgb: start },
-        end:   { rgb: end }
+        start: colorConvert.hsl.rgb(hue, maxS, maxL),
+        end:   colorConvert.hsl.rgb(hue, minS, minL)
       };
     });
   }
@@ -108,11 +131,8 @@ export class ColorGradients extends Component {
   render() {
     return (
       <div className="color-gradients">
-        { this.state.gradients.map(g => 
-          <div 
-            className="color-gradients-color"
-            style={{ background: `linear-gradient(0.25turn, ${rgbCss(g.start)}, ${rgbCss(g.end)})` }}>
-          </div>
+        { this.state.gradients.map(gradient => 
+          <ColorGradient start={gradient.start} end={gradient.end} />
         )}
       </div>
     );
