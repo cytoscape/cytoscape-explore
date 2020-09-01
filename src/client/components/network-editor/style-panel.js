@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import Tippy from '@tippy.js/react';
-import { ColorSwatches } from '../color-swatches';
+import StylePicker from '../style/style-picker';
+import { ColorSwatches, ColorGradients } from '../style/color-swatches'
 
 export class StylePanel extends Component {
   constructor(props){
@@ -41,11 +42,37 @@ export class StylePanel extends Component {
             <i className="material-icons">opacity</i>
           </button>
         </Tippy>
-        <button 
-          onClick={() => console.log('dummy button')}
-          className="button style-panel-button plain-button">
-          <i className="material-icons">grade</i>
-        </button>
+
+        <Tippy
+          interactive={true}
+          trigger='click'
+          theme='light'
+          content={
+              <StylePicker title="Node Color">
+                <ColorSwatches onSelectColor={color => controller.setColor(color)} />
+              </StylePicker>
+          }>
+          <button 
+            className="style-panel-button plain-button">
+            <i className="material-icons">opacity</i>
+          </button>
+        </Tippy>
+
+        <Tippy
+          interactive={true}
+          trigger='click'
+          theme='light'
+          content={
+              <StylePicker title="Node Color Gradient">
+                <ColorGradients />
+              </StylePicker>
+          }>
+          <button 
+            className="style-panel-button plain-button">
+            <i className="material-icons">opacity</i>
+          </button>
+        </Tippy>
+
         <button 
           onClick={() => console.log('dummy button')}
           className="button style-panel-button plain-button">

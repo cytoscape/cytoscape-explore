@@ -1,0 +1,20 @@
+.style-picker-heading {
+  text-align: center;
+  padding-bottom: 5px;
+}
+
+.style-picker-body {
+  padding: 5px;
+  border-bottom: solid 1px gray;
+  border-top: solid 1px gray;
+}
+
+.style-picker-bottom {
+  text-align: center;
+  padding-top: 5px;
+}
+
+.style-picker-button {
+  background: none;
+  box-shadow: none;
+}

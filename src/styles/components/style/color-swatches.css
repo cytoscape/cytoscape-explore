@@ -18,4 +18,18 @@
   background-color: #888;
   margin-bottom: 1px;
   cursor: pointer;
+  border-radius: 50%;
+}
+
+.color-gradients {
+  display: flex;
+  flex-direction: column;
+}
+
+.color-gradients-color {
+  width: 6em;
+  height: 1.5em;
+  background-color: #888;
+  margin-bottom: 1px;
+  cursor: pointer;
 }

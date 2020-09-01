@@ -5,11 +5,12 @@ import colorConvert from 'color-convert';
 const defaults = {
   hues: [
     0,
+    30,
     60,
     120,
     180,
     240,
-    300
+    300,
   ],
   minSaturation: 50,
   maxSaturation: 50,
@@ -19,10 +20,14 @@ const defaults = {
   onSelectColor: () => {}
 };
 
-export class ColorSwatches extends Component {
-  constructor(props){
-    super(props);
+function rgbCss(color) {
+  return `rgb(${color.rgb[0]}, ${color.rgb[1]}, ${color.rgb[2]})`;
+}
 
+
+export class ColorSwatches extends Component {
+  constructor(props) {
+    super(props);
     this.state = Object.assign({}, defaults, props);
 
     this.state.groups = this.state.hues.map(hue => {
@@ -36,7 +41,7 @@ export class ColorSwatches extends Component {
         range
       } = this.state;
 
-      for(let i = 0; i < range; i++){
+      for(let i = 0; i < range; i++) {
         const p = i / (range - 1);
         const s = minS + (maxS - minS) * p;
         const l = minL + (maxL - minL) * p;
@@ -56,7 +61,7 @@ export class ColorSwatches extends Component {
     });
   }
 
-  render(){
+  render() {
     const { groups } = this.state;
 
     return (
@@ -67,7 +72,7 @@ export class ColorSwatches extends Component {
               <div 
                 className="color-swatches-color"
                 onClick = {() => this.state.onSelectColor(c)}
-                style={{ backgroundColor: `rgb(${c.rgb[0]}, ${c.rgb[1]}, ${c.rgb[2]})` }} >
+                style={{ backgroundColor: rgbCss(c) }} >
               </div>
             )}
           </div>
@@ -77,4 +82,40 @@ export class ColorSwatches extends Component {
   }
 }
 
-export default ColorSwatches;
+export class ColorGradients extends Component {
+  constructor(props){
+    super(props);
+    this.state = Object.assign({}, defaults, props);
+
+    const {
+      minSaturation: minS,
+      maxSaturation: maxS,
+      minLightness: minL,
+      maxLightness: maxL,
+    } = this.state;
+
+    this.state.gradients = this.state.hues.map(hue => {
+      let start = colorConvert.hsl.rgb(hue, maxS, maxL);
+      let end   = colorConvert.hsl.rgb(hue, minS, minL);
+      return {
+        hue,
+        start: { rgb: start },
+        end:   { rgb: end }
+      };
+    });
+  }
+
+  render() {
+    return (
+      <div className="color-gradients">
+        { this.state.gradients.map(g => 
+          <div 
+            className="color-gradients-color"
+            style={{ background: `linear-gradient(0.25turn, ${rgbCss(g.start)}, ${rgbCss(g.end)})` }}>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
