@@ -1,5 +1,9 @@
 import EventEmitter from 'eventemitter3';
 
+function randomArg(... args) {
+  return args[Math.floor(Math.random() * args.length)];
+}
+
 export class NetworkEditorController {
   constructor(cy, bus){
     this.cy = cy;
@@ -12,7 +16,10 @@ export class NetworkEditorController {
     const node = this.cy.add({
       renderedPosition: { x: 100, y: 50 },
       data: {
-        color: 'rgb(128, 128, 128)'
+        color: 'rgb(128, 128, 128)',
+        attr1: Math.random(),
+        attr2: Math.random(),
+        attr3: randomArg("A", "B", "C")
       }
     });
 
