@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import colorConvert from 'color-convert';
+import classNames from 'classnames';
 
 // TODO improve defaults
 const defaults = {
@@ -26,17 +27,17 @@ function rgbCss(color) {
 }
 
 
-export class ColorSwatch extends Component {
-  render() {
-    let color = this.props.color;
+export function ColorSwatch(props) {
     return (
       <div 
-        className="color-swatches-color"
-        onClick = {() => this.state.onSelectColor(color)}
-        style={{ backgroundColor: rgbCss(color) }} >
+        className={classNames({ 
+          'color-swatches-color': true, 
+          'color-swatches-color-selected': props.selected
+        })}
+        onClick = {() => props.onSelectColor(color)}
+        style={{ backgroundColor: rgbCss(props.color) }} >
       </div>
     );
-  }
 }
 
 
@@ -93,49 +94,38 @@ export class ColorSwatches extends Component {
   }
 }
 
-export class ColorGradient extends Component {
-  render() {
-    let start = this.props.start;
-    let end   = this.props.end;
-    return (
-      <div 
-        className="color-gradients-color"
-        style={{ background: `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` }}>
-      </div>
-    );
-  }
+export function ColorGradient(props) {
+  return (
+    <div 
+      className="color-gradients-color"
+      style={{ background: `linear-gradient(0.25turn, ${rgbCss(props.start)}, ${rgbCss(props.end)})` }}>
+    </div>
+  );
 }
 
 
-export class ColorGradients extends Component {
-  constructor(props){
-    super(props);
-    this.state = Object.assign({}, defaults, props);
+export function ColorGradients(props) {
+  props = Object.assign({}, defaults, props);
 
-    const {
-      minSaturation: minS,
-      maxSaturation: maxS,
-      minLightness: minL,
-      maxLightness: maxL,
-    } = this.state;
+  const {
+    minSaturation: minS,
+    maxSaturation: maxS,
+    minLightness: minL,
+    maxLightness: maxL,
+  } = props;
 
-    this.state.gradients = this.state.hues.map(hue => {
-      return {
-        hue,
-        start: colorConvert.hsl.rgb(hue, maxS, maxL),
-        end:   colorConvert.hsl.rgb(hue, minS, minL)
-      };
-    });
-  }
+  const gradients = props.hues.map(hue => ({
+    hue,
+    start: colorConvert.hsl.rgb(hue, maxS, maxL),
+    end:   colorConvert.hsl.rgb(hue, minS, minL)
+  }));
 
-  render() {
-    return (
-      <div className="color-gradients">
-        { this.state.gradients.map(gradient => 
-          <ColorGradient start={gradient.start} end={gradient.end} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className="color-gradients">
+      { gradients.map(gradient => 
+        <ColorGradient start={gradient.start} end={gradient.end} />
+      )}
+    </div>
+  );
 }
 
