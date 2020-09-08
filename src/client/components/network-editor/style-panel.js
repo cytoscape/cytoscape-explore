@@ -18,18 +18,18 @@ export class StylePanel extends Component {
     this.busProxy.removeAllListeners();
   }
 
-  render(){
+  render(){ 
     return (
       <div className="style-panel">
         <StylePickerButton 
-          title="Node Color"
           buttonIcon="opacity"
+          title="Node Color"
+          valueLabel="Solid Color"
+          mappingLabel="Attribute Mapping"
           controller={this.props.controller}
           valuePicker={<ColorSwatches />}
-          valueIcon={<ColorSwatch />}
-          mappingPicker={<ColorGradients />}
-          mappingIcon={<ColorGradient />} />
-
+          mappingPicker={<ColorGradients />} 
+        />
         <button 
           onClick={() => console.log('dummy button')}
           className="button style-panel-button plain-button">

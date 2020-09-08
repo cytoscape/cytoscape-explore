@@ -1,20 +1,26 @@
+.style-picker {
+  text-align: center;
+  width: 250px
+}
+
 .style-picker-heading {
   text-align: center;
   padding-bottom: 5px;
+  font-weight: bold;
 }
 
 .style-picker-body {
   padding: 5px;
-  border-bottom: solid 1px gray;
-  border-top: solid 1px gray;
+  margin: auto;
 }
 
-.style-picker-bottom {
-  text-align: center;
+.style-picker-value {
+  margin: auto;
+  width:90%;
+  padding-top: 10px;
+}
+
+.style-picker-attribute {
+  width: 100%;
   padding-top: 5px;
-}
-
-.style-picker-button {
-  background: none;
-  box-shadow: none;
 }

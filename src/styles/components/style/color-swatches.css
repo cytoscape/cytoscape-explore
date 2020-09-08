@@ -21,13 +21,17 @@
   border-radius: 50%;
 }
 
+.color-swatches-color-selected {
+  border: 5px solid yellow;
+}
+
 .color-gradients {
   display: flex;
   flex-direction: column;
 }
 
 .color-gradients-color {
-  width: 6em;
+  width: 200px;
   height: 1.5em;
   background-color: #888;
   margin-bottom: 1px;

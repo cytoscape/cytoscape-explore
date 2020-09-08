@@ -85,7 +85,7 @@ export class ColorSwatches extends Component {
         { groups.map(group => 
           <div className="color-swatches-hue">
             { group.colors.map(c => 
-              <ColorSwatch color={c} onClick={this.state.onClick} />
+              <ColorSwatch color={c} selected={this.props.selectedColor === c} />
             )}
           </div>
         )}

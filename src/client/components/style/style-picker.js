@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
+import Select from 'react-select';
 
-const pages = {
-  VALUE: 1,
-  ATTRIBUTE: 2,
-  MAPPING: 3
-}
-
-export class StylePicker extends Component {
+export class StylePicker extends Component { 
 
   constructor(props){
     super(props);
     this.controller = props.controller;
-    this.elements = props.elements;
+
+    this.mappingOptions = [
+      { value: 'default', label: props.valueLabel || 'Default Value' },
+      { value: 'mapping', label: props.mappingLabel || 'Attribute Mapping' },
+    ];
+
     this.state = {
-      title: props.title || "Visual Property",
-      page: pages.VALUE
+      mappingOption: this.mappingOptions[0],
+      attribute: null,
+      mapping: null
     };
   }
 
   onShow(){
-    this.setState({ page: pages.VALUE });
+    //this.setState({ page: pages.VALUE });
   }
 
   _getAttributes() {
@@ -32,74 +33,64 @@ export class StylePicker extends Component {
     return Array.from(attrNames);
   }
 
+  handleStyleType(option) {
+    this.setState({ mappingOption: option });
+  }
+
+  handleAttribute(option) {
+    this.setState({ attribute: option.value })
+  }
+
   render() {
-    switch(this.state.page) {
-      case pages.VALUE:     return this.renderValuePage();
-      case pages.ATTRIBUTE: return this.renderAttributePage();
-      case pages.MAPPING:   return this.renderMappingPage();
-    }
-  }
-
-  renderHeader() {
     return (
-      <div className="style-picker-heading">
-        {this.props.title}
-      </div>
-    );
-  }
-
-  renderValuePage() {
-    return (
-      <div className="style-picker"> 
-        {this.renderHeader()}
-        <div className="style-picker-body">
-          {this.props.valuePicker}
+      <div className="style-picker">
+        <div className="style-picker-heading">
+          {this.props.title || "Visual Property"}
         </div>
-        <div className="style-picker-bottom">
-          <button className="style-picker-button" 
-            onClick={ () => this.setState({ page: pages.ATTRIBUTE}) }>
-            Next
-          </button>
+        <div className="style-picker-body"> 
+          <Select 
+            onChange={option => this.handleStyleType(option)}
+            options={this.mappingOptions}
+            value={this.state.mappingOption}
+          /> 
+          { (this.state.mappingOption.value == "default") 
+            ? this.renderDefault()
+            : this.renderAttribute() }
         </div>
       </div>
     );
   }
 
-  renderAttributePage() {
-    const attributes = this._getAttributes();
-
+  renderDefault() {
     return (
-      <div className="style-picker"> 
-        {this.renderHeader()}
-        <div className="style-picker-body">
-          { attributes.map(attr => 
-            <div>
-              {attr}
-            </div>
-          )}
-        </div>
-        <div className="style-picker-bottom">
-          <button className="style-picker-button" 
-            onClick={ () => this.setState({ page: pages.MAPPING }) }>
-            Next
-          </button>
-        </div>
+      <div className="style-picker-value"> 
+        {this.props.valuePicker}
       </div>
     );
   }
 
-  renderMappingPage() {
+  renderAttribute() {
+    const attributeOptions = this._getAttributes().map(a => ({value: a, label: a}));
+    const selectedOption = attributeOptions.find(o => o.value === this.state.attribute);
+
     return (
-      <div className="style-picker"> 
-        {this.renderHeader()}
-        <div className="style-picker-body">
-          {this.props.mappingPicker}
-        </div>
-        <div className="style-picker-bottom">
-          <button className="style-picker-button" 
-            onClick={ () => this.setState({ page: pages.VALUE}) }>
-            Next
-          </button>
+      <div className="style-picker-attribute">
+        <Select
+          onChange={option => this.handleAttribute(option)}
+          options={attributeOptions}
+          value={selectedOption}
+          placeholder="Select Attribute..."
+        />
+        { selectedOption && this.renderMapping() }
+      </div>
+    );
+  }
+
+  renderMapping() {
+    return (
+      <div>
+        <div className="style-picker-value">
+         {this.props.mappingPicker}
         </div>
       </div>
     );
