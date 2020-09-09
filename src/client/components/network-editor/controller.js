@@ -76,4 +76,8 @@ export class NetworkEditorController {
 
     eles.data('color', `rgb(${r}, ${g}, ${b})`);
   }
+
+  setColorGradient(attribute, gradient){
+    console.log("setColorGradient: " + attribute + " " + gradient)
+  }
 }

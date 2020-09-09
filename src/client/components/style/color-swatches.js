@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import colorConvert from 'color-convert';
 import classNames from 'classnames';
 
@@ -34,7 +35,7 @@ export function ColorSwatch(props) {
           'color-swatches-color': true, 
           'color-swatches-color-selected': props.selected
         })}
-        onClick = {() => props.onSelectColor(color)}
+        onClick = {() => props.onSelect(props.color)}
         style={{ backgroundColor: rgbCss(props.color) }} >
       </div>
     );
@@ -85,7 +86,10 @@ export class ColorSwatches extends Component {
         { groups.map(group => 
           <div className="color-swatches-hue">
             { group.colors.map(c => 
-              <ColorSwatch color={c} selected={this.props.selectedColor === c} />
+                <ColorSwatch 
+                  color={c} 
+                  selected={this.props.selected === c} 
+                  onSelect={this.props.onSelect} />
             )}
           </div>
         )}
@@ -94,11 +98,18 @@ export class ColorSwatches extends Component {
   }
 }
 
+
 export function ColorGradient(props) {
+  const start = props.gradient.start;
+  const end = props.gradient.end;
   return (
     <div 
-      className="color-gradients-color"
-      style={{ background: `linear-gradient(0.25turn, ${rgbCss(props.start)}, ${rgbCss(props.end)})` }}>
+      className={classNames({ 
+        'color-gradients-color': true, 
+        'color-gradients-color-selected': props.selected
+      })}
+      style={{ background: `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` }}
+      onClick = {() => props.onSelect(props.gradient)} >
     </div>
   );
 }
@@ -123,7 +134,10 @@ export function ColorGradients(props) {
   return (
     <div className="color-gradients">
       { gradients.map(gradient => 
-        <ColorGradient start={gradient.start} end={gradient.end} />
+          <ColorGradient 
+            gradient={gradient} 
+            selected={_.isEqual(props.selected, gradient)} 
+            onSelect={props.onSelect} />
       )}
     </div>
   );

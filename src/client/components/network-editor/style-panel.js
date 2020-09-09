@@ -19,16 +19,23 @@ export class StylePanel extends Component {
   }
 
   render(){ 
+    const controller = this.props.controller;
+
     return (
       <div className="style-panel">
         <StylePickerButton 
-          buttonIcon="opacity"
           title="Node Color"
-          valueLabel="Solid Color"
-          mappingLabel="Attribute Mapping"
-          controller={this.props.controller}
-          valuePicker={<ColorSwatches />}
-          mappingPicker={<ColorGradients />} 
+          valueLabel="Single Color"
+          buttonIcon="opacity"
+          controller={controller}
+          renderValue={(color, onSelect) => 
+            <ColorSwatches selected={color} onSelect={onSelect} />
+          }
+          renderMapping={(gradient, onSelect) => 
+            <ColorGradients selected={gradient} onSelect={onSelect} />
+          } 
+          onValueSet={color => controller.setColor(color)}
+          onMappingSet={(gradient, attribute) => controller.setColorGradient(gradient, attribute)}
         />
         <button 
           onClick={() => console.log('dummy button')}

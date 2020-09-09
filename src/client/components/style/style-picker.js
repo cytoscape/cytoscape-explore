@@ -14,13 +14,27 @@ export class StylePicker extends Component {
 
     this.state = {
       mappingOption: this.mappingOptions[0],
-      attribute: null,
-      mapping: null
+      scalarValue: null,
+      mappingValue: null,
+      attribute: null
     };
   }
 
-  onShow(){
-    //this.setState({ page: pages.VALUE });
+  onShow() {
+    console.log("Style Picker onShow()")
+  }
+
+  componentDidUpdate() {
+    console.log(this.state);
+    const option = this.state.mappingOption.value;
+
+    if(option == 'mapping' && this.state.mappingValue) {
+      console.log("set the mapping");
+      this.props.onMappingSet(this.state.attribute, this.state.mappingValue);
+    } else if(option == 'default' && this.state.scalarValue) {
+      console.log("set the value");
+      this.props.onValueSet(this.state.scalarValue);
+    }
   }
 
   _getAttributes() {
@@ -28,7 +42,9 @@ export class StylePicker extends Component {
     const nodes = this.controller.cy.nodes();
     nodes.forEach(n => {
       const attrs = Object.keys(n.json().data);
-      attrs.forEach(a => attrNames.add(a));
+      attrs.forEach(a => {
+        attrNames.add(a)
+      });
     });
     return Array.from(attrNames);
   }
@@ -54,17 +70,19 @@ export class StylePicker extends Component {
             value={this.state.mappingOption}
           /> 
           { (this.state.mappingOption.value == "default") 
-            ? this.renderDefault()
+            ? this.renderValue()
             : this.renderAttribute() }
         </div>
       </div>
     );
   }
 
-  renderDefault() {
+  renderValue() {
+    const value = this.state.scalarValue;
+    const onSelect = newValue => this.setState({ scalarValue: newValue })
     return (
       <div className="style-picker-value"> 
-        {this.props.valuePicker}
+        { this.props.renderValue(value, onSelect) }
       </div>
     );
   }
@@ -72,7 +90,6 @@ export class StylePicker extends Component {
   renderAttribute() {
     const attributeOptions = this._getAttributes().map(a => ({value: a, label: a}));
     const selectedOption = attributeOptions.find(o => o.value === this.state.attribute);
-
     return (
       <div className="style-picker-attribute">
         <Select
@@ -87,12 +104,12 @@ export class StylePicker extends Component {
   }
 
   renderMapping() {
+    const value = this.state.mappingValue;
+    const onSelect = newValue => this.setState({ mappingValue: newValue });
     return (
-      <div>
         <div className="style-picker-value">
-         {this.props.mappingPicker}
+         { this.props.renderMapping(value, onSelect) }
         </div>
-      </div>
     );
   }
 

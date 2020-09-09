@@ -13,16 +13,17 @@
 }
 
 .color-swatches-color {
-  width: 1.5em;
-  height: 1.5em;
+  width:  20px;
+  height: 20px;
   background-color: #888;
   margin-bottom: 1px;
   cursor: pointer;
   border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0)
 }
 
 .color-swatches-color-selected {
-  border: 5px solid yellow;
+  border: 2px solid black;
 }
 
 .color-gradients {
@@ -32,8 +33,13 @@
 
 .color-gradients-color {
   width: 200px;
-  height: 1.5em;
+  height: 20px;
   background-color: #888;
   margin-bottom: 1px;
   cursor: pointer;
+  border: 2px solid rgba(0,0,0,0)
+}
+
+.color-gradients-color-selected {
+  border: 2px solid black;
 }
