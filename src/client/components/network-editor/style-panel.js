@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
-import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/color-swatches'
+import { ColorSwatches, ColorGradients } from '../style/color-swatches'
+import { SizeSlider, SizeGradients } from '../style/size-slider'
 
 export class StylePanel extends Component {
   constructor(props){
@@ -37,6 +38,22 @@ export class StylePanel extends Component {
           onValueSet={color => controller.setColor(color)}
           onMappingSet={(gradient, attribute) => controller.setColorGradient(gradient, attribute)}
         />
+
+        <StylePickerButton 
+          title="Node Size"
+          valueLabel="Single Value"
+          buttonIcon="all_out"
+          controller={controller}
+          renderValue={(size, onSelect) => 
+            <SizeSlider size={size} onSelect={onSelect} />
+          }
+          renderMapping={(sizeRange, onSelect) => 
+            <SizeGradients selected={sizeRange} onSelect={onSelect} />
+          } 
+          onValueSet={size => controller.setSize(size)}
+          onMappingSet={(sizeRange, attribute) => controller.setSizeGradient(sizeRange, attribute)}
+        />
+
         <button 
           onClick={() => console.log('dummy button')}
           className="button style-panel-button plain-button">

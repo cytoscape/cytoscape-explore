@@ -3,6 +3,18 @@
   flex-direction: row;
 }
 
+.size-swatches {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding:5px;
+  border: 2px solid rgba(0,0,0,0)
+}
+
+.size-swatches-selected {
+  border: 2px solid black;
+}
+
 .color-swatches-hue {
   display: flex;
   flex-direction: column;
@@ -20,6 +32,15 @@
   cursor: pointer;
   border-radius: 50%;
   border: 2px solid rgba(0,0,0,0)
+}
+
+.size-swatches-circle {
+  width:  20px;
+  height: 20px;
+  background-color: #888;
+  margin: 1px;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 .color-swatches-color-selected {

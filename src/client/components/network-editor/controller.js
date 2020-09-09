@@ -70,52 +70,79 @@ export class NetworkEditorController {
     this.setStyleTargets(emptyEles);
   }
 
-  setColor(color){
+  setColor(color) {
     const [r, g, b] = color.rgb;
     const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-
     eles.data('color', `rgb(${r}, ${g}, ${b})`);
+  }
+
+  setSize(size) {
+    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
+    eles.style('width',  size);
+    eles.style('height', size);
+  }
+
+  _minMax(eles, attribute) {
+    let hasVal = false;
+    let min = Number.POSITIVE_INFINITY; 
+    let max = Number.NEGATIVE_INFINITY;
+
+    // compute min and max values
+    eles.forEach(ele => {
+      const val = ele.data(attribute);
+      if(val) {
+        console.log(val);
+        hasVal = true;
+        min = Math.min(min, val);
+        max = Math.max(max, val);
+      }
+    }); 
+
+    return {hasVal, min, max};
+  }
+
+  setSizeGradient(attribute, gradient) {
+    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
+    if(eles.empty())
+      return;
+
+    const {hasVal, min, max} = this._minMax(eles, attribute);
+    if(!hasVal)
+      return;
+
+    const {start, end} = gradient;
+    eles.forEach(ele => {
+      let val = ele.data(attribute);
+      if(val) {
+        const factor = (val - min) / (max - min);
+        const size = Math.round(start + (end - start) * factor);
+        ele.style('width',  size);
+        ele.style('height', size);
+      }
+    });
   }
 
   setColorGradient(attribute, gradient) {
     const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-    if(eles.nonempty()) {
-      let hasVal = false;
-      let min = Number.POSITIVE_INFINITY; 
-      let max = Number.NEGATIVE_INFINITY;
+    if(eles.empty())
+      return;
 
-      // compute min and max values
-      eles.forEach(ele => {
-        const val = ele.data(attribute);
-        if(val) {
-          console.log(val);
-          hasVal = true;
-          min = Math.min(min, val);
-          max = Math.max(max, val);
-        }
-      });
+    const {hasVal, min, max} = this._minMax(eles, attribute);
+    if(!hasVal)
+      return;
 
-      if(!hasVal)
-        return;
-
-      console.log(min, max);
-
-      // Only linear gradients for now
-      const left  = gradient.start;
-      const right = gradient.end;
-
-      eles.forEach(ele => {
-        let val = ele.data(attribute);
-        if(val) {
-          const factor = (val - min) / (max - min);
-          const r = Math.round(left[0] + (right[0] - left[0]) * factor);
-          const g = Math.round(left[1] + (right[1] - left[1]) * factor);
-          const b = Math.round(left[2] + (right[2] - left[2]) * factor);
-          ele.data('color', `rgb(${r}, ${g}, ${b})`);
-          console.log("factor: " + factor, [r,g,b]);
-        }
-      });
-
-    }
+    // Only linear gradients for now
+    const {start, end} = gradient;
+    eles.forEach(ele => {
+      let val = ele.data(attribute);
+      if(val) {
+        const factor = (val - min) / (max - min);
+        const r = Math.round(start[0] + (end[0] - start[0]) * factor);
+        const g = Math.round(start[1] + (end[1] - start[1]) * factor);
+        const b = Math.round(start[2] + (end[2] - start[2]) * factor);
+        ele.data('color', `rgb(${r}, ${g}, ${b})`);
+      }
+    });
   }
+
 }
