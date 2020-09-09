@@ -17,8 +17,8 @@ export class NetworkEditorController {
       renderedPosition: { x: 100, y: 50 },
       data: {
         color: 'rgb(128, 128, 128)',
-        attr1: Math.random(),
-        attr2: Math.random(),
+        attr1: Math.random(), // betwen 0 and 1
+        attr2: Math.random() * 2.0 - 1.0, // between -1 and 1
         attr3: randomArg("A", "B", "C")
       }
     });
@@ -77,7 +77,45 @@ export class NetworkEditorController {
     eles.data('color', `rgb(${r}, ${g}, ${b})`);
   }
 
-  setColorGradient(attribute, gradient){
-    console.log("setColorGradient: " + attribute + " " + gradient)
+  setColorGradient(attribute, gradient) {
+    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
+    if(eles.nonempty()) {
+      let hasVal = false;
+      let min = Number.POSITIVE_INFINITY; 
+      let max = Number.NEGATIVE_INFINITY;
+
+      // compute min and max values
+      eles.forEach(ele => {
+        const val = ele.data(attribute);
+        if(val) {
+          console.log(val);
+          hasVal = true;
+          min = Math.min(min, val);
+          max = Math.max(max, val);
+        }
+      });
+
+      if(!hasVal)
+        return;
+
+      console.log(min, max);
+
+      // Only linear gradients for now
+      const left  = gradient.start;
+      const right = gradient.end;
+
+      eles.forEach(ele => {
+        let val = ele.data(attribute);
+        if(val) {
+          const factor = (val - min) / (max - min);
+          const r = Math.round(left[0] + (right[0] - left[0]) * factor);
+          const g = Math.round(left[1] + (right[1] - left[1]) * factor);
+          const b = Math.round(left[2] + (right[2] - left[2]) * factor);
+          ele.data('color', `rgb(${r}, ${g}, ${b})`);
+          console.log("factor: " + factor, [r,g,b]);
+        }
+      });
+
+    }
   }
 }

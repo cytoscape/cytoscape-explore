@@ -22,6 +22,15 @@ const defaults = {
   onSelectColor: () => {}
 };
 
+// TODO, divergent gradients not properly supported yet
+const colorBrewerDivergent = [
+  {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
+  {start:[230,97,1],   mid:[247,247,247], end:[94,60,153]}, // PuOr
+  {start:[123,50,148], mid:[247,247,247], end:[0,136,55]},  // PRGn
+  {start:[166,97,26],  mid:[245,245,245], end:[1,133,113]}, // BrBG
+  {start:[215,25,28],  mid:[255,255,191], end:[26,150,65]}, // RdLyGn
+]
+
 function rgbCss(color) {
   let [r, g, b] = color.rgb || color;
   return `rgb(${r}, ${g}, ${b})`;
@@ -100,15 +109,18 @@ export class ColorSwatches extends Component {
 
 
 export function ColorGradient(props) {
-  const start = props.gradient.start;
-  const end = props.gradient.end;
+  const { start, mid, end } = props.gradient;
+  const bg = (mid)
+    ? `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(mid)}, ${rgbCss(end)})`
+    : `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` ;
+  
   return (
     <div 
       className={classNames({ 
         'color-gradients-color': true, 
         'color-gradients-color-selected': props.selected
       })}
-      style={{ background: `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` }}
+      style={{ background: bg }}
       onClick = {() => props.onSelect(props.gradient)} >
     </div>
   );
@@ -125,20 +137,33 @@ export function ColorGradients(props) {
     maxLightness: maxL,
   } = props;
 
-  const gradients = props.hues.map(hue => ({
-    hue,
+  const linearGradients = props.hues.map(hue => ({
     start: colorConvert.hsl.rgb(hue, maxS, maxL),
     end:   colorConvert.hsl.rgb(hue, minS, minL)
   }));
 
+  const divergetGradients = colorBrewerDivergent;
+
   return (
     <div className="color-gradients">
-      { gradients.map(gradient => 
+      <div>Linear</div>
+      <div>
+      { linearGradients.map(gradient => 
           <ColorGradient 
             gradient={gradient} 
             selected={_.isEqual(props.selected, gradient)} 
             onSelect={props.onSelect} />
       )}
+      </div>
+      <div>Divergent</div>
+      <div>
+      { divergetGradients.map(gradient => 
+          <ColorGradient 
+            gradient={gradient} 
+            selected={_.isEqual(props.selected, gradient)} 
+            onSelect={props.onSelect} />
+      )}
+      </div>
     </div>
   );
 }
