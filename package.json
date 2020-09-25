@@ -77,6 +77,7 @@
     "dotenv-webpack": "^1.7.0",
     "echo-cli": "^1.0.8",
     "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.21.2",
     "livereload": "^0.9.1",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
