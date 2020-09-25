@@ -12,8 +12,6 @@ export class StylePanel extends Component {
 
   componentDidMount(){
     const dirty = () => this.setState({ dirty: Date.now() });
-
-    this.busProxy.on('setStyleTargets', dirty);
   }
 
   componentWillUnmount(){
@@ -32,7 +30,15 @@ export class StylePanel extends Component {
           content={
             <div>
               <ColorSwatches 
-                onSelectColor={color => controller.setColor(color)} />
+                onSelectColor={color => {
+                  console.log('set color', color);
+
+                  controller.setNodeColor({
+                    r: color.rgb[0],
+                    g: color.rgb[1],
+                    b: color.rgb[2],
+                  });
+                }} />
             </div>
           }>
           <button 
