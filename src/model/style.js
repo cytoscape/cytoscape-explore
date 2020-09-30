@@ -12,6 +12,12 @@ export const MAPPING = {
   PASSTHROUGH: 'PASSTHROUGH'
 };
 
+const assertDataRangeOrder = (dataValue1, dataValue2) => {
+  if(dataValue1 > dataValue2){
+    throw new Error(`Can't create mapping with misordered range`);
+  }
+};
+
 /** Supported style property types */
 export const STYLE_TYPE = {
   /** A number */
@@ -19,6 +25,39 @@ export const STYLE_TYPE = {
 
   /** A color */
   COLOR: 'COLOR'
+};
+
+const mapLinear = (x, x1, x2, f1, f2) => {
+  const t = (x - x1) / (x2 - x1);
+  
+  return f1 + t * (f2 - f1);
+};
+
+export const getFlatStyleForEle = (ele, styleStruct) => {
+  const { mapping, type, value, stringValue } = styleStruct;
+
+  if( MAPPING.VALUE === mapping ){
+    if( STYLE_TYPE.NUMBER === type ){
+      return value;
+    } else {
+      return stringValue;
+    }
+  } else if( MAPPING.PASSTHROUGH === mapping ){
+    return ele.data(value.data);
+  } else if( MAPPING.LINEAR === mapping ){
+    const { data, dataValue1, dataValue2, styleValue1, styleValue2 } = styleStruct.value;
+    const eleData = ele.data(data);
+
+    if( STYLE_TYPE.NUMBER === type ){
+      return mapLinear(eleData, dataValue1, dataValue2, styleValue1, styleValue2);
+    } else if( STYLE_TYPE.COLOR === type ){
+      const r = mapLinear(eleData, dataValue1, dataValue2, styleValue1.r, styleValue2.r);
+      const g = mapLinear(eleData, dataValue1, dataValue2, styleValue1.g, styleValue2.g);
+      const b = mapLinear(eleData, dataValue1, dataValue2, styleValue1.b, styleValue2.b);
+
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  }
 };
 
 /**
@@ -51,6 +90,8 @@ export const styleFactory = {
    * @returns {StyleValue} The style value object (JSON)
    */
   linearNumber: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
+    assertDataRangeOrder(dataValue1, dataValue2);
+
     return {
       type: STYLE_TYPE.NUMBER,
       mapping: MAPPING.LINEAR,
@@ -91,6 +132,8 @@ export const styleFactory = {
    * @returns {StyleValue} The style value object (JSON)
    */
   linearColor: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
+    assertDataRangeOrder(dataValue1, dataValue2);
+
     return {
       type: STYLE_TYPE.COLOR,
       mapping: MAPPING.LINEAR,
@@ -115,7 +158,7 @@ const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
 
 export const nodeStylePropertyExists = property => {
   return NODE_STYLE_PROPERTIES_SET.has(property);
-}
+};
 
 /** Supported edge style properties  */
 export const EDGE_STYLE_PROPERTIES = [
