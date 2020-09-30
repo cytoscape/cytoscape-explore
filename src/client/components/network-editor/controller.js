@@ -1,22 +1,29 @@
 import EventEmitter from 'eventemitter3';
-
-function randomArg(... args) {
-  return args[Math.floor(Math.random() * args.length)];
-}
+import { styleFactory } from '../../../model/style';
+import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
+import Cytoscape from 'cytoscape';
 
 export class NetworkEditorController {
-  constructor(cy, bus){
+  constructor(cy, cySyncher, bus){
+    /** @type Cytoscape */
     this.cy = cy;
+
+    /** @type CytoscapeSyncher */
+    this.cySyncher = cySyncher;
+
+    /** @type EventEmitter */
     this.bus = bus || new EventEmitter();
+
     this.drawModeEnabled = false;
-    this.styleTargets = cy.collection();
   }
 
-  addNode(){
+  addNode() {
+    function randomArg(... args) {
+      return args[Math.floor(Math.random() * args.length)];
+    }
     const node = this.cy.add({
       renderedPosition: { x: 100, y: 50 },
       data: {
-        color: 'rgb(128, 128, 128)',
         attr1: Math.random(), // betwen 0 and 1
         attr2: Math.random() * 2.0 - 1.0, // between -1 and 1
         attr3: randomArg("A", "B", "C")
@@ -54,34 +61,45 @@ export class NetworkEditorController {
     this.bus.emit('deletedSelectedElements', deletedEls);
   }
 
-  setStyleTargets(eles){
-    if( eles == null ){ // don't allow setting null, use empty collection instead
-      eles = this.cy.collection();
-    }
-
-    this.styleTargets = eles;
-
-    this.bus.emit('setStyleTargets', eles);
+  setNodeColor(color){
+    console.log("setNodeColor");
+    this.cySyncher.setStyle('node', 'background-color', styleFactory.color(color));
   }
 
-  resetStyleTargets(){
-    const emptyEles = this.cy.collection();
+  setNodeColorMapping(attribute, gradient) {
+    console.log("setNodeColorGradient");
+    const {start, end} = gradient;
+    const eles = this.cy.elements();
+    const {hasVal, min, max} = this._minMax(eles, attribute);
+    if(!hasVal)
+      return;
 
-    this.setStyleTargets(emptyEles);
+    const style = styleFactory.linearColor(attribute,  min,  max, start, end);
+    this.cySyncher.setStyle('node', 'background-color', style);
   }
 
-  setColor(color) {
-    const [r, g, b] = color.rgb;
-    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-    eles.data('color', `rgb(${r}, ${g}, ${b})`);
+  setNodeSize(size) {
+    console.log("setNodeSize");
+    this.cySyncher.setStyle('node', 'width',  styleFactory.number(size));
+    this.cySyncher.setStyle('node', 'height', styleFactory.number(size));
   }
 
-  setSize(size) {
-    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-    eles.style('width',  size);
-    eles.style('height', size);
-  }
+  setNodeSizeMapping(attribute, gradient) {
+    console.log("setNodeSizeGradient");
+    const {start, end} = gradient;
+    const eles = this.cy.elements();
+    const {hasVal, min, max} = this._minMax(eles, attribute);
+    if(!hasVal)
+      return;
 
+    const style = styleFactory.linearNumber(attribute,  min,  max, start, end);
+    this.cySyncher.setStyle('node', 'width',  style);
+    this.cySyncher.setStyle('node', 'height', style);
+  }
+   
+  /**
+   * Returns the min and max values of a numeric attribute.
+   */
   _minMax(eles, attribute) {
     let hasVal = false;
     let min = Number.POSITIVE_INFINITY; 
@@ -100,49 +118,5 @@ export class NetworkEditorController {
 
     return {hasVal, min, max};
   }
-
-  setSizeGradient(attribute, gradient) {
-    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-    if(eles.empty())
-      return;
-
-    const {hasVal, min, max} = this._minMax(eles, attribute);
-    if(!hasVal)
-      return;
-
-    const {start, end} = gradient;
-    eles.forEach(ele => {
-      let val = ele.data(attribute);
-      if(val) {
-        const factor = (val - min) / (max - min);
-        const size = Math.round(start + (end - start) * factor);
-        ele.style('width',  size);
-        ele.style('height', size);
-      }
-    });
-  }
-
-  setColorGradient(attribute, gradient) {
-    const eles = this.styleTargets.nonempty() ? this.styleTargets : this.cy.elements();
-    if(eles.empty())
-      return;
-
-    const {hasVal, min, max} = this._minMax(eles, attribute);
-    if(!hasVal)
-      return;
-
-    // Only linear gradients for now
-    const {start, end} = gradient;
-    eles.forEach(ele => {
-      let val = ele.data(attribute);
-      if(val) {
-        const factor = (val - min) / (max - min);
-        const r = Math.round(start[0] + (end[0] - start[0]) * factor);
-        const g = Math.round(start[1] + (end[1] - start[1]) * factor);
-        const b = Math.round(start[2] + (end[2] - start[2]) * factor);
-        ele.data('color', `rgb(${r}, ${g}, ${b})`);
-      }
-    });
-  }
-
+  
 }

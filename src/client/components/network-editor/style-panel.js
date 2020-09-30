@@ -35,8 +35,8 @@ export class StylePanel extends Component {
           renderMapping={(gradient, onSelect) => 
             <ColorGradients selected={gradient} onSelect={onSelect} />
           } 
-          onValueSet={color => controller.setColor(color)}
-          onMappingSet={(gradient, attribute) => controller.setColorGradient(gradient, attribute)}
+          onValueSet={color => controller.setNodeColor(color)}
+          onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
         />
 
         <StylePickerButton 
@@ -50,8 +50,8 @@ export class StylePanel extends Component {
           renderMapping={(sizeRange, onSelect) => 
             <SizeGradients selected={sizeRange} onSelect={onSelect} />
           } 
-          onValueSet={size => controller.setSize(size)}
-          onMappingSet={(sizeRange, attribute) => controller.setSizeGradient(sizeRange, attribute)}
+          onValueSet={size => controller.setNodeSize(size)}
+          onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />
 
         <button 

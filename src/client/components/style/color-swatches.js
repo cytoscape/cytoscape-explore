@@ -74,10 +74,7 @@ export class ColorSwatches extends Component {
 
         const [r, g, b] = colorConvert.hsl.rgb(hue, s, l);
 
-        colors.push({
-          hsl: [hue, s, l],
-          rgb: [r, g, b]
-        });
+        colors.push([r, g, b]);
       }
 
       return {
@@ -155,7 +152,7 @@ export function ColorGradients(props) {
             onSelect={props.onSelect} />
       )}
       </div>
-      <div>Divergent</div>
+      {/* <div>Divergent</div>
       <div>
       { divergetGradients.map(gradient => 
           <ColorGradient 
@@ -163,7 +160,7 @@ export function ColorGradients(props) {
             selected={_.isEqual(props.selected, gradient)} 
             onSelect={props.onSelect} />
       )}
-      </div>
+      </div> */}
     </div>
   );
 }

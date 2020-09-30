@@ -38,6 +38,7 @@
     "@tippy.js/react": "^3.1.1",
     "body-parser": "^1.19.0",
     "classnames": "^2.2.6",
+    "color": "^3.1.2",
     "color-convert": "^2.0.1",
     "cookie-parser": "^1.4.5",
     "cytoscape": "^3.14.1",
@@ -78,6 +79,7 @@
     "dotenv-webpack": "^1.7.0",
     "echo-cli": "^1.0.8",
     "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.21.2",
     "livereload": "^0.9.1",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
@@ -98,5 +100,5 @@
   "engines": {
     "node": ">=10"
   },
-  "browserslist": "> 0.5%, last 2 versions, Firefox ESR, not dead"
+  "browserslist": "safari 13"
 }

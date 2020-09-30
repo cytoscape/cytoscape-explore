@@ -18,67 +18,67 @@ export class NetworkEditor extends Component {
 
     this.cy = new Cytoscape({
       headless: true,
-      styleEnabled: true,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'label': el => el.id().replace(/-/g, ' '),
-            'text-wrap': 'wrap',
-            'text-max-width': 60,
-            'font-size': 8,
-            'background-color': 'data(color)'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'line-color': 'data(color)'
-          }
-        },
-        {
-          selector: '.unselected',
-          style: {
-            'opacity': 0.333
-          }
-        },
-        {
-          selector: '.eh-preview, .eh-ghost-edge',
-          style: {
-            'background-color': 'red',
-            'line-color': 'red',
-            'target-arrow-color': 'red',
-            'source-arrow-color': 'red'
-          }
-        },
-        {
-          selector: '.eh-handle',
-          style: {
-            'opacity': 0,
-            'events': 'no'
-          }
-        },
-        {
-          selector: '.eh-ghost-edge.eh-preview-active',
-          style: {
-            'opacity': 0
-          }
-        }
-      ]
+      styleEnabled: true
     });
 
-    if( NODE_ENV !== 'production' ){
-      window.cy = this.cy;
-    }
-
     this.cyEmitter = new EventEmitterProxy(this.cy);
-
-    this.controller = new NetworkEditorController(this.cy, this.bus);
 
     // use placeholder id and secret for now...
     this.cy.data('id', 'networkid');
 
     this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
+
+    this.controller = new NetworkEditorController(this.cy, this.cySyncher, this.bus);
+
+    if( NODE_ENV !== 'production' ){
+      window.cy = this.cy;
+      window.cySyncher = this.cySyncher;
+      window.controller = this.controller;
+    }
+
+    this.cy.style().fromJson([
+      {
+        selector: 'node',
+        style: this.cySyncher.getNodeStyles()
+      },
+      {
+        selector: 'node',
+        style: {
+          'label': el => el.id().replace(/-/g, ' '),
+          'text-wrap': 'wrap',
+          'text-max-width': 60,
+          'font-size': 8
+        }
+      },
+      {
+        selector: '.unselected',
+        style: {
+          'opacity': 0.333
+        }
+      },
+      {
+        selector: '.eh-preview, .eh-ghost-edge',
+        style: {
+          'background-color': 'red',
+          'line-color': 'red',
+          'target-arrow-color': 'red',
+          'source-arrow-color': 'red'
+        }
+      },
+      {
+        selector: '.eh-handle',
+        style: {
+          'opacity': 0,
+          'events': 'no'
+        }
+      },
+      {
+        selector: '.eh-ghost-edge.eh-preview-active',
+        style: {
+          'opacity': 0
+        }
+      }
+    ]);
 
     const enableSync = async () => {
       try {
@@ -111,12 +111,6 @@ export class NetworkEditor extends Component {
       }
     });
 
-    this.updateStyleTargetSelection = _.debounce(() => {
-      const selectedEles = this.cy.elements(':selected');
-
-      this.controller.setStyleTargets(selectedEles);
-    }, 100);
-
     this.updateSelectionClass = _.debounce(() => {
       const allEles = this.cy.elements();
       const selectedEles = allEles.filter(':selected');
@@ -138,16 +132,10 @@ export class NetworkEditor extends Component {
       this.controller.disableDrawMode();
     }).on('select', () => {
       this.updateSelectionClass();
-      this.updateStyleTargetSelection();
     }).on('unselect', () => {
       this.updateSelectionClass();
-      this.updateStyleTargetSelection();
     }).on('ehstop', () => {
       this.controller.disableDrawMode();
-    });
-
-    this.bus.on('setStyleTargets', eles => {
-      console.log('setStyleTargets', eles);
     });
   }
 

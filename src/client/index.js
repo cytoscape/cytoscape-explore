@@ -1,7 +1,3 @@
-// must include this polyfill here b/c generators change syntax
-// (all async/generator functions get transformed to use the runtime, no matter the browser)
-import 'regenerator-runtime/runtime';
-
 import PouchDB from 'pouchdb';
 import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 import debug from './debug';

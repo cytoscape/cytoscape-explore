@@ -4,6 +4,7 @@ import { isClient } from '../util';
 import PouchDB  from 'pouchdb';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
+import { MAPPING, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists } from './style';
 
 const PORT = process.env.PORT;
 const SYNC_INTERVAL = 1000;
@@ -11,9 +12,30 @@ const SYNC_INTERVAL = 1000;
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
 
+const assertSelectorIsNodeOrEdge = selector => {
+  if( selector !== 'node' && selector !== 'edge' ){
+    throw new Error(`Selector must be 'node' or 'edge'`);
+  }
+};
+
+const assertElesNonempty = eles => {
+  if( !eles || eles.length === 0 ){
+    throw new Error(`Elements must be specified for a bypass`);
+  }
+};
+
+const assertPropertyIsSupported = (property, selector) => {
+  if( !stylePropertyExists(property, selector) ){
+    const selectorDisp = selector ? `'${selector}'` : 'any selector';
+
+    throw new Error(`Property '${property}' is not supported for ${selectorDisp}`);
+  }
+};
+
 /**
  * A client creates an instance of `CytoscapeSyncher` to automatically manage synchronisation
  * of the Cytoscape network with the server.
+ * @type CytoscapeSyncher
  */
 export class CytoscapeSyncher {
   /**
@@ -344,6 +366,171 @@ export class CytoscapeSyncher {
     this.synchHandler.removeAllListeners();
 
     clearTimeout(this.synchTimeout);
+  }
+
+  // TODO
+  async importCX(){
+    // TODO
+    const json = null; // TODO build up json from cx
+
+    this.importJson(json);
+  }
+
+  // TODO
+  async exportCX(){
+    // TODO read cy and return cx
+  }
+
+  // TODO
+  async exportJson(){
+    return this.cy.json(); // TODO maybe filter out vis-specific stuff
+  }
+
+  // TODO
+  async importJson(json){
+    // TODO verify that the network is empty
+
+    this.cy.json(json);
+  }
+
+  // TODO
+  resetStyle(){
+    this.cy.data({ _styles: {} });
+
+    this.emitter.emit('resetStyles');
+  }
+
+  /**
+   * Sets a global style
+   * @param {String} selector A selector of elements on which style is applied ('node' or 'edge')
+   * @param {String} property The style property string
+   * @param {StyleValue} value The style value (from `styleFactory`)
+   */
+  setStyle(selector, property, value){
+    assertSelectorIsNodeOrEdge(selector);
+    assertPropertyIsSupported(property, selector);
+
+    const _styles = cy.data('_styles') || {};
+
+    _.set(_styles, [selector, property], value);
+
+    this.cy.data({ _styles });
+    this.cy.$(selector).scratch({ dirtyStyle: Date.now() }); // TODO hack
+
+    this.emitter.emit('setStyle', selector, property, value);
+  }
+
+  /**
+   * Get the style
+   * @param {String} selector The selector to get style for ('node' or 'edge')
+   * @param {String} property The style property name
+   */
+  getStyle(selector, property){
+    assertSelectorIsNodeOrEdge(selector);
+    assertPropertyIsSupported(property, selector);
+
+    const _styles = cy.data('_styles') || {};
+    const styleVal = _.get(_styles, [selector, property]);
+    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+    const def = _.get(DEF_STYLE, [property]);
+
+    if( styleVal == null && def == null ){
+      throw new Error(`No style value for '${property}' exists`);
+    }
+
+    return styleVal || def;
+  }
+
+  /**
+   * Set a style bypass
+   * @param {Collection} eles The elements to apply the bypass to
+   * @param {String} property The style property name
+   * @param {StyleValue} value The style value (from `styleFactory`)
+   */
+  setStyleBypass(eles, property, value){
+    assertElesNonempty(eles);
+    assertPropertyIsSupported(property);
+
+    if( value.type !== MAPPING.VALUE ){
+      throw new Error(`Can't set a bypass to a mapper`);
+    }
+
+    const _bypasses = cy.data('_bypasses') || {};
+    const ids = eles.map(ele => ele.id());
+    const setBypassForId = id => _.set(_bypasses, [id, property], value);
+
+    ids.forEach(setBypassForId);
+
+    // store synched data
+    this.cy.data({ _bypasses });
+
+    this.emitter.emit('setStyleBypass', eles, property, value);
+  }
+
+  /**
+   * Get the style for a particular element and property
+   * @param {Element} ele The Cytoscape element to get style for
+   * @param {String} property The name of the style property (from `NODE_STYLE_PROPERTIES`)
+   */
+  getElementStyle(ele, property){
+    const data = this.cy.data();
+    const selector = ele.isNode() ? 'node' : 'edge';
+    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+    const id = ele.id();
+    const style = _.get(data, ['_styles', selector, property, 'stringValue']);
+    const bypass = _.get(data, ['_bypasses', id, property, 'stringValue']);
+    const def = _.get(DEF_STYLE, [property, 'stringValue']);
+
+    return bypass || style || def;
+  }
+
+  /**
+   * Get the style block for the specified selector ('node' or 'edge')
+   * @param {String} selector The selector to get styles for ('node' or 'edge')
+   */
+  getStyles(selector){
+    assertSelectorIsNodeOrEdge(selector);
+
+    if( selector === 'node' ){
+      return this.getNodeStyles();
+    } else {
+      return this.getEdgeStyles();
+    }
+  }
+
+  /**
+   * Get a Cytoscape style selector block for nodes styles
+   */
+  getNodeStyles(){
+    const props = NODE_STYLE_PROPERTIES;
+
+    const styleBlock = {};
+
+    const addToStyleBlock = (styleBlock, prop) => {
+      styleBlock[prop] = ele => this.getElementStyle(ele, prop);
+
+      return styleBlock;
+    };
+
+    const result = props.reduce(addToStyleBlock, styleBlock);
+    return result;
+  }
+
+  /**
+   * Get a Cytoscape style selector block for edge styles
+   */
+  getEdgeStyles(){
+    const props = EDGE_STYLE_PROPERTIES;
+
+    const styleBlock = {};
+
+    const addToStyleBlock = (styleBlock, prop) => {
+      styleBlock[prop] = ele => this.getElementStyle(ele, prop);
+
+      return styleBlock;
+    };
+
+    return props.reduce(addToStyleBlock, styleBlock);
   }
 
   /**
