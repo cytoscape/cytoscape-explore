@@ -4,7 +4,7 @@ import { isClient } from '../util';
 import PouchDB  from 'pouchdb';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
-import { MAPPING, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists } from './style';
+import { MAPPING, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists, getFlatStyleForEle } from './style';
 
 const PORT = process.env.PORT;
 const SYNC_INTERVAL = 1000;
@@ -429,9 +429,10 @@ export class CytoscapeSyncher {
     assertSelectorIsNodeOrEdge(selector);
     assertPropertyIsSupported(property, selector);
 
+    const cy = this.cy;
     const _styles = cy.data('_styles') || {};
     const styleVal = _.get(_styles, [selector, property]);
-    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+    const DEF_STYLE = selector === 'node' ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
     const def = _.get(DEF_STYLE, [property]);
 
     if( styleVal == null && def == null ){
@@ -477,11 +478,18 @@ export class CytoscapeSyncher {
     const selector = ele.isNode() ? 'node' : 'edge';
     const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
     const id = ele.id();
-    const style = _.get(data, ['_styles', selector, property, 'stringValue']);
-    const bypass = _.get(data, ['_bypasses', id, property, 'stringValue']);
-    const def = _.get(DEF_STYLE, [property, 'stringValue']);
+    const style = _.get(data, ['_styles', selector, property]);
+    const bypass = _.get(data, ['_bypasses', id, property]);
+    const def = _.get(DEF_STYLE, [property]);
+    const styleStruct = bypass || style || def;
 
-    return bypass || style || def;
+    log(`Getting style for ${ele.id()} and ${property} with struct`, styleStruct);
+
+    const flatVal = getFlatStyleForEle(ele, styleStruct);
+
+    log(`Got flat value`, flatVal);
+
+    return flatVal;
   }
 
   /**
