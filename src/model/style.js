@@ -121,7 +121,7 @@ export const styleFactory = {
       stringValue: `rgb(${r}, ${g}, ${b})`
     }; 
   },
-
+  
   /**
    * Create a linear mapping of a color
    * @param {String} data The data property name to map
@@ -150,8 +150,11 @@ export const styleFactory = {
 };
 
 /**  Supported node style properties  */
+// Note: make sure to add new properties to DEFAULT_NODE_STYLE */
 export const NODE_STYLE_PROPERTIES = [
-  'background-color'
+  'background-color',
+  'width',
+  'height'
 ];
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
@@ -192,7 +195,9 @@ export const stylePropertyExists = (property, selector) => {
 
 /** An object map of the default node style values */
 export const DEFAULT_NODE_STYLE = {
-  'background-color': styleFactory.color('#888')
+  'background-color': styleFactory.color('#888'),
+  'width': 10,
+  'height': 10
 };
 
 /** An object map of the default edge style values */

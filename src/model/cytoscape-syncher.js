@@ -520,7 +520,8 @@ export class CytoscapeSyncher {
       return styleBlock;
     };
 
-    return props.reduce(addToStyleBlock, styleBlock);
+    const result = props.reduce(addToStyleBlock, styleBlock);
+    return result;
   }
 
   /**
