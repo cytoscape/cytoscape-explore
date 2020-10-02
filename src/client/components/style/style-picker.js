@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import { MAPPING } from '../../../model/style';
+import _ from 'lodash';
 
 export class StylePicker extends Component { 
 
@@ -32,25 +33,50 @@ export class StylePicker extends Component {
     }
   }
 
-  componentDidUpdate() {
-    switch(this.state.mapping) {
+  onStyleChanged(newState) {
+    switch(newState.mapping) {
       case MAPPING.VALUE:
-        if(this.state.scalarValue)
-          this.props.onValueSet(this.state.scalarValue);
+        if(newState.scalarValue)
+          this.props.onValueSet(newState.scalarValue);
         break;
       case MAPPING.LINEAR:
-        if(this.state.attribute && this.state.mappingValue)
-          this.props.onMappingSet(this.state.attribute, this.state.mappingValue);
+        if(newState.attribute && newState.mappingValue)
+          this.props.onMappingSet(newState.attribute, newState.mappingValue);
         break;
     }
   }
 
   handleMapping(mapping) {
-    this.setState({ mapping });
+    const change = { mapping };
+
+    this.setState(change);
+
+    this.onStyleChanged(_.assign({}, this.state, change));
   }
 
   handleAttribute(attribute) {
-    this.setState({ attribute });
+
+    const change = { attribute };
+
+    this.setState(change);
+
+    this.onStyleChanged(_.assign({}, this.state, change));
+  }
+
+  handleScalarValue(scalarValue){
+    const change = { scalarValue };
+
+    this.setState(change);
+
+    this.onStyleChanged(_.assign({}, this.state, change));
+  }
+
+  handleMappingValue(mappingValue){
+    const change = { mappingValue };
+
+    this.setState(change);
+
+    this.onStyleChanged(_.assign({}, this.state, change));
   }
 
   render() {
@@ -80,7 +106,7 @@ export class StylePicker extends Component {
   }
 
   renderValue() {
-    const onSelect = value => this.setState({ scalarValue: value })
+    const onSelect = value => this.handleScalarValue( value );
     return (
       <div className="style-picker-value"> 
         { this.props.renderValue(this.state.scalarValue, onSelect) }
@@ -105,7 +131,7 @@ export class StylePicker extends Component {
   }
 
   renderMapping() {
-    const onSelect = value => this.setState({ mappingValue: value });
+    const onSelect = value => this.handleMappingValue(value);
     return (
         <div className="style-picker-value">
          { this.props.renderMapping(this.state.mappingValue, onSelect) }
