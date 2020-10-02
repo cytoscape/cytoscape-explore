@@ -28,6 +28,8 @@ export class StylePanel extends Component {
           title="Node Color"
           valueLabel="Single Color"
           buttonIcon="opacity"
+          selector="node"
+          property="background-color"
           controller={controller}
           renderValue={(color, onSelect) => 
             <ColorSwatches selected={color} onSelect={onSelect} />
@@ -43,6 +45,8 @@ export class StylePanel extends Component {
           title="Node Size"
           valueLabel="Single Value"
           buttonIcon="all_out"
+          selector="node"
+          property="width"  // TODO kind of a hack, initialize with width, but set both height and width
           controller={controller}
           renderValue={(size, onSelect) => 
             <SizeSlider size={size} onSelect={onSelect} />

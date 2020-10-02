@@ -24,21 +24,28 @@ export function SizeGradients(props) {
   ));
   const reversed = circles.slice().reverse();
   
+  // MKTODO is there a better way to do this?
+  const isSelected = value =>
+      value && 
+      props.selected &&
+      _.isEqual(props.selected.styleValue1, value.styleValue1) &&
+      _.isEqual(props.selected.styleValue2, value.styleValue2);
+
   return (
     <div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': _.isEqual(props.selected, {start:20, end:40})
+          'size-swatches-selected': isSelected({styleValue1:20, styleValue2:40})
         })}
-        onClick = {() => props.onSelect({start:20, end:40})}
+        onClick = {() => props.onSelect({styleValue1:20, styleValue2:40})}
         >
         {circles}
       </div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': _.isEqual(props.selected, {start:40, end:20})
+          'size-swatches-selected': isSelected({styleValue1:40, styleValue2:20})
         })}
-        onClick = {() => props.onSelect({start:40, end:20})}
+        onClick = {() => props.onSelect({styleValue1:40, styleValue2:20})}
         >
         {reversed}
       </div>

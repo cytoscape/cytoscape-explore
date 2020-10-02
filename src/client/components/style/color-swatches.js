@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import colorConvert from 'color-convert';
 import classNames from 'classnames';
+import Color from 'color';
+
 
 // TODO improve defaults
+// TODO move default colors into style.js ??
 const defaults = {
   hues: [
     0,
@@ -18,8 +21,7 @@ const defaults = {
   maxSaturation: 50,
   minLightness: 40,
   maxLightness: 80,
-  range: 5,
-  onSelectColor: () => {}
+  range: 5
 };
 
 // TODO, divergent gradients not properly supported yet
@@ -31,9 +33,8 @@ const colorBrewerDivergent = [
   {start:[215,25,28],  mid:[255,255,191], end:[26,150,65]}, // RdLyGn
 ]
 
-function rgbCss(color) {
-  let [r, g, b] = color.rgb || color;
-  return `rgb(${r}, ${g}, ${b})`;
+function rgbCss(c) {
+  return Color(c).rgb().string();
 }
 
 
@@ -74,7 +75,7 @@ export class ColorSwatches extends Component {
 
         const [r, g, b] = colorConvert.hsl.rgb(hue, s, l);
 
-        colors.push([r, g, b]);
+        colors.push({ r, g, b });
       }
 
       return {
@@ -94,7 +95,7 @@ export class ColorSwatches extends Component {
             { group.colors.map(c => 
                 <ColorSwatch 
                   color={c} 
-                  selected={this.props.selected === c} 
+                  selected={_.isEqual(this.props.selected, c)} 
                   onSelect={this.props.onSelect} />
             )}
           </div>
@@ -106,10 +107,10 @@ export class ColorSwatches extends Component {
 
 
 export function ColorGradient(props) {
-  const { start, mid, end } = props.gradient;
-  const bg = (mid)
-    ? `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(mid)}, ${rgbCss(end)})`
-    : `linear-gradient(0.25turn, ${rgbCss(start)}, ${rgbCss(end)})` ;
+  const { styleValue1, styleValue2, styleValue3 } = props.value;
+  const bg = (styleValue3)
+    ? `linear-gradient(0.25turn, ${rgbCss(styleValue1)}, ${rgbCss(styleValue2)}, ${rgbCss(styleValue3)})`
+    : `linear-gradient(0.25turn, ${rgbCss(styleValue1)}, ${rgbCss(styleValue2)})` ;
   
   return (
     <div 
@@ -118,7 +119,7 @@ export function ColorGradient(props) {
         'color-gradients-color-selected': props.selected
       })}
       style={{ background: bg }}
-      onClick = {() => props.onSelect(props.gradient)} >
+      onClick = {() => props.onSelect(props.value)} >
     </div>
   );
 }
@@ -134,21 +135,32 @@ export function ColorGradients(props) {
     maxLightness: maxL,
   } = props;
 
-  const linearGradients = props.hues.map(hue => ({
-    start: colorConvert.hsl.rgb(hue, maxS, maxL),
-    end:   colorConvert.hsl.rgb(hue, minS, minL)
-  }));
+  const linearGradients = props.hues.map(hue => {
+    const s = colorConvert.hsl.rgb(hue, maxS, maxL);
+    const e = colorConvert.hsl.rgb(hue, minS, minL);
+    return {
+      styleValue1: { r: s[0], g: s[1], b: s[2] },
+      styleValue2: { r: e[0], g: e[1], b: e[2] },
+    };
+  });
 
-  const divergetGradients = colorBrewerDivergent;
+  // const divergetGradients = colorBrewerDivergent;
+
+  // MKTODO is there a better way to do this?
+  const isSelected = value =>
+      value && 
+      props.selected &&
+      _.isEqual(props.selected.styleValue1, value.styleValue1) &&
+      _.isEqual(props.selected.styleValue2, value.styleValue2);
 
   return (
     <div className="color-gradients">
-      <div>Linear</div>
+      {/* <div>Linear</div> */}
       <div>
-      { linearGradients.map(gradient => 
+      { linearGradients.map(value => 
           <ColorGradient 
-            gradient={gradient} 
-            selected={_.isEqual(props.selected, gradient)} 
+            value={value} 
+            selected={isSelected(value)} 
             onSelect={props.onSelect} />
       )}
       </div>

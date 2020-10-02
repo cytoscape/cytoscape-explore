@@ -61,20 +61,30 @@ export class NetworkEditorController {
     this.bus.emit('deletedSelectedElements', deletedEls);
   }
 
+  getPublicAttributes() {
+    const attrNames = new Set();
+    const nodes = this.cy.nodes();
+    nodes.forEach(n => {
+      const attrs = Object.keys(n.json().data);
+      attrs.forEach(a => {
+        attrNames.add(a)
+      });
+    });
+    return Array.from(attrNames);
+  }
+
   setNodeColor(color){
     console.log("setNodeColor");
     this.cySyncher.setStyle('node', 'background-color', styleFactory.color(color));
   }
 
-  setNodeColorMapping(attribute, gradient) {
-    console.log("setNodeColorGradient");
-    const {start, end} = gradient;
-    const eles = this.cy.elements();
-    const {hasVal, min, max} = this._minMax(eles, attribute);
+  setNodeColorMapping(attribute, value) {
+    console.log("setNodeColorMapping");
+    const {hasVal, min, max} = this._minMax(attribute);
     if(!hasVal)
       return;
 
-    const style = styleFactory.linearColor(attribute,  min,  max, start, end);
+    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
     this.cySyncher.setStyle('node', 'background-color', style);
   }
 
@@ -84,15 +94,13 @@ export class NetworkEditorController {
     this.cySyncher.setStyle('node', 'height', styleFactory.number(size));
   }
 
-  setNodeSizeMapping(attribute, gradient) {
+  setNodeSizeMapping(attribute, value) {
     console.log("setNodeSizeGradient");
-    const {start, end} = gradient;
-    const eles = this.cy.elements();
-    const {hasVal, min, max} = this._minMax(eles, attribute);
+    const {hasVal, min, max} = this._minMax(attribute);
     if(!hasVal)
       return;
 
-    const style = styleFactory.linearNumber(attribute,  min,  max, start, end);
+    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
     this.cySyncher.setStyle('node', 'width',  style);
     this.cySyncher.setStyle('node', 'height', style);
   }
@@ -100,7 +108,8 @@ export class NetworkEditorController {
   /**
    * Returns the min and max values of a numeric attribute.
    */
-  _minMax(eles, attribute) {
+  _minMax(attribute, eles) {
+    eles = eles || this.cy.elements();
     let hasVal = false;
     let min = Number.POSITIVE_INFINITY; 
     let max = Number.NEGATIVE_INFINITY;
