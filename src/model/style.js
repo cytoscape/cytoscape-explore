@@ -199,8 +199,8 @@ export const stylePropertyExists = (property, selector) => {
 /** An object map of the default node style values */
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
-  'width': 10,
-  'height': 10
+  'width': styleFactory.number(30),
+  'height': styleFactory.number(30)
 };
 
 /** An object map of the default edge style values */
