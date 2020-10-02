@@ -23,19 +23,12 @@ export function SizeGradients(props) {
     <div className="size-swatches-circle" style={{ width:size, height:size }}></div>
   ));
   const reversed = circles.slice().reverse();
-  
-  // MKTODO is there a better way to do this?
-  const isSelected = value =>
-      value && 
-      props.selected &&
-      _.isEqual(props.selected.styleValue1, value.styleValue1) &&
-      _.isEqual(props.selected.styleValue2, value.styleValue2);
 
   return (
     <div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': isSelected({styleValue1:20, styleValue2:40})
+          'size-swatches-selected': _.isMatch(props.selected, {styleValue1:20, styleValue2:40})
         })}
         onClick = {() => props.onSelect({styleValue1:20, styleValue2:40})}
         >
@@ -43,7 +36,7 @@ export function SizeGradients(props) {
       </div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': isSelected({styleValue1:40, styleValue2:20})
+          'size-swatches-selected': _.isMatch(props.selected, {styleValue1:40, styleValue2:20})
         })}
         onClick = {() => props.onSelect({styleValue1:40, styleValue2:20})}
         >

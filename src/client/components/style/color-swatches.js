@@ -144,15 +144,6 @@ export function ColorGradients(props) {
     };
   });
 
-  // const divergetGradients = colorBrewerDivergent;
-
-  // MKTODO is there a better way to do this?
-  const isSelected = value =>
-      value && 
-      props.selected &&
-      _.isEqual(props.selected.styleValue1, value.styleValue1) &&
-      _.isEqual(props.selected.styleValue2, value.styleValue2);
-
   return (
     <div className="color-gradients">
       {/* <div>Linear</div> */}
@@ -160,16 +151,16 @@ export function ColorGradients(props) {
       { linearGradients.map(value => 
           <ColorGradient 
             value={value} 
-            selected={isSelected(value)} 
+            selected={_.isMatch(props.selected, value)}
             onSelect={props.onSelect} />
       )}
       </div>
       {/* <div>Divergent</div>
       <div>
-      { divergetGradients.map(gradient => 
+      { colorBrewerDivergent.map(value => 
           <ColorGradient 
-            gradient={gradient} 
-            selected={_.isEqual(props.selected, gradient)} 
+            gradient={value} 
+            selected={_.isMatch(props.selected, value)} 
             onSelect={props.onSelect} />
       )}
       </div> */}
