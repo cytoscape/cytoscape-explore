@@ -134,6 +134,9 @@ export const styleFactory = {
   linearColor: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
     assertDataRangeOrder(dataValue1, dataValue2);
 
+    const rgb1 = Color(styleValue1).rgb();
+    const rgb2 = Color(styleValue2).rgb();
+
     return {
       type: STYLE_TYPE.COLOR,
       mapping: MAPPING.LINEAR,
@@ -141,10 +144,10 @@ export const styleFactory = {
         data,
         dataValue1,
         dataValue2,
-        styleValue1: Color(styleValue1).rgb().object(),
-        styleValue2: Color(styleValue2).rgb().object()
+        styleValue1: rgb1.object(),
+        styleValue2: rgb2.object()
       },
-      stringValue: `mapData(${data}, ${dataValue1}, ${dataValue2}, ${styleValue1}, ${styleValue2})`
+      stringValue: `mapData(${data}, ${dataValue1}, ${dataValue2}, ${rgb1.string()}, ${rgb2.string()})`
     };
   }
 };
