@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Select from 'react-select';
 import { MAPPING } from '../../../model/style';
 import _ from 'lodash';
+import { NetworkEditorController } from '../network-editor/controller';
+import PropTypes from 'prop-types';
 
 export class StylePicker extends Component { 
 
@@ -140,5 +142,18 @@ export class StylePicker extends Component {
   }
 
 }
+
+StylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  renderMapping: PropTypes.func,
+  renderValue: PropTypes.func,
+  selector: PropTypes.string,
+  property: PropTypes.string,
+  onValueSet: PropTypes.func,
+  onMappingSet: PropTypes.func,
+  valueLabel: PropTypes.string,
+  mappingLabel: PropTypes.string,
+  title: PropTypes.string
+};
 
 export default StylePicker;

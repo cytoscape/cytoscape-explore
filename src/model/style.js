@@ -1,6 +1,15 @@
 import Color from 'color';
+import Cytoscape from 'cytoscape'; // eslint-disable-line
 
-/**  Style mapping types */
+/**
+ * @typedef {String} MAPPING
+ **/
+
+/**
+ * Style mapping type
+ * @readonly
+ * @enum {MAPPING}
+ */
 export const MAPPING = {
   /** A flat value (i.e. no mapping  */
   VALUE: 'VALUE',
@@ -18,7 +27,15 @@ const assertDataRangeOrder = (dataValue1, dataValue2) => {
   }
 };
 
-/** Supported style property types */
+/**
+ * @typedef {String} STYLE_TYPE
+ **/
+
+/**
+ * Supported style property types
+ * @readonly
+ * @enum {STYLE_TYPE}
+ */
 export const STYLE_TYPE = {
   /** A number */
   NUMBER: 'NUMBER',
@@ -33,6 +50,12 @@ const mapLinear = (x, x1, x2, f1, f2) => {
   return f1 + t * (f2 - f1);
 };
 
+/**
+ * Get the flat style value calculated for the 
+ * @param {Cytoscape.Collection} ele 
+ * @param {StyleStruct} styleStruct The style struct to calculate
+ * @returns {(String|Number)} A computed style value (string or number) that can be used directly as a Cytoscape style property value
+ */
 export const getFlatStyleForEle = (ele, styleStruct) => {
   const { mapping, type, value, stringValue } = styleStruct;
 
@@ -61,6 +84,82 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
 };
 
 /**
+ * The style struct represents a style assignment as a plain JSON object
+ * @typedef {Object} StyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property value The value of the style assignment
+ */
+
+/**
+ * The style struct for a flat number property
+ * @typedef {Object} NumberStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {Number} value The value of the number
+ */
+
+/**
+ * @typedef {Object} LinearNumberStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Number} dataValue1 The minimum value of the input data range
+ * @property {Number} dataValue2 The maximum value of the inputn data range
+ * @property {Number} styleValue1 The minimum output style property number
+ * @property {Number} styleValue2 The minimum output style property number
+ */
+
+/**
+ * The style struct for a flat number property
+ * @typedef {Object} LinearNumberStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {LinearNumberStyleValue} value The value of the number mapping
+ */
+
+/**
+ * A color object used in the style struct
+ * @typedef {Object} RgbColor
+ * @property {Number} r The red value on [0, 255]
+ * @property {Number} g The green value on [0, 255]
+ * @property {Number} b The blue value on [0, 255]
+ */
+
+/**
+ * The style struct for a flat color
+ * @typedef {Object} ColorStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {RgbColor} value The value of the style assignment
+ */
+
+/**
+ * @typedef {Object} LinearColorStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Number} dataValue1 The minimum value of the input data range
+ * @property {Number} dataValue2 The maximum value of the inputn data range
+ * @property {RgbColor} styleValue1 The minimum output style property color
+ * @property {RgbColor} styleValue2 The minimum output style property color
+ */
+
+/**
+ * The style struct for a linear color mapping
+ * @typedef {Object} LinearColorStyleValue
+ */
+
+/**
+ * The style struct for a linear color property
+ * @typedef {Object} LinearColorStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {LinearColorStyleValue} value The value of the number mapping
+ */
+
+/**
  * The `styleFactory` creates style property values that can be used to set style.
  *  
  * `cySyncher.setStyle('node', 'width', styleFactory.number(20))`
@@ -69,7 +168,7 @@ export const styleFactory = {
   /**
    * Create a flat number
    * @param {Number} value The value of the number
-   * @returns {StyleValue} The style value object (JSON)
+   * @returns {NumberStyleStruct} The style value object (JSON)
    */
   number: value => {
     return {
@@ -87,7 +186,7 @@ export const styleFactory = {
    * @param {Number} dataValue2 The top value of the input range of data values to map
    * @param {Number} styleValue1 The bottom value of the output range of style values to map
    * @param {Number} styleValue2 The top value of the output range of style values to map
-   * @returns {StyleValue} The style value object (JSON)
+   * @returns {LinearNumberStyleStruct} The style value object (JSON)
    */
   linearNumber: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
     assertDataRangeOrder(dataValue1, dataValue2);
@@ -109,7 +208,7 @@ export const styleFactory = {
   /**
    * Create a flat color value
    * @param {Color} value The color value
-   * @returns {StyleValue} The style value object (JSON)
+   * @returns {ColorStyleStruct} The style value object (JSON)
    */
   color: value => {
     const { r, g, b } = Color(value).rgb().object();
@@ -129,7 +228,7 @@ export const styleFactory = {
    * @param {Number} dataValue2 The top value of the input range of data values to map
    * @param {Color} styleValue1 The bottom value of the output range of color values to map
    * @param {Color} styleValue2 The top value of the output range of color values to map
-   * @returns {StyleValue} The style value object (JSON)
+   * @returns {LinearColorStyleStruct} The style value object (JSON)
    */
   linearColor: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
     assertDataRangeOrder(dataValue1, dataValue2);
@@ -192,7 +291,7 @@ export const stylePropertyExists = (property, selector) => {
   } else if( selector === 'node' ){
     return nodeStylePropertyExists(property);
   } else {
-    return edgeStylePropertyExists(property)
+    return edgeStylePropertyExists(property);
   }
 };
 

@@ -1,7 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Tippy from '@tippy.js/react';
 import StylePicker from '../style/style-picker';
+import PropTypes from 'prop-types';
 
+/**
+ * A style picker button
+ * @param {Object} props React props
+ * @param {String} props.buttonIcon The CSS icon class of the icon in the button
+ * @param {String} props.title Title of the button (shown in tooltip)
+ */
 export function StylePickerButton(props)  {
   const ref = React.createRef();
   const tooltip = props.title;
@@ -22,5 +29,10 @@ export function StylePickerButton(props)  {
     </Tippy>
   );
 }
+
+StylePickerButton.propTypes = {
+  buttonIcon: PropTypes.string,
+  title: PropTypes.string
+};
 
 export default StylePickerButton;
