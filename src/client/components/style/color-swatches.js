@@ -3,6 +3,7 @@ import _ from 'lodash';
 import colorConvert from 'color-convert';
 import classNames from 'classnames';
 import Color from 'color';
+import PropTypes from 'prop-types';
 
 
 // TODO improve defaults
@@ -25,13 +26,13 @@ const defaults = {
 };
 
 // TODO, divergent gradients not properly supported yet
-const colorBrewerDivergent = [
-  {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
-  {start:[230,97,1],   mid:[247,247,247], end:[94,60,153]}, // PuOr
-  {start:[123,50,148], mid:[247,247,247], end:[0,136,55]},  // PRGn
-  {start:[166,97,26],  mid:[245,245,245], end:[1,133,113]}, // BrBG
-  {start:[215,25,28],  mid:[255,255,191], end:[26,150,65]}, // RdLyGn
-]
+// const colorBrewerDivergent = [
+//   {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
+//   {start:[230,97,1],   mid:[247,247,247], end:[94,60,153]}, // PuOr
+//   {start:[123,50,148], mid:[247,247,247], end:[0,136,55]},  // PRGn
+//   {start:[166,97,26],  mid:[245,245,245], end:[1,133,113]}, // BrBG
+//   {start:[215,25,28],  mid:[255,255,191], end:[26,150,65]}, // RdLyGn
+// ];
 
 function rgbCss(c) {
   return Color(c).rgb().string();
@@ -39,17 +40,23 @@ function rgbCss(c) {
 
 
 export function ColorSwatch(props) {
-    return (
-      <div 
-        className={classNames({ 
-          'color-swatches-color': true, 
-          'color-swatches-color-selected': props.selected
-        })}
-        onClick = {() => props.onSelect(props.color)}
-        style={{ backgroundColor: rgbCss(props.color) }} >
-      </div>
-    );
+  return (
+    <div 
+      className={classNames({ 
+        'color-swatches-color': true, 
+        'color-swatches-color-selected': props.selected
+      })}
+      onClick = {() => props.onSelect(props.color)}
+      style={{ backgroundColor: rgbCss(props.color) }} >
+    </div>
+  );
 }
+
+ColorSwatch.propTypes = {
+  onSelect: PropTypes.func,
+  selected: PropTypes.any,
+  color: PropTypes.any
+};
 
 
 export class ColorSwatches extends Component {
@@ -90,11 +97,12 @@ export class ColorSwatches extends Component {
 
     return (
       <div className="color-swatches">
-        { groups.map(group => 
-          <div className="color-swatches-hue">
-            { group.colors.map(c => 
+        { groups.map((group, i) => 
+          <div key={`group-${i}`} className="color-swatches-hue">
+            { group.colors.map((c, i) => 
                 <ColorSwatch 
-                  color={c} 
+                  color={c}
+                  key={`swatch-${i}`}
                   selected={_.isEqual(this.props.selected, c)} 
                   onSelect={this.props.onSelect} />
             )}
@@ -104,6 +112,11 @@ export class ColorSwatches extends Component {
     );
   }
 }
+
+ColorSwatches.propTypes = {
+  selected: PropTypes.any,
+  onSelect: PropTypes.func
+};
 
 
 export function ColorGradient(props) {
@@ -123,6 +136,16 @@ export function ColorGradient(props) {
     </div>
   );
 }
+
+ColorGradient.propTypes = {
+  value: PropTypes.instanceOf({
+    styleValue1: PropTypes.any,
+    styleValue2: PropTypes.any,
+    styleValue3: PropTypes.any
+  }),
+  onSelect: PropTypes.func,
+  selected: PropTypes.any
+};
 
 
 export function ColorGradients(props) {
@@ -148,9 +171,10 @@ export function ColorGradients(props) {
     <div className="color-gradients">
       {/* <div>Linear</div> */}
       <div>
-      { linearGradients.map(value => 
+      { linearGradients.map((value, i) => 
           <ColorGradient 
             value={value} 
+            key={`gradient-${i}`}
             selected={_.isMatch(props.selected, value)}
             onSelect={props.onSelect} />
       )}
@@ -168,3 +192,12 @@ export function ColorGradients(props) {
   );
 }
 
+ColorGradients.propTypes = {
+  minSaturation: PropTypes.number,
+  maxSaturation: PropTypes.number,
+  minLightness: PropTypes.number,
+  maxLightness: PropTypes.number,
+  onSelect: PropTypes.func,
+  hues: PropTypes.arrayOf(PropTypes.number),
+  selected: PropTypes.any
+};

@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
-
+import PropTypes from 'prop-types';
 
 export function SizeSlider(props) {
-  const debouncedChange = _.debounce(value => props.onSelect(value), 150)
+  const debouncedChange = _.debounce(value => props.onSelect(value), 150);
   return (
     <input 
       type="range" 
@@ -15,12 +15,17 @@ export function SizeSlider(props) {
   );
 }
 
+SizeSlider.propTypes = {
+  size: PropTypes.number,
+  onSelect: PropTypes.func
+};
+
 
 export function SizeGradients(props) {
   // TODO this code is pretty hackey
   const sizes = [20, 25, 30, 35, 40];
   const circles = sizes.map(size => (
-    <div className="size-swatches-circle" style={{ width:size, height:size }}></div>
+    <div key="size-swatches-circle-{size}" className="size-swatches-circle" style={{ width:size, height:size }}></div>
   ));
   const reversed = circles.slice().reverse();
 
@@ -45,3 +50,8 @@ export function SizeGradients(props) {
     </div>
   );
 }
+
+SizeGradients.propTypes = {
+  onSelect: PropTypes.func,
+  selected: PropTypes.any
+};

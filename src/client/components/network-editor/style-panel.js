@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
-import { ColorSwatches, ColorGradients } from '../style/color-swatches'
-import { SizeSlider, SizeGradients } from '../style/size-slider'
+import { ColorSwatches, ColorGradients } from '../style/color-swatches';
+import { SizeSlider, SizeGradients } from '../style/size-slider';
+import PropTypes from 'prop-types';
+import { NetworkEditorController } from './controller';
 
 export class StylePanel extends Component {
   constructor(props){
@@ -72,5 +74,9 @@ export class StylePanel extends Component {
     );
   }
 }
+
+StylePanel.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController)
+};
 
 export default StylePanel;

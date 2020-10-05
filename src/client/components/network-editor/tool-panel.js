@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
+import PropTypes from 'prop-types';
+import { NetworkEditorController } from './controller';
 
 export class ToolPanel extends Component {
   constructor(props){
@@ -48,5 +50,9 @@ export class ToolPanel extends Component {
     );
   }
 }
+
+ToolPanel.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController)
+};
 
 export default ToolPanel;

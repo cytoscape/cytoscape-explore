@@ -410,7 +410,7 @@ export class CytoscapeSyncher {
     assertSelectorIsNodeOrEdge(selector);
     assertPropertyIsSupported(property, selector);
 
-    const _styles = cy.data('_styles') || {};
+    const _styles = this.cy.data('_styles') || {};
 
     _.set(_styles, [selector, property], value);
 
@@ -456,7 +456,7 @@ export class CytoscapeSyncher {
       throw new Error(`Can't set a bypass to a mapper`);
     }
 
-    const _bypasses = cy.data('_bypasses') || {};
+    const _bypasses = this.cy.data('_bypasses') || {};
     const ids = eles.map(ele => ele.id());
     const setBypassForId = id => _.set(_bypasses, [id, property], value);
 
