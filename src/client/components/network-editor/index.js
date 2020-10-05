@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
+import { Header } from './header';
 import { ToolPanel } from './tool-panel';
 import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
@@ -156,11 +157,14 @@ export class NetworkEditor extends Component {
     const { controller } = this;
 
     return (
-      <div className="network-editor">
-        <div id="cy" className="cy" />
-        <ToolPanel controller={controller} />
-        <StylePanel controller={controller} />
-      </div>
+      <>
+        <Header controller={controller} />
+        <div className="network-editor">
+          <div id="cy" className="cy" />
+          <ToolPanel controller={controller} />
+          <StylePanel controller={controller} />
+        </div>
+      </>
     );
   }
 }
