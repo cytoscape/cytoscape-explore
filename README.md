@@ -3,7 +3,7 @@
 
 ## Required software
 
-- [Node.js](https://nodejs.org/en/) ^10.15.0
+- [Node.js](https://nodejs.org/en/) ^12.15.0
 - [CouchDB](http://couchdb.apache.org) ^2.3.1
 
 
@@ -31,6 +31,18 @@
 - The Chrome debugger can be used for the clientside code (Chrome > View > Developer > Developer Tools) or the serverside code (`npm run inspect` and go to [chrome://inspect](chrome://inspect)).  There is also an included launch config file that allows you to debug the client or the server directly in VSC.
 
 
+## Editor
+- [Visual Studio Code](https://code.visualstudio.com)
+- Extensions
+  - Must-haves
+    - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) : Lint JS.
+    - [Stylelint](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint) : Lint CSS.
+    - [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) : Use the VSC debugger on an instnace of Chrome, for debugging the browser UI.
+  - Nice-to-haves
+    - [GitHub Pull Requests and Issues](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) : Easily browse and reference issues and pull requests.
+    - [Live Share Extension Pack](https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare-pack) : Do remote pair programming.
+    - [Docker](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) : Manage docker images with a GUI.
+
 ## Configuration
 
 The following environment variables can be used to configure the server:
@@ -51,6 +63,7 @@ The following environment variables can be used to configure the server:
 - `npm run bundle-profile` : visualise the bundle dependencies
 - `npm run clean` : clean the project
 - `npm run lint` : lint the project
+- `npm run fix` : fix linting errors that can be automatically addressed
 - `npm run test:mocha` : run model tests
 - `npm test` : run model tests, linting, and a build (run this before doing a pull request)
 
