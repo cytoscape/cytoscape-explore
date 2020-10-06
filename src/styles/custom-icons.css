@@ -4,7 +4,7 @@
     background-image: url('./image/spinner.svg');
     animation: spin 750ms infinite linear;
   }
-  
+
   /* add custom icons here: */
 
   &.logo {
