@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -11,19 +10,18 @@ import Popover from "@material-ui/core/Popover";
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 
+/**
+ * The network editor's header or app bar.
+ * @param {Object} props React props
+ */
 export class Header extends Component {
 
   constructor(props){
     super(props);
-    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
       menuName: null,
       anchorEl: null
     };
-  }
-
-  componentWillUnmount(){
-    this.busProxy.removeAllListeners();
   }
 
   handleClick(event, menuName) {
@@ -41,7 +39,6 @@ export class Header extends Component {
   }
 
   render() {
-    const controller = this.props.controller;
     const { anchorEl, menuName } = this.state;
 
     return (
