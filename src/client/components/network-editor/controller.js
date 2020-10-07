@@ -33,6 +33,15 @@ export class NetworkEditorController {
   }
 
   /**
+   * Replaces the current network with the passed one.
+   * @param {Object} [net] The new network
+   */
+  setNetwork(net) {
+    console.log(net);
+    // TODO
+  }
+
+  /**
    * Add a new node to the graph
    */
   addNode() {
