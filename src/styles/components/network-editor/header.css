@@ -1,0 +1,28 @@
+.header {
+  flex-grow: 1;
+}
+
+.header .logo {
+  width: 48px;
+  height: 48px;
+  background-size: cover;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  margin-right: 1em;
+}
+
+.header .title {
+  flex-grow: 1;
+}
+
+.header .menu-button {
+  margin-right: 2em;
+}
+
+.header .grow {
+  flex-grow: 1;
+}
+
+.header .MuiAppBar-colorPrimary {
+  background-color: #333;
+}
