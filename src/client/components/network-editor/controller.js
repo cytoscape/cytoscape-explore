@@ -34,11 +34,21 @@ export class NetworkEditorController {
 
   /**
    * Replaces the current network with the passed one.
-   * @param {Object} [net] The new network
+   * @param {Object} [elements] Cytoscape elements object
+   * @param {Object} [data] Cytoscape data object
    */
-  setNetwork(net) {
-    console.log(net);
-    // TODO
+  setNetwork(elements, data) {
+    this.cy.remove(this.cy.$().remove());
+    this.cy.removeData();
+    
+    this.cy.add(elements);
+    this.cy.data(data);
+
+    // TODO Apply correct style and layout
+    const layout = this.cy.layout({ name: 'cose', label: 'Clustered' });
+    layout.run();
+
+    this.bus.emit('setNetwork', this.cy);
   }
 
   /**

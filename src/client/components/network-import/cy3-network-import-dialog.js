@@ -38,7 +38,7 @@ export class Cy3NetworkImportDialog extends Component {
     this.onClose();
     fetch(`http://localhost:1234/v1/networks/${suid}`)
       .then(res => res.json())
-      .then(data => this.controller.setNetwork(data));
+      .then(data => this.controller.setNetwork(data.elements, data.data));
   }
 
   handleChange(event) {
