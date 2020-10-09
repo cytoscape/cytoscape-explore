@@ -9,6 +9,10 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
+import { Alert, AlertTitle } from '@material-ui/lab';
+import Link from '@material-ui/core/Link';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 const CY3_URL = 'http://localhost:1234';
 
@@ -22,6 +26,7 @@ export class Cy3NetworkImportDialog extends Component {
     this.state = {
       data: null,
       value: null,
+      error: null,
     };
   }
 
@@ -74,13 +79,48 @@ export class Cy3NetworkImportDialog extends Component {
     };
 
     fetch(`${CY3_URL}/v1/networks.names`)
-      .then(res => res.ok ? res.json() : [])
-      .then(data => this.setState(Object.assign(this.state, { data: data.sort(compareByName) })));
+      .then(res => res.json())
+      .then(data => this.setState(Object.assign(this.state, { data: data.sort(compareByName), error: null })))
+      .catch(err => this.setState(Object.assign(this.state, { error: err })));
   }
 
   render() {
     const { open } = this.props;
-    const { data, value } = this.state;
+    const { data, value, error } = this.state;
+    let content = null;
+
+    if (error) {
+      content = (
+        <Alert severity="error">
+          <AlertTitle>Error Connecting to Cytoscape 3</AlertTitle>
+          Please make sure <Link target="_blank" href='https://cytoscape.org/download.html'>Cytoscape 3</Link> is
+          installed and running before you try again.
+        </Alert>
+      );
+    } else if (!data || data.length === 0) {
+      content = (
+        <Alert severity="info">
+          <AlertTitle>No Networks</AlertTitle>
+          The current Cytoscape 3 session has no networks.
+        </Alert>
+      );
+    } else {
+      content = (
+        <RadioGroup
+          ref={this.radioGroupRef}
+          aria-label="ringtone"
+          name="ringtone"
+          value={value}
+          onChange={e => this.handleChange(e)}
+        >
+          {data.map((v) => (
+            <FormControlLabel key={v.SUID} value={v.SUID} label={v.name} control={<Radio />} />
+          ))}
+        </RadioGroup>
+      );
+    }
+    
+    const hasData = !error && data && data.length > 0;
 
     return (
       <Dialog
@@ -93,25 +133,30 @@ export class Cy3NetworkImportDialog extends Component {
       >
         <DialogTitle id="confirmation-dialog-title">Import Network</DialogTitle>
         <DialogContent dividers>
-          <RadioGroup
-            ref={this.radioGroupRef}
-            aria-label="ringtone"
-            name="ringtone"
-            value={value}
-            onChange={e => this.handleChange(e)}
-          >
-            {data && data.map((v) => (
-              <FormControlLabel key={v.SUID} value={v.SUID} label={v.name} control={<Radio />} />
-            ))}
-          </RadioGroup>
+          {content}
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={() => this.handleCancel()} color="primary">
-            Cancel
+          <Button
+            autoFocus
+            variant="contained"
+            color="default"
+            startIcon={<CancelIcon />}
+            onClick={() => this.handleCancel()}
+          >
+            {hasData  ? 'Cancel' : 'Close'}
           </Button>
-          <Button disabled={value === null} onClick={() => this.handleOk()} color="primary">
-            Import
-          </Button>
+          {hasData && (
+            <Button
+              autoFocus
+              variant="contained"
+              color="primary"
+              startIcon={<CheckCircleIcon />}
+              disabled={value === null} 
+              onClick={() => this.handleOk()}
+            >
+              Import
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     );
