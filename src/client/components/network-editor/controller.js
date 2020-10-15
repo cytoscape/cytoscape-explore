@@ -50,7 +50,7 @@ export class NetworkEditorController {
     // if (!style) {
     //   this.cy.style(style);
     // }
-    const layout = this.cy.layout({ name: 'cose' });
+    const layout = this.cy.layout({ name: 'grid' });
     layout.run();
 
     this.bus.emit('setNetwork', this.cy);
