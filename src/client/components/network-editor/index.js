@@ -10,6 +10,9 @@ import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
 import { DocumentNotFoundError } from '../../../model/errors';
 import { NetworkEditorController } from './controller';
+import { ThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import theme from '../../theme';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -157,14 +160,17 @@ export class NetworkEditor extends Component {
     const { controller } = this;
 
     return (
-      <>
-        <Header controller={controller} />
-        <div className="network-editor">
-          <div id="cy" className="cy" />
-          <ToolPanel controller={controller} />
-          <StylePanel controller={controller} />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div>
+          <Header controller={controller} />
+          <div className="network-editor">
+            <div id="cy" className="cy" />
+            <ToolPanel controller={controller} />
+            <StylePanel controller={controller} />
+          </div>
         </div>
-      </>
+      </ThemeProvider>
     );
   }
 }

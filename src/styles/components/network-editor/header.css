@@ -22,7 +22,3 @@
 .header .grow {
   flex-grow: 1;
 }
-
-.header .MuiAppBar-colorPrimary {
-  background-color: #333;
-}
