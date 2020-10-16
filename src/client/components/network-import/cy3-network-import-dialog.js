@@ -93,7 +93,7 @@ export class Cy3NetworkImportDialog extends Component {
       content = (
         <Alert severity="error">
           <AlertTitle>Error Connecting to Cytoscape 3</AlertTitle>
-          Please make sure <Link target="_blank" href='https://cytoscape.org/download.html'>Cytoscape 3</Link> is
+          Please make sure <Link color="error" target="_blank" href='https://cytoscape.org/download.html'>Cytoscape 3</Link> is
           installed and running before you try again.
         </Alert>
       );

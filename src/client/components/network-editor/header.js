@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
+import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -23,7 +24,9 @@ export class Header extends Component {
   constructor(props){
     super(props);
     this.controller = props.controller;
+    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
+      networkName: this.controller.cy.data('name'),
       menuName: null,
       anchorEl: null,
       dialogId: null,
@@ -31,39 +34,49 @@ export class Header extends Component {
   }
 
   handleClick(event, menuName) {
-    this.setState({
+    this.setState(Object.assign(this.state, {
       menuName: menuName,
       anchorEl: event.currentTarget,
       dialogId: null,
-    });
+    }));
   }
 
   handleClose() {
-    this.setState({
+    this.setState(Object.assign(this.state, {
       menuName: null,
       anchorEl: null,
       dialogId: null,
-    });
+    }));
   }
 
   showDialog(id) {
-    this.setState({
+    this.setState(Object.assign(this.state, {
       menuName: null,
       anchorEl: null,
       dialogId: id,
-    });
+    }));
   }
 
   hideDialog() {
-    this.setState({
+    this.setState(Object.assign(this.state, {
       menuName: null,
       anchorEl: null,
       dialogId: null,
-    });
+    }));
+  }
+
+  componentDidMount() {
+    const onSetNetwork = (cy) => this.setState(Object.assign(this.state, { networkName: cy.data('name') }));
+
+    this.busProxy.on('setNetwork', onSetNetwork);
+  }
+
+  componentWillUnmount() {
+    this.busProxy.removeAllListeners();
   }
 
   render() {
-    const { anchorEl, menuName, dialogId } = this.state;
+    const { networkName, anchorEl, menuName, dialogId } = this.state;
 
     return (
       <>
@@ -72,7 +85,7 @@ export class Header extends Component {
             <Toolbar variant="dense">
               <div className="icon logo" />
               <Typography variant="h6">
-                My Network
+                { networkName || '-- untitled --'  }
               </Typography>
               <div className="grow" />
               <IconButton edge="start" color="inherit" aria-label="search">

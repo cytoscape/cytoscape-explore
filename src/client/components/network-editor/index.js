@@ -28,7 +28,7 @@ export class NetworkEditor extends Component {
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
     // use placeholder id and secret for now...
-    this.cy.data('id', 'networkid');
+    this.cy.data({ id: 'networkid', name: 'New Network' });
 
     this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
