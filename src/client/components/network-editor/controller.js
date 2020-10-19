@@ -39,7 +39,7 @@ export class NetworkEditorController {
    * @param {Object} [style] Optional Cytoscape Style object
    */
   setNetwork(elements, data, style) {
-    this.cy.remove(this.cy.$().remove());
+    this.cy.elements().remove();
     this.cy.removeData();
     
     this.cy.add(elements);
