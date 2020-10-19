@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -27,6 +28,7 @@ export class Cy3NetworkImportDialog extends Component {
       data: null,
       value: null,
       error: null,
+      loading: false,
     };
   }
 
@@ -40,29 +42,54 @@ export class Cy3NetworkImportDialog extends Component {
     this.onClose();
   }
 
-  handleOk() {
-    const netId = this.state.value;
-    this.onClose();
+  async handleOk() {
+    this.setState(Object.assign(this.state, { loading: true }));
 
-    fetch(`${CY3_URL}/v1/networks/${netId}/views`)
-      .then(res => res.ok ? res.json() : [])
-      .then(viewIds => {
-        if (!viewIds || viewIds.length === 0) {
-          // No views -- Import the network
-          fetch(`${CY3_URL}/v1/networks/${netId}`)
-            .then(res => res.json())
-            .then(data => this.controller.setNetwork(data.elements, data.data));
-        } else {
-          // Import the first view of the network and its style
-          fetch(`${CY3_URL}/v1/networks/${netId}/views/${viewIds[0]}`)
-            .then(res => res.json())
-            .then(data => {
-              fetch(`${CY3_URL}/v1/networks/${netId}/views/${viewIds[0]}/currentStyle`)
-                .then(res => res.json())
-                .then(style => this.controller.setNetwork(data.elements, data.data, style));
-            });
-        }
-      });
+    // Return array of View SUIDs
+    const fetchViewIds = async (netId) => {
+      const res = await fetch(`${CY3_URL}/v1/networks/${netId}/views`);
+      return res.ok ? await res.json() : [];
+    };
+
+    // Return Network or View data (json) 
+    const fetchNetworkOrView = async (netId, viewId) => {
+      // If no views, import just the network
+      const url = viewId ?
+        `${CY3_URL}/v1/networks/${netId}/views/${viewId}` :
+        `${CY3_URL}/v1/networks/${netId}`; 
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`CyREST error! status: ${res.status}`);
+      } else {
+        return await res.json();
+      }
+    };
+
+    // Return the Style for the passed view
+    const fetchStyle = async (netId, viewId) => {
+      const res = await fetch(`${CY3_URL}/v1/networks/${netId}/views/${viewId}/currentStyle`);
+      
+      if (!res.ok) {
+        throw new Error(`CyREST error! status: ${res.status}`);
+      } else {
+        return await res.json();
+      }
+    };
+
+    try {
+      const netId = this.state.value;
+      const viewIds = await fetchViewIds(netId);
+      const viewId = viewIds && viewIds.length > 0 ? viewIds[0] : undefined;
+      const net = await fetchNetworkOrView(netId, viewId);
+      const style = viewId ? await fetchStyle(netId, viewId) : undefined;
+      
+      this.controller.setNetwork(net.elements, net.data, style);
+    } catch(e) {
+      console.log(e); // TODO Show error to user
+    }
+
+    this.onClose();
   }
 
   handleChange(event) {
@@ -86,7 +113,7 @@ export class Cy3NetworkImportDialog extends Component {
 
   render() {
     const { open } = this.props;
-    const { data, value, error } = this.state;
+    const { data, value, error, loading } = this.state;
     let content = null;
 
     if (error) {
@@ -151,13 +178,14 @@ export class Cy3NetworkImportDialog extends Component {
               variant="contained"
               color="primary"
               startIcon={<CheckCircleIcon />}
-              disabled={value === null} 
+              disabled={value === null || loading} 
               onClick={() => this.handleOk()}
             >
               Import
             </Button>
           )}
         </DialogActions>
+        {loading && <LinearProgress color="secondary" />}
       </Dialog>
     );
   }
