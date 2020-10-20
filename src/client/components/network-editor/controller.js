@@ -33,6 +33,47 @@ export class NetworkEditorController {
   }
 
   /**
+   * Replaces the current network with the passed one.
+   * @param {Object} [elements] Cytoscape elements object
+   * @param {Object} [data] Cytoscape data object
+   * @param {Object} [style] Optional Cytoscape Style object
+   */
+  setNetwork(elements, data, style) {
+    this.cy.elements().remove();
+    this.cy.removeData();
+    
+    this.cy.add(elements);
+    this.cy.data(data);
+
+    if (style) {
+      // TODO: This convertions are only necessary until we receive the correct Style object ====
+      // Let's just convert a few for testing purpose...
+      style.defaults.map((el) => {
+        const { visualProperty: k, value: v } = el;
+
+        if (k === "NODE_FILL_COLOR")
+          this.cySyncher.setStyle('node', 'background-color', styleFactory.color(v));
+        else if (k === "EDGE_STROKE_UNSELECTED_PAINT")
+          this.cySyncher.setStyle('edge', 'line-color', styleFactory.color(v));
+      });
+      // ========================================================================================
+    }
+
+    // Do not apply any layout if at least one original node has a 'position' object
+    const nodes = elements.nodes;
+    const hasPositions = nodes && nodes.length > 0 && nodes[0].position != null;
+
+    if (hasPositions) {
+      this.cy.fit();
+    } else {
+      const layout = this.cy.layout({ name: 'grid' });
+      layout.run();
+    }
+
+    this.bus.emit('setNetwork', this.cy);
+  }
+
+  /**
    * Add a new node to the graph
    */
   addNode() {
