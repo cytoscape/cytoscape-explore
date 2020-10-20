@@ -17,6 +17,12 @@ body {
   outline: none !important;
 }
 
+.network-editor {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
 input[type='text'],
 input[type='date'],
 input[type='week'],
