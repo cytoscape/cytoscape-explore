@@ -81,7 +81,7 @@ export class Header extends Component {
     return (
       <>
         <div className="header">
-          <AppBar position="absolute">
+          <AppBar position="relative">
             <Toolbar variant="dense">
               <div className="icon logo" />
               <Typography variant="h6">

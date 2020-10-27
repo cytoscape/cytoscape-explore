@@ -162,13 +162,11 @@ export class NetworkEditor extends Component {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div>
+        <div className="network-editor">
           <Header controller={controller} />
-          <div className="network-editor">
-            <div id="cy" className="cy" />
-            <ToolPanel controller={controller} />
-            <StylePanel controller={controller} />
-          </div>
+          <div id="cy" className="cy" />
+          <ToolPanel controller={controller} />
+          <StylePanel controller={controller} />
         </div>
       </ThemeProvider>
     );

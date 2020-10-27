@@ -1,5 +1,5 @@
 .header {
-  flex-grow: 1;
+  flex: 0 1 auto;
 }
 
 .header .logo {
@@ -9,10 +9,6 @@
   margin-top: 0.25em;
   margin-bottom: 0.25em;
   margin-right: 1em;
-}
-
-.header .title {
-  flex-grow: 1;
 }
 
 .header .menu-button {
