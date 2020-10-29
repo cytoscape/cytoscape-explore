@@ -7,12 +7,19 @@ import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
-import { HierarchicalLayoutIcon } from '../svg-icons';
+import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
+
+const iconProps = {
+  viewBox: '0 0 96 64',
+  style: { width: 'auto', fontSize: 38, margin: 0 },
+  p: 0,
+  m: 0,
+};
 
 const layouts = [
-  { name: 'fcose', label: 'Clustered', icon: HierarchicalLayoutIcon, options: { } },
-  { name: 'concentric', label: 'Circular', icon: HierarchicalLayoutIcon, options: { } },
-  { name: 'dagre', label: 'Hierarchical', icon: HierarchicalLayoutIcon, options: { } },
+  { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, options: { } }, 
+  { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, options: { } },
+  { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, options: { } },
 ];
 
 export class LayoutPanel extends Component {
@@ -53,19 +60,15 @@ export class LayoutPanel extends Component {
             variant="scrollable"
             scrollButtons="on"
             indicatorColor="secondary"
-            textColor="primary"
+            textColor="secondary"
           >
-            <Box display="none">
-              <Tab key={0} label="No Layout" {...a11yProps(0)} />
-            </Box>
+            <Tab key={0} style={{ display: 'none' }} {...a11yProps(0)} />
             {layouts.map((el, i) => (
-              <Tab key={i + 1} label={el.label} icon={<HierarchicalLayoutIcon viewBox="0 0 96 64" style={{ width: 'auto', fontSize: 38, margin: 0 }} p={0} m={0} />} {...a11yProps(i + 1)} />
+              <Tab key={i + 1} label={el.label} icon={el.icon} {...a11yProps(i + 1)} />
             ))}
           </Tabs>
         </AppBar>
-        <Box display="none">
-          <TabPanel value={value} index={0} />
-        </Box>
+        <TabPanel value={value} index={0} style={{ display: 'none' }} />
         {layouts.map((el, i) => (
           <TabPanel key={i + 1} value={value} index={i + 1}>
             { '[ ' + el.label + ' Options ]' }
