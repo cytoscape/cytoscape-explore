@@ -4,6 +4,8 @@ import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-d
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 
+let layout;
+
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
@@ -73,7 +75,11 @@ export class NetworkEditorController {
   }
 
   applyLayout(options) {
-    const layout = this.cy.layout(options);
+    if (layout != null) {
+      layout.stop();
+    }
+
+    layout = this.cy.layout(options);
     layout.run();
   }
 
