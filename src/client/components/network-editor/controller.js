@@ -66,11 +66,15 @@ export class NetworkEditorController {
     if (hasPositions) {
       this.cy.fit();
     } else {
-      const layout = this.cy.layout({ name: 'grid' });
-      layout.run();
+      this.applyLayout({ name: 'grid' });
     }
 
     this.bus.emit('setNetwork', this.cy);
+  }
+
+  applyLayout(options) {
+    const layout = this.cy.layout(options);
+    layout.run();
   }
 
   /**
@@ -214,7 +218,7 @@ export class NetworkEditorController {
 
     this.bus.emit('setNodeSizeMapping', attribute, value);
   }
-   
+
   /**
    * Returns the min and max values of a numeric attribute.
    * @private
