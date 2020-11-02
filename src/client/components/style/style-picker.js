@@ -9,7 +9,10 @@ export class StylePicker extends Component {
 
   constructor(props){
     super(props);
+
+    /** @type {NetworkEditorController} */
     this.controller = props.controller;
+    
     this.state = {
       mapping: MAPPING.VALUE
     };
@@ -17,7 +20,7 @@ export class StylePicker extends Component {
 
   onShow() {
     const { selector, property  } = this.props;
-    const style = this.controller.cySyncher.getStyle(selector, property);
+    const style = this.controller.vizmapper.get(selector, property);
     switch(style.mapping) {
       case MAPPING.VALUE:
         this.setState({

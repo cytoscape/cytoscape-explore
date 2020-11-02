@@ -22,6 +22,7 @@ export class StylePanel extends Component {
   }
 
   render(){ 
+    /** @type {NetworkEditorController} */
     const controller = this.props.controller;
 
     return (
