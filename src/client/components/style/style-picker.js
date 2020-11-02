@@ -16,8 +16,7 @@ export class StylePicker extends Component {
   }
 
   onShow() {
-    const { selector, property  } = this.props;
-    const style = this.controller.cySyncher.getStyle(selector, property);
+    const style = this.props.getStyle();
     switch(style.mapping) {
       case MAPPING.VALUE:
         this.setState({
@@ -145,8 +144,7 @@ StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   renderMapping: PropTypes.func,
   renderValue: PropTypes.func,
-  selector: PropTypes.string,
-  property: PropTypes.string,
+  getStyle: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
   valueLabel: PropTypes.string,

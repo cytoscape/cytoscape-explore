@@ -30,8 +30,6 @@ export class StylePanel extends Component {
           title="Node Color"
           valueLabel="Single Color"
           buttonIcon="opacity"
-          selector="node"
-          property="background-color"
           controller={controller}
           renderValue={(color, onSelect) => 
             <ColorSwatches selected={color} onSelect={onSelect} />
@@ -39,6 +37,7 @@ export class StylePanel extends Component {
           renderMapping={(gradient, onSelect) => 
             <ColorGradients selected={gradient} onSelect={onSelect} />
           } 
+          getStyle={() => controller.cySyncher.getStyle('node', 'background-color')}
           onValueSet={color => controller.setNodeColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
         />
@@ -47,8 +46,6 @@ export class StylePanel extends Component {
           title="Node Size"
           valueLabel="Single Value"
           buttonIcon="all_out"
-          selector="node"
-          property="width"  // TODO kind of a hack, initialize with width, but set both height and width
           controller={controller}
           renderValue={(size, onSelect) => 
             <SizeSlider size={size} onSelect={onSelect} />
@@ -56,6 +53,7 @@ export class StylePanel extends Component {
           renderMapping={(sizeRange, onSelect) => 
             <SizeGradients selected={sizeRange} onSelect={onSelect} />
           } 
+          getStyle={() => controller.cySyncher.getStyle('node', 'width')}
           onValueSet={size => controller.setNodeSize(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />

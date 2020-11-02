@@ -26,7 +26,6 @@ export class StylePickerButton extends Component  {
 
   render() {
     const ref = React.createRef();
-    // const tooltip = this.props.title;
     const { anchorEl } = this.state;
 
     return (
@@ -59,7 +58,8 @@ export class StylePickerButton extends Component  {
 
 StylePickerButton.propTypes = {
   buttonIcon: PropTypes.string,
-  title: PropTypes.string
+  title: PropTypes.string,
+  ...StylePicker.propTypes
 };
 
 export default StylePickerButton;
