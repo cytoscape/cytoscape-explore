@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 /**
  * A style picker button
  * @param {Object} props React props
- * @param {String} props.buttonIcon The CSS icon class of the icon in the button
+ * @param {String} props.icon The CSS icon class of the icon in the button
  * @param {String} props.title Title of the button (shown in tooltip)
  */
 export class StylePickerButton extends Component  {
@@ -33,7 +33,7 @@ export class StylePickerButton extends Component  {
         <button 
           onClick={e => this.handleClick(e)}
           className="style-panel-button plain-button">
-          <i className="material-icons">{this.props.buttonIcon}</i>
+          <i className="material-icons">{this.props.icon}</i>
         </button>
         <Popover 
           open={Boolean(anchorEl)}
@@ -57,7 +57,7 @@ export class StylePickerButton extends Component  {
 }
 
 StylePickerButton.propTypes = {
-  buttonIcon: PropTypes.string,
+  icon: PropTypes.string,
   title: PropTypes.string,
   ...StylePicker.propTypes
 };

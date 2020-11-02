@@ -28,8 +28,8 @@ export class StylePanel extends Component {
       <div className="style-panel">
         <StylePickerButton 
           title="Node Color"
+          icon="opacity"
           valueLabel="Single Color"
-          buttonIcon="opacity"
           controller={controller}
           renderValue={(color, onSelect) => 
             <ColorSwatches selected={color} onSelect={onSelect} />
@@ -44,8 +44,8 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Node Size"
+          icon="all_out"
           valueLabel="Single Value"
-          buttonIcon="all_out"
           controller={controller}
           renderValue={(size, onSelect) => 
             <SizeSlider size={size} onSelect={onSelect} />

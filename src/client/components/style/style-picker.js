@@ -75,6 +75,8 @@ export class StylePicker extends Component {
     return (
       <div className="style-picker">
         <div className="style-picker-heading">
+          <i className="material-icons">{this.props.icon}</i>
+          {'\u00A0'}
           {this.props.title || "Visual Property"}
         </div>
         <div className="style-picker-body"> 
@@ -149,7 +151,8 @@ StylePicker.propTypes = {
   onMappingSet: PropTypes.func,
   valueLabel: PropTypes.string,
   mappingLabel: PropTypes.string,
-  title: PropTypes.string
+  title: PropTypes.string,
+  icon: PropTypes.string,
 };
 
 export default StylePicker;
