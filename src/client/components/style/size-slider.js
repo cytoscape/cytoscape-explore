@@ -25,9 +25,11 @@ export function SizeGradients(props) {
   // TODO this code is pretty hackey
   const sizes = [20, 25, 30, 35, 40];
   const circles = sizes.map(size => (
-    <div key="size-swatches-circle-{size}" className="size-swatches-circle" style={{ width:size, height:size }}></div>
+    <div key={`size-swatches-circle-${size}`} className="size-swatches-circle" style={{ width:size, height:size }}></div>
   ));
-  const reversed = circles.slice().reverse();
+  const reversed = sizes.reverse().map(size => (
+    <div key={`size-swatches-circle-rev-${size}`} className="size-swatches-circle" style={{ width:size, height:size }}></div>
+  ));
 
   return (
     <div>
