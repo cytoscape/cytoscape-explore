@@ -10,12 +10,16 @@ export class StylePicker extends Component {
   constructor(props){
     super(props);
     this.controller = props.controller;
-    this.state = {
-      mapping: MAPPING.VALUE
-    };
+    this.initialized = false;
+    if(props.onPassthroughSet) { 
+      this.state = { mapping: MAPPING.PASSTHROUGH };
+    } else {
+      this.state = { mapping: MAPPING.VALUE };
+    }
   }
 
   onShow() {
+    this.initialized = true;
     const style = this.props.getStyle();
     switch(style.mapping) {
       case MAPPING.VALUE:
@@ -31,18 +35,28 @@ export class StylePicker extends Component {
           attribute: style.value.data
         });
         break;
+      case MAPPING.PASSTHROUGH:
+        this.setState({
+          mapping: MAPPING.PASSTHROUGH,
+          attribute: style.value.data
+        });
+        break;
     }
   }
 
   onStyleChanged(newState) {
     switch(newState.mapping) {
       case MAPPING.VALUE:
-        if(newState.scalarValue)
+        if(newState.scalarValue !== undefined)
           this.props.onValueSet(newState.scalarValue);
         break;
       case MAPPING.LINEAR:
-        if(newState.attribute && newState.mappingValue)
+        if(newState.attribute !== undefined && newState.mappingValue !== undefined)
           this.props.onMappingSet(newState.attribute, newState.mappingValue);
+        break;
+      case MAPPING.PASSTHROUGH:
+        if(newState.attribute !== undefined)
+          this.props.onPassthroughSet(newState.attribute);
         break;
     }
   }
@@ -72,6 +86,9 @@ export class StylePicker extends Component {
   }
 
   render() {
+    if(!this.initialized)
+      return null;
+
     return (
       <div className="style-picker">
         <div className="style-picker-heading">
@@ -86,15 +103,22 @@ export class StylePicker extends Component {
               labelId="mapping-label"
               label="Style Type"
               value={this.state.mapping}
-              onChange={event => this.handleMapping(event.target.value)} 
-              >
-              <MenuItem value={MAPPING.VALUE}>{this.props.valueLabel || 'Default Value'}</MenuItem>
-              <MenuItem value={MAPPING.LINEAR}>{this.props.mappingLabel || 'Attribute Mapping'}</MenuItem>
+              onChange={event => this.handleMapping(event.target.value)}
+            >
+              { this.props.onValueSet && <MenuItem value={MAPPING.VALUE}>{this.props.valueLabel || 'Default Value'}</MenuItem> }
+              { this.props.onMappingSet && <MenuItem value={MAPPING.LINEAR}>{this.props.mappingLabel || 'Attribute Mapping'}</MenuItem> }
+              { this.props.onPassthroughSet && <MenuItem value={MAPPING.PASSTHROUGH}>{'Passthrough Mapping'}</MenuItem> }
             </Select>
           </FormControl>
-          { (this.state.mapping == MAPPING.VALUE) 
-            ? this.renderValue()
-            : this.renderAttribute() }
+          {(() => {
+              if(this.state.mapping == MAPPING.VALUE)
+                return this.renderValue();
+              else if(this.state.mapping == MAPPING.LINEAR)
+                return this.renderAttribute();
+              else if(this.state.mapping == MAPPING.PASSTHROUGH)
+                return this.renderAttribute();
+            })()
+          }
         </div>
       </div>
     );
@@ -126,7 +150,7 @@ export class StylePicker extends Component {
             )}
           </Select>
         </FormControl>
-        { this.state.attribute && this.renderMapping() }
+        { this.state.mapping == MAPPING.LINEAR && this.state.attribute && this.renderMapping() }
       </div>
     );
   }
@@ -149,6 +173,7 @@ StylePicker.propTypes = {
   getStyle: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
+  onPassthroughSet: PropTypes.func,
   valueLabel: PropTypes.string,
   mappingLabel: PropTypes.string,
   title: PropTypes.string,

@@ -48,7 +48,6 @@ export class NetworkEditor extends Component {
       {
         selector: 'node',
         style: {
-          'label': el => el.id().replace(/-/g, ' '),
           'text-wrap': 'wrap',
           'text-max-width': 60,
           'font-size': 8

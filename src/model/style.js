@@ -13,10 +13,8 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 export const MAPPING = {
   /** A flat value (i.e. no mapping  */
   VALUE: 'VALUE',
-
   /**  A two-value linear mapping */
   LINEAR: 'LINEAR',
-
   /** A passthrough mapping (i.e. use data property verbatim)  */
   PASSTHROUGH: 'PASSTHROUGH'
 };
@@ -37,16 +35,13 @@ const assertDataRangeOrder = (dataValue1, dataValue2) => {
  * @enum {STYLE_TYPE}
  */
 export const STYLE_TYPE = {
-  /** A number */
   NUMBER: 'NUMBER',
-
-  /** A color */
-  COLOR: 'COLOR'
+  COLOR: 'COLOR',
+  STRING: 'STRING'
 };
 
 const mapLinear = (x, x1, x2, f1, f2) => {
   const t = (x - x1) / (x2 - x1);
-  
   return f1 + t * (f2 - f1);
 };
 
@@ -99,6 +94,28 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
  * @property {String} stringValue The Cytoscape style value as a string
  * @property {Number} value The value of the number
+ */
+
+ /**
+ * The style struct for a flat number property
+ * @typedef {Object} StringStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {String} value The value of the string.
+ */
+
+/**
+ * @typedef {Object} PassthroughStringStyleValue
+ * @property {String} data The data attribute that's mapped
+ */
+
+ /**
+ * @typedef {Object} PassthroughStringStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {PassthroughStringStyleValue} value The value of the number mapping
  */
 
 /**
@@ -165,6 +182,7 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * `cySyncher.setStyle('node', 'width', styleFactory.number(20))`
  */
 export const styleFactory = {
+
   /**
    * Create a flat number
    * @param {Number} value The value of the number
@@ -205,6 +223,36 @@ export const styleFactory = {
     };
   },
   
+  /**
+   * Create a flat string.
+   * @param {String} value The value of the string.
+   * @returns {StringStyleStruct} The style value object (JSON)
+   */
+  string: value => {
+    return {
+      type: STYLE_TYPE.STRING,
+      mapping: MAPPING.VALUE,
+      value,
+      stringValue: `${value}`
+    };
+  },
+
+  /**
+   * Create a passthrough mapping.
+   * @param {String} data The data property name to map
+   * @returns {PassthroughStringStyleStruct} The style value object (JSON)
+   */
+  stringPassthrough: (data) => {
+    return {
+      type: STYLE_TYPE.STRING,
+      mapping: MAPPING.PASSTHROUGH,
+      value: {
+        data
+      },
+      stringValue: `data(${data})`
+    };
+  },
+
   /**
    * Create a flat color value
    * @param {Color} value The color value
@@ -256,7 +304,8 @@ export const styleFactory = {
 export const NODE_STYLE_PROPERTIES = [
   'background-color',
   'width',
-  'height'
+  'height',
+  'label',
 ];
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
@@ -299,7 +348,8 @@ export const stylePropertyExists = (property, selector) => {
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
   'width': styleFactory.number(30),
-  'height': styleFactory.number(30)
+  'height': styleFactory.number(30),
+  'label': styleFactory.stringPassthrough('id')
 };
 
 /** An object map of the default edge style values */

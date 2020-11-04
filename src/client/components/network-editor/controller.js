@@ -157,6 +157,22 @@ export class NetworkEditorController {
   }
 
   /**
+   * Set the label of all nodes to a single value.
+   * @param {String} text The text to set
+   */
+  setNodeLabel(text){
+    this.cySyncher.setStyle('node', 'label', styleFactory.string(text));
+  }
+
+  /**
+   * Set the label of all to a passthrough mapping.
+   * @param {String} attribute The data attribute to map
+   */
+  setNodeLabelPassthrough(attribute){
+    this.cySyncher.setStyle('node', 'label', styleFactory.stringPassthrough(attribute));
+  }
+
+  /**
    * Set the color of all nodes to a single color
    * @param {(Color|String)} color The color to set
    */

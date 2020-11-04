@@ -3,6 +3,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
 import { ColorSwatches, ColorGradients } from '../style/color-swatches';
 import { SizeSlider, SizeGradients } from '../style/size-slider';
+import { LabelInput } from '../style/label-input';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 
@@ -27,6 +28,19 @@ export class StylePanel extends Component {
     return (
       <div className="style-panel">
         <StylePickerButton 
+          title="Node Label"
+          icon="format_quote"
+          valueLabel="Single Label"
+          controller={controller}
+          renderValue={(text, onChange) => 
+            <LabelInput value={text} onChange={onChange} />
+          }
+          getStyle={() => controller.cySyncher.getStyle('node', 'label')}
+          onValueSet={text => controller.setNodeLabel(text)}
+          onPassthroughSet={attribute => controller.setNodeLabelPassthrough(attribute)}
+        />
+
+        <StylePickerButton 
           title="Node Color"
           icon="opacity"
           valueLabel="Single Color"
@@ -44,7 +58,7 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Node Size"
-          icon="all_out"
+          icon="bubble_chart"
           valueLabel="Single Value"
           controller={controller}
           renderValue={(size, onSelect) => 
