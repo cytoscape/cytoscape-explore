@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import StylePicker from '../style/style-picker';
-import Popover from '@material-ui/core/Popover';
+import {Popover, Tooltip} from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 /**
@@ -30,11 +30,13 @@ export class StylePickerButton extends Component  {
 
     return (
       <div>
-        <button 
-          onClick={e => this.handleClick(e)}
-          className="style-panel-button plain-button">
-          <i className="material-icons">{this.props.icon}</i>
-        </button>
+        <Tooltip arrow title={this.props.title}>
+          <button 
+            onClick={e => this.handleClick(e)}
+            className="style-panel-button plain-button">
+            <i className="material-icons">{this.props.icon}</i>
+          </button>
+        </Tooltip>
         <Popover 
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
