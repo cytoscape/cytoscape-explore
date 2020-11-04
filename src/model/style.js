@@ -306,7 +306,25 @@ export const NODE_STYLE_PROPERTIES = [
   'width',
   'height',
   'label',
+  'border-color',
+  'border-width',
 ];
+
+/** An object map of the default node style values */
+export const DEFAULT_NODE_STYLE = {
+  'background-color': styleFactory.color('#888'),
+  'width': styleFactory.number(30),
+  'height': styleFactory.number(30),
+  'label': styleFactory.stringPassthrough('id'),
+  'border-color': styleFactory.color({r:100,g:100,b:100}),
+  'border-width': styleFactory.number(1),
+};
+
+/** An object map of the default edge style values */
+export const DEFAULT_EDGE_STYLE = {
+  'line-color': styleFactory.color('#888')
+};
+
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
 
@@ -344,15 +362,3 @@ export const stylePropertyExists = (property, selector) => {
   }
 };
 
-/** An object map of the default node style values */
-export const DEFAULT_NODE_STYLE = {
-  'background-color': styleFactory.color('#888'),
-  'width': styleFactory.number(30),
-  'height': styleFactory.number(30),
-  'label': styleFactory.stringPassthrough('id')
-};
-
-/** An object map of the default edge style values */
-export const DEFAULT_EDGE_STYLE = {
-  'line-color': styleFactory.color('#888')
-};

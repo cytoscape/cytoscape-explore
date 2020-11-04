@@ -177,8 +177,15 @@ export class NetworkEditorController {
    * @param {(Color|String)} color The color to set
    */
   setNodeColor(color){
-    console.log("setNodeColor");
     this.cySyncher.setStyle('node', 'background-color', styleFactory.color(color));
+  }
+
+  /**
+   * Set the color of all nodes to a single color
+   * @param {(Color|String)} color The color to set
+   */
+  setNodeBorderColor(color){
+    this.cySyncher.setStyle('node', 'border-color', styleFactory.color(color));
   }
 
   /**
@@ -187,17 +194,30 @@ export class NetworkEditorController {
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
   setNodeColorMapping(attribute, value) {
-    console.log("setNodeColorMapping");
     const {hasVal, min, max} = this._minMax(attribute);
-    
     if(!hasVal)
       return;
 
     const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    
     this.cySyncher.setStyle('node', 'background-color', style);
 
     this.bus.emit('setNodeColorMapping', attribute, value);
+  }
+
+  /**
+   * Set the color of all nodes to a mapping
+   * @param {String} attribute The data attribute to map
+   * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
+   */
+  setNodeBorderColorMapping(attribute, value) {
+    const {hasVal, min, max} = this._minMax(attribute);
+    if(!hasVal)
+      return;
+
+    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    this.cySyncher.setStyle('node', 'border-color', style);
+
+    this.bus.emit('setNodeBorderColorMapping', attribute, value);
   }
 
   /**
@@ -205,11 +225,20 @@ export class NetworkEditorController {
    * @param {Number} size The new size of the nodes
    */
   setNodeSize(size) {
-    console.log("setNodeSize");
     this.cySyncher.setStyle('node', 'width',  styleFactory.number(size));
     this.cySyncher.setStyle('node', 'height', styleFactory.number(size));
 
     this.bus.emit('setNodeSize', size);
+  }
+
+  /**
+   * Set the node size to a fixed value
+   * @param {Number} size The new size of the nodes
+   */
+  setNodeBorderWidth(size) {
+    this.cySyncher.setStyle('node', 'border-width', styleFactory.number(size));
+
+    this.bus.emit('setNodeBorderWidth', size);
   }
 
   /**
@@ -218,7 +247,6 @@ export class NetworkEditorController {
    * @param {LinearNumberStyleValue} value The number style struct value to use
    */
   setNodeSizeMapping(attribute, value) {
-    console.log("setNodeSizeGradient");
     const {hasVal, min, max} = this._minMax(attribute);
     if(!hasVal)
       return;
@@ -229,6 +257,22 @@ export class NetworkEditorController {
     this.cySyncher.setStyle('node', 'height', style);
 
     this.bus.emit('setNodeSizeMapping', attribute, value);
+  }
+
+  /**
+   * Set the node sizes to a linear attribute mapping
+   * @param {String} attribute The data attribute to use as mapping input
+   * @param {LinearNumberStyleValue} value The number style struct value to use
+   */
+  setNodeBorderWidthMapping(attribute, value) {
+    const {hasVal, min, max} = this._minMax(attribute);
+    if(!hasVal)
+      return;
+
+    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    this.cySyncher.setStyle('node', 'border-width',  style);
+
+    this.bus.emit('setNodeBorderWidthMapping', attribute, value);
   }
    
   /**

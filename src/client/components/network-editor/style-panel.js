@@ -42,7 +42,7 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Node Color"
-          icon="opacity"
+          icon="lens"
           valueLabel="Single Color"
           controller={controller}
           renderValue={(color, onSelect) => 
@@ -57,31 +57,53 @@ export class StylePanel extends Component {
         />
 
         <StylePickerButton 
+          title="Node Border Color"
+          icon="trip_origin"
+          valueLabel="Single Color"
+          controller={controller}
+          renderValue={(color, onSelect) => 
+            <ColorSwatches selected={color} onSelect={onSelect} />
+          }
+          renderMapping={(gradient, onSelect) => 
+            <ColorGradients selected={gradient} onSelect={onSelect} />
+          } 
+          getStyle={() => controller.cySyncher.getStyle('node', 'border-color')}
+          onValueSet={color => controller.setNodeBorderColor(color)}
+          onMappingSet={(gradient, attribute) => controller.setNodeBorderColorMapping(gradient, attribute)}
+        />
+
+        <StylePickerButton 
           title="Node Size"
           icon="bubble_chart"
           valueLabel="Single Value"
           controller={controller}
-          renderValue={(size, onSelect) => 
-            <SizeSlider size={size} onSelect={onSelect} />
+          renderValue={(size, onSelect) =>
+            <SizeSlider min={20} max={40} defaultValue={size} onSelect={onSelect} />
           }
           renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients selected={sizeRange} onSelect={onSelect} />
+            <SizeGradients min={20} max={40} selected={sizeRange} onSelect={onSelect} />
           } 
           getStyle={() => controller.cySyncher.getStyle('node', 'width')}
           onValueSet={size => controller.setNodeSize(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />
 
-        <button 
-          onClick={() => console.log('dummy button')}
-          className="button style-panel-button plain-button">
-          <i className="material-icons">grade</i>
-        </button>
-        <button 
-          onClick={() => console.log('dummy button')}
-          className="button style-panel-button plain-button">
-          <i className="material-icons">grade</i>
-        </button>
+        <StylePickerButton 
+          title="Node Border Width"
+          icon="toll"
+          valueLabel="Single Value"
+          controller={controller}
+          renderValue={(size, onSelect) => 
+            <SizeSlider min={0.5} max={10.0} defaultValue={size} onSelect={onSelect} />
+          }
+          renderMapping={(sizeRange, onSelect) => 
+            <SizeGradients min={0.5} max={10.0} border={true} selected={sizeRange} onSelect={onSelect} />
+          } 
+          getStyle={() => controller.cySyncher.getStyle('node', 'border-width')}
+          onValueSet={size => controller.setNodeBorderWidth(size)}
+          onMappingSet={(sizeRange, attribute) => controller.setNodeBorderWidthMapping(sizeRange, attribute)}
+        />
+
       </div>
     );
   }

@@ -4,6 +4,7 @@ import colorConvert from 'color-convert';
 import classNames from 'classnames';
 import Color from 'color';
 import PropTypes from 'prop-types';
+import { StrikethroughS } from '@material-ui/icons';
 
 
 // TODO improve defaults
@@ -65,8 +66,6 @@ export class ColorSwatches extends Component {
     this.state = Object.assign({}, defaults, props);
 
     this.state.groups = this.state.hues.map(hue => {
-      const colors = [];
-
       const {
         minSaturation: minS,
         maxSaturation: maxS,
@@ -75,13 +74,12 @@ export class ColorSwatches extends Component {
         range
       } = this.state;
 
+      const colors = [];
       for(let i = 0; i < range; i++) {
         const p = i / (range - 1);
         const s = minS + (maxS - minS) * p;
         const l = minL + (maxL - minL) * p;
-
         const [r, g, b] = colorConvert.hsl.rgb(hue, s, l);
-
         colors.push({ r, g, b });
       }
 
@@ -89,6 +87,18 @@ export class ColorSwatches extends Component {
         hue,
         colors
       };
+    });
+
+    // Monochrome
+    this.state.groups.push({
+      hue: 0,
+      colors: [
+        {r:40, g:40, b:40 },
+        {r:100,g:100,b:100},
+        {r:150,g:150,b:150},
+        {r:200,g:200,b:200},
+        {r:230,g:230,b:230},
+      ]
     });
   }
 
