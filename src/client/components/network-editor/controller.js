@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue } from '../../../model/style'; // eslint-disable-line
+import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
@@ -191,6 +191,14 @@ export class NetworkEditorController {
   }
 
   /**
+   * Get the global node colour style struct
+   * @returns {ColorStyleStruct} The style value struct
+   */
+  getNodeBackgroundColor(){
+    return this.vizmapper.node('background-color');
+  }
+
+  /**
    * Set the node size to a fixed value
    * @param {Number} size The new size of the nodes
    */
@@ -220,6 +228,14 @@ export class NetworkEditorController {
     this.vizmapper.node('height', style);
 
     this.bus.emit('setNodeSizeMapping', attribute, value);
+  }
+
+  /**
+   * Get the global node size style struct
+   * @returns {NumberStyleStruct} The style value struct
+   */
+  getNodeSize(){
+    return this.vizmapper.node('width');
   }
    
   /**

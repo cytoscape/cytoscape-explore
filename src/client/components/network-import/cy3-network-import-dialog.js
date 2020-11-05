@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -28,7 +28,7 @@ export class Cy3NetworkImportDialog extends Component {
       data: null,
       value: null,
       error: null,
-      loading: false,
+      loading: true,
     };
   }
 
@@ -104,11 +104,11 @@ export class Cy3NetworkImportDialog extends Component {
       if (na > nb) return 1;
       return 0;
     };
-
+    
     fetch(`${CY3_URL}/v1/networks.names`)
       .then(res => res.json())
-      .then(data => this.setState(Object.assign(this.state, { data: data.sort(compareByName), error: null })))
-      .catch(err => this.setState(Object.assign(this.state, { error: err })));
+      .then(data => this.setState(Object.assign(this.state, { data: data.sort(compareByName), error: null, loading: false })))
+      .catch(err => this.setState(Object.assign(this.state, { error: err, loading: false })));
   }
 
   render() {
@@ -116,7 +116,13 @@ export class Cy3NetworkImportDialog extends Component {
     const { data, value, error, loading } = this.state;
     let content = null;
 
-    if (error) {
+    if (loading) {
+      content = (
+        <div style={{ textAlign: 'center', }}>
+          <CircularProgress color="secondary" />
+        </div>
+      );
+    } else if (error) {
       content = (
         <Alert severity="error">
           <AlertTitle>Error Connecting to Cytoscape 3</AlertTitle>
@@ -170,7 +176,7 @@ export class Cy3NetworkImportDialog extends Component {
             startIcon={<CancelIcon />}
             onClick={() => this.handleCancel()}
           >
-            {hasData  ? 'Cancel' : 'Close'}
+            {hasData || loading  ? 'Cancel' : 'Close'}
           </Button>
           {hasData && (
             <Button
@@ -185,7 +191,6 @@ export class Cy3NetworkImportDialog extends Component {
             </Button>
           )}
         </DialogActions>
-        {loading && <LinearProgress color="secondary" />}
       </Dialog>
     );
   }
