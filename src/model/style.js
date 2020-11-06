@@ -306,3 +306,11 @@ export const DEFAULT_NODE_STYLE = {
 export const DEFAULT_EDGE_STYLE = {
   'line-color': styleFactory.color('#888')
 };
+
+/** A LUT for style property types */
+export const PROPERTY_TYPE = {
+  'background-color': STYLE_TYPE.COLOR,
+  'width': STYLE_TYPE.NUMBER,
+  'height': STYLE_TYPE.NUMBER,
+  'line-color': STYLE_TYPE.COLOR
+};

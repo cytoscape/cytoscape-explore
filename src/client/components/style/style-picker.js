@@ -9,7 +9,10 @@ export class StylePicker extends Component {
 
   constructor(props){
     super(props);
+
+    /** @type {NetworkEditorController} */
     this.controller = props.controller;
+    
     this.state = {
       mapping: MAPPING.VALUE
     };

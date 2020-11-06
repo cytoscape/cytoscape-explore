@@ -22,6 +22,7 @@ export class StylePanel extends Component {
   }
 
   render(){ 
+    /** @type {NetworkEditorController} */
     const controller = this.props.controller;
 
     return (
@@ -37,7 +38,7 @@ export class StylePanel extends Component {
           renderMapping={(gradient, onSelect) => 
             <ColorGradients selected={gradient} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'background-color')}
+          getStyle={() => controller.getNodeBackgroundColor()}
           onValueSet={color => controller.setNodeColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
         />
@@ -53,7 +54,7 @@ export class StylePanel extends Component {
           renderMapping={(sizeRange, onSelect) => 
             <SizeGradients selected={sizeRange} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'width')}
+          getStyle={() => controller.getNodeSize()}
           onValueSet={size => controller.setNodeSize(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />
