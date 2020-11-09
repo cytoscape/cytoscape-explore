@@ -23,6 +23,7 @@ export class StylePanel extends Component {
   }
 
   render(){ 
+    /** @type {NetworkEditorController} */
     const controller = this.props.controller;
 
     return (
@@ -35,7 +36,7 @@ export class StylePanel extends Component {
           renderValue={(text, onChange) => 
             <LabelInput value={text} onChange={onChange} />
           }
-          getStyle={() => controller.cySyncher.getStyle('node', 'label')}
+          getStyle={() => controller.getNodeLabel()}
           onValueSet={text => controller.setNodeLabel(text)}
           onPassthroughSet={attribute => controller.setNodeLabelPassthrough(attribute)}
         />
@@ -51,7 +52,7 @@ export class StylePanel extends Component {
           renderMapping={(gradient, onSelect) => 
             <ColorGradients selected={gradient} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'background-color')}
+          getStyle={() => controller.getNodeBackgroundColor()}
           onValueSet={color => controller.setNodeColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
         />
@@ -67,7 +68,7 @@ export class StylePanel extends Component {
           renderMapping={(gradient, onSelect) => 
             <ColorGradients selected={gradient} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'border-color')}
+          getStyle={() => controller.getNodeBorderColor()}
           onValueSet={color => controller.setNodeBorderColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeBorderColorMapping(gradient, attribute)}
         />
@@ -83,7 +84,7 @@ export class StylePanel extends Component {
           renderMapping={(sizeRange, onSelect) => 
             <SizeGradients min={20} max={40} selected={sizeRange} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'width')}
+          getStyle={() => controller.getNodeSize()}
           onValueSet={size => controller.setNodeSize(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />
@@ -99,7 +100,7 @@ export class StylePanel extends Component {
           renderMapping={(sizeRange, onSelect) => 
             <SizeGradients min={0.5} max={10.0} border={true} selected={sizeRange} onSelect={onSelect} />
           } 
-          getStyle={() => controller.cySyncher.getStyle('node', 'border-width')}
+          getStyle={() => controller.getNodeBorderWidth()}
           onValueSet={size => controller.setNodeBorderWidth(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeBorderWidthMapping(sizeRange, attribute)}
         />

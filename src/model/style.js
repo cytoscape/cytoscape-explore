@@ -347,6 +347,17 @@ export const NODE_STYLE_PROPERTIES = [
   'border-width',
 ];
 
+/** A LUT for style property types */
+export const PROPERTY_TYPE = {
+  'background-color': STYLE_TYPE.COLOR,
+  'width': STYLE_TYPE.NUMBER,
+  'height': STYLE_TYPE.NUMBER,
+  'line-color': STYLE_TYPE.COLOR,
+  'label': STYLE_TYPE.STRING,
+  'border-color': STYLE_TYPE.COLOR,
+  'border-width': STYLE_TYPE.NUMBER,
+}; 
+
 /** An object map of the default node style values */
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
@@ -398,4 +409,5 @@ export const stylePropertyExists = (property, selector) => {
     return edgeStylePropertyExists(property);
   }
 };
+
 

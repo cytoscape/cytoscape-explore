@@ -43,7 +43,7 @@ export class NetworkEditor extends Component {
     this.cy.style().fromJson([
       {
         selector: 'node',
-        style: this.cySyncher.getNodeStyles()
+        style: this.cy.vizmapper().nodeStyleBlock()
       },
       {
         selector: 'node',

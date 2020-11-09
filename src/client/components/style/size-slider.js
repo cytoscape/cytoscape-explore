@@ -3,7 +3,6 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Slider } from '@material-ui/core';
-import { stylePropertyExists } from '../../../model/style';
 
 export function SizeSlider(props) {
   const debouncedOnChange = _.debounce(value => props.onSelect(value), 150);

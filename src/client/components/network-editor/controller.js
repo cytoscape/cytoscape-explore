@@ -1,32 +1,37 @@
 import EventEmitter from 'eventemitter3';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue } from '../../../model/style'; // eslint-disable-line
+import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
+import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
  * 
- * @property {Cytoscape} cy The graph instance
+ * @property {Cytoscape.Core} cy The graph instance
  * @property {CytoscapeSyncher} cySyncher The syncher that corresponds to the graph instance
  * @property {EventEmitter} bus The event bus that the controller emits on after every operation
+ * @property {VizMapper} vizmapper The vizmapper for managing style
  */
 export class NetworkEditorController {
   /**
    * Create an instance of the controller
-   * @param {Cytoscape} cy The graph instance (model)
+   * @param {Cytoscape.Core} cy The graph instance (model)
    * @param {CytoscapeSyncher} cySyncher The syncher that corresponds to the Cytoscape instance
    * @param {EventEmitter} bus The event bus that the controller emits on after every operation
    */
   constructor(cy, cySyncher, bus){
-    /** @type Cytoscape */
+    /** @type {Cytoscape.Core} */
     this.cy = cy;
 
-    /** @type CytoscapeSyncher */
+    /** @type {CytoscapeSyncher} */
     this.cySyncher = cySyncher;
 
-    /** @type EventEmitter */
+    /** @type {VizMapper} */
+    this.vizmapper = this.cy.vizmapper(); 
+
+    /** @type {EventEmitter} */
     this.bus = bus || new EventEmitter();
 
     this.drawModeEnabled = false;
@@ -99,6 +104,7 @@ export class NetworkEditorController {
   toggleDrawMode(bool = !this.drawModeEnabled){
     if( bool ){
       this.eh.enableDrawMode();
+
       this.bus.emit('enableDrawMode');
     } else {
       this.eh.disableDrawMode();
@@ -157,35 +163,12 @@ export class NetworkEditorController {
   }
 
   /**
-   * Set the label of all nodes to a single value.
-   * @param {String} text The text to set
-   */
-  setNodeLabel(text){
-    this.cySyncher.setStyle('node', 'label', styleFactory.string(text));
-  }
-
-  /**
-   * Set the label of all to a passthrough mapping.
-   * @param {String} attribute The data attribute to map
-   */
-  setNodeLabelPassthrough(attribute){
-    this.cySyncher.setStyle('node', 'label', styleFactory.stringPassthrough(attribute));
-  }
-
-  /**
    * Set the color of all nodes to a single color
    * @param {(Color|String)} color The color to set
    */
   setNodeColor(color){
-    this.cySyncher.setStyle('node', 'background-color', styleFactory.color(color));
-  }
-
-  /**
-   * Set the color of all nodes to a single color
-   * @param {(Color|String)} color The color to set
-   */
-  setNodeBorderColor(color){
-    this.cySyncher.setStyle('node', 'border-color', styleFactory.color(color));
+    console.log("setNodeColor");
+    this.vizmapper.node('background-color', styleFactory.color(color));
   }
 
   /**
@@ -194,30 +177,25 @@ export class NetworkEditorController {
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
   setNodeColorMapping(attribute, value) {
+    console.log("setNodeColorMapping");
     const {hasVal, min, max} = this._minMax(attribute);
+    
     if(!hasVal)
       return;
 
     const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.cySyncher.setStyle('node', 'background-color', style);
+      
+    this.vizmapper.node('background-color', style);
 
     this.bus.emit('setNodeColorMapping', attribute, value);
   }
 
   /**
-   * Set the color of all nodes to a mapping
-   * @param {String} attribute The data attribute to map
-   * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
+   * Get the global node colour style struct
+   * @returns {ColorStyleStruct} The style value struct
    */
-  setNodeBorderColorMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute);
-    if(!hasVal)
-      return;
-
-    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.cySyncher.setStyle('node', 'border-color', style);
-
-    this.bus.emit('setNodeBorderColorMapping', attribute, value);
+  getNodeBackgroundColor(){
+    return this.vizmapper.node('background-color');
   }
 
   /**
@@ -225,20 +203,12 @@ export class NetworkEditorController {
    * @param {Number} size The new size of the nodes
    */
   setNodeSize(size) {
-    this.cySyncher.setStyle('node', 'width',  styleFactory.number(size));
-    this.cySyncher.setStyle('node', 'height', styleFactory.number(size));
+    console.log("setNodeSize");
+
+    this.vizmapper.node('width', styleFactory.number(size));
+    this.vizmapper.node('height', styleFactory.number(size));
 
     this.bus.emit('setNodeSize', size);
-  }
-
-  /**
-   * Set the node size to a fixed value
-   * @param {Number} size The new size of the nodes
-   */
-  setNodeBorderWidth(size) {
-    this.cySyncher.setStyle('node', 'border-width', styleFactory.number(size));
-
-    this.bus.emit('setNodeBorderWidth', size);
   }
 
   /**
@@ -247,16 +217,60 @@ export class NetworkEditorController {
    * @param {LinearNumberStyleValue} value The number style struct value to use
    */
   setNodeSizeMapping(attribute, value) {
+    console.log("setNodeSizeGradient");
     const {hasVal, min, max} = this._minMax(attribute);
     if(!hasVal)
       return;
 
     const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
     
-    this.cySyncher.setStyle('node', 'width',  style);
-    this.cySyncher.setStyle('node', 'height', style);
+    this.vizmapper.node('width',  style);
+    this.vizmapper.node('height', style);
 
     this.bus.emit('setNodeSizeMapping', attribute, value);
+  }
+
+  /**
+   * Get the global node size style struct
+   * @returns {NumberStyleStruct} The style value struct
+   */
+  getNodeSize(){
+    return this.vizmapper.node('width');
+  }
+
+  /**
+   * Set the label of all nodes to a single value.
+   * @param {String} text The text to set
+   */
+  setNodeLabel(text){
+    this.vizmapper.node('label', styleFactory.string(text));
+    this.bus.emit('setNodeLabel', text);
+  }
+
+  /**
+   * Set the label of all to a passthrough mapping.
+   * @param {String} attribute The data attribute to map
+   */
+  setNodeLabelPassthrough(attribute){
+    this.vizmapper.node('label', styleFactory.stringPassthrough(attribute));
+    this.bus.emit('setNodeLabelPassthrough', attribute);
+  }
+
+  /**
+   * Get the global node size style struct
+   * @returns {StringStyleStruct} The style value struct
+   */
+  getNodeLabel() {
+    return this.vizmapper.node('label');
+  }
+
+  /**
+   * Set the node size to a fixed value
+   * @param {Number} size The new size of the nodes
+   */
+  setNodeBorderWidth(size) {
+    this.vizmapper.node('border-width', styleFactory.number(size));
+    this.bus.emit('setNodeBorderWidth', size);
   }
 
   /**
@@ -270,11 +284,49 @@ export class NetworkEditorController {
       return;
 
     const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.cySyncher.setStyle('node', 'border-width',  style);
-
+    this.vizmapper.node('border-width',  style);
     this.bus.emit('setNodeBorderWidthMapping', attribute, value);
   }
-   
+
+  /**
+   * Get the node border width.
+   * @returns {NumberStyleStruct} 
+   */
+  getNodeBorderWidth() {
+    return this.vizmapper.node('border-width');
+  }
+
+    /**
+   * Set the color of all node borders to a single color
+   * @param {(Color|String)} color The color to set
+   */
+  setNodeBorderColor(color){
+    this.vizmapper.node('border-color', styleFactory.color(color));
+  }
+
+  /**
+   * Set the color of all node border to a mapping
+   * @param {String} attribute The data attribute to map
+   * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
+   */
+  setNodeBorderColorMapping(attribute, value) {
+    const {hasVal, min, max} = this._minMax(attribute);
+    if(!hasVal)
+      return;
+
+    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    this.vizmapper.node('border-color', style);
+    this.bus.emit('setNodeBorderColorMapping', attribute, value);
+  }
+
+  /**
+   * Get the global node border colour style struct
+   * @returns {ColorStyleStruct} The style value struct
+   */
+  getNodeBorderColor(){
+    return this.vizmapper.node('border-color');
+  }
+
   /**
    * Returns the min and max values of a numeric attribute.
    * @private
