@@ -28,17 +28,24 @@ export class StylePicker extends Component {
           scalarValue: style.value
         });
         break;
-      case MAPPING.LINEAR:
-        this.setState({
-          mapping: MAPPING.LINEAR,
-          mappingValue: style.value,
-          attribute: style.value.data
-        });
-        break;
       case MAPPING.PASSTHROUGH:
         this.setState({
           mapping: MAPPING.PASSTHROUGH,
           attribute: style.value.data
+        });
+        break;
+      case MAPPING.LINEAR:
+        this.setState({
+          mapping: MAPPING.LINEAR,
+          attribute: style.value.data,
+          mappingValue: style.value,
+        });
+        break;
+      case MAPPING.DISCRETE:
+        this.setState({
+          mapping: MAPPING.DISCRETE,
+          attribute: style.value.data,
+          discreteValue: style.value
         });
         break;
     }
@@ -50,13 +57,17 @@ export class StylePicker extends Component {
         if(newState.scalarValue !== undefined)
           this.props.onValueSet(newState.scalarValue);
         break;
+      case MAPPING.PASSTHROUGH:
+        if(newState.attribute !== undefined)
+          this.props.onPassthroughSet(newState.attribute);
+        break;
       case MAPPING.LINEAR:
         if(newState.attribute !== undefined && newState.mappingValue !== undefined)
           this.props.onMappingSet(newState.attribute, newState.mappingValue);
         break;
-      case MAPPING.PASSTHROUGH:
-        if(newState.attribute !== undefined)
-          this.props.onPassthroughSet(newState.attribute);
+      case MAPPING.DISCRETE:
+        if(newState.attribute !== undefined && newState.discreteValue !== undefined)
+          this.props.onDiscreteSet(newState.attribute, newState.discreteValue);
         break;
     }
   }
@@ -85,6 +96,12 @@ export class StylePicker extends Component {
     this.onStyleChanged(_.assign({}, this.state, change));
   }
 
+  handleDiscreteValue(discreteValue){
+    const change = { discreteValue };
+    this.setState(change);
+    this.onStyleChanged(_.assign({}, this.state, change));
+  }
+
   render() {
     if(!this.initialized)
       return null;
@@ -108,17 +125,23 @@ export class StylePicker extends Component {
               { this.props.onValueSet && <MenuItem value={MAPPING.VALUE}>{this.props.valueLabel || 'Default Value'}</MenuItem> }
               { this.props.onMappingSet && <MenuItem value={MAPPING.LINEAR}>{this.props.mappingLabel || 'Attribute Mapping'}</MenuItem> }
               { this.props.onPassthroughSet && <MenuItem value={MAPPING.PASSTHROUGH}>{'Passthrough Mapping'}</MenuItem> }
+              { this.props.onDiscreteSet && <MenuItem value={MAPPING.DISCRETE}>{'Discrete Mapping'}</MenuItem> }
             </Select>
           </FormControl>
-          {(() => {
+          {/* {(() => {
               if(this.state.mapping == MAPPING.VALUE)
                 return this.renderValue();
               else if(this.state.mapping == MAPPING.LINEAR)
                 return this.renderAttribute();
               else if(this.state.mapping == MAPPING.PASSTHROUGH)
                 return this.renderAttribute();
-            })()
-          }
+              else if(this.state.mapping == MAPPING.PASSTHROUGH)
+                return this.renderAttribute();
+            })() */}
+            { this.state.mapping === MAPPING.VALUE
+              ? this.renderValue()
+              : this.renderAttribute()
+            }
         </div>
       </div>
     );
@@ -150,7 +173,16 @@ export class StylePicker extends Component {
             )}
           </Select>
         </FormControl>
-        { this.state.mapping == MAPPING.LINEAR && this.state.attribute && this.renderMapping() }
+        {(() => {
+          if(!this.state.attribute)
+            return null;
+          else if(this.state.mapping === MAPPING.PASSTHROUGH)
+            return null;
+          else if(this.state.mapping === MAPPING.LINEAR)
+            return this.renderMapping();
+          else if(this.state.mapping === MAPPING.DISCRETE)
+            return this.renderDiscrete();
+        })()}
       </div>
     );
   }
@@ -164,6 +196,15 @@ export class StylePicker extends Component {
     );
   }
 
+
+  renderDiscrete() {
+    return (
+      <div>
+        Discrete Mapping TODO
+      </div>
+    );
+  }
+
 }
 
 StylePicker.propTypes = {
@@ -173,6 +214,7 @@ StylePicker.propTypes = {
   getStyle: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
+  onDiscreteSet: PropTypes.func,
   onPassthroughSet: PropTypes.func,
   valueLabel: PropTypes.string,
   mappingLabel: PropTypes.string,

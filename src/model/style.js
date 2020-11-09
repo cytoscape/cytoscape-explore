@@ -16,7 +16,9 @@ export const MAPPING = {
   /**  A two-value linear mapping */
   LINEAR: 'LINEAR',
   /** A passthrough mapping (i.e. use data property verbatim)  */
-  PASSTHROUGH: 'PASSTHROUGH'
+  PASSTHROUGH: 'PASSTHROUGH',
+  /** A discrete mapping */
+  DISCRETE: 'DISCRETE'
 };
 
 const assertDataRangeOrder = (dataValue1, dataValue2) => {
@@ -163,17 +165,33 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  */
 
 /**
- * The style struct for a linear color mapping
- * @typedef {Object} LinearColorStyleValue
- */
-
-/**
  * The style struct for a linear color property
  * @typedef {Object} LinearColorStyleStruct
  * @property {STYLE_TYPE} type The type of the style value (e.g. number)
  * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
  * @property {String} stringValue The Cytoscape style value as a string
  * @property {LinearColorStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * The style struct for a linear color property
+ * @typedef {Object} DiscreteColorStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {DiscreteColorStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * @typedef {Object} DiscreteColorStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Array<DiscreteStylePair<Color>} styleValues The minimum value of the input data range
+ */
+
+/**
+ * @typedef {Object<T>} DiscreteStylePair
+ * @property {Any} dataValue The the value of the data attribute
+ * @property {T} styleValue The style value
  */
 
 /**
@@ -253,8 +271,9 @@ export const styleFactory = {
     };
   },
 
+
   /**
-   * Create a flat color value
+   * Create a discrete mapping of a color.
    * @param {Color} value The color value
    * @returns {ColorStyleStruct} The style value object (JSON)
    */
@@ -269,6 +288,24 @@ export const styleFactory = {
     }; 
   },
   
+  /**
+   * Create a discrete mapping for color.
+   * @param {String} data The data property name to map
+   * @param {Array<DiscreteStylePair<Color>} styleValues The style value mappings.
+   * @returns {DiscreteColorStyleStruct} The style value object (JSON)
+   */
+  discreteColor: (data, styleValues) => {
+    return {
+      type: STYLE_TYPE.COLOR,
+      mapping: MAPPING.DISCRETE,
+      value: {
+        data,
+        styleValues
+      },
+      stringValue: '???' // TODO
+    };
+  },
+
   /**
    * Create a linear mapping of a color
    * @param {String} data The data property name to map
