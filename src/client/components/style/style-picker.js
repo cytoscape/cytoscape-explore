@@ -30,10 +30,43 @@ export class StylePicker extends React.Component {
   }
 
   onShow() {
-    this.setState({ initialized: true });
+    const style = this.props.getStyle();
+    this.setState({ 
+      initialized: true,
+      tab: style.mapping == MAPPING.VALUE ? TAB.VALUE : TAB.MAPPING
+    });
+    switch(style.mapping) {
+      case MAPPING.VALUE:
+        this.setState({ style: {
+          mapping: MAPPING.VALUE,
+          scalarValue: style.value
+        }});
+        break;
+      case MAPPING.PASSTHROUGH:
+        this.setState({ style: {
+          mapping: MAPPING.PASSTHROUGH,
+          attribute: style.value.data
+        }});
+        break;
+      case MAPPING.LINEAR:
+        this.setState({ style: {
+          mapping: MAPPING.LINEAR,
+          attribute: style.value.data,
+          mappingValue: style.value,
+        }});
+        break;
+      case MAPPING.DISCRETE:
+        this.setState({ style: {
+          mapping: MAPPING.DISCRETE,
+          attribute: style.value.data,
+          discreteValue: style.value
+        }});
+        break;
+    }
   }
 
   onStyleChanged(style) {
+    console.log(style);
     switch(style.mapping) {
       case MAPPING.VALUE:
         if(style.scalarValue !== undefined)
@@ -59,10 +92,35 @@ export class StylePicker extends React.Component {
   }
 
   handleScalarValue(scalarValue) {
-    const change = { style: { ...this.state.style, scalarValue } };
+    const change = { style: { ...this.state.style, mapping: MAPPING.VALUE, scalarValue } };
     this.setState(change);
     this.onStyleChanged(change.style);
   }
+
+  handleMapping(mapping) {
+    const change = { style: { ...this.state.style, mapping } };
+    this.setState(change);
+    this.onStyleChanged(change.style);
+  }
+
+  handleAttribute(attribute) {
+    const change = { style: { ...this.state.style, attribute } };
+    this.setState(change);
+    this.onStyleChanged(change.style);
+  }
+
+  handleMappingValue(mappingValue){
+    const change = { style: { ...this.state.style, mappingValue } };
+    this.setState(change);
+    this.onStyleChanged(change.style);
+  }
+
+  handleDiscreteValue(discreteValue){
+    const change = { style: { ...this.state.style, discreteValue } };
+    this.setState(change);
+    this.onStyleChanged(change.style);
+  }
+
 
   renderSubComponent_Value() {
     const onSelect = value => this.handleScalarValue( value );
@@ -116,41 +174,66 @@ export class StylePicker extends React.Component {
   renderMapping() {
     const attributes = this.controller.getPublicAttributes();
     return (
-      <div className="style-picker-mapping-box">
-        <div style={{'padding-right':'15px'}}>
-          <FormControl style={{minWidth: 150}}>
-            <InputLabel id="attribute-select-label">Attribute</InputLabel>
-            <Select
-              labelId="attribute-select-label"
-              value={this.state.style.attribute}
-              onChange={event => this.handleAttribute(event.target.value)} 
+      <div>
+        <div className="style-picker-mapping-box">
+          <div style={{paddingRight:'15px'}}>
+            <FormControl style={{minWidth: 150}}>
+              <InputLabel id="attribute-select-label">Attribute</InputLabel>
+              <Select
+                labelId="attribute-select-label"
+                value={this.state.style.attribute || ''}
+                onChange={event => this.handleAttribute(event.target.value)} 
+              >
+              {attributes.map(a => 
+                <MenuItem key={a} value={a}>{a}</MenuItem>
+              )}
+              </Select>
+            </FormControl>
+          </div>
+          <ToggleButtonGroup 
+            exclusive={true}
+            value={this.state.style.mapping}
+            onChange={(event,value) => this.handleMapping(value)}
             >
-            {attributes.map(a => 
-              <MenuItem key={a} value={a}>{a}</MenuItem>
-            )}
-            </Select>
-          </FormControl>
-        </div>
-        <ToggleButtonGroup value={this.state.style.mapping}>
-          <Tooltip title="Passthrough Mapping">
-            <ToggleButton value={MAPPING.PASSTHROUGH}>
-              {"1 : 1"}
+            <ToggleButton value={MAPPING.PASSTHROUGH} >
+              <Tooltip title="Passthrough Mapping">
+                <span>{"1 : 1"}</span>
+              </Tooltip>
             </ToggleButton>
-          </Tooltip>
-          <Tooltip title="Continuous Mapping">
             <ToggleButton value={MAPPING.LINEAR}>
-              <TrendingUpIcon />
+              <Tooltip title="Continuous Mapping">
+                <TrendingUpIcon />
+              </Tooltip>
             </ToggleButton>
-          </Tooltip>
-          <Tooltip title="Discrete Mapping">
             <ToggleButton value={MAPPING.DISCRETE}>
-              <FormatListNumberedIcon />
+              <Tooltip title="Discrete Mapping">
+                <FormatListNumberedIcon />
+              </Tooltip>
             </ToggleButton>
-          </Tooltip>
-        </ToggleButtonGroup>
+          </ToggleButtonGroup>
+        </div>
+        {(() => {
+          if(!this.state.style.attribute)
+            return null;
+          else if(this.state.style.mapping === MAPPING.PASSTHROUGH)
+            return null;
+          else if(this.state.style.mapping === MAPPING.LINEAR)
+            return this.renderSubComponent_Linear();
+          else if(this.state.style.mapping === MAPPING.DISCRETE)
+            return this.renderDiscrete();
+        })()}
       </div>
     );
   }
+
+  renderDiscrete() {
+    return (
+      <div>
+        Discrete Mapping TODO
+      </div>
+    );
+  }
+
 }
 
 StylePicker.propTypes = {
