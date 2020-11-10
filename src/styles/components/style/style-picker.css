@@ -1,12 +1,11 @@
 .style-picker {
   text-align: center;
-  width: 250px;
+  width: 400px;
 }
 
 .style-picker-heading {
   text-align: center;
   padding-top: 10px;
-  padding-bottom: 15px;
   font-weight: bold;
   font-size: large;
 }
@@ -20,9 +19,18 @@
   margin: auto;
   width: 90%;
   padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .style-picker-attribute {
   width: 100%;
   padding-top: 10px;
+}
+
+.style-picker-mapping-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-end;
+  margin: 10px;
 }
