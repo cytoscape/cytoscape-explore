@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip} from "@material-ui/core";
+import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip, Popover} from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
@@ -14,7 +14,6 @@ const TAB = {
   MAPPING: 'MAPPING'
 };
 
-
 export class StylePicker extends React.Component { 
 
   constructor(props){
@@ -24,6 +23,7 @@ export class StylePicker extends React.Component {
     this.state = {
       initialized: false,
       tab: TAB.VALUE,
+      popoverAnchorEl: null,
       style: {
         mapping: MAPPING.VALUE
       }
@@ -88,43 +88,14 @@ export class StylePicker extends React.Component {
     }
   }
 
-  handleTab(tab) {
-    this.setState({ tab });
-  }
-
-  handleScalarValue(scalarValue) {
-    const change = { style: { ...this.state.style, mapping: MAPPING.VALUE, scalarValue } };
+  handleStyleChange(changes) {
+    const change = { style: {...this.state.style, ...changes }};
     this.setState(change);
     this.onStyleChanged(change.style);
   }
-
-  handleMapping(mapping) {
-    const change = { style: { ...this.state.style, mapping } };
-    this.setState(change);
-    this.onStyleChanged(change.style);
-  }
-
-  handleAttribute(attribute) {
-    const change = { style: { ...this.state.style, attribute } };
-    this.setState(change);
-    this.onStyleChanged(change.style);
-  }
-
-  handleMappingValue(mappingValue){
-    const change = { style: { ...this.state.style, mappingValue } };
-    this.setState(change);
-    this.onStyleChanged(change.style);
-  }
-
-  handleDiscreteValue(discreteValue){
-    const change = { style: { ...this.state.style, discreteValue } };
-    this.setState(change);
-    this.onStyleChanged(change.style);
-  }
-
 
   renderSubComponent_Value() {
-    const onSelect = value => this.handleScalarValue( value );
+    const onSelect = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
     return (
       <div className="style-picker-value"> 
         { this.props.renderValue(this.state.style.scalarValue, onSelect) }
@@ -134,7 +105,7 @@ export class StylePicker extends React.Component {
 
   renderSubComponent_Linear() {
     // TODO change to 'props.renderLinear'
-    const onSelect = value => this.handleMappingValue(value);
+    const onSelect = mappingValue => this.handleStyleChange({ mappingValue });
     return (
         <div className="style-picker-value">
          { this.props.renderMapping(this.state.style.mappingValue, onSelect) }
@@ -145,7 +116,11 @@ export class StylePicker extends React.Component {
   render() {
     if(!this.state.initialized)
       return null;
+    return this.renderTabs();
+  }
 
+  renderTabs() {
+    const handleTab = (event, tab) => this.setState({ tab });
     return (
       <div className="style-picker">
         <Paper>
@@ -159,7 +134,7 @@ export class StylePicker extends React.Component {
             textColor="primary"
             variant="fullWidth"
             value={this.state.tab} 
-            onChange={(event,value) => this.handleTab(value)} >
+            onChange={handleTab} >
             <Tab value={TAB.VALUE}   label='Single' />
             <Tab value={TAB.MAPPING} label='Mapping' />
           </Tabs>
@@ -174,6 +149,9 @@ export class StylePicker extends React.Component {
 
   renderMapping() {
     const attributes = this.controller.getPublicAttributes();
+    const handleAttribute = (attribute) => this.handleStyleChange({ attribute });
+    const handleMapping = (mapping) => this.handleStyleChange({ mapping });
+    
     return (
       <div>
         <div className="style-picker-mapping-box">
@@ -183,7 +161,7 @@ export class StylePicker extends React.Component {
               <Select
                 labelId="attribute-select-label"
                 value={this.state.style.attribute || ''}
-                onChange={event => this.handleAttribute(event.target.value)} 
+                onChange={event => handleAttribute(event.target.value)} 
               >
               {attributes.map(a => 
                 <MenuItem key={a} value={a}>{a}</MenuItem>
@@ -194,7 +172,7 @@ export class StylePicker extends React.Component {
           <ToggleButtonGroup 
             exclusive={true}
             value={this.state.style.mapping}
-            onChange={(event,value) => this.handleMapping(value)}
+            onChange={(event,value) => handleMapping(value)}
             >
             { !this.props.onPassthroughSet ? null :
               <ToggleButton value={MAPPING.PASSTHROUGH} >
@@ -236,29 +214,45 @@ export class StylePicker extends React.Component {
   renderDiscrete() {
     // TODO Don't hardcode the 'node' selector.
     const vals = this.controller.getDiscreteValueList('node', this.state.style.attribute);
-    const style = {
-      width: '100%',
-      position: 'relative',
-      overflow: 'auto',
-      maxHeight: 300,
+    
+    const handleClickOnList  = event => this.setState({ popoverAnchorEl: event.currentTarget });
+    const handlePopoverClose = ()    => this.setState({ popoverAnchorEl: null });
+
+    const handleClickInPopover = () => {
+      handlePopoverClose();
     };
 
     return (
-      <List style={style} dense={true}>
-        {vals.map(val => {
-          const onClick = () => {
-            console.log("clicked: " + val);
-          };
-          return (
-            <ListItem key={val}>
-              <ListItemText primary={val} />
-              <ListItemSecondaryAction>
-                {this.props.renderDiscrete({r:150,g:150,b:150}, onClick)}
-              </ListItemSecondaryAction>
-            </ListItem>
-          );})
-        }
-      </List>
+      <div>
+        <List 
+          style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 300 }} 
+          dense={true}
+        >
+          {vals.map(val => {
+            return (
+              <ListItem key={val}>
+                <ListItemText primary={val} />
+                <ListItemSecondaryAction>
+                  <div onClick={handleClickOnList}>
+                    {this.props.renderDiscrete({r:150,g:150,b:150})}
+                  </div>
+                </ListItemSecondaryAction>
+              </ListItem>
+            );})
+          }
+        </List>
+        <Popover 
+          open={Boolean(this.state.popoverAnchorEl)}
+          anchorEl={this.state.popoverAnchorEl}
+          onClose={handlePopoverClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <div className="style-picker-value"> 
+            { this.props.renderValue({r:150,g:150,b:150}, handleClickInPopover) }
+          </div>
+        </Popover>
+      </div>
     );
   }
 

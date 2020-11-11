@@ -33,8 +33,8 @@ export class StylePanel extends Component {
           icon="format_quote"
           valueLabel="Single Label"
           controller={controller}
-          renderValue={(text, onChange) => <LabelInput value={text} onChange={onChange} /> }
           getStyle={() => controller.getNodeLabel()}
+          renderValue={(text, onChange) => <LabelInput value={text} onChange={onChange} /> }
           onValueSet={text => controller.setNodeLabel(text)}
           onPassthroughSet={attribute => controller.setNodeLabelPassthrough(attribute)}
         />
@@ -44,10 +44,10 @@ export class StylePanel extends Component {
           icon="lens"
           valueLabel="Single Color"
           controller={controller}
+          getStyle={() => controller.getNodeBackgroundColor()}
           renderValue={(color, onSelect) => <ColorSwatches selected={color} onSelect={onSelect} /> }
           renderMapping={(gradient, onSelect) => <ColorGradients selected={gradient} onSelect={onSelect} /> }
           renderDiscrete={(color, onClick) => <ColorSwatch color={color} onClick={onClick} />}
-          getStyle={() => controller.getNodeBackgroundColor()}
           onValueSet={color => controller.setNodeColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
         />
@@ -57,13 +57,9 @@ export class StylePanel extends Component {
           icon="trip_origin"
           valueLabel="Single Color"
           controller={controller}
-          renderValue={(color, onSelect) => 
-            <ColorSwatches selected={color} onSelect={onSelect} />
-          }
-          renderMapping={(gradient, onSelect) => 
-            <ColorGradients selected={gradient} onSelect={onSelect} />
-          } 
           getStyle={() => controller.getNodeBorderColor()}
+          renderValue={(color, onSelect) => <ColorSwatches selected={color} onSelect={onSelect} /> }
+          renderMapping={(gradient, onSelect) => <ColorGradients selected={gradient} onSelect={onSelect} /> } 
           onValueSet={color => controller.setNodeBorderColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeBorderColorMapping(gradient, attribute)}
         />
@@ -73,13 +69,9 @@ export class StylePanel extends Component {
           icon="bubble_chart"
           valueLabel="Single Value"
           controller={controller}
-          renderValue={(size, onSelect) =>
-            <SizeSlider min={20} max={40} defaultValue={size} onSelect={onSelect} />
-          }
-          renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={20} max={40} selected={sizeRange} onSelect={onSelect} />
-          } 
           getStyle={() => controller.getNodeSize()}
+          renderValue={(size, onSelect) => <SizeSlider min={20} max={40} defaultValue={size} onSelect={onSelect} /> }
+          renderMapping={(sizeRange, onSelect) => <SizeGradients min={20} max={40} selected={sizeRange} onSelect={onSelect} /> } 
           onValueSet={size => controller.setNodeSize(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeSizeMapping(sizeRange, attribute)}
         />
@@ -89,13 +81,9 @@ export class StylePanel extends Component {
           icon="toll"
           valueLabel="Single Value"
           controller={controller}
-          renderValue={(size, onSelect) => 
-            <SizeSlider min={0.5} max={10.0} defaultValue={size} onSelect={onSelect} />
-          }
-          renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={0.5} max={10.0} border={true} selected={sizeRange} onSelect={onSelect} />
-          } 
           getStyle={() => controller.getNodeBorderWidth()}
+          renderValue={(size, onSelect) => <SizeSlider min={0.5} max={10.0} defaultValue={size} onSelect={onSelect} /> }
+          renderMapping={(sizeRange, onSelect) => <SizeGradients min={0.5} max={10.0} border={true} selected={sizeRange} onSelect={onSelect} /> } 
           onValueSet={size => controller.setNodeBorderWidth(size)}
           onMappingSet={(sizeRange, attribute) => controller.setNodeBorderWidthMapping(sizeRange, attribute)}
         />
