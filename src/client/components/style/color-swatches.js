@@ -47,14 +47,14 @@ export function ColorSwatch(props) {
         'color-swatches-color': true, 
         'color-swatches-color-selected': props.selected
       })}
-      onClick = {() => props.onSelect(props.color)}
+      onClick = {() => props.onClick(props.color) }
       style={{ backgroundColor: rgbCss(props.color) }} >
     </div>
   );
 }
 
 ColorSwatch.propTypes = {
-  onSelect: PropTypes.func,
+  onClick: PropTypes.func,
   selected: PropTypes.any,
   color: PropTypes.any
 };
@@ -114,7 +114,7 @@ export class ColorSwatches extends Component {
                   color={c}
                   key={`swatch-${i}`}
                   selected={_.isEqual(this.props.selected, c)} 
-                  onSelect={this.props.onSelect} />
+                  onClick={this.props.onSelect} />
             )}
           </div>
         )}

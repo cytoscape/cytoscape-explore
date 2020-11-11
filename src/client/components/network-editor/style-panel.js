@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
-import { ColorSwatches, ColorGradients } from '../style/color-swatches';
+import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/color-swatches';
 import { SizeSlider, SizeGradients } from '../style/size-slider';
 import { LabelInput } from '../style/label-input';
 import PropTypes from 'prop-types';
@@ -33,9 +33,7 @@ export class StylePanel extends Component {
           icon="format_quote"
           valueLabel="Single Label"
           controller={controller}
-          renderValue={(text, onChange) => 
-            <LabelInput value={text} onChange={onChange} />
-          }
+          renderValue={(text, onChange) => <LabelInput value={text} onChange={onChange} /> }
           getStyle={() => controller.getNodeLabel()}
           onValueSet={text => controller.setNodeLabel(text)}
           onPassthroughSet={attribute => controller.setNodeLabelPassthrough(attribute)}
@@ -46,12 +44,9 @@ export class StylePanel extends Component {
           icon="lens"
           valueLabel="Single Color"
           controller={controller}
-          renderValue={(color, onSelect) => 
-            <ColorSwatches selected={color} onSelect={onSelect} />
-          }
-          renderMapping={(gradient, onSelect) => 
-            <ColorGradients selected={gradient} onSelect={onSelect} />
-          } 
+          renderValue={(color, onSelect) => <ColorSwatches selected={color} onSelect={onSelect} /> }
+          renderMapping={(gradient, onSelect) => <ColorGradients selected={gradient} onSelect={onSelect} /> }
+          renderDiscrete={(color, onClick) => <ColorSwatch color={color} onClick={onClick} />}
           getStyle={() => controller.getNodeBackgroundColor()}
           onValueSet={color => controller.setNodeColor(color)}
           onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}

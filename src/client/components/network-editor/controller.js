@@ -163,6 +163,18 @@ export class NetworkEditorController {
   }
 
   /**
+   * 
+   * @param {String} selector The cyjs selector, 'node' or 'edge'.
+   * @param {String} attribute The data attribute name.
+   */
+  getDiscreteValueList(selector, attribute) {
+    const eles = this.cy.elements(selector);
+    const vals = eles.map(ele => ele.data(attribute));
+    const res  = [...new Set(vals)].sort().filter(x => x !== undefined);
+    return res;
+  }
+
+  /**
    * Set the color of all nodes to a single color
    * @param {(Color|String)} color The color to set
    */
@@ -178,7 +190,7 @@ export class NetworkEditorController {
    */
   setNodeColorMapping(attribute, value) {
     console.log("setNodeColorMapping");
-    const {hasVal, min, max} = this._minMax(attribute);
+    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
     
     if(!hasVal)
       return;
@@ -218,7 +230,7 @@ export class NetworkEditorController {
    */
   setNodeSizeMapping(attribute, value) {
     console.log("setNodeSizeGradient");
-    const {hasVal, min, max} = this._minMax(attribute);
+    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
     if(!hasVal)
       return;
 
@@ -279,7 +291,7 @@ export class NetworkEditorController {
    * @param {LinearNumberStyleValue} value The number style struct value to use
    */
   setNodeBorderWidthMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute);
+    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
     if(!hasVal)
       return;
 
@@ -310,7 +322,7 @@ export class NetworkEditorController {
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
   setNodeBorderColorMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute);
+    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
     if(!hasVal)
       return;
 

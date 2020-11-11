@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip } from "@material-ui/core";
+import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip} from "@material-ui/core";
+import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
@@ -195,21 +196,27 @@ export class StylePicker extends React.Component {
             value={this.state.style.mapping}
             onChange={(event,value) => this.handleMapping(value)}
             >
-            <ToggleButton value={MAPPING.PASSTHROUGH} >
-              <Tooltip title="Passthrough Mapping">
-                <span>{"1 : 1"}</span>
-              </Tooltip>
-            </ToggleButton>
-            <ToggleButton value={MAPPING.LINEAR}>
-              <Tooltip title="Continuous Mapping">
-                <TrendingUpIcon />
-              </Tooltip>
-            </ToggleButton>
-            <ToggleButton value={MAPPING.DISCRETE}>
-              <Tooltip title="Discrete Mapping">
-                <FormatListNumberedIcon />
-              </Tooltip>
-            </ToggleButton>
+            { !this.props.onPassthroughSet ? null :
+              <ToggleButton value={MAPPING.PASSTHROUGH} >
+                <Tooltip title="Passthrough Mapping">
+                  <span>{"1 : 1"}</span>
+                </Tooltip>
+              </ToggleButton>
+            }
+            { !this.props.onMappingSet ? null :
+              <ToggleButton value={MAPPING.LINEAR}>
+                <Tooltip title="Continuous Mapping">
+                  <TrendingUpIcon />
+                </Tooltip>
+              </ToggleButton>
+            }
+            { /* !this.props.onDiscreteSet ? null : */
+              <ToggleButton value={MAPPING.DISCRETE}>
+                <Tooltip title="Discrete Mapping">
+                  <FormatListNumberedIcon />
+                </Tooltip>
+              </ToggleButton>
+            }
           </ToggleButtonGroup>
         </div>
         {(() => {
@@ -227,10 +234,31 @@ export class StylePicker extends React.Component {
   }
 
   renderDiscrete() {
+    // TODO Don't hardcode the 'node' selector.
+    const vals = this.controller.getDiscreteValueList('node', this.state.style.attribute);
+    const style = {
+      width: '100%',
+      position: 'relative',
+      overflow: 'auto',
+      maxHeight: 300,
+    };
+
     return (
-      <div>
-        Discrete Mapping TODO
-      </div>
+      <List style={style} dense={true}>
+        {vals.map(val => {
+          const onClick = () => {
+            console.log("clicked: " + val);
+          };
+          return (
+            <ListItem key={val}>
+              <ListItemText primary={val} />
+              <ListItemSecondaryAction>
+                {this.props.renderDiscrete({r:150,g:150,b:150}, onClick)}
+              </ListItemSecondaryAction>
+            </ListItem>
+          );})
+        }
+      </List>
     );
   }
 
@@ -240,6 +268,7 @@ StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   renderMapping: PropTypes.func,
   renderValue: PropTypes.func,
+  renderDiscrete: PropTypes.func,
   getStyle: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
