@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
+import DagrePanel from './dagre-panel';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
@@ -22,7 +23,7 @@ export class LayoutPanel extends Component {
     const layouts = [
       { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
       { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
-      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <div /> },
+      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
     ];
     this.state = {
       value: 0,
@@ -61,8 +62,8 @@ export class LayoutPanel extends Component {
             onChange={(e, v) => this.handleChange(v)}
             variant="scrollable"
             scrollButtons="on"
-            indicatorColor="secondary"
-            textColor="secondary"
+            indicatorColor="primary"
+            textColor="primary"
           >
             <Tab key={0} style={{ display: 'none' }} {...a11yProps(0)} />
             {layouts.map((el, i) => (

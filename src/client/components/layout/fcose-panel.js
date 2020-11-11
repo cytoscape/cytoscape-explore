@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -26,49 +27,41 @@ export class FCosePanel extends Component {
     const { nodeRepulsion, numIter } = this.state;
     const { classes } = this.props;
     const textFieldProps = {
-      variant: "outlined",
+      variant: "standard",
       className: classes.textField,
       InputLabelProps: {
         shrink: true,
-        classes: {
-          root: classes.cssLabel,
-          focused: classes.cssFocused,
-        },
       },
-      InputProps: {
-        classes: {
-          root: classes.cssOutlinedInput,
-          focused: classes.cssFocused,
-          notchedOutline: classes.notchedOutline,
-        },
-        inputMode: "numeric",
-      }
     };
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
-        <Grid container justify="center" spacing={2}>
+        <div>
           <Tooltip title="Node repulsion (non overlapping) multiplier">
-            <TextField
-              id="nodeRepulsion"
-              label="Node Repulsion"
-              type="number"
-              defaultValue={nodeRepulsion}
-              onChange={e => this.handleChange(e)}
-              {...textFieldProps}
-            />
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={classes.label}>Node Repulsion</FormLabel>
+              <TextField
+                id="nodeRepulsion"
+                type="number"
+                defaultValue={nodeRepulsion}
+                onChange={e => this.handleChange(e)}
+                {...textFieldProps}
+              />
+            </FormControl>
           </Tooltip>
           <Tooltip title="Maximum number of iterations to perform">
-            <TextField
-              id="numIter"
-              label="Iterations"
-              type="number"
-              defaultValue={numIter}
-              onChange={e => this.handleChange(e)}
-              {...textFieldProps}
-            />
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={classes.label}>Iterations</FormLabel>
+              <TextField
+                id="numIter"
+                type="number"
+                defaultValue={numIter}
+                onChange={e => this.handleChange(e)}
+                {...textFieldProps}
+              />
+            </FormControl>
           </Tooltip>
-        </Grid>
+        </div>
       </form>
     );
   }
@@ -79,24 +72,15 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
+  label: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 150,
   },
-  cssOutlinedInput: {
-    '&$cssFocused $notchedOutline': {
-      borderColor: `${theme.palette.secondary.main} !important`,
-      color : 'green !important',
-    }
-  },
-  cssLabel: {
-    '&$cssFocused': {
-      color : `${theme.palette.secondary.main} !important`,
-    }
-  },
-  cssFocused: {},
-  notchedOutline: {},
 });
 
 FCosePanel.propTypes = {

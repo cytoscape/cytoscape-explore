@@ -6,13 +6,14 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 
-export class ConcentricPanel extends Component {
+export class DagrePanel extends Component {
 
   constructor(props) {
     super(props);
     this.state = {};
     this.layoutOptions = {
-      spacingFactor: 0,
+      nodeSep: 50,
+      rankSep: 100,
     };
   }
 
@@ -32,15 +33,28 @@ export class ConcentricPanel extends Component {
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
-        <Tooltip title="Expands or compresses the overall area taken by the nodes">
+        <Tooltip title="The separation between adjacent nodes in the same rank">
           <FormControl component="fieldset">
-            <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
+            <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
             <Slider
-              id="spacingFactor"
+              id="nodeSep"
               min={0}
-              max={10}
-              defaultValue={0}
-              onChange={(e, v) => this.handleChange(e, "spacingFactor", v)}
+              max={500}
+              defaultValue={50}
+              onChange={(e, v) => this.handleChange(e, "nodeSep", v)}
+              {...sliderProps}
+            />
+          </FormControl>
+        </Tooltip>
+        <Tooltip title="The separation between each rank in the layout">
+          <FormControl component="fieldset">
+            <FormLabel component="legend" className={classes.label}>Rank Separation</FormLabel>
+            <Slider
+              id="rankSep"
+              min={0}
+              max={500}
+              defaultValue={50}
+              onChange={(e, v) => this.handleChange(e, "rankSep", v)}
               {...sliderProps}
             />
           </FormControl>
@@ -67,9 +81,9 @@ const styles = theme => ({
   },
 });
 
-ConcentricPanel.propTypes = {
+DagrePanel.propTypes = {
   classes: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(ConcentricPanel);
+export default withStyles(styles)(DagrePanel);
