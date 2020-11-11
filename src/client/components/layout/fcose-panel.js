@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -24,20 +24,30 @@ export class FCosePanel extends Component {
 
   render() {
     const { nodeRepulsion, numIter } = this.state;
-    const classes = useStyles();
-    const commonProps = {
+    const { classes } = this.props;
+    const textFieldProps = {
       variant: "outlined",
+      className: classes.textField,
       InputLabelProps: {
         shrink: true,
+        classes: {
+          root: classes.cssLabel,
+          focused: classes.cssFocused,
+        },
       },
-      style: {
-        margin: '0.5em',
-      },
+      InputProps: {
+        classes: {
+          root: classes.cssOutlinedInput,
+          focused: classes.cssFocused,
+          notchedOutline: classes.notchedOutline,
+        },
+        inputMode: "numeric",
+      }
     };
 
     return (
-      <form className={classes.root} noValidate autoComplete="off">
-        <Grid container justify="center" spacing={3}>
+      <form className={classes.container} noValidate autoComplete="off">
+        <Grid container justify="center" spacing={2}>
           <Tooltip title="Node repulsion (non overlapping) multiplier">
             <TextField
               id="nodeRepulsion"
@@ -45,7 +55,7 @@ export class FCosePanel extends Component {
               type="number"
               defaultValue={nodeRepulsion}
               onChange={e => this.handleChange(e)}
-              {...commonProps}
+              {...textFieldProps}
             />
           </Tooltip>
           <Tooltip title="Maximum number of iterations to perform">
@@ -55,7 +65,7 @@ export class FCosePanel extends Component {
               type="number"
               defaultValue={numIter}
               onChange={e => this.handleChange(e)}
-              {...commonProps}
+              {...textFieldProps}
             />
           </Tooltip>
         </Grid>
@@ -64,19 +74,34 @@ export class FCosePanel extends Component {
   }
 }
 
-function useStyles() {
-  return makeStyles((theme) => ({
-    root: {
-      '& .MuiTextField-root': {
-        margin: theme.spacing(1),
-        width: '25ch',
-      },
-    },
-  }));
-}
+const styles = theme => ({
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 150,
+  },
+  cssOutlinedInput: {
+    '&$cssFocused $notchedOutline': {
+      borderColor: `${theme.palette.secondary.main} !important`,
+      color : 'green !important',
+    }
+  },
+  cssLabel: {
+    '&$cssFocused': {
+      color : `${theme.palette.secondary.main} !important`,
+    }
+  },
+  cssFocused: {},
+  notchedOutline: {},
+});
 
 FCosePanel.propTypes = {
+  classes: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default FCosePanel;
+export default withStyles(styles)(FCosePanel);

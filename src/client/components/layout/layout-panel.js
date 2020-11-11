@@ -2,19 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
+import ConcentricPanel from './concentric-panel';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
-
-const iconProps = {
-  viewBox: '0 0 96 64',
-  style: { width: 'auto', fontSize: 38, margin: 0 },
-  p: 0,
-  m: 0,
-};
 
 export class LayoutPanel extends Component {
 
@@ -26,8 +20,8 @@ export class LayoutPanel extends Component {
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
-      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps}  /> }, 
-      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <div /> },
+      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
       { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <div /> },
     ];
     this.state = {
@@ -86,6 +80,13 @@ export class LayoutPanel extends Component {
     );
   }
 }
+
+const iconProps = {
+  viewBox: '0 0 96 64',
+  style: { width: 'auto', fontSize: 38, margin: 0 },
+  p: 0,
+  m: 0,
+};
 
 function useStyles() {
   return makeStyles((theme) => ({
