@@ -17,7 +17,7 @@ export class ConcentricPanel extends Component {
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.layoutOptions[event.target.id]) {
+    if (newValue != this.layoutOptions[key]) {
       this.layoutOptions[key] = newValue;
       this.props.onChange(this.layoutOptions);
     }
@@ -32,7 +32,7 @@ export class ConcentricPanel extends Component {
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
-        <Tooltip title="Expands or compresses the overall area taken by the nodes">
+        <Tooltip title="The separation between nodes">
           <FormControl component="fieldset">
             <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
             <Slider

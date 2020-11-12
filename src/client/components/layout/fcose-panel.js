@@ -3,61 +3,45 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-import TextField from '@material-ui/core/TextField';
+import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 
 export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      nodeRepulsion: 4500,
-      numIter: 2500,
+    this.layoutOptions = {
+      idealEdgeLength: 4500,
     };
   }
 
-  handleChange(event) {
-    const prop = {};
-    prop[event.target.id] = event.target.value;
-    this.setState(Object.assign(this.state, prop));
-    this.props.onChange(this.state);
+  handleChange(event, key, newValue) {
+    if (newValue != this.layoutOptions[key]) {
+      this.layoutOptions[key] = newValue;
+      this.props.onChange(this.layoutOptions);
+    }
   }
 
   render() {
-    const { nodeRepulsion, numIter } = this.state;
     const { classes } = this.props;
-    const textFieldProps = {
-      variant: "standard",
-      className: classes.textField,
-      InputLabelProps: {
-        shrink: true,
-      },
+    const sliderProps = {
+      className: classes.slider,
+      valueLabelDisplay: 'auto',
     };
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
         <div>
-          <Tooltip title="Node repulsion (non overlapping) multiplier">
-            <FormControl component="fieldset">
-              <FormLabel component="legend" className={classes.label}>Node Repulsion</FormLabel>
-              <TextField
-                id="nodeRepulsion"
-                type="number"
-                defaultValue={nodeRepulsion}
-                onChange={e => this.handleChange(e)}
-                {...textFieldProps}
-              />
-            </FormControl>
-          </Tooltip>
-          <Tooltip title="Maximum number of iterations to perform">
-            <FormControl component="fieldset">
-              <FormLabel component="legend" className={classes.label}>Iterations</FormLabel>
-              <TextField
-                id="numIter"
-                type="number"
-                defaultValue={numIter}
-                onChange={e => this.handleChange(e)}
-                {...textFieldProps}
+          <Tooltip title="The separation between connected nodes">
+          <FormControl component="fieldset">
+            <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
+              <Slider
+                id="idealEdgeLength"
+                min={0}
+                max={1000}
+                defaultValue={50}
+                onChange={(e, v) => this.handleChange(e, "idealEdgeLength", v)}
+                {...sliderProps}
               />
             </FormControl>
           </Tooltip>
@@ -76,7 +60,8 @@ const styles = theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
   },
-  textField: {
+  slider: {
+    marginTop: theme.spacing(1),
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 150,
