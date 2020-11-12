@@ -47,9 +47,10 @@ export class StylePanel extends Component {
           getStyle={() => controller.getNodeBackgroundColor()}
           renderValue={(color, onSelect) => <ColorSwatches selected={color} onSelect={onSelect} /> }
           renderMapping={(gradient, onSelect) => <ColorGradients selected={gradient} onSelect={onSelect} /> }
-          renderDiscrete={(color, onClick) => <ColorSwatch color={color} onClick={onClick} />}
+          renderDiscreteIcon={color => <ColorSwatch color={color} />}
           onValueSet={color => controller.setNodeColor(color)}
-          onMappingSet={(gradient, attribute) => controller.setNodeColorMapping(gradient, attribute)}
+          onMappingSet={(attribute, gradient) => controller.setNodeColorMapping(attribute, gradient)}
+          onDiscreteSet={(attribute, valueMap) => controller.setNodeColorDiscreteMapping(attribute, valueMap)}
         />
 
         <StylePickerButton 

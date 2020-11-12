@@ -26,6 +26,8 @@ const defaults = {
   range: 5
 };
 
+export const defaultColor = { r:150, g:150, b:150 };
+
 // TODO, divergent gradients not properly supported yet
 // const colorBrewerDivergent = [
 //   {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
@@ -57,6 +59,11 @@ ColorSwatch.propTypes = {
   onClick: PropTypes.func,
   selected: PropTypes.any,
   color: PropTypes.any
+};
+ColorSwatch.defaultProps = {
+  onClick: () => null,
+  selected: false,
+  color: defaultColor
 };
 
 

@@ -21,11 +21,17 @@ export class StylePicker extends React.Component {
     this.controller = props.controller;
 
     this.state = {
+      // internal state
       initialized: false,
       tab: TAB.VALUE,
+      // discrete value popover state
       popoverAnchorEl: null,
+      popoverDataVal: null,
+      popoverStyleVal: null,
+      // style state
       style: {
-        mapping: MAPPING.VALUE
+        mapping: MAPPING.VALUE,
+        discreteValue: {},
       }
     };
   }
@@ -60,7 +66,7 @@ export class StylePicker extends React.Component {
         this.setState({ style: {
           mapping: MAPPING.DISCRETE,
           attribute: style.value.data,
-          discreteValue: style.value
+          discreteValue: { styleValues: style.value.styleValues } // TODO this is probably not necessary, style.value is fine
         }});
         break;
     }
@@ -213,28 +219,45 @@ export class StylePicker extends React.Component {
 
   renderDiscrete() {
     // TODO Don't hardcode the 'node' selector.
-    const vals = this.controller.getDiscreteValueList('node', this.state.style.attribute);
+    const dataVals = this.controller.getDiscreteValueList('node', this.state.style.attribute);
     
-    const handleClickOnList  = event => this.setState({ popoverAnchorEl: event.currentTarget });
-    const handlePopoverClose = ()    => this.setState({ popoverAnchorEl: null });
-
-    const handleClickInPopover = () => {
+    const handlePopoverOpen = (event, dataVal, styleVal) => {
+      this.setState({ 
+        popoverAnchorEl: event.currentTarget,
+        popoverDataVal: dataVal,
+        popoverStyleVal: styleVal,
+      });
+    };
+    const handlePopoverClose = () => {
+      this.setState({
+        popoverAnchorEl: null,
+        popoverDataVal: null,
+        popoverStyleVal: null,
+      });
+    };
+    const handleDiscreteChange = (dataVal, newStyleVal) => {
+      console.log("handleDiscreteChange: " + dataVal + ", " + newStyleVal);
+      const discreteValue = { ...this.state.style.discreteValue };
+      discreteValue[dataVal] = newStyleVal;
+      this.handleStyleChange({ discreteValue });
       handlePopoverClose();
     };
 
     return (
       <div>
         <List 
+          // This style causes this List to scroll and not the entire Popover from the StylePickerButton
           style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 300 }} 
           dense={true}
         >
-          {vals.map(val => {
+          {dataVals.map(dataVal => {
+            const styleVal = (this.state.style.discreteValue || {})[dataVal];
             return (
-              <ListItem key={val}>
-                <ListItemText primary={val} />
+              <ListItem key={dataVal}>
+                <ListItemText primary={dataVal} />
                 <ListItemSecondaryAction>
-                  <div onClick={handleClickOnList}>
-                    {this.props.renderDiscrete({r:150,g:150,b:150})}
+                  <div onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)}>
+                    { this.props.renderDiscreteIcon(styleVal) }
                   </div>
                 </ListItemSecondaryAction>
               </ListItem>
@@ -249,7 +272,11 @@ export class StylePicker extends React.Component {
           transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <div className="style-picker-value"> 
-            { this.props.renderValue({r:150,g:150,b:150}, handleClickInPopover) }
+            { this.props.renderValue(
+                this.state.popoverStyleValue, // this just tells component in the popover the current value to highlight
+                newStyleVal => handleDiscreteChange(this.state.popoverDataVal, newStyleVal)
+              ) 
+            }
           </div>
         </Popover>
       </div>
@@ -262,7 +289,7 @@ StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   renderMapping: PropTypes.func,
   renderValue: PropTypes.func,
-  renderDiscrete: PropTypes.func,
+  renderDiscreteIcon: PropTypes.func,
   getStyle: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,

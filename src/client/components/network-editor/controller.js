@@ -4,6 +4,7 @@ import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-d
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
+import { defaultColor } from '../style/color-swatches';
 
 /**
  * The network editor controller contains all high-level model operations that the network
@@ -189,18 +190,32 @@ export class NetworkEditorController {
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
   setNodeColorMapping(attribute, value) {
-    console.log("setNodeColorMapping");
     const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
-    
     if(!hasVal)
       return;
 
     const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-      
     this.vizmapper.node('background-color', style);
-
     this.bus.emit('setNodeColorMapping', attribute, value);
   }
+
+  /**
+   * Set the color of all nodes to a mapping
+   * @param {String} attribute The data attribute to map
+   * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
+   */
+  setNodeColorDiscreteMapping(attribute, valueMap) {
+    console.log("setNodeColorDiscreteMapping: " + attribute);
+    console.log(JSON.stringify(valueMap));
+
+    // TODO Allow user to set default value?
+    const defaultValue = defaultColor;
+    const style = styleFactory.discreteColor(attribute, defaultValue, valueMap);
+
+    this.vizmapper.node('background-color', style);
+    this.bus.emit('setNodeColorDiscreteMapping', attribute, defaultValue, valueMap);
+  }
+
 
   /**
    * Get the global node colour style struct

@@ -74,7 +74,14 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
       const r = mapLinear(eleData, dataValue1, dataValue2, styleValue1.r, styleValue2.r);
       const g = mapLinear(eleData, dataValue1, dataValue2, styleValue1.g, styleValue2.g);
       const b = mapLinear(eleData, dataValue1, dataValue2, styleValue1.b, styleValue2.b);
-
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  } else if( MAPPING.DISCRETE === mapping ){
+    const { data, defaultValue, styleValues } = styleStruct.value;
+    const eleData = ele.data(data);
+    if( STYLE_TYPE.COLOR === type ){
+      const styleValue = styleValues[eleData];
+      const { r, g, b } = styleValue === undefined ? defaultValue : styleValue;
       return `rgb(${r}, ${g}, ${b})`;
     }
   }
@@ -185,13 +192,8 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  /**
  * @typedef {Object} DiscreteColorStyleValue
  * @property {String} data The data attribute that's mapped
- * @property {Array<DiscreteStylePair<Color>} styleValues The minimum value of the input data range
- */
-
-/**
- * @typedef {Object<T>} DiscreteStylePair
- * @property {Any} dataValue The the value of the data attribute
- * @property {T} styleValue The style value
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+ * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
  */
 
 /**
@@ -290,16 +292,18 @@ export const styleFactory = {
   
   /**
    * Create a discrete mapping for color.
-   * @param {String} data The data property name to map
-   * @param {Array<DiscreteStylePair<Color>} styleValues The style value mappings.
+   * @property {String} data The data attribute that's mapped
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+   * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
    * @returns {DiscreteColorStyleStruct} The style value object (JSON)
    */
-  discreteColor: (data, styleValues) => {
+  discreteColor: (data, defaultValue, styleValues) => {
     return {
       type: STYLE_TYPE.COLOR,
       mapping: MAPPING.DISCRETE,
       value: {
         data,
+        defaultValue,
         styleValues
       },
       stringValue: '???' // TODO
