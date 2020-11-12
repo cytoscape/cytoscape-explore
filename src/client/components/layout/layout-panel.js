@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
@@ -17,6 +18,10 @@ export class LayoutPanel extends Component {
     super(props);
     this.controller = props.controller;
 
+    this.applyLayout = debounce((options) => {
+      this.controller.applyLayout(options);
+    }, 250);
+
     const opProps = {
       onChange: (options) => this.handleOptionsChange(options),
     };
@@ -32,7 +37,9 @@ export class LayoutPanel extends Component {
   }
 
   handleChange(value, options) {
-    this.setState(Object.assign(this.state, { value: value }));
+    if (value != this.state.value) {
+      this.setState(Object.assign(this.state, { value: value }));
+    }
 
     if (value > 0) {
       setTimeout(() => {
@@ -44,10 +51,6 @@ export class LayoutPanel extends Component {
 
   handleOptionsChange(options) {
     this.handleChange(this.state.value, options);
-  }
-
-  applyLayout(options) {
-    this.controller.applyLayout(options);
   }
 
   render() {
