@@ -8,7 +8,9 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 export class DagrePanel extends Component {
 
@@ -82,18 +84,24 @@ export class DagrePanel extends Component {
             value={rankDir}
             onChange={(e, v) => this.handleChange(e, "rankDir", v)}
           >
-            <Tooltip title="Top-to-Bottom">
-              <ToggleButton value="TB" selected={rankDir === 'TB'}><ArrowDownwardIcon /></ToggleButton>
-            </Tooltip>
-            <Tooltip title="Left-to-Right">
-              <ToggleButton value="LR" selected={rankDir === 'LR'}><ArrowForwardIcon /></ToggleButton>
-            </Tooltip>
+            {directions.map((el) => (
+              <Tooltip key={`tooltip-${el.value}`} title={el.label}>
+                <ToggleButton key={`btn-${el.value}`} value={el.value} selected={rankDir === el.value}>{el.icon}</ToggleButton>
+              </Tooltip>
+            ))}
           </ToggleButtonGroup>
         </FormControl>
       </form>
     );
   }
 }
+
+const directions = [
+  { label: 'Top-to-Bottom', value: 'TB', icon: <ArrowDownwardIcon /> },
+  { label: 'Bottom-to-Top', value: 'BT', icon: <ArrowUpwardIcon /> },
+  { label: 'Left-to-Right', value: 'LR', icon: <ArrowForwardIcon /> },
+  { label: 'Right-to-Left', value: 'RL', icon: <ArrowBackIcon /> },
+];
 
 const styles = theme => ({
   container: {
