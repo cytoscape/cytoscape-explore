@@ -11,7 +11,8 @@ export class FCosePanel extends Component {
   constructor(props) {
     super(props);
     this.layoutOptions = {
-      idealEdgeLength: 4500,
+      idealEdgeLength: 50,
+      nodeSeparation: 75,
     };
   }
 
@@ -32,15 +33,28 @@ export class FCosePanel extends Component {
     return (
       <form className={classes.container} noValidate autoComplete="off">
         <div>
-          <Tooltip title="The separation between connected nodes">
-          <FormControl component="fieldset">
-            <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
+          <Tooltip title="The ideal edge length">
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={classes.label}>Edge Length</FormLabel>
               <Slider
                 id="idealEdgeLength"
-                min={0}
-                max={1000}
+                min={1} // If 0, the app may freeze
+                max={500}
                 defaultValue={50}
                 onChange={(e, v) => this.handleChange(e, "idealEdgeLength", v)}
+                {...sliderProps}
+              />
+            </FormControl>
+          </Tooltip>
+          <Tooltip title="The separation amount between nodes">
+            <FormControl component="fieldset">
+              <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
+              <Slider
+                id="nodeSeparation"
+                min={1} // If 0, the whole app freezes!
+                max={5000}
+                defaultValue={75}
+                onChange={(e, v) => this.handleChange(e, "nodeSeparation", v)}
                 {...sliderProps}
               />
             </FormControl>
