@@ -71,6 +71,9 @@ export class StylePicker extends React.Component {
         }});
         break;
     }
+    // Temporary non-complete fix for bug in material-ui Tabs component.
+    // https://github.com/mui-org/material-ui/issues/9337
+    setTimeout(() => window.dispatchEvent(new CustomEvent('resize')));
   }
 
   onStyleChanged(style) {
