@@ -4,7 +4,6 @@ import colorConvert from 'color-convert';
 import classNames from 'classnames';
 import Color from 'color';
 import PropTypes from 'prop-types';
-import { StrikethroughS } from '@material-ui/icons';
 
 
 // TODO improve defaults
@@ -26,8 +25,6 @@ const defaults = {
   range: 5
 };
 
-export const defaultColor = { r:150, g:150, b:150 };
-
 // TODO, divergent gradients not properly supported yet
 // const colorBrewerDivergent = [
 //   {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
@@ -41,6 +38,7 @@ function rgbCss(c) {
   return Color(c).rgb().string();
 }
 
+export const defaultColor = {r:136,g:136,b:136}; // same as the #888 from the default style in style.js
 
 export function ColorSwatch(props) {
   return (
@@ -63,7 +61,7 @@ ColorSwatch.propTypes = {
 ColorSwatch.defaultProps = {
   onClick: () => null,
   selected: false,
-  color: defaultColor
+  color: defaultColor,
 };
 
 
@@ -102,7 +100,7 @@ export class ColorSwatches extends Component {
       colors: [
         {r:40, g:40, b:40 },
         {r:100,g:100,b:100},
-        {r:150,g:150,b:150},
+        defaultColor,
         {r:200,g:200,b:200},
         {r:230,g:230,b:230},
       ]

@@ -4,7 +4,7 @@ import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-d
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
-import { defaultColor } from '../style/color-swatches';
+import { DEFAULT_NODE_STYLE } from '../../../model/style';
 
 /**
  * The network editor controller contains all high-level model operations that the network
@@ -209,11 +209,11 @@ export class NetworkEditorController {
     console.log(JSON.stringify(valueMap));
 
     // TODO Allow user to set default value?
-    const defaultValue = defaultColor;
+    const defaultValue = DEFAULT_NODE_STYLE['background-color'].value;
     const style = styleFactory.discreteColor(attribute, defaultValue, valueMap);
 
     this.vizmapper.node('background-color', style);
-    this.bus.emit('setNodeColorDiscreteMapping', attribute, defaultValue, valueMap);
+    this.bus.emit('setNodeColorDiscreteMapping', attribute, valueMap);
   }
 
 

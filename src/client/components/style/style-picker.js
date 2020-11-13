@@ -66,7 +66,8 @@ export class StylePicker extends React.Component {
         this.setState({ style: {
           mapping: MAPPING.DISCRETE,
           attribute: style.value.data,
-          discreteValue: { styleValues: style.value.styleValues } // TODO this is probably not necessary, style.value is fine
+          discreteDefault: style.value.defaultValue,
+          discreteValue: { ...style.value.styleValues } // TODO do we need to use spread op?
         }});
         break;
     }
