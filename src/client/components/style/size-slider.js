@@ -9,13 +9,18 @@ export function SizeSlider(props) {
   const min = props.min || 1;
   const max = props.max || 100;
   const def = props.defaultValue || (max / 2.0);
+  const marks = [ { value: min, label: min }, { value: max, label: max } ];
   return (
-    <Slider 
-      min={min} 
-      max={max} 
-      defaultValue={def}
-      onChange={(event,value) => debouncedOnChange(value)}
-    />
+    <div className="size-slider">
+      <Slider 
+        min={min} 
+        max={max} 
+        defaultValue={def}
+        marks={marks}
+        valueLabelDisplay='auto'
+        onChange={(event,value) => debouncedOnChange(value)}
+      />
+    </div>
   );
 }
 

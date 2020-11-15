@@ -83,6 +83,9 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
       const styleValue = styleValues[eleData];
       const { r, g, b } = styleValue === undefined ? defaultValue : styleValue;
       return `rgb(${r}, ${g}, ${b})`;
+    } else if( STYLE_TYPE.NUMBER === type) {
+      const styleValue = styleValues[eleData];
+      return styleValue === undefined ? defaultValue : styleValue;
     }
   }
 };
@@ -143,6 +146,22 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
  * @property {String} stringValue The Cytoscape style value as a string
  * @property {LinearNumberStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * The style struct for a linear color property
+ * @typedef {Object} DiscreteNumberStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {DiscreteNumberStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * @typedef {Object} DiscreteNumberStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+ * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
  */
 
 /**
@@ -243,6 +262,26 @@ export const styleFactory = {
     };
   },
   
+  /**
+   * Create a discrete mapping for color.
+   * @property {String} data The data attribute that's mapped
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+   * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
+   * @returns {DiscreteNumberStyleStruct} The style value object (JSON)
+   */
+  discreteNumber: (data, defaultValue, styleValues) => {
+    return {
+      type: STYLE_TYPE.NUMBER,
+      mapping: MAPPING.DISCRETE,
+      value: {
+        data,
+        defaultValue,
+        styleValues
+      },
+      stringValue: '???' // TODO
+    };
+  },
+
   /**
    * Create a flat string.
    * @param {String} value The value of the string.

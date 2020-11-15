@@ -256,13 +256,13 @@ export class StylePicker extends React.Component {
           dense={true}
         >
           {dataVals.map(dataVal => {
-            const styleVal = (this.state.style.discreteValue || {})[dataVal];
+            const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
             return (
               <ListItem key={dataVal}>
                 <ListItemText primary={dataVal} />
                 <ListItemSecondaryAction>
                   <div onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)}>
-                    { this.props.renderDiscreteIcon(styleVal || discreteDefault) }
+                    { this.props.renderDiscreteIcon(styleVal) }
                   </div>
                 </ListItemSecondaryAction>
               </ListItem>
@@ -278,7 +278,7 @@ export class StylePicker extends React.Component {
         >
           <div className="style-picker-value"> 
             { this.props.renderValue(
-                this.state.popoverStyleValue, // this just tells component in the popover the current value to highlight
+                this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
                 newStyleVal => handleDiscreteChange(this.state.popoverDataVal, newStyleVal)
               ) 
             }
