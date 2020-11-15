@@ -368,7 +368,7 @@ export const DEFAULT_NODE_STYLE = {
   'width': styleFactory.number(30),
   'height': styleFactory.number(30),
   'label': styleFactory.stringPassthrough('id'),
-  'border-color': styleFactory.color({r:100,g:100,b:100}),
+  'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
 };
 

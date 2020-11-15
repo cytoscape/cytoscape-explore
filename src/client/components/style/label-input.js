@@ -19,17 +19,18 @@ export class LabelInput extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="label-input">
+        {"Label: "}{'\u00A0'}
         <TextField 
           value={this.state.value} 
           onChange={event => this.handleInput(event.target.value)} 
         />
-        <Button 
+        {/* <Button 
           variant="contained" 
           onClick={() => this.handleInput("")}
         >
           Clear
-        </Button>
+        </Button> */}
       </div>
     );
   }

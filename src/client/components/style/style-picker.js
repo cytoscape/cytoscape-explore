@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
+import TextIcon from './text-icon';
 import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip, Popover} from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
@@ -187,7 +188,7 @@ export class StylePicker extends React.Component {
             { !this.props.onPassthroughSet ? null :
               <ToggleButton value={MAPPING.PASSTHROUGH} >
                 <Tooltip title="Passthrough Mapping">
-                  <span>{"1 : 1"}</span>
+                  <TextIcon text='1 : 1' />
                 </Tooltip>
               </ToggleButton>
             }
@@ -198,7 +199,7 @@ export class StylePicker extends React.Component {
                 </Tooltip>
               </ToggleButton>
             }
-            { /* !this.props.onDiscreteSet ? null : */
+            { !this.props.onDiscreteSet ? null :
               <ToggleButton value={MAPPING.DISCRETE}>
                 <Tooltip title="Discrete Mapping">
                   <FormatListNumberedIcon />
@@ -240,12 +241,12 @@ export class StylePicker extends React.Component {
       });
     };
     const handleDiscreteChange = (dataVal, newStyleVal) => {
-      console.log("handleDiscreteChange: " + dataVal + ", " + newStyleVal);
       const discreteValue = { ...this.state.style.discreteValue };
       discreteValue[dataVal] = newStyleVal;
       this.handleStyleChange({ discreteValue });
       handlePopoverClose();
     };
+    const discreteDefault = this.props.getDiscreteDefault();
 
     return (
       <div>
@@ -261,7 +262,7 @@ export class StylePicker extends React.Component {
                 <ListItemText primary={dataVal} />
                 <ListItemSecondaryAction>
                   <div onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)}>
-                    { this.props.renderDiscreteIcon(styleVal) }
+                    { this.props.renderDiscreteIcon(styleVal || discreteDefault) }
                   </div>
                 </ListItemSecondaryAction>
               </ListItem>
@@ -295,12 +296,11 @@ StylePicker.propTypes = {
   renderValue: PropTypes.func,
   renderDiscreteIcon: PropTypes.func,
   getStyle: PropTypes.func,
+  getDiscreteDefault: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
   onDiscreteSet: PropTypes.func,
   onPassthroughSet: PropTypes.func,
-  valueLabel: PropTypes.string,
-  mappingLabel: PropTypes.string,
   title: PropTypes.string,
   icon: PropTypes.string,
 };

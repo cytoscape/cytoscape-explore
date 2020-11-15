@@ -4,7 +4,7 @@ import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-d
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
-import { DEFAULT_NODE_STYLE } from '../../../model/style';
+import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
 
 /**
  * The network editor controller contains all high-level model operations that the network
@@ -175,183 +175,131 @@ export class NetworkEditorController {
     return res;
   }
 
+
   /**
-   * Set the color of all nodes to a single color
-   * @param {(Color|String)} color The color to set
+   * Return the discrete default mapping value.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
+   * @return {Any} the discrete default mapping value
    */
-  setNodeColor(color){
-    console.log("setNodeColor");
-    this.vizmapper.node('background-color', styleFactory.color(color));
+  getDiscreteDefault(selector, property) {
+    if(selector === 'node')
+      return DEFAULT_NODE_STYLE[property].value;
+    else if(selector === 'edge')
+      return DEFAULT_EDGE_STYLE[property].value;
   }
 
   /**
-   * Set the color of all nodes to a mapping
+   * Get the global style
+   * @param {String} selector The selector to get style for ('node' or 'edge')
+   * @param {String} property The style property name
+   */
+  getStyle(selector, property) {
+    return this.vizmapper.get(selector, property);
+  }
+
+  /**
+   * Set a color propetry of all elements to single color.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
+   * @param {(Color|String)} color The color to set
+   */
+  setColor(selector, property, color) {
+    this.vizmapper.set(selector, property, styleFactory.color(color));
+    this.bus.emit('setColor', selector, property, color);
+  }
+
+  /**
+   * Set the color of all elements to a linear mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
    * @param {String} attribute The data attribute to map
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
-  setNodeColorMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
+  setColorLinearMapping(selector, property, attribute, value) {
+    const {hasVal, min, max} = this._minMax(attribute, this.cy.nodes());
     if(!hasVal)
       return;
-
     const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.vizmapper.node('background-color', style);
-    this.bus.emit('setNodeColorMapping', attribute, value);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setColorLinearMapping', selector, property, attribute, value);
   }
 
   /**
-   * Set the color of all nodes to a mapping
+   * Set the color of all elements to a discrete mapping
    * @param {String} attribute The data attribute to map
    * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
    */
-  setNodeColorDiscreteMapping(attribute, valueMap) {
-    console.log("setNodeColorDiscreteMapping: " + attribute);
-    console.log(JSON.stringify(valueMap));
-
+  setColorDiscreteMapping(selector, property, attribute, valueMap) {
     // TODO Allow user to set default value?
-    const defaultValue = DEFAULT_NODE_STYLE['background-color'].value;
+    const defaultValue = this.getDiscreteDefault(selector, property);
     const style = styleFactory.discreteColor(attribute, defaultValue, valueMap);
-
-    this.vizmapper.node('background-color', style);
-    this.bus.emit('setNodeColorDiscreteMapping', attribute, valueMap);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setColorDiscreteMapping', selector, property, attribute, valueMap);
   }
-
-
+  
   /**
-   * Get the global node colour style struct
-   * @returns {ColorStyleStruct} The style value struct
+   * Set a numeric propetry of all elements to single value.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value
+   * @param {Number} value The value to set
    */
-  getNodeBackgroundColor(){
-    return this.vizmapper.node('background-color');
-  }
-
-  /**
-   * Set the node size to a fixed value
-   * @param {Number} size The new size of the nodes
-   */
-  setNodeSize(size) {
-    console.log("setNodeSize");
-
-    this.vizmapper.node('width', styleFactory.number(size));
-    this.vizmapper.node('height', styleFactory.number(size));
-
-    this.bus.emit('setNodeSize', size);
+  setNumber(selector, property, value) {
+    this.vizmapper.set(selector, property, styleFactory.number(value));
+    this.bus.emit('setNumber', selector, property, value);
   }
 
   /**
-   * Set the node sizes to a linear attribute mapping
-   * @param {String} attribute The data attribute to use as mapping input
-   * @param {LinearNumberStyleValue} value The number style struct value to use
-   */
-  setNodeSizeMapping(attribute, value) {
-    console.log("setNodeSizeGradient");
-    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
-    if(!hasVal)
-      return;
-
-    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    
-    this.vizmapper.node('width',  style);
-    this.vizmapper.node('height', style);
-
-    this.bus.emit('setNodeSizeMapping', attribute, value);
-  }
-
-  /**
-   * Get the global node size style struct
-   * @returns {NumberStyleStruct} The style value struct
-   */
-  getNodeSize(){
-    return this.vizmapper.node('width');
-  }
-
-  /**
-   * Set the label of all nodes to a single value.
-   * @param {String} text The text to set
-   */
-  setNodeLabel(text){
-    this.vizmapper.node('label', styleFactory.string(text));
-    this.bus.emit('setNodeLabel', text);
-  }
-
-  /**
-   * Set the label of all to a passthrough mapping.
-   * @param {String} attribute The data attribute to map
-   */
-  setNodeLabelPassthrough(attribute){
-    this.vizmapper.node('label', styleFactory.stringPassthrough(attribute));
-    this.bus.emit('setNodeLabelPassthrough', attribute);
-  }
-
-  /**
-   * Get the global node size style struct
-   * @returns {StringStyleStruct} The style value struct
-   */
-  getNodeLabel() {
-    return this.vizmapper.node('label');
-  }
-
-  /**
-   * Set the node size to a fixed value
-   * @param {Number} size The new size of the nodes
-   */
-  setNodeBorderWidth(size) {
-    this.vizmapper.node('border-width', styleFactory.number(size));
-    this.bus.emit('setNodeBorderWidth', size);
-  }
-
-  /**
-   * Set the node sizes to a linear attribute mapping
-   * @param {String} attribute The data attribute to use as mapping input
-   * @param {LinearNumberStyleValue} value The number style struct value to use
-   */
-  setNodeBorderWidthMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
-    if(!hasVal)
-      return;
-
-    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.vizmapper.node('border-width',  style);
-    this.bus.emit('setNodeBorderWidthMapping', attribute, value);
-  }
-
-  /**
-   * Get the node border width.
-   * @returns {NumberStyleStruct} 
-   */
-  getNodeBorderWidth() {
-    return this.vizmapper.node('border-width');
-  }
-
-    /**
-   * Set the color of all node borders to a single color
-   * @param {(Color|String)} color The color to set
-   */
-  setNodeBorderColor(color){
-    this.vizmapper.node('border-color', styleFactory.color(color));
-  }
-
-  /**
-   * Set the color of all node border to a mapping
+   * Set the numeric property of all elements to a linear mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
    * @param {String} attribute The data attribute to map
    * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
    */
-  setNodeBorderColorMapping(attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute, cy.nodes());
+  setNumberLinearMapping(selector, property, attribute, value) {
+    const {hasVal, min, max} = this._minMax(attribute, this.cy.nodes());
     if(!hasVal)
       return;
-
-    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    this.vizmapper.node('border-color', style);
-    this.bus.emit('setNodeBorderColorMapping', attribute, value);
+    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setNumberLinearMapping', selector, property, attribute, value);
   }
 
   /**
-   * Get the global node border colour style struct
-   * @returns {ColorStyleStruct} The style value struct
+   * Set the numeric value of all elements to a discrete mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
+   * @param {String} attribute The data attribute to map
+   * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
    */
-  getNodeBorderColor(){
-    return this.vizmapper.node('border-color');
+  setNumberDiscreteMapping(selector, property, attribute, valueMap) {
+    // TODO Allow user to set default value?
+    const defaultValue = this.getDiscreteDefault(selector, property);
+    const style = styleFactory.discreteNumber(attribute, defaultValue, valueMap);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setNumberDiscreteMapping', selector, property, attribute, valueMap);
+  }
+
+  /**
+   * Set a string propetry of all elements to single value.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a string value
+   * @param {Number} text The value to set
+   */
+  setString(selector, property, text) {
+    this.vizmapper.set(selector, property, styleFactory.string(text));
+    this.bus.emit('setString', selector, property, text);
+  }
+
+/**
+   * Set a string propetry of all elements to single value.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a string value
+   * @param {String} attribute The data attribute to map
+   */
+  setStringPassthroughMapping(selector, property, attribute) {
+    this.vizmapper.set(selector, property, styleFactory.stringPassthrough(attribute));
+    this.bus.emit('setStringPassthroughMapping', selector, property, attribute);
   }
 
   /**
