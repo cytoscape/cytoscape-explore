@@ -31,11 +31,10 @@ export class StylePickerButton extends Component  {
     return (
       <div>
         <Tooltip arrow title={this.props.title}>
-          <button 
-            onClick={e => this.handleClick(e)}
-            className="style-panel-button plain-button">
-            <i className="material-icons">{this.props.icon}</i>
-          </button>
+          {(typeof this.props.icon === 'string' || this.props.icon instanceof String)
+            ? this.renderFontIcon()
+            : <div onClick={e => this.handleClick(e)}>{this.props.icon}</div>
+          }
         </Tooltip>
         <Popover 
           open={Boolean(anchorEl)}
@@ -54,6 +53,16 @@ export class StylePickerButton extends Component  {
           <StylePicker ref={ref} {...this.props} />
         </Popover>
       </div>
+    );
+  }
+
+  renderFontIcon() {
+    return (
+      <button 
+        onClick={e => this.handleClick(e)}
+        className="style-panel-button plain-button">
+        <i className="material-icons">{this.props.icon}</i>
+      </button>
     );
   }
 }

@@ -46,6 +46,10 @@ export class NetworkEditor extends Component {
         style: this.cy.vizmapper().nodeStyleBlock()
       },
       {
+        selector: 'edge',
+        style: this.cy.vizmapper().edgeStyleBlock()
+      },
+      {
         selector: 'node',
         style: {
           'text-wrap': 'wrap',
@@ -105,13 +109,20 @@ export class NetworkEditor extends Component {
 
     this.cy.resize();
 
+    function randomArg(... args) {
+      return args[Math.floor(Math.random() * args.length)];
+    }
+
     this.eh = this.controller.eh = this.cy.edgehandles({
       snap: true,
-      edgeParams: {
+      edgeParams: () => ({
+        // TODO temporary data
         data: {
-          color: 'rgb(128, 128, 128)'
+          attr1: Math.random(), // betwen 0 and 1
+          attr2: Math.random() * 2.0 - 1.0, // between -1 and 1
+          attr3: randomArg("A", "B", "C")
         }
-      }
+      })
     });
 
     this.updateSelectionClass = _.debounce(() => {

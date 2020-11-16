@@ -135,8 +135,6 @@ export class StylePicker extends React.Component {
       <div className="style-picker">
         <Paper>
           <div className="style-picker-heading">
-            <i className="material-icons">{this.props.icon}</i>
-            {'\u00A0'}
             {this.props.title || "Visual Property"}
           </div>
           <Tabs 

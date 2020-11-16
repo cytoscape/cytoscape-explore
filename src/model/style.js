@@ -379,16 +379,6 @@ export const styleFactory = {
   }
 };
 
-/**  Supported node style properties  */
-// Note: make sure to add new properties to DEFAULT_NODE_STYLE */
-export const NODE_STYLE_PROPERTIES = [
-  'background-color',
-  'width',
-  'height',
-  'label',
-  'border-color',
-  'border-width',
-];
 
 /** A LUT for style property types */
 export const PROPERTY_TYPE = {
@@ -401,6 +391,17 @@ export const PROPERTY_TYPE = {
   'border-width': STYLE_TYPE.NUMBER,
 }; 
 
+/**  Supported node style properties  */
+// Note: make sure to add new properties to DEFAULT_NODE_STYLE */
+export const NODE_STYLE_PROPERTIES = [
+  'background-color',
+  'width',
+  'height',
+  'label',
+  'border-color',
+  'border-width',
+];
+
 /** An object map of the default node style values */
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
@@ -411,22 +412,24 @@ export const DEFAULT_NODE_STYLE = {
   'border-width': styleFactory.number(1),
 };
 
-/** An object map of the default edge style values */
-export const DEFAULT_EDGE_STYLE = {
-  'line-color': styleFactory.color('#888')
-};
-
-
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
 
 export const nodeStylePropertyExists = property => {
   return NODE_STYLE_PROPERTIES_SET.has(property);
 };
 
+
 /** Supported edge style properties  */
 export const EDGE_STYLE_PROPERTIES = [
-  'line-color'
+  'line-color',
+  'width'
 ];
+
+/** An object map of the default edge style values */
+export const DEFAULT_EDGE_STYLE = {
+  'line-color': styleFactory.color('#888'),
+  'width': styleFactory.number(2),
+};
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
 

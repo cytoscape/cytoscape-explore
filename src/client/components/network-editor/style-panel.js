@@ -116,7 +116,7 @@ export class StylePanel extends Component {
             <SizeSlider min={10} max={50} defaultValue={size} onSelect={onSelect} /> 
           }
           renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
+            <SizeGradients variant='solid' min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
           } 
           renderDiscreteIcon={(size) => 
             <Button variant="outlined">{size}</Button>
@@ -149,10 +149,10 @@ export class StylePanel extends Component {
             <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />
           }
           renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={0} max={10} border={true} selected={sizeRange} onSelect={onSelect} />
+            <SizeGradients variant='border' min={0} max={10} selected={sizeRange} onSelect={onSelect} />
           } 
           renderDiscreteIcon={(size) => 
-            <Button variant="outlined">{size}</Button>
+            <Button variant='outlined'>{size}</Button>
           }
           getStyle={() => 
             controller.getStyle('node', 'border-width')
@@ -163,7 +163,7 @@ export class StylePanel extends Component {
           onValueSet={size => 
             controller.setNumber('node', 'border-width', size)
           }
-          onMappingSet={(sizeRange, attribute) => 
+          onMappingSet={(attribute, sizeRange) => 
             controller.setNumberLinearMapping('node', 'border-width',  attribute, sizeRange)
           }
           onDiscreteSet={(attribute, valueMap) => {
@@ -171,6 +171,66 @@ export class StylePanel extends Component {
           }}
         />
 
+        <StylePickerButton 
+          title="Edge Color"
+          icon="remove"
+          controller={controller}
+          renderValue={(color, onSelect) => 
+            <ColorSwatches selected={color} onSelect={onSelect} />
+          }
+          renderMapping={(gradient, onSelect) => 
+            <ColorGradients selected={gradient} onSelect={onSelect} /> 
+          }
+          renderDiscreteIcon={color => 
+            <ColorSwatch color={color} />
+          }
+          getStyle={() => 
+            controller.getStyle('edge', 'line-color')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('edge', 'line-color')
+          }
+          onValueSet={color => 
+            controller.setColor('edge', 'line-color', color)
+          }
+          onMappingSet={(attribute, gradient) => 
+            controller.setColorLinearMapping('edge', 'line-color', attribute, gradient)
+          }
+          onDiscreteSet={(attribute, valueMap) => 
+            controller.setColorDiscreteMapping('edge', 'line-color', attribute, valueMap)
+          }
+        />
+
+        <StylePickerButton 
+          title="Edge Width"
+          icon="line_weight"
+          controller={controller}
+          renderValue={(size, onSelect) => 
+            <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />
+          }
+          renderMapping={(sizeRange, onSelect) => 
+            <SizeGradients variant='line' min={0} max={10} selected={sizeRange} onSelect={onSelect} />
+          } 
+          renderDiscreteIcon={(size) => 
+            <Button variant="outlined">{size}</Button>
+          }
+          getStyle={() => 
+            controller.getStyle('edge', 'width')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('edge', 'width')
+          }
+          onValueSet={size => 
+            controller.setNumber('edge', 'width', size)
+          }
+          onMappingSet={(attribute, sizeRange) => 
+            controller.setNumberLinearMapping('edge', 'width',  attribute, sizeRange)
+          }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setNumberDiscreteMapping('edge', 'width',  attribute, valueMap);
+          }}
+        />
+        
       </div>
     );
   }
