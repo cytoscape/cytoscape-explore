@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
-import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/color-swatches';
-import { SizeSlider, SizeGradients } from '../style/size-slider';
-import { LabelInput } from '../style/label-input';
+import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/colors';
+import { SizeSlider, SizeGradients } from '../style/sizes';
+import { LabelInput } from '../style/labels';
 import { Button } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
@@ -109,8 +109,38 @@ export class StylePanel extends Component {
         />
 
         <StylePickerButton 
+          title="Node Shape"
+          icon="category"
+          controller={controller}
+          renderValue={(size, onSelect) => 
+            <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />
+          }
+          renderMapping={(sizeRange, onSelect) => 
+            <SizeGradients variant='border' min={0} max={10} selected={sizeRange} onSelect={onSelect} />
+          } 
+          renderDiscreteIcon={(size) => 
+            <Button variant='outlined'>{size}</Button>
+          }
+          getStyle={() => 
+            controller.getStyle('node', 'border-width')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('node', 'border-width')
+          }
+          onValueSet={size => 
+            controller.setNumber('node', 'border-width', size)
+          }
+          onMappingSet={(attribute, sizeRange) => 
+            controller.setNumberLinearMapping('node', 'border-width',  attribute, sizeRange)
+          }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setNumberDiscreteMapping('node', 'border-width',  attribute, valueMap);
+          }}
+        />
+      
+        <StylePickerButton 
           title="Node Size"
-          icon="bubble_chart"
+          icon="all_out"
           controller={controller}
           renderValue={(size, onSelect) => 
             <SizeSlider min={10} max={50} defaultValue={size} onSelect={onSelect} /> 
