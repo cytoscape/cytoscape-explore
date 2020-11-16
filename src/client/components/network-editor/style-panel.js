@@ -113,10 +113,10 @@ export class StylePanel extends Component {
           icon="bubble_chart"
           controller={controller}
           renderValue={(size, onSelect) => 
-            <SizeSlider min={20} max={40} defaultValue={size} onSelect={onSelect} /> 
+            <SizeSlider min={10} max={50} defaultValue={size} onSelect={onSelect} /> 
           }
           renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={20} max={40} selected={sizeRange} onSelect={onSelect} /> 
+            <SizeGradients min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
           } 
           renderDiscreteIcon={(size) => 
             <TextIcon text={size} />
@@ -146,20 +146,29 @@ export class StylePanel extends Component {
           icon="toll"
           controller={controller}
           renderValue={(size, onSelect) => 
-            <SizeSlider min={0.5} max={10.0} defaultValue={size} onSelect={onSelect} />
+            <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />
           }
           renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients min={0.5} max={10.0} border={true} selected={sizeRange} onSelect={onSelect} />
+            <SizeGradients min={0} max={10} border={true} selected={sizeRange} onSelect={onSelect} />
           } 
+          renderDiscreteIcon={(size) => 
+            <TextIcon text={size} />
+          }
           getStyle={() => 
-            controller.getNodeBorderWidth()
+            controller.getStyle('node', 'border-width')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('node', 'border-width')
           }
           onValueSet={size => 
-            controller.setNodeBorderWidth(size)
+            controller.setNumber('node', 'border-width', size)
           }
           onMappingSet={(sizeRange, attribute) => 
-            controller.setNodeBorderWidthMapping(sizeRange, attribute)
+            controller.setNumberLinearMapping('node', 'border-width',  attribute, sizeRange)
           }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setNumberDiscreteMapping('node', 'border-width',  attribute, valueMap);
+          }}
         />
 
       </div>
