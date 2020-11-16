@@ -3,8 +3,8 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
 import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/color-swatches';
 import { SizeSlider, SizeGradients } from '../style/size-slider';
-import TextIcon from '../style/text-icon';
 import { LabelInput } from '../style/label-input';
+import { Button } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 
@@ -119,7 +119,7 @@ export class StylePanel extends Component {
             <SizeGradients min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
           } 
           renderDiscreteIcon={(size) => 
-            <TextIcon text={size} />
+            <Button variant="outlined">{size}</Button>
           }
           getStyle={() => 
             controller.getStyle('node', 'width')
@@ -152,7 +152,7 @@ export class StylePanel extends Component {
             <SizeGradients min={0} max={10} border={true} selected={sizeRange} onSelect={onSelect} />
           } 
           renderDiscreteIcon={(size) => 
-            <TextIcon text={size} />
+            <Button variant="outlined">{size}</Button>
           }
           getStyle={() => 
             controller.getStyle('node', 'border-width')

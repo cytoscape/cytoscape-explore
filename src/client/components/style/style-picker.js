@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import TextIcon from './text-icon';
-import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip, Popover} from "@material-ui/core";
+import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip, Popover } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
@@ -188,7 +187,7 @@ export class StylePicker extends React.Component {
             { !this.props.onPassthroughSet ? null :
               <ToggleButton value={MAPPING.PASSTHROUGH} >
                 <Tooltip title="Passthrough Mapping">
-                  <TextIcon text='1 : 1' />
+                  <span>1 : 1</span>
                 </Tooltip>
               </ToggleButton>
             }
@@ -243,8 +242,8 @@ export class StylePicker extends React.Component {
     const handleDiscreteChange = (dataVal, newStyleVal) => {
       const discreteValue = { ...this.state.style.discreteValue };
       discreteValue[dataVal] = newStyleVal;
+      this.setState({ popoverStyleVal: newStyleVal });
       this.handleStyleChange({ discreteValue });
-      handlePopoverClose();
     };
     const discreteDefault = this.props.getDiscreteDefault();
 
