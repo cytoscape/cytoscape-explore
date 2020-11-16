@@ -291,7 +291,7 @@ export class NetworkEditorController {
     this.bus.emit('setString', selector, property, text);
   }
 
-/**
+ /**
    * Set a string propetry of all elements to single value.
    * @param {String} selector 'node' or 'edge'
    * @param {String} property a style property that expects a string value
@@ -300,6 +300,21 @@ export class NetworkEditorController {
   setStringPassthroughMapping(selector, property, attribute) {
     this.vizmapper.set(selector, property, styleFactory.stringPassthrough(attribute));
     this.bus.emit('setStringPassthroughMapping', selector, property, attribute);
+  }
+
+  /**
+   * Set the string value of all elements to a discrete mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
+   * @param {String} attribute The data attribute to map
+   * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
+   */
+  setStringDiscreteMapping(selector, property, attribute, valueMap) {
+    // TODO Allow user to set default value?
+    const defaultValue = this.getDiscreteDefault(selector, property);
+    const style = styleFactory.discreteString(attribute, defaultValue, valueMap);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setStringDiscreteMapping', selector, property, attribute, valueMap);
   }
 
   /**

@@ -3,6 +3,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
 import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/colors';
 import { SizeSlider, SizeGradients } from '../style/sizes';
+import { NodeShapes, NodeShapeIcon } from '../style/shapes';
 import { LabelInput } from '../style/labels';
 import { Button } from '@material-ui/core';
 import PropTypes from 'prop-types';
@@ -112,29 +113,23 @@ export class StylePanel extends Component {
           title="Node Shape"
           icon="category"
           controller={controller}
-          renderValue={(size, onSelect) => 
-            <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />
+          renderValue={(shape, onSelect) => 
+            <NodeShapes selected={shape} onSelect={onSelect} />
           }
-          renderMapping={(sizeRange, onSelect) => 
-            <SizeGradients variant='border' min={0} max={10} selected={sizeRange} onSelect={onSelect} />
-          } 
-          renderDiscreteIcon={(size) => 
-            <Button variant='outlined'>{size}</Button>
+          renderDiscreteIcon={(shape) => 
+            <NodeShapeIcon shape={shape} />
           }
           getStyle={() => 
-            controller.getStyle('node', 'border-width')
+            controller.getStyle('node', 'shape')
           }
           getDiscreteDefault={() =>
-            controller.getDiscreteDefault('node', 'border-width')
+            controller.getDiscreteDefault('node', 'shape')
           }
-          onValueSet={size => 
-            controller.setNumber('node', 'border-width', size)
-          }
-          onMappingSet={(attribute, sizeRange) => 
-            controller.setNumberLinearMapping('node', 'border-width',  attribute, sizeRange)
+          onValueSet={shape => 
+            controller.setString('node', 'shape', shape)
           }
           onDiscreteSet={(attribute, valueMap) => {
-            controller.setNumberDiscreteMapping('node', 'border-width',  attribute, valueMap);
+            controller.setStringDiscreteMapping('node', 'shape',  attribute, valueMap);
           }}
         />
       
