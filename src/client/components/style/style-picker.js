@@ -98,6 +98,26 @@ export class StylePicker extends React.Component {
     }
   }
 
+  handleTabChange(tab) {
+    this.setState({ tab });
+   
+    // Auto select the mapping type in obvious situations
+    const { onMappingSet, onDiscreteSet, onPassthroughSet } = this.props;
+    let mapping;
+
+    if(tab === TAB.VALUE)
+      mapping = MAPPING.VALUE;
+    else if(onMappingSet && !onDiscreteSet && !onPassthroughSet)
+      mapping = MAPPING.LINEAR;
+    else if(!onMappingSet && onDiscreteSet && !onPassthroughSet)
+      mapping = MAPPING.DISCRETE;
+    else if(!onMappingSet && !onDiscreteSet && onPassthroughSet)
+      mapping = MAPPING.PASSTHROUGH;
+
+    if(mapping)
+      this.handleStyleChange({ mapping });
+  }
+
   handleStyleChange(changes) {
     const change = { style: {...this.state.style, ...changes }};
     this.setState(change);
@@ -130,7 +150,6 @@ export class StylePicker extends React.Component {
   }
 
   renderTabs() {
-    const handleTab = (event, tab) => this.setState({ tab });
     return (
       <div className="style-picker">
         <Paper>
@@ -142,7 +161,7 @@ export class StylePicker extends React.Component {
             textColor="primary"
             variant="fullWidth"
             value={this.state.tab} 
-            onChange={handleTab} >
+            onChange={(event, tab) => this.handleTabChange(tab)} >
             <Tab value={TAB.VALUE}   label='Single' />
             <Tab value={TAB.MAPPING} label='Mapping' />
           </Tabs>
