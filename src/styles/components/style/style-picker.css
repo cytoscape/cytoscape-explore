@@ -1,10 +1,11 @@
 .style-picker {
   text-align: center;
-  width: 250px
+  width: 250px;
 }
 
 .style-picker-heading {
   text-align: center;
+  padding-top: 10px;
   padding-bottom: 5px;
   font-weight: bold;
 }
@@ -16,11 +17,11 @@
 
 .style-picker-value {
   margin: auto;
-  width:90%;
+  width: 90%;
   padding-top: 10px;
 }
 
 .style-picker-attribute {
   width: 100%;
-  padding-top: 5px;
+  padding-top: 10px;
 }

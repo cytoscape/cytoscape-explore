@@ -1,8 +1,9 @@
 import EventEmitter from 'eventemitter3';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue } from '../../../model/style'; // eslint-disable-line
+import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
+import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 
 let layout;
 
@@ -10,25 +11,29 @@ let layout;
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
  * 
- * @property {Cytoscape} cy The graph instance
+ * @property {Cytoscape.Core} cy The graph instance
  * @property {CytoscapeSyncher} cySyncher The syncher that corresponds to the graph instance
  * @property {EventEmitter} bus The event bus that the controller emits on after every operation
+ * @property {VizMapper} vizmapper The vizmapper for managing style
  */
 export class NetworkEditorController {
   /**
    * Create an instance of the controller
-   * @param {Cytoscape} cy The graph instance (model)
+   * @param {Cytoscape.Core} cy The graph instance (model)
    * @param {CytoscapeSyncher} cySyncher The syncher that corresponds to the Cytoscape instance
    * @param {EventEmitter} bus The event bus that the controller emits on after every operation
    */
   constructor(cy, cySyncher, bus){
-    /** @type Cytoscape */
+    /** @type {Cytoscape.Core} */
     this.cy = cy;
 
-    /** @type CytoscapeSyncher */
+    /** @type {CytoscapeSyncher} */
     this.cySyncher = cySyncher;
 
-    /** @type EventEmitter */
+    /** @type {VizMapper} */
+    this.vizmapper = this.cy.vizmapper(); 
+
+    /** @type {EventEmitter} */
     this.bus = bus || new EventEmitter();
 
     this.drawModeEnabled = false;
@@ -74,6 +79,10 @@ export class NetworkEditorController {
     this.bus.emit('setNetwork', this.cy);
   }
 
+  /**
+   * Stops the currently running layout, if there is one, and apply the new layout options.
+   * @param {*} options 
+   */
   applyLayout(options) {
     if (layout != null) {
       layout.stop();
@@ -109,6 +118,7 @@ export class NetworkEditorController {
   toggleDrawMode(bool = !this.drawModeEnabled){
     if( bool ){
       this.eh.enableDrawMode();
+
       this.bus.emit('enableDrawMode');
     } else {
       this.eh.disableDrawMode();
@@ -172,7 +182,7 @@ export class NetworkEditorController {
    */
   setNodeColor(color){
     console.log("setNodeColor");
-    this.cySyncher.setStyle('node', 'background-color', styleFactory.color(color));
+    this.vizmapper.node('background-color', styleFactory.color(color));
   }
 
   /**
@@ -188,10 +198,18 @@ export class NetworkEditorController {
       return;
 
     const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
-    
-    this.cySyncher.setStyle('node', 'background-color', style);
+      
+    this.vizmapper.node('background-color', style);
 
     this.bus.emit('setNodeColorMapping', attribute, value);
+  }
+
+  /**
+   * Get the global node colour style struct
+   * @returns {ColorStyleStruct} The style value struct
+   */
+  getNodeBackgroundColor(){
+    return this.vizmapper.node('background-color');
   }
 
   /**
@@ -200,8 +218,9 @@ export class NetworkEditorController {
    */
   setNodeSize(size) {
     console.log("setNodeSize");
-    this.cySyncher.setStyle('node', 'width',  styleFactory.number(size));
-    this.cySyncher.setStyle('node', 'height', styleFactory.number(size));
+
+    this.vizmapper.node('width', styleFactory.number(size));
+    this.vizmapper.node('height', styleFactory.number(size));
 
     this.bus.emit('setNodeSize', size);
   }
@@ -219,12 +238,20 @@ export class NetworkEditorController {
 
     const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
     
-    this.cySyncher.setStyle('node', 'width',  style);
-    this.cySyncher.setStyle('node', 'height', style);
+    this.vizmapper.node('width',  style);
+    this.vizmapper.node('height', style);
 
     this.bus.emit('setNodeSizeMapping', attribute, value);
   }
 
+  /**
+   * Get the global node size style struct
+   * @returns {NumberStyleStruct} The style value struct
+   */
+  getNodeSize(){
+    return this.vizmapper.node('width');
+  }
+   
   /**
    * Returns the min and max values of a numeric attribute.
    * @private
