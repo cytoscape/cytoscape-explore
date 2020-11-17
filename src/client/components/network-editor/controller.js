@@ -57,9 +57,9 @@ export class NetworkEditorController {
         const { visualProperty: k, value: v } = el;
 
         if (k === "NODE_FILL_COLOR")
-          this.cySyncher.setStyle('node', 'background-color', styleFactory.color(v));
+          this.vizmapper.node('background-color', styleFactory.color(v));
         else if (k === "EDGE_STROKE_UNSELECTED_PAINT")
-          this.cySyncher.setStyle('edge', 'line-color', styleFactory.color(v));
+          this.vizmapper.edge('line-color', styleFactory.color(v));
       });
       // ========================================================================================
     }
