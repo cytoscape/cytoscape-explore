@@ -23,23 +23,7 @@ body {
   height: 100%;
 }
 
-input[type='text'],
-input[type='date'],
-input[type='week'],
-input[type='datetime'],
-input[type='email'],
-input[type='file'],
-input[type='month'],
-input[type='number'],
-input[type='password'],
-input[type='search'],
-input[type='tel'],
-input[type='url'],
-input[type='reset'],
-input[type='submit'],
-button,
-textarea,
-select,
+.plain-button,
 .radioset input[type="radio"] + label {
   appearance: none;
   vertical-align: middle;

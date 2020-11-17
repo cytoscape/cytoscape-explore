@@ -5,6 +5,8 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 
+let layout;
+
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
@@ -71,11 +73,23 @@ export class NetworkEditorController {
     if (hasPositions) {
       this.cy.fit();
     } else {
-      const layout = this.cy.layout({ name: 'grid' });
-      layout.run();
+      this.applyLayout({ name: 'grid' });
     }
 
     this.bus.emit('setNetwork', this.cy);
+  }
+
+  /**
+   * Stops the currently running layout, if there is one, and apply the new layout options.
+   * @param {*} options 
+   */
+  applyLayout(options) {
+    if (layout != null) {
+      layout.stop();
+    }
+
+    layout = this.cy.layout(options);
+    layout.run();
   }
 
   /**
