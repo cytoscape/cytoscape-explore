@@ -19,6 +19,7 @@ export class StylePicker extends React.Component {
   constructor(props){
     super(props);
     this.controller = props.controller;
+    this.attributes = this.controller.getPublicAttributes(props.selector);
 
     this.state = {
       // internal state
@@ -124,24 +125,6 @@ export class StylePicker extends React.Component {
     this.onStyleChanged(change.style);
   }
 
-  renderSubComponent_Value() {
-    const onSelect = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
-    return (
-      <div className="style-picker-value"> 
-        { this.props.renderValue(this.state.style.scalarValue, onSelect) }
-      </div>
-    );
-  }
-
-  renderSubComponent_Linear() {
-    // TODO change to 'props.renderLinear'
-    const onSelect = mappingValue => this.handleStyleChange({ mappingValue });
-    return (
-        <div className="style-picker-value">
-         { this.props.renderMapping(this.state.style.mappingValue, onSelect) }
-        </div>
-    );
-  }
 
   render() {
     if(!this.state.initialized)
@@ -167,15 +150,23 @@ export class StylePicker extends React.Component {
           </Tabs>
         </Paper>
         { this.state.tab === TAB.VALUE
-          ? this.renderSubComponent_Value()
+          ? this.renderSubComponentValue()
           : this.renderMapping()
         }
       </div>
     );
   }
 
+  renderSubComponentValue() {
+    const onSelect = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
+    return (
+      <div className="style-picker-value"> 
+        { this.props.renderValue(this.state.style.scalarValue, onSelect) }
+      </div>
+    );
+  }
+
   renderMapping() {
-    const attributes = this.controller.getPublicAttributes();
     const handleAttribute = (attribute) => this.handleStyleChange({ attribute });
     const handleMapping = (mapping) => this.handleStyleChange({ mapping });
     
@@ -190,7 +181,7 @@ export class StylePicker extends React.Component {
                 value={this.state.style.attribute || ''}
                 onChange={event => handleAttribute(event.target.value)} 
               >
-              {attributes.map(a => 
+              {this.attributes.map(a => 
                 <MenuItem key={a} value={a}>{a}</MenuItem>
               )}
               </Select>
@@ -230,7 +221,7 @@ export class StylePicker extends React.Component {
           else if(this.state.style.mapping === MAPPING.PASSTHROUGH)
             return null;
           else if(this.state.style.mapping === MAPPING.LINEAR)
-            return this.renderSubComponent_Linear();
+            return this.renderSubComponentLinear();
           else if(this.state.style.mapping === MAPPING.DISCRETE)
             return this.renderDiscrete();
         })()}
@@ -238,9 +229,18 @@ export class StylePicker extends React.Component {
     );
   }
 
+  renderSubComponentLinear() {
+    // TODO change to 'props.renderLinear'
+    const onSelect = mappingValue => this.handleStyleChange({ mappingValue });
+    return (
+        <div className="style-picker-value">
+         { this.props.renderMapping(this.state.style.mappingValue, onSelect) }
+        </div>
+    );
+  }
+
   renderDiscrete() {
-    // TODO Don't hardcode the 'node' selector.
-    const dataVals = this.controller.getDiscreteValueList('node', this.state.style.attribute);
+    const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
     
     const handlePopoverOpen = (event, dataVal, styleVal) => {
       this.setState({ 
@@ -319,6 +319,11 @@ StylePicker.propTypes = {
   onPassthroughSet: PropTypes.func,
   title: PropTypes.string,
   icon: PropTypes.string,
+  selector: PropTypes.oneOf('node', 'edge'),
+};
+StylePicker.defaultProps = {
+  selector: 'node',
+  icon: 'star',
 };
 
 export default StylePicker;

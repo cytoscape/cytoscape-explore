@@ -214,7 +214,9 @@ export class VizMapper {
 
     log(`Getting style for ${ele.id()} and ${property} with struct`, styleStruct);
 
-    const flatVal = getFlatStyleForEle(ele, styleStruct);
+    let flatVal = getFlatStyleForEle(ele, styleStruct);
+    if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal))
+      flatVal = def.stringValue;
 
     log(`Got flat value`, flatVal);
 

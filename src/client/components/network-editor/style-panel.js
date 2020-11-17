@@ -199,6 +199,7 @@ export class StylePanel extends Component {
         <StylePickerButton 
           title="Edge Color"
           icon="remove"
+          selector='edge'
           controller={controller}
           renderValue={(color, onSelect) => 
             <ColorSwatches selected={color} onSelect={onSelect} />
@@ -229,6 +230,7 @@ export class StylePanel extends Component {
         <StylePickerButton 
           title="Edge Width"
           icon="line_weight"
+          selector='edge'
           controller={controller}
           renderValue={(size, onSelect) => 
             <SizeSlider min={0} max={10} defaultValue={size} onSelect={onSelect} />

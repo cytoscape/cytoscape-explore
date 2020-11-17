@@ -146,12 +146,12 @@ export class NetworkEditorController {
   }
 
   /**
-   * Get the list of data attributes that exist on the nodes
-   * @returns {Array<String>} An array of public attribute names
+   * Get the list of data attributes that exist on the nodes, and the types of each attribute.
+   * 
    */
-  getPublicAttributes() {
+  getPublicAttributes(selector = 'node') {
     const attrNames = new Set();
-    const nodes = this.cy.nodes();
+    const nodes = this.cy.elements(selector);
     
     nodes.forEach(n => {
       const attrs = Object.keys(n.data());
