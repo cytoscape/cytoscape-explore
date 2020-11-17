@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { Tabs, Tab, Select, MenuItem, InputLabel, FormControl, Paper, Tooltip, Popover } from "@material-ui/core";
+import { Tabs, Tab, Paper, Tooltip, Popover } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
 
 
@@ -173,19 +174,13 @@ export class StylePicker extends React.Component {
     return (
       <div>
         <div className="style-picker-mapping-box">
-          <div style={{paddingRight:'15px'}}>
-            <FormControl style={{minWidth: 150}}>
-              <InputLabel id="attribute-select-label">Attribute</InputLabel>
-              <Select
-                labelId="attribute-select-label"
-                value={this.state.style.attribute || ''}
-                onChange={event => handleAttribute(event.target.value)} 
-              >
-              {this.attributes.map(a => 
-                <MenuItem key={a} value={a}>{a}</MenuItem>
-              )}
-              </Select>
-            </FormControl>
+          <div style={{ paddingRight:'15px' }}>
+            <AttributeSelect
+              controller={this.controller}
+              selector={this.props.selector}
+              selectedAttribute={this.state.style.attribute}
+              onChange={handleAttribute}
+            />
           </div>
           <ToggleButtonGroup 
             exclusive={true}
