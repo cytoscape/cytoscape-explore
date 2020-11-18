@@ -206,14 +206,11 @@ export class CytoscapeSyncher {
       this.dirtyCy = false;
       this.dirtyEles = this.cy.collection();
 
-      console.log("old rev: " + this.cy.scratch('rev'));
-
       if( docsToWrite.length > 0 ){
         const res = await this.localDb.bulkDocs(docsToWrite);
 
         res.forEach((doc) => {
           const { ok, id, rev } = doc;
-          console.log("new rev: " + rev);
 
           if( !ok ){
             log('Pouch bulk error', doc);
