@@ -52,6 +52,8 @@ export class CytoscapeSyncher {
     const pouchOrigin = isClient() ? location.origin : `http://localhost:${PORT}`;
 
     this.remoteDb = new PouchDB(`${pouchOrigin}/db/${this.dbName}`);
+
+    cy.scratch('_cySyncher', this);
   }
 
   enable(){
