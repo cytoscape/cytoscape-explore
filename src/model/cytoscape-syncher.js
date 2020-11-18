@@ -7,7 +7,7 @@ import _ from 'lodash';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 
 const PORT = process.env.PORT;
-const SYNC_INTERVAL = 1000;
+const SYNC_INTERVAL = 400;
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
