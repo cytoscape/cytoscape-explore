@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -98,10 +99,10 @@ export class Header extends Component {
     return (
       <>
         <div className="header">
-          <AppBar position="relative">
+          <AppBar position="relative" color='default'>
             <Toolbar variant="dense">
-              <div className="icon logo" />
-              <Typography variant="h6">
+              <AppLogoIcon {...logoIconProps} />
+              <Typography variant="h6" style={{marginLeft: '0.5em', marginRightt: '0.5em',}}>
                 { networkName || '-- untitled --'  }
               </Typography>
               <div className="grow" />
@@ -179,6 +180,13 @@ export class Header extends Component {
     );
   }
 }
+
+const logoIconProps = {
+  viewBox: '0 0 64 64',
+  style: { width: 'auto', fontSize: 38, margin: 0, color: '#ea9123', },
+  p: 0,
+  m: 0,
+};
 
 Header.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
