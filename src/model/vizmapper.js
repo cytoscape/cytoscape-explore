@@ -1,6 +1,6 @@
 import { CytoscapeSyncher } from './cytoscape-syncher'; // eslint-disable-line
 import { StyleStruct } from './style'; // eslint-disable-line
-import { MAPPING, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists, getFlatStyleForEle, PROPERTY_TYPE } from './style';
+import { MAPPING, STYLE_TYPE, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists, getFlatStyleForEle, PROPERTY_TYPE } from './style';
 import _ from 'lodash';
 
 const NODE_SELECTOR = 'node';
@@ -215,8 +215,16 @@ export class VizMapper {
     log(`Getting style for ${ele.id()} and ${property} with struct`, styleStruct);
 
     let flatVal = getFlatStyleForEle(ele, styleStruct);
-    if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal))
-      flatVal = def.stringValue;
+
+    // TODO This is temporary, need better support for default styles 
+    // if a data value falls outside the range of a mapping.
+    if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal)) {
+      if(def.mapping === MAPPING.VALUE) {
+        flatVal = def.stringValue;
+      } else if(def.mapping === MAPPING.PASSTHROUGH && STYLE_TYPE.STRING) {
+        flatVal = '';
+      }
+    }
 
     log(`Got flat value`, flatVal);
 

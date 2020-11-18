@@ -74,7 +74,7 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
       const r = mapLinear(eleData, dataValue1, dataValue2, styleValue1.r, styleValue2.r);
       const g = mapLinear(eleData, dataValue1, dataValue2, styleValue1.g, styleValue2.g);
       const b = mapLinear(eleData, dataValue1, dataValue2, styleValue1.b, styleValue2.b);
-      if(isNaN(r) || isNaN(g) || isNaN(b))
+      if(Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b))
         return null;
       return `rgb(${r}, ${g}, ${b})`;
     }
@@ -447,7 +447,7 @@ export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
   'width': styleFactory.number(30),
   'height': styleFactory.number(30),
-  'label': styleFactory.stringPassthrough('id'),
+  'label': styleFactory.stringPassthrough('name'),
   'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
   'shape': styleFactory.string('ellipse'),
