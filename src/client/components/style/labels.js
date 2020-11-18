@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, TextField } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 
 
 export class LabelInput extends React.Component {
