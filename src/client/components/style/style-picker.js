@@ -146,7 +146,7 @@ export class StylePicker extends React.Component {
             variant="fullWidth"
             value={this.state.tab} 
             onChange={(event, tab) => this.handleTabChange(tab)} >
-            <Tab value={TAB.VALUE}   label='Single' />
+            <Tab value={TAB.VALUE}   label='Default' />
             <Tab value={TAB.MAPPING} label='Mapping' />
           </Tabs>
         </Paper>
