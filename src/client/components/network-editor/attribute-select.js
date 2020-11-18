@@ -30,7 +30,7 @@ export class AttributeSelect extends React.Component {
 
 AttributeSelect.propTypes = {
   label: PropTypes.string,
-  selector: PropTypes.oneOf('node', 'edge'),
+  selector: PropTypes.oneOf(['node', 'edge']),
   selectedAttribute: PropTypes.string,
   onChange: PropTypes.func,
   controller: PropTypes.instanceOf(NetworkEditorController),

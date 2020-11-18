@@ -314,7 +314,7 @@ StylePicker.propTypes = {
   onPassthroughSet: PropTypes.func,
   title: PropTypes.string,
   icon: PropTypes.string,
-  selector: PropTypes.oneOf('node', 'edge'),
+  selector: PropTypes.oneOf(['node', 'edge']),
 };
 StylePicker.defaultProps = {
   selector: 'node',

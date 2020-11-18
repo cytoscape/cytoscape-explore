@@ -18,7 +18,7 @@ export function NodeShapeIcon({ shape, selected, onClick }) {
 }
 
 NodeShapeIcon.propTypes = {
-  shape: PropTypes.oneOf('ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond'),
+  shape: PropTypes.oneOf(['ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond']),
   selected: PropTypes.bool,
   onClick: PropTypes.func,
 };
@@ -43,7 +43,7 @@ export function NodeShapes({ selected, onSelect }) {
 
 NodeShapes.propTypes = {
   onSelect: PropTypes.func,
-  selected: PropTypes.oneOf('ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond'),
+  selected: PropTypes.oneOf(['ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond']),
 };
 NodeShapes.defaultProps = {
   onSelect: () => null,
