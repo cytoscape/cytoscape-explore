@@ -17,6 +17,8 @@ const registerVizmapper = (Cytoscape) => {
 
       vm = new VizMapper(this, cySyncher);
 
+      this.scratch('_vizmapper', vm);
+
       return vm;
     }
 

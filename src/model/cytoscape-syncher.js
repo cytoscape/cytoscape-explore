@@ -7,7 +7,7 @@ import _ from 'lodash';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 
 const PORT = process.env.PORT;
-const SYNC_INTERVAL = 1000;
+const SYNC_INTERVAL = 400;
 
 // TODO remove debug logging
 const log = console.log; // eslint-disable-line
@@ -42,6 +42,7 @@ export class CytoscapeSyncher {
     this.secret = secret;
     this.dbName = networkId;
     this.docId = networkId;
+    this.networkId = networkId;
 
     this.emitter = new EventEmitter();
     this.cyEmitter = new EventEmitterProxy(this.cy);
@@ -51,6 +52,8 @@ export class CytoscapeSyncher {
     const pouchOrigin = isClient() ? location.origin : `http://localhost:${PORT}`;
 
     this.remoteDb = new PouchDB(`${pouchOrigin}/db/${this.dbName}`);
+
+    cy.scratch('_cySyncher', this);
   }
 
   enable(){
@@ -59,6 +62,8 @@ export class CytoscapeSyncher {
     this.enabled = true;
 
     this.addListeners();
+
+    this.emitter.emit('enable');
   }
 
   disable(){
@@ -67,6 +72,8 @@ export class CytoscapeSyncher {
     this.enabled = false;
 
     this.removeListeners();
+
+    this.emitter.emit('disable');
   }
 
   async create(){
@@ -94,6 +101,8 @@ export class CytoscapeSyncher {
     }
 
     this.loadedOrCreated = true;
+
+    this.emitter.emit('create');
   }
 
   async load(){
@@ -156,6 +165,8 @@ export class CytoscapeSyncher {
     }
 
     this.loadedOrCreated = true;
+
+    this.emitter.emit('load');
   }
 
   /**
@@ -278,12 +289,16 @@ export class CytoscapeSyncher {
             if( id === this.networkId ){
               this.cy.data(_.clone(doc.data));
               this.cy.scratch({ rev });
+
+              this.emitter.emit('cy', doc.data);
             } else {
               const ele = this.cy.getElementById(id);
 
               if( ele.nonempty() || deleted ){
                 if( deleted ){
                   ele.remove();
+
+                  this.emitter.emit('remove', ele);
                 } else {
                   ele.data(_.clone(doc.data));
                   ele.scratch({ rev });
@@ -307,13 +322,17 @@ export class CytoscapeSyncher {
 
                     syncPosAni.play();
                   }
+
+                  this.emitter.emit('ele', ele);
                 }
               } else {
-                this.cy.add({
+                const newEle = this.cy.add({
                   data: _.clone(doc.data),
                   position: _.clone(doc.position),
                   scratch: { rev }
                 });
+
+                this.emitter.emit('add', newEle);
               }
             }
           }

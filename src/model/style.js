@@ -13,12 +13,12 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 export const MAPPING = {
   /** A flat value (i.e. no mapping  */
   VALUE: 'VALUE',
-
   /**  A two-value linear mapping */
   LINEAR: 'LINEAR',
-
   /** A passthrough mapping (i.e. use data property verbatim)  */
-  PASSTHROUGH: 'PASSTHROUGH'
+  PASSTHROUGH: 'PASSTHROUGH',
+  /** A discrete mapping */
+  DISCRETE: 'DISCRETE'
 };
 
 const assertDataRangeOrder = (dataValue1, dataValue2) => {
@@ -37,16 +37,13 @@ const assertDataRangeOrder = (dataValue1, dataValue2) => {
  * @enum {STYLE_TYPE}
  */
 export const STYLE_TYPE = {
-  /** A number */
   NUMBER: 'NUMBER',
-
-  /** A color */
-  COLOR: 'COLOR'
+  COLOR: 'COLOR',
+  STRING: 'STRING'
 };
 
 const mapLinear = (x, x1, x2, f1, f2) => {
   const t = (x - x1) / (x2 - x1);
-  
   return f1 + t * (f2 - f1);
 };
 
@@ -77,8 +74,20 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
       const r = mapLinear(eleData, dataValue1, dataValue2, styleValue1.r, styleValue2.r);
       const g = mapLinear(eleData, dataValue1, dataValue2, styleValue1.g, styleValue2.g);
       const b = mapLinear(eleData, dataValue1, dataValue2, styleValue1.b, styleValue2.b);
-
+      if(Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b))
+        return null;
       return `rgb(${r}, ${g}, ${b})`;
+    }
+  } else if( MAPPING.DISCRETE === mapping ){
+    const { data, defaultValue, styleValues } = styleStruct.value;
+    const eleData = ele.data(data);
+    const mappedValue = styleValues[eleData];
+    const styleValue = mappedValue === undefined ? defaultValue : mappedValue;
+    if( STYLE_TYPE.COLOR === type ){
+      const { r, g, b } = styleValue;
+      return `rgb(${r}, ${g}, ${b})`;
+    } else if( STYLE_TYPE.NUMBER === type || STYLE_TYPE.STRING === type) {
+      return styleValue;
     }
   }
 };
@@ -101,6 +110,28 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {Number} value The value of the number
  */
 
+ /**
+ * The style struct for a flat number property
+ * @typedef {Object} StringStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {String} value The value of the string.
+ */
+
+/**
+ * @typedef {Object} PassthroughStringStyleValue
+ * @property {String} data The data attribute that's mapped
+ */
+
+ /**
+ * @typedef {Object} PassthroughStringStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {PassthroughStringStyleValue} value The value of the number mapping
+ */
+
 /**
  * @typedef {Object} LinearNumberStyleValue
  * @property {String} data The data attribute that's mapped
@@ -117,6 +148,38 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
  * @property {String} stringValue The Cytoscape style value as a string
  * @property {LinearNumberStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * The style struct for a linear color property
+ * @typedef {Object} DiscreteNumberStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {DiscreteNumberStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * @typedef {Object} DiscreteNumberStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+ * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
+ */
+
+ /**
+ * The style struct for a linear color property
+ * @typedef {Object} DiscreteStringStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {DiscreteStringStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * @typedef {Object} DiscreteStringStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {String} defaultValue The defalt color value to use for values that don't have a mapping.
+ * @property {{[key: (String|Number)]: String}} styleValues The minimum value of the input data range
  */
 
 /**
@@ -146,11 +209,6 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  */
 
 /**
- * The style struct for a linear color mapping
- * @typedef {Object} LinearColorStyleValue
- */
-
-/**
  * The style struct for a linear color property
  * @typedef {Object} LinearColorStyleStruct
  * @property {STYLE_TYPE} type The type of the style value (e.g. number)
@@ -159,12 +217,29 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {LinearColorStyleValue} value The value of the number mapping
  */
 
+ /**
+ * The style struct for a linear color property
+ * @typedef {Object} DiscreteColorStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {String} stringValue The Cytoscape style value as a string
+ * @property {DiscreteColorStyleValue} value The value of the number mapping
+ */
+
+ /**
+ * @typedef {Object} DiscreteColorStyleValue
+ * @property {String} data The data attribute that's mapped
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+ * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
+ */
+
 /**
  * The `styleFactory` creates style property values that can be used to set style.
  *  
  * `cySyncher.setStyle('node', 'width', styleFactory.number(20))`
  */
 export const styleFactory = {
+
   /**
    * Create a flat number
    * @param {Number} value The value of the number
@@ -206,7 +281,78 @@ export const styleFactory = {
   },
   
   /**
-   * Create a flat color value
+   * Create a discrete mapping for color.
+   * @property {String} data The data attribute that's mapped
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+   * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
+   * @returns {DiscreteNumberStyleStruct} The style value object (JSON)
+   */
+  discreteNumber: (data, defaultValue, styleValues) => {
+    return {
+      type: STYLE_TYPE.NUMBER,
+      mapping: MAPPING.DISCRETE,
+      value: {
+        data,
+        defaultValue,
+        styleValues
+      },
+      stringValue: '???' // TODO
+    };
+  },
+
+  /**
+   * Create a flat string.
+   * @param {String} value The value of the string.
+   * @returns {StringStyleStruct} The style value object (JSON)
+   */
+  string: value => {
+    return {
+      type: STYLE_TYPE.STRING,
+      mapping: MAPPING.VALUE,
+      value,
+      stringValue: `${value}`
+    };
+  },
+
+  /**
+   * Create a discrete mapping for color.
+   * @property {String} data The data attribute that's mapped
+   * @property {Stribg} defaultValue The defalt color value to use for values that don't have a mapping.
+   * @property {{[key: (String|Number)]: String}} styleValues The minimum value of the input data range
+   * @returns {DiscreteStringStyleStruct} The style value object (JSON)
+   */
+  discreteString: (data, defaultValue, styleValues) => {
+    return {
+      type: STYLE_TYPE.STRING,
+      mapping: MAPPING.DISCRETE,
+      value: {
+        data,
+        defaultValue,
+        styleValues
+      },
+      stringValue: '???' // TODO
+    };
+  },
+
+  /**
+   * Create a passthrough mapping.
+   * @param {String} data The data property name to map
+   * @returns {PassthroughStringStyleStruct} The style value object (JSON)
+   */
+  stringPassthrough: (data) => {
+    return {
+      type: STYLE_TYPE.STRING,
+      mapping: MAPPING.PASSTHROUGH,
+      value: {
+        data
+      },
+      stringValue: `data(${data})`
+    };
+  },
+
+
+  /**
+   * Create a discrete mapping of a color.
    * @param {Color} value The color value
    * @returns {ColorStyleStruct} The style value object (JSON)
    */
@@ -221,6 +367,26 @@ export const styleFactory = {
     }; 
   },
   
+  /**
+   * Create a discrete mapping for color.
+   * @property {String} data The data attribute that's mapped
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
+   * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
+   * @returns {DiscreteColorStyleStruct} The style value object (JSON)
+   */
+  discreteColor: (data, defaultValue, styleValues) => {
+    return {
+      type: STYLE_TYPE.COLOR,
+      mapping: MAPPING.DISCRETE,
+      value: {
+        data,
+        defaultValue,
+        styleValues
+      },
+      stringValue: '???' // TODO
+    };
+  },
+
   /**
    * Create a linear mapping of a color
    * @param {String} data The data property name to map
@@ -251,13 +417,41 @@ export const styleFactory = {
   }
 };
 
+
+/** A LUT for style property types */
+export const PROPERTY_TYPE = {
+  'background-color': STYLE_TYPE.COLOR,
+  'width': STYLE_TYPE.NUMBER,
+  'height': STYLE_TYPE.NUMBER,
+  'line-color': STYLE_TYPE.COLOR,
+  'label': STYLE_TYPE.STRING,
+  'border-color': STYLE_TYPE.COLOR,
+  'border-width': STYLE_TYPE.NUMBER,
+  'shape': STYLE_TYPE.STRING,
+}; 
+
 /**  Supported node style properties  */
 // Note: make sure to add new properties to DEFAULT_NODE_STYLE */
 export const NODE_STYLE_PROPERTIES = [
   'background-color',
   'width',
-  'height'
+  'height',
+  'label',
+  'border-color',
+  'border-width',
+  'shape',
 ];
+
+/** An object map of the default node style values */
+export const DEFAULT_NODE_STYLE = {
+  'background-color': styleFactory.color('#888'),
+  'width': styleFactory.number(30),
+  'height': styleFactory.number(30),
+  'label': styleFactory.stringPassthrough('name'),
+  'border-color': styleFactory.color('#888'),
+  'border-width': styleFactory.number(1),
+  'shape': styleFactory.string('ellipse'),
+};
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
 
@@ -265,10 +459,18 @@ export const nodeStylePropertyExists = property => {
   return NODE_STYLE_PROPERTIES_SET.has(property);
 };
 
+
 /** Supported edge style properties  */
 export const EDGE_STYLE_PROPERTIES = [
-  'line-color'
+  'line-color',
+  'width'
 ];
+
+/** An object map of the default edge style values */
+export const DEFAULT_EDGE_STYLE = {
+  'line-color': styleFactory.color('#888'),
+  'width': styleFactory.number(2),
+};
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
 
@@ -295,22 +497,4 @@ export const stylePropertyExists = (property, selector) => {
   }
 };
 
-/** An object map of the default node style values */
-export const DEFAULT_NODE_STYLE = {
-  'background-color': styleFactory.color('#888'),
-  'width': styleFactory.number(30),
-  'height': styleFactory.number(30)
-};
 
-/** An object map of the default edge style values */
-export const DEFAULT_EDGE_STYLE = {
-  'line-color': styleFactory.color('#888')
-};
-
-/** A LUT for style property types */
-export const PROPERTY_TYPE = {
-  'background-color': STYLE_TYPE.COLOR,
-  'width': STYLE_TYPE.NUMBER,
-  'height': STYLE_TYPE.NUMBER,
-  'line-color': STYLE_TYPE.COLOR
-};
