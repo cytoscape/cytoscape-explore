@@ -2,23 +2,24 @@
   z-index: 1;
   position: absolute;
   left: 0.5em;
-  top: 4.5em;
+  top: 7em;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0.25em;
   border-radius: 0.25em;
-  background-color: rgba(0, 0, 0, 0.666);
-  color: #fff;
-  border: 2px solid #333;
+  background-color: rgba(243, 243, 243, 0.75);
+  color: inherit;
+  border: 1px solid #b5b5b5;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
 .tool-panel-button {
-  color: #fff;
+  color: inherit;
   cursor: pointer;
 
   &:active {
-    color: #fff;
+    color: inherit;
   }
 
   & + .tool-panel-button {
