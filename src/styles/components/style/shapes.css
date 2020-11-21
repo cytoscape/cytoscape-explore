@@ -1,58 +1,48 @@
-.node-shapes {
+.shape-icons {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
 }
 
-.node-shape-selected {
-  width: 30px;
-  height: 30px;
-  border: 2px solid black;
+.shape-selected {
+  border-bottom: 3px solid black;
+  margin: 8px;
 }
 
-.node-shape-normal {
-  width: 30px;
-  height: 30px;
-  border: 2px solid rgba(0, 0, 0, 0);
+.shape-normal {
+  border-bottom: 3px solid rgba(0, 0, 0, 0);
+  margin: 8px;
 }
 
-.node-shape-ellipse {
+.node-ellipse {
   width: 25px;
   height: 25px;
   background-color: #888;
-  margin-bottom: 1px;
-  cursor: pointer;
   border-radius: 50%;
 }
 
-.node-shape-rectangle {
+.node-rectangle {
   width: 25px;
   height: 25px;
   background-color: #888;
-  margin-bottom: 1px;
-  cursor: pointer;
 }
 
-.node-shape-round-rectangle {
+.node-round-rectangle {
   width: 25px;
   height: 25px;
   background-color: #888;
-  margin-bottom: 1px;
-  cursor: pointer;
   border-radius: 25%;
 }
 
-.node-shape-triangle {
+.node-triangle {
   width: 0;
   height: 0;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
   border-bottom: 25px solid #888;
-  margin-bottom: 1px;
-  cursor: pointer;
 }
 
-.node-shape-diamond {
+.node-diamond {
   width: 0;
   height: 0;
   border: 13px solid transparent;
@@ -61,7 +51,7 @@
   top: -13px;
 }
 
-.node-shape-diamond::after {
+.node-diamond::after {
   content: '';
   position: absolute;
   left: -13px;
@@ -70,4 +60,144 @@
   height: 0;
   border: 13px solid transparent;
   border-top-color: #888;
+}
+
+.line-solid {
+  height: 40px;
+  border-left: 2px solid #888;
+  margin: 1px;
+  margin-right: 20px;
+  transform: rotate(45deg);
+  transform-origin: 30% 75%;
+}
+
+.line-dotted {
+  height: 40px;
+  border-left: 2px dotted #888;
+  margin: 1px;
+  margin-right: 20px;
+  transform: rotate(45deg);
+  transform-origin: 30% 75%;
+}
+
+.line-dashed {
+  height: 40px;
+  border-left: 2px dashed #888;
+  margin: 1px;
+  margin-right: 20px;
+  transform: rotate(45deg);
+  transform-origin: 30% 75%;
+}
+
+.arrow-none {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.arrow-triangle::after {
+  content: "";
+  display: inline-block !important;
+  width: 0;
+  height: 0;
+  border-left: 8px solid #888;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  vertical-align: middle;
+}
+
+.arrow-triangle::before {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.arrow-circle::after {
+  content: "   ";
+  white-space: pre;
+  width: 10px;
+  height: 10px;
+  display: inline-block !important;
+  background-color: #888;
+  margin-bottom: 1px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.arrow-circle::before {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.arrow-square::after {
+  content: "   ";
+  white-space: pre;
+  width: 10px;
+  height: 10px;
+  display: inline-block !important;
+  background-color: #888;
+  margin-bottom: 1px;
+  vertical-align: middle;
+}
+
+.arrow-square::before {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.arrow-diamond::after {
+  content: "   ";
+  white-space: pre;
+  width: 10px;
+  height: 10px;
+  display: inline-block !important;
+  background-color: #888;
+  margin-bottom: 1px;
+  vertical-align: middle;
+  transform: rotate(45deg);
+}
+
+.arrow-diamond::before {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  transform: translate(4 4);
+}
+
+.arrow-vee::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  display: inline-block !important;
+  margin-bottom: 1px;
+  vertical-align: middle;
+  transform: rotate(-45deg);
+  border: solid #888;
+  border-width: 0 3px 3px 0;
+}
+
+.arrow-vee::before {
+  width: 20px;
+  height: 2px;
+  background: #888;
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
 }

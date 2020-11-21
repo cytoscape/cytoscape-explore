@@ -53,7 +53,10 @@ export class NetworkEditor extends Component {
       },
       {
         selector: 'edge',
-        style: this.cy.vizmapper().edgeStyleBlock()
+        style: { 
+          ...this.cy.vizmapper().edgeStyleBlock(), 
+          'curve-style': 'bezier',
+        }
       },
       {
         selector: 'node',

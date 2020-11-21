@@ -3,7 +3,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import StylePickerButton from '../style/style-picker-button';
 import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/colors';
 import { SizeSlider, SizeGradients } from '../style/sizes';
-import { NodeShapes, NodeShapeIcon } from '../style/shapes';
+import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { LabelInput } from '../style/labels';
 import { Button } from '@material-ui/core';
 import PropTypes from 'prop-types';
@@ -114,10 +114,10 @@ export class StylePanel extends Component {
           icon="category"
           controller={controller}
           renderValue={(shape, onSelect) => 
-            <NodeShapes selected={shape} onSelect={onSelect} />
+            <ShapeIconGroup type='node' selected={shape} onSelect={onSelect} />
           }
           renderDiscreteIcon={(shape) => 
-            <NodeShapeIcon shape={shape} />
+            <ShapeIcon type='node' shape={shape} />
           }
           getStyle={() => 
             controller.getStyle('node', 'shape')
@@ -152,7 +152,7 @@ export class StylePanel extends Component {
           getDiscreteDefault={() =>
             controller.getDiscreteDefault('node', 'width')
           }
-          onValueSet={size => { 
+          onValueSet={size => {
             controller.setNumber('node', 'width',  size);
             controller.setNumber('node', 'height', size);
           }}
@@ -216,15 +216,21 @@ export class StylePanel extends Component {
           getDiscreteDefault={() =>
             controller.getDiscreteDefault('edge', 'line-color')
           }
-          onValueSet={color => 
-            controller.setColor('edge', 'line-color', color)
-          }
-          onMappingSet={(attribute, gradient) => 
-            controller.setColorLinearMapping('edge', 'line-color', attribute, gradient)
-          }
-          onDiscreteSet={(attribute, valueMap) => 
-            controller.setColorDiscreteMapping('edge', 'line-color', attribute, valueMap)
-          }
+          onValueSet={color => {
+            controller.setColor('edge', 'line-color', color);
+            controller.setColor('edge', 'source-arrow-color', color);
+            controller.setColor('edge', 'target-arrow-color', color);
+          }}
+          onMappingSet={(attribute, gradient) => {
+            controller.setColorLinearMapping('edge', 'line-color', attribute, gradient);
+            controller.setColorLinearMapping('edge', 'source-arrow-color', attribute, gradient);
+            controller.setColorLinearMapping('edge', 'target-arrow-color', attribute, gradient);
+          }}
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setColorDiscreteMapping('edge', 'line-color', attribute, valueMap);
+            controller.setColorDiscreteMapping('edge', 'source-arrow-color', attribute, valueMap);
+            controller.setColorDiscreteMapping('edge', 'target-arrow-color', attribute, valueMap);
+          }}
         />
 
         <StylePickerButton 
@@ -257,7 +263,83 @@ export class StylePanel extends Component {
             controller.setNumberDiscreteMapping('edge', 'width',  attribute, valueMap);
           }}
         />
+
+        <StylePickerButton 
+          title="Edge Line Style"
+          icon="line_style"
+          selector='edge'
+          controller={controller}
+          renderValue={(shape, onSelect) => 
+            <ShapeIconGroup type='line' selected={shape} onSelect={onSelect} />
+          }
+          renderDiscreteIcon={(shape) => 
+            <ShapeIcon type='line' shape={shape} />
+          }
+          getStyle={() => 
+            controller.getStyle('edge', 'line-style')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('edge', 'line-style')
+          }
+          onValueSet={shape => 
+            controller.setString('edge', 'line-style', shape)
+          }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setStringDiscreteMapping('edge', 'line-style',  attribute, valueMap);
+          }}
+        />
+
+        <StylePickerButton 
+          title="Edge Source Arrow"
+          icon="call_made"
+          selector='edge'
+          controller={controller}
+          renderValue={(shape, onSelect) => 
+            <ShapeIconGroup type='arrow' selected={shape} onSelect={onSelect} />
+          }
+          renderDiscreteIcon={(shape) => 
+            <ShapeIcon type='arrow' shape={shape} />
+          }
+          getStyle={() => 
+            controller.getStyle('edge', 'source-arrow-shape')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('edge', 'source-arrow-shape')
+          }
+          onValueSet={shape => 
+            controller.setString('edge', 'source-arrow-shape', shape)
+          }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setStringDiscreteMapping('edge', 'source-arrow-shape',  attribute, valueMap);
+          }}
+        /> 
+
+        <StylePickerButton 
+          title="Edge Target Arrow"
+          icon="call_received"
+          selector='edge'
+          controller={controller}
+          renderValue={(shape, onSelect) => 
+            <ShapeIconGroup type='arrow' selected={shape} onSelect={onSelect} />
+          }
+          renderDiscreteIcon={(shape) => 
+            <ShapeIcon type='arrow' shape={shape} />
+          }
+          getStyle={() => 
+            controller.getStyle('edge', 'target-arrow-shape')
+          }
+          getDiscreteDefault={() =>
+            controller.getDiscreteDefault('edge', 'target-arrow-shape')
+          }
+          onValueSet={shape => 
+            controller.setString('edge', 'target-arrow-shape', shape)
+          }
+          onDiscreteSet={(attribute, valueMap) => {
+            controller.setStringDiscreteMapping('edge', 'target-arrow-shape',  attribute, valueMap);
+          }} 
+        />
         
+
       </div>
     );
   }

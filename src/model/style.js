@@ -428,6 +428,11 @@ export const PROPERTY_TYPE = {
   'border-color': STYLE_TYPE.COLOR,
   'border-width': STYLE_TYPE.NUMBER,
   'shape': STYLE_TYPE.STRING,
+  'source-arrow-shape': STYLE_TYPE.STRING,
+  'source-arrow-color': STYLE_TYPE.COLOR,
+  'target-arrow-shape': STYLE_TYPE.STRING,
+  'target-arrow-color': STYLE_TYPE.COLOR,
+  'line-style': STYLE_TYPE.STRING,
 }; 
 
 /**  Supported node style properties  */
@@ -463,13 +468,23 @@ export const nodeStylePropertyExists = property => {
 /** Supported edge style properties  */
 export const EDGE_STYLE_PROPERTIES = [
   'line-color',
-  'width'
+  'width',
+  'source-arrow-shape',
+  'source-arrow-color',
+  'target-arrow-shape',
+  'target-arrow-color',
+  'line-style',
 ];
 
 /** An object map of the default edge style values */
 export const DEFAULT_EDGE_STYLE = {
   'line-color': styleFactory.color('#888'),
   'width': styleFactory.number(2),
+  'source-arrow-shape': styleFactory.string('none'),
+  'source-arrow-color': styleFactory.color('#888'),
+  'target-arrow-shape': styleFactory.string('none'),
+  'target-arrow-color': styleFactory.color('#888'),
+  'line-style': styleFactory.string('solid'),
 };
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
