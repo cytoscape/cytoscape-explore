@@ -99,7 +99,7 @@ export class Header extends Component {
     return (
       <>
         <div className="header">
-          <AppBar position="relative" color='default'>
+          <AppBar position="relative" color='default' style={{borderBottom: '1px solid #a5a5a5',}}>
             <Toolbar variant="dense">
               <AppLogoIcon {...logoIconProps} />
               <Typography variant="h6" style={{marginLeft: '0.5em', marginRightt: '0.5em',}}>

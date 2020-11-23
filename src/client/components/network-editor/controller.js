@@ -101,7 +101,7 @@ export class NetworkEditorController {
       return args[Math.floor(Math.random() * args.length)];
     }
     const node = this.cy.add({
-      renderedPosition: { x: 100, y: 50 },
+      renderedPosition: { x: 60 + Math.round(Math.random() * 70), y: 60 + Math.round(Math.random() * 70) },
       data: {
         attr1: Math.random(), // betwen 0 and 1
         attr2: Math.random() * 2.0 - 1.0, // between -1 and 1
