@@ -3,50 +3,71 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 
-export function NodeShapeIcon({ shape, selected, onClick }) {
+export function ShapeIcon({ type, shape, selected, onClick }) {
   return (
     <div className={classNames({
-      'node-shape-selected': selected,
-      'node-shape-normal': !selected,
-    })}>
+      'shape-selected': selected,
+      'shape-normal': !selected,
+      })}
+      onClick={() => onClick(shape)} >
       <div 
-        className={`node-shape-${shape}`} 
-        onClick={() => onClick(shape)} 
+        style={{cursor:'pointer'}}
+        className={`${type}-${shape}`} 
       />
     </div>
   );
 }
 
-NodeShapeIcon.propTypes = {
-  shape: PropTypes.oneOf(['ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond']),
+ShapeIcon.propTypes = {
+  shape: PropTypes.oneOf([
+    'ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond', 
+    'solid', 'dotted', 'dashed',
+    'none', 'triangle', 'circle', 'square', 'diamond', 'vee',
+  ]),
+  type: PropTypes.oneOf('node', 'line', 'arrow'),
   selected: PropTypes.bool,
   onClick: PropTypes.func,
 };
-NodeShapeIcon.defaultProps = {
+ShapeIcon.defaultProps = {
   shape: 'ellipse',
+  type: 'node',
   selected: false,
   onClick: () => null
 };
 
 
-export function NodeShapes({ selected, onSelect }) {
+export function ShapeIconGroup({ type, selected, onSelect }) {
+  let shapes;
+  if(type === 'node')
+    shapes = ['ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond'];
+  else if(type === 'line')
+    shapes = ['solid', 'dotted', 'dashed'];
+  else if(type === 'arrow')
+    shapes = ['none', 'triangle', 'circle', 'vee', 'square', 'diamond'];
+
   return (
-    <div className="node-shapes">
-      <NodeShapeIcon onClick={onSelect} selected={selected === 'ellipse'} shape='ellipse' />
-      <NodeShapeIcon onClick={onSelect} selected={selected === 'rectangle'} shape='rectangle' />
-      <NodeShapeIcon onClick={onSelect} selected={selected === 'round-rectangle'} shape='round-rectangle' />
-      <NodeShapeIcon onClick={onSelect} selected={selected === 'triangle'} shape='triangle' />
-      <NodeShapeIcon onClick={onSelect} selected={selected === 'diamond'} shape='diamond' />
+    <div className="shape-icons">
+      {shapes.map(shape => 
+        <ShapeIcon 
+          type={type} 
+          shape={shape} 
+          onClick={onSelect} 
+          selected={selected === shape} 
+          key={shape} 
+        />
+      )}
     </div>
   );
 }
 
-NodeShapes.propTypes = {
+ShapeIconGroup.propTypes = {
+  type: ShapeIcon.propTypes.type,
+  selected: ShapeIcon.propTypes.shape,
   onSelect: PropTypes.func,
-  selected: PropTypes.oneOf(['ellipse', 'rectangle', 'round-rectangle', 'triangle', 'diamond']),
 };
-NodeShapes.defaultProps = {
+ShapeIconGroup.defaultProps = {
   onSelect: () => null,
 };
 
-export default NodeShapes;
+
+export default ShapeIcon;
