@@ -3,6 +3,7 @@ import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
 import _ from 'lodash';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
@@ -183,6 +184,7 @@ export class NetworkEditor extends Component {
         <CssBaseline />
         <div className="network-editor">
           <Header controller={controller} />
+          <NetworkBackground controller={controller} />
           <div id="cy" className="cy" />
           <ToolPanel controller={controller} />
           <StylePanel controller={controller} />
@@ -191,5 +193,35 @@ export class NetworkEditor extends Component {
     );
   }
 }
+
+class NetworkBackground extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      bgColor: 'white',
+    };
+    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
+  }
+
+  componentDidMount(){
+    this.busProxy.on('setNetworkBackgroundColor', (color) => this.setState({ bgColor: color }));
+  }
+
+  componentWillUnmount(){
+    this.busProxy.removeAllListeners();
+  }
+
+  render() {
+    const { bgColor } = this.state;
+
+    return (
+      <div id="cy-background" style={{backgroundColor: bgColor}} />
+    );
+  }
+}
+
+NetworkBackground.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController)
+};
 
 export default NetworkEditor; 

@@ -6,8 +6,6 @@ import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
 
-let layout;
-
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
@@ -63,6 +61,8 @@ export class NetworkEditorController {
           this.vizmapper.node('background-color', styleFactory.color(v));
         else if (k === "EDGE_STROKE_UNSELECTED_PAINT")
           this.vizmapper.edge('line-color', styleFactory.color(v));
+        else if (k === "NETWORK_BACKGROUND_PAINT")
+          this.setNetworkBackgroundColor(v);
       });
       // ========================================================================================
     }
@@ -80,17 +80,24 @@ export class NetworkEditorController {
     this.bus.emit('setNetwork', this.cy);
   }
 
+  setNetworkBackgroundColor(color) {
+    if (color !== this.networkBackgroundColor) {
+      this.networkBackgroundColor = color;
+      this.bus.emit('setNetworkBackgroundColor', color);
+    }
+  }
+
   /**
    * Stops the currently running layout, if there is one, and apply the new layout options.
    * @param {*} options 
    */
   applyLayout(options) {
-    if (layout != null) {
-      layout.stop();
+    if (this.layout) {
+      this.layout.stop();
     }
 
-    layout = this.cy.layout(options);
-    layout.run();
+    this.layout = this.cy.layout(options);
+    this.layout.run();
   }
 
   /**
