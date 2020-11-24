@@ -184,8 +184,10 @@ export class NetworkEditor extends Component {
         <CssBaseline />
         <div className="network-editor">
           <Header controller={controller} />
-          <NetworkBackground controller={controller} />
-          <div id="cy" className="cy" />
+          <div className="cy">
+            <div id="cy" />
+            <NetworkBackground controller={controller} />
+          </div>
           <ToolPanel controller={controller} />
           <StylePanel controller={controller} />
         </div>
