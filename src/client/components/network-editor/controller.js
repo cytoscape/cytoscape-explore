@@ -57,12 +57,28 @@ export class NetworkEditorController {
       style.defaults.map((el) => {
         const { visualProperty: k, value: v } = el;
 
-        if (k === "NODE_FILL_COLOR")
-          this.vizmapper.node('background-color', styleFactory.color(v));
-        else if (k === "EDGE_STROKE_UNSELECTED_PAINT")
-          this.vizmapper.edge('line-color', styleFactory.color(v));
-        else if (k === "NETWORK_BACKGROUND_PAINT")
-          this.setNetworkBackgroundColor(v);
+        if (v != null) {
+          if (k === "NODE_FILL_COLOR") {
+            this.vizmapper.node('background-color', styleFactory.color(v));
+          } else if (k === "NODE_SHAPE") {
+            this.vizmapper.node('shape', styleFactory.string(v.toLowerCase()));
+          } else if (k === "NODE_BORDER_WIDTH") {
+            this.vizmapper.node('border-width', styleFactory.number(v));
+          } else if (k === "NODE_BORDER_PAINT") {
+            this.vizmapper.node('border-color', styleFactory.color(v));
+          } else if (k === "EDGE_STROKE_UNSELECTED_PAINT") {
+            this.vizmapper.edge('line-color', styleFactory.color(v));
+          } else if (k === "EDGE_WIDTH") {
+            this.vizmapper.edge('width', styleFactory.number(v));
+          } else if (k === "EDGE_LINE_TYPE") {
+            let cv = 'solid';
+            if (v == 'DOT') cv = 'dotted';
+            else if (v.includes('DASH')) cv = 'dashed';
+            this.vizmapper.edge('line-style', styleFactory.string(cv));
+          } else if (k === "NETWORK_BACKGROUND_PAINT") {
+            this.setNetworkBackgroundColor(v);
+          }
+        }
       });
       // ========================================================================================
     }
