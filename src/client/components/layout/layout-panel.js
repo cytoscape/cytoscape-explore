@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { NetworkEditorController } from '../network-editor/controller';
+import ColaPanel from './cola-panel';
 import FCosePanel from './fcose-panel';
+import CosePanel from './cose-panel';
 import ConcentricPanel from './concentric-panel';
 import DagrePanel from './dagre-panel';
 import { makeStyles } from '@material-ui/core/styles';
@@ -26,7 +28,9 @@ export class LayoutPanel extends Component {
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
-      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
+      { name: 'fcose', label: 'Clustered FCOSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
       { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
       { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
     ];

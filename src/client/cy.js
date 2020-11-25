@@ -3,6 +3,7 @@ import edgehandles from 'cytoscape-edgehandles';
 import VizMapper from '../model/vizmapper';
 import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
+import cola from 'cytoscape-cola';
 import { isObject } from 'lodash';
 
 const registerVizmapper = (Cytoscape) => {
@@ -38,6 +39,8 @@ export const registerCytoscapeExtensions = () => {
   // Cytoscape layout extensions
   Cytoscape.use(dagre);
   Cytoscape.use(fcose);
+  Cytoscape.use(cola);
+
   const cy = new Cytoscape();
   const ele = cy.add({});
 

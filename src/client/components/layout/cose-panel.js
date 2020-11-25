@@ -7,14 +7,13 @@ import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const DEFAULT_EDGE_LENGTH = 50;
-const DEFAULT_NODE_SEP = 4500;
+const DEFAULT_NODE_SEP = 100;
 
-export class FCosePanel extends Component {
+export class CosePanel extends Component {
 
   constructor(props) {
     super(props);
     this.layoutOptions = {
-      quality: 'proof',
       idealEdgeLength: DEFAULT_EDGE_LENGTH,
       nodeRepulsion: DEFAULT_NODE_SEP,
       animate: false,
@@ -58,7 +57,7 @@ export class FCosePanel extends Component {
               <Slider
                 id="nodeRepulsion"
                 min={1} // If 0, the whole app freezes!
-                max={10000}
+                max={2000}
                 defaultValue={DEFAULT_NODE_SEP}
                 onChange={(e, v) => this.handleChange(e, "nodeRepulsion", v)}
                 {...sliderProps}
@@ -88,9 +87,9 @@ const styles = theme => ({
   },
 });
 
-FCosePanel.propTypes = {
+CosePanel.propTypes = {
   classes: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(FCosePanel);
+export default withStyles(styles)(CosePanel);
