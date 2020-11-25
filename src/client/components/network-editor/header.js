@@ -17,6 +17,7 @@ import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
 import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 
@@ -106,15 +107,21 @@ export class Header extends Component {
                 { networkName || '-- untitled --'  }
               </Typography>
               <div className="grow" />
-              <IconButton edge="start" color="inherit" aria-label="search">
-                <SearchIcon />
-              </IconButton>
+              <Tooltip title="Search">
+                <IconButton edge="start" color="inherit" aria-label="search">
+                  <SearchIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Account">
               <IconButton edge="start" color="inherit" aria-label="account" aria-haspopup="true" onClick={e => this.handleClick(e, 'account')}>
                 <AccountCircle />
               </IconButton>
-              <IconButton edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
-                <MenuIcon />
-              </IconButton>
+              </Tooltip>
+              <Tooltip title="More">
+                <IconButton edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
+                  <MenuIcon />
+                </IconButton>
+              </Tooltip>
             </Toolbar>
             {anchorEl && (
               <Popover
@@ -183,7 +190,7 @@ export class Header extends Component {
 
 const logoIconProps = {
   viewBox: '0 0 64 64',
-  style: { width: 'auto', fontSize: 38, margin: 0, color: '#ea9123', },
+  style: { width: 'auto', fontSize: 38, margin: 0, color: '#12A1DE', },
   p: 0,
   m: 0,
 };
