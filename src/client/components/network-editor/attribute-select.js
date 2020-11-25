@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, InputLabel, Select, MenuItem, NativeSelect } from "@material-ui/core";
+import { FormControl, InputLabel, NativeSelect } from "@material-ui/core";
 import { NetworkEditorController } from './controller';
 
 export class AttributeSelect extends React.Component {

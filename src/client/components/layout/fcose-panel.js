@@ -30,7 +30,7 @@ export class FCosePanel extends Component {
   }
 
   render() {
-    const { classes, layoutOptions } = this.props;
+    const { classes } = this.props;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
