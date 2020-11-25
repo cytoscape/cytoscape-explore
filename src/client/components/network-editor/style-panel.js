@@ -33,7 +33,7 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Node Label"
-          icon="format_quote"
+          icon="text_format"
           controller={controller}
           renderValue={(text, onChange) => 
             <LabelInput value={text} onChange={onChange} />
@@ -291,7 +291,7 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Edge Source Arrow"
-          icon="call_made"
+          icon="arrow_back"
           selector='edge'
           controller={controller}
           renderValue={(shape, onSelect) => 
@@ -316,7 +316,7 @@ export class StylePanel extends Component {
 
         <StylePickerButton 
           title="Edge Target Arrow"
-          icon="call_received"
+          icon="arrow_forward"
           selector='edge'
           controller={controller}
           renderValue={(shape, onSelect) => 
