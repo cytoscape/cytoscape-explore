@@ -5,6 +5,7 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
+import { DEFAULT_PADDING } from '../layout/defaults';
 
 /**
  * The network editor controller contains all high-level model operations that the network
@@ -88,7 +89,7 @@ export class NetworkEditorController {
     const hasPositions = nodes && nodes.length > 0 && nodes[0].position != null;
 
     if (hasPositions) {
-      this.cy.fit();
+      this.cy.fit(DEFAULT_PADDING);
     } else {
       this.applyLayout({ name: 'grid' });
     }
