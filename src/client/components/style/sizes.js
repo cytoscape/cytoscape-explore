@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Slider } from '@material-ui/core';
 
 export function SizeSlider(props) {
-  const debouncedOnChange = _.debounce(value => props.onSelect(value), 150);
+  const debouncedOnChange = _.throttle(value => props.onSelect(value), 150, { leading: true });
   const min = props.min || 1;
   const max = props.max || 100;
   const def = props.defaultValue || (max / 2.0);
