@@ -21,6 +21,7 @@ export class LayoutPanel extends Component {
     this.controller = props.controller;
 
     this.applyLayout = throttle((options) => {
+      console.log('apply layout');
       this.controller.applyLayout(options);
     }, 250, { leading: true });
 

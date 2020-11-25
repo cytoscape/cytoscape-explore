@@ -113,6 +113,8 @@ export class NetworkEditorController {
       this.layout.stop();
     }
 
+    console.log(options);
+
     this.layout = this.cy.layout(options);
     this.layout.run();
   }
