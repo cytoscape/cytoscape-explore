@@ -14,6 +14,7 @@ import { NetworkEditorController } from './controller';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../../theme';
+import { DEFAULT_PADDING } from '../layout/defaults';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -94,6 +95,8 @@ export class NetworkEditor extends Component {
     const enableSync = async () => {
       try {
         await this.cySyncher.load();
+
+        this.cy.fit(DEFAULT_PADDING);
       } catch(err){
         if( err instanceof DocumentNotFoundError ){
           await this.cySyncher.create();
