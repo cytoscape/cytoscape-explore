@@ -369,7 +369,6 @@ export class NetworkEditorController {
     eles.forEach(ele => {
       const val = ele.data(attribute);
       if(val) {
-        console.log(val);
         hasVal = true;
         min = Math.min(min, val);
         max = Math.max(max, val);
