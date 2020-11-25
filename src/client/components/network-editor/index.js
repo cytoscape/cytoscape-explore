@@ -1,6 +1,4 @@
 import Cytoscape from 'cytoscape';
-import dagre from 'cytoscape-dagre';
-import fcose from 'cytoscape-fcose';
 import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -22,10 +20,6 @@ export class NetworkEditor extends Component {
     super(props);
 
     this.bus = new EventEmitter();
-
-    // Cytoscape layout extensions
-    Cytoscape.use(dagre);
-    Cytoscape.use(fcose);
 
     this.cy = new Cytoscape({
       headless: true,
