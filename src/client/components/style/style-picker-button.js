@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import StylePicker from '../style/style-picker';
-import {Popover, Tooltip} from '@material-ui/core';
+import {Tooltip} from '@material-ui/core';
 import PropTypes from 'prop-types';
+import TippyPopover from '../tippy-popover';
 
 /**
  * A style picker button
@@ -26,32 +27,20 @@ export class StylePickerButton extends Component  {
 
   render() {
     const ref = React.createRef();
-    const { anchorEl } = this.state;
 
     return (
       <div>
-        <Tooltip arrow title={this.props.title}>
-          {(typeof this.props.icon === 'string' || this.props.icon instanceof String)
-            ? this.renderFontIcon()
-            : <div onClick={e => this.handleClick(e)}>{this.props.icon}</div>
+        <TippyPopover
+          onHide={() => this.handleClose()}
+          onShow={() => ref.current.onShow && ref.current.onShow()}
+          content={
+            <StylePicker ref={ref} {...this.props} />
           }
-        </Tooltip>
-        <Popover 
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          onClose={() => this.handleClose()}
-          onEnter={() => ref.current.onShow && ref.current.onShow()}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
         >
-          <StylePicker ref={ref} {...this.props} />
-        </Popover>
+          <Tooltip arrow title={this.props.title}>
+            {this.renderFontIcon()}
+          </Tooltip>
+        </TippyPopover>
       </div>
     );
   }
@@ -59,7 +48,7 @@ export class StylePickerButton extends Component  {
   renderFontIcon() {
     return (
       <button 
-        onClick={e => this.handleClick(e)}
+        // onClick={e => this.handleClick(e)}
         className="style-panel-button plain-button">
         <i className="material-icons">{this.props.icon}</i>
       </button>
