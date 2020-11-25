@@ -78,10 +78,6 @@ export class VizMapper {
     this.cySyncher = cySyncher;
 
     this.syncherProxy = new EventEmitterProxy(this.cySyncher.emitter);
-
-    this.syncherProxy.on('cy', () => {
-      cy.elements().scratch({ dirtyStyle: Date.now() }); // TODO hack
-    });
   }
 
   destroy(){
@@ -111,7 +107,6 @@ export class VizMapper {
     _.set(_styles, [selector, property], value);
 
     this.cy.data({ _styles });
-    this.cy.$(selector).scratch({ dirtyStyle: Date.now() }); // TODO hack
 
     this.cy.emit('vmstyle', selector, property, value);
   }
