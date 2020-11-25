@@ -48,7 +48,7 @@
     "color": "^3.1.2",
     "color-convert": "^2.0.1",
     "cookie-parser": "^1.4.5",
-    "cytoscape": "^3.14.1",
+    "cytoscape": "git+https://github.com/cytoscape/cytoscape.js.git#unstable",
     "cytoscape-dagre": "^2.3.1",
     "cytoscape-edgehandles": "^3.6.0",
     "cytoscape-fcose": "^1.2.3",
