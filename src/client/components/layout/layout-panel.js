@@ -12,6 +12,27 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
 
+/**
+ * We want to save the last used layout options in memory
+ */
+const layoutOptions = [
+  {
+    name: 'fcose',
+    idealEdgeLength: 50,
+    nodeSeparation: 75,
+  },
+  {
+    name: 'concentric',
+    spacingFactor: 0,
+  },
+  {
+    name: 'dagre',
+    nodeSep: 50,
+    rankSep: 100,
+    rankDir: 'TB',
+  },
+];
+
 export class LayoutPanel extends Component {
 
   constructor(props) {
@@ -26,9 +47,9 @@ export class LayoutPanel extends Component {
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
-      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
-      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
-      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
+      { label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel layoutOptions={layoutOptions[0]} {...opProps} /> },
+      { label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel layoutOptions={layoutOptions[1]} {...opProps} /> },
+      { label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel layoutOptions={layoutOptions[2]} {...opProps} /> },
     ];
     this.state = {
       value: 0,
@@ -43,8 +64,7 @@ export class LayoutPanel extends Component {
 
     if (value > 0) {
       setTimeout(() => {
-        const name = this.state.layouts[value - 1].name;
-        this.applyLayout(Object.assign({ name: name }, options));
+        this.applyLayout(options);
       }, 250);
     }
   }
@@ -62,7 +82,7 @@ export class LayoutPanel extends Component {
         <AppBar position="relative" color="default">
           <Tabs
             value={value}
-            onChange={(e, v) => this.handleChange(v)}
+            onChange={(e, v) => this.handleChange(v, layoutOptions[v - 1])}
             variant="scrollable"
             scrollButtons="on"
             indicatorColor="primary"

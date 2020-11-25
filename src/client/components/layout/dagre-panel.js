@@ -17,28 +17,24 @@ export class DagrePanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      rankDir: 'TB',
-    };
-    this.layoutOptions = {
-      nodeSep: 50,
-      rankSep: 100,
-      rankDir: 'TB',
+      rankDir: props.layoutOptions.rankDir,
     };
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.layoutOptions[key]) {
+    if (newValue != this.props.layoutOptions[key]) {
       if (key === 'rankDir') {
+        // If we don't update the state for this option, the toggle button is not selected
         this.setState(Object.assign(this.state, { rankDir: newValue }));
       }
-      this.layoutOptions[key] = newValue;
-      this.props.onChange(this.layoutOptions);
+      this.props.layoutOptions[key] = newValue;
+      this.props.onChange(this.props.layoutOptions);
     }
   }
 
   render() {
     const { rankDir } = this.state;
-    const { classes } = this.props;
+    const { classes, layoutOptions } = this.props;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
@@ -53,7 +49,7 @@ export class DagrePanel extends Component {
               id="nodeSep"
               min={0}
               max={500}
-              defaultValue={50}
+              defaultValue={layoutOptions.nodeSep}
               onChange={(e, v) => this.handleChange(e, "nodeSep", v)}
               {...sliderProps}
             />
@@ -66,7 +62,7 @@ export class DagrePanel extends Component {
               id="rankSep"
               min={0}
               max={500}
-              defaultValue={50}
+              defaultValue={layoutOptions.rankSep}
               onChange={(e, v) => this.handleChange(e, "rankSep", v)}
               {...sliderProps}
             />
@@ -125,6 +121,7 @@ const styles = theme => ({
 
 DagrePanel.propTypes = {
   classes: PropTypes.object.isRequired,
+  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 

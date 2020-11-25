@@ -10,21 +10,17 @@ export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
-    this.layoutOptions = {
-      idealEdgeLength: 50,
-      nodeSeparation: 75,
-    };
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.layoutOptions[key]) {
-      this.layoutOptions[key] = newValue;
-      this.props.onChange(this.layoutOptions);
+    if (newValue != this.props.layoutOptions[key]) {
+      this.props.layoutOptions[key] = newValue;
+      this.props.onChange(this.props.layoutOptions);
     }
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, layoutOptions } = this.props;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
@@ -40,7 +36,7 @@ export class FCosePanel extends Component {
                 id="idealEdgeLength"
                 min={1} // If 0, the app may freeze
                 max={500}
-                defaultValue={50}
+                defaultValue={layoutOptions.idealEdgeLength}
                 onChange={(e, v) => this.handleChange(e, "idealEdgeLength", v)}
                 {...sliderProps}
               />
@@ -53,7 +49,7 @@ export class FCosePanel extends Component {
                 id="nodeSeparation"
                 min={1} // If 0, the whole app freezes!
                 max={5000}
-                defaultValue={75}
+                defaultValue={layoutOptions.nodeSeparation}
                 onChange={(e, v) => this.handleChange(e, "nodeSeparation", v)}
                 {...sliderProps}
               />
@@ -84,6 +80,7 @@ const styles = theme => ({
 
 FCosePanel.propTypes = {
   classes: PropTypes.object.isRequired,
+  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
