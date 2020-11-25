@@ -42,10 +42,8 @@ export class LayoutPanel extends Component {
     }
 
     if (value > 0) {
-      setTimeout(() => {
-        const name = this.state.layouts[value - 1].name;
-        this.applyLayout(Object.assign({ name: name }, options));
-      }, 250);
+      const name = this.state.layouts[value - 1].name;
+      this.applyLayout(Object.assign({ name: name }, options));
     }
   }
 
