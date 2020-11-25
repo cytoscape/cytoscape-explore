@@ -7,8 +7,7 @@ import { EventEmitterProxy } from './event-emitter-proxy';
 const NODE_SELECTOR = 'node';
 const EDGE_SELECTOR = 'edge';
 
-// TODO remove debug logging
-const log = console.log; // eslint-disable-line
+const log = process.env.LOG_VIZMAPPER === 'true' ? console.log : _.noop;
 
 const assertSelectorIsNodeOrEdge = selector => {
   if( selector !== 'node' && selector !== 'edge' ){

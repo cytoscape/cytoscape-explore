@@ -79,7 +79,6 @@ export class StylePicker extends React.Component {
   }
 
   onStyleChanged(style) {
-    console.log(style);
     switch(style.mapping) {
       case MAPPING.VALUE:
         if(style.scalarValue !== undefined)
