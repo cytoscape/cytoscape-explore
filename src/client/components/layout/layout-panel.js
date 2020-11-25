@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+import { throttle } from 'lodash';
 import { NetworkEditorController } from '../network-editor/controller';
+import ColaPanel from './cola-panel';
 import FCosePanel from './fcose-panel';
+import CosePanel from './cose-panel';
 import ConcentricPanel from './concentric-panel';
 import DagrePanel from './dagre-panel';
 import { makeStyles } from '@material-ui/core/styles';
@@ -39,17 +41,20 @@ export class LayoutPanel extends Component {
     super(props);
     this.controller = props.controller;
 
-    this.applyLayout = debounce((options) => {
+    this.applyLayout = throttle((options) => {
+      console.log('apply layout');
       this.controller.applyLayout(options);
-    }, 250);
+    }, 250, { leading: true });
 
     const opProps = {
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
-      { label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel layoutOptions={layoutOptions[0]} {...opProps} /> },
-      { label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel layoutOptions={layoutOptions[1]} {...opProps} /> },
-      { label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel layoutOptions={layoutOptions[2]} {...opProps} /> },
+      // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
+      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
+      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
+      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
     ];
     this.state = {
       value: 0,
@@ -63,9 +68,8 @@ export class LayoutPanel extends Component {
     }
 
     if (value > 0) {
-      setTimeout(() => {
-        this.applyLayout(options);
-      }, 250);
+      const name = this.state.layouts[value - 1].name;
+      this.applyLayout(Object.assign({ name: name }, options));
     }
   }
 

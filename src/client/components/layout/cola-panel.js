@@ -7,30 +7,29 @@ import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const DEFAULT_EDGE_LENGTH = 50;
-const DEFAULT_NODE_SEP = 4500;
+const DEFAULT_NODE_SPACING = 10;
 
-export class FCosePanel extends Component {
+export class ColaPanel extends Component {
 
   constructor(props) {
     super(props);
     this.layoutOptions = {
-      quality: 'proof',
-      idealEdgeLength: DEFAULT_EDGE_LENGTH,
-      nodeRepulsion: DEFAULT_NODE_SEP,
-      animate: false,
-      randomize: false
+      edgeLength: DEFAULT_EDGE_LENGTH,
+      nodeSpacing: DEFAULT_NODE_SPACING,
+      randomize: false,
+      animate: true
     };
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.props.layoutOptions[key]) {
-      this.props.layoutOptions[key] = newValue;
-      this.props.onChange(this.props.layoutOptions);
+    if (newValue != this.layoutOptions[key]) {
+      this.layoutOptions[key] = newValue;
+      this.props.onChange(this.layoutOptions);
     }
   }
 
   render() {
-    const { classes, layoutOptions } = this.props;
+    const { classes } = this.props;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
@@ -43,11 +42,11 @@ export class FCosePanel extends Component {
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.label}>Edge Length</FormLabel>
               <Slider
-                id="idealEdgeLength"
+                id="edgeLength"
                 min={1} // If 0, the app may freeze
-                max={100}
+                max={200}
                 defaultValue={DEFAULT_EDGE_LENGTH}
-                onChange={(e, v) => this.handleChange(e, "idealEdgeLength", v)}
+                onChange={(e, v) => this.handleChange(e, "edgeLength", v)}
                 {...sliderProps}
               />
             </FormControl>
@@ -56,11 +55,11 @@ export class FCosePanel extends Component {
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
               <Slider
-                id="nodeRepulsion"
+                id="nodeSpacing"
                 min={1} // If 0, the whole app freezes!
-                max={10000}
-                defaultValue={DEFAULT_NODE_SEP}
-                onChange={(e, v) => this.handleChange(e, "nodeRepulsion", v)}
+                max={40}
+                defaultValue={DEFAULT_NODE_SPACING}
+                onChange={(e, v) => this.handleChange(e, "nodeSpacing", v)}
                 {...sliderProps}
               />
             </FormControl>
@@ -88,10 +87,9 @@ const styles = theme => ({
   },
 });
 
-FCosePanel.propTypes = {
+ColaPanel.propTypes = {
   classes: PropTypes.object.isRequired,
-  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(FCosePanel);
+export default withStyles(styles)(ColaPanel);

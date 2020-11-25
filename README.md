@@ -51,6 +51,8 @@ The following environment variables can be used to configure the server:
 - `PORT` : the port on which the server runs (default 3000)
 - `LOG_LEVEL` : the log level for `out.log`
 - `COUCHDB_URL` : the URL of the CouchDB instance that the server should permanently store its data
+- `LOG_SYNC` : log CouchDB operations when set to `true`
+- `LOG_VIZMAPPER` : log VizMapper operations when set to `true`
 
 
 ## Run targets

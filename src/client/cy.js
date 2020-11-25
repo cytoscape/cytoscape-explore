@@ -3,6 +3,8 @@ import edgehandles from 'cytoscape-edgehandles';
 import VizMapper from '../model/vizmapper';
 import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
+import cola from 'cytoscape-cola';
+import { isObject } from 'lodash';
 
 const registerVizmapper = (Cytoscape) => {
 
@@ -37,15 +39,19 @@ export const registerCytoscapeExtensions = () => {
   Cytoscape.use(dagre);
   Cytoscape.use(fcose);
 
+  // Cytoscape layout extensions
+  Cytoscape.use(dagre);
+  Cytoscape.use(fcose);
+  Cytoscape.use(cola);
+
   const cy = new Cytoscape();
   const ele = cy.add({});
 
   const oldStyle = Object.getPrototypeOf(ele).style;
 
   Object.getPrototypeOf(ele).style = function(){
-    if( process.NODE_ENV !== 'production' ){
+    if( process.NODE_ENV !== 'production' && arguments.length > 1 || (arguments.length === 1 && isObject(arguments[0])) ){
       console.warn(`Setting manual bypasses will not apply synchronised style for the graph.  Use the 'cy.vizmapper()' methods.  You can safely ignore this warning for temporary ad-hoc bypasses set by extensions.`);
-      console.trace();
     }
 
     oldStyle.apply(this, arguments);

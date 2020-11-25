@@ -7,8 +7,7 @@ import { EventEmitterProxy } from './event-emitter-proxy';
 const NODE_SELECTOR = 'node';
 const EDGE_SELECTOR = 'edge';
 
-// TODO remove debug logging
-const log = console.log; // eslint-disable-line
+const log = process.env.LOG_VIZMAPPER === 'true' ? console.log : _.noop;
 
 const assertSelectorIsNodeOrEdge = selector => {
   if( selector !== 'node' && selector !== 'edge' ){
@@ -78,10 +77,6 @@ export class VizMapper {
     this.cySyncher = cySyncher;
 
     this.syncherProxy = new EventEmitterProxy(this.cySyncher.emitter);
-
-    this.syncherProxy.on('cy', () => {
-      cy.elements().scratch({ dirtyStyle: Date.now() }); // TODO hack
-    });
   }
 
   destroy(){
@@ -111,7 +106,6 @@ export class VizMapper {
     _.set(_styles, [selector, property], value);
 
     this.cy.data({ _styles });
-    this.cy.$(selector).scratch({ dirtyStyle: Date.now() }); // TODO hack
 
     this.cy.emit('vmstyle', selector, property, value);
   }
