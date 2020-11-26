@@ -20,6 +20,8 @@ const layoutOptions = [
     name: 'fcose',
     idealEdgeLength: 50,
     nodeSeparation: 75,
+    randomize: false,
+    animate: true,
   },
   {
     name: 'concentric',
@@ -49,10 +51,10 @@ export class LayoutPanel extends Component {
     };
     const layouts = [
       // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
-      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      { label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel layoutOptions={layoutOptions[0]} {...opProps} /> },
       // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
-      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
-      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
+      { label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel layoutOptions={layoutOptions[1]} {...opProps} /> },
+      { label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel layoutOptions={layoutOptions[2]} {...opProps} /> },
     ];
     this.state = {
       value: 0,
