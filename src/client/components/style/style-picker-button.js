@@ -14,30 +14,39 @@ export class StylePickerButton extends Component  {
 
   constructor(props) {
     super(props);
-    this.state = { anchorEl: null };
+    this.state = { tooltipOpen: false };
   }
 
-  handleClick(event) {
-    this.setState({ anchorEl: event.currentTarget });
+  handleTootlipOpen() {
+    this.setState({ tooltipOpen: true });
   }
 
-  handleClose() {
-    this.setState({ anchorEl: null });
+  handleTootlipClose() {
+    this.setState({ tooltipOpen: false });
+  }
+
+  handlePopoverShow(ref) {
+    ref.current.onShow && ref.current.onShow();
+    this.handleTootlipClose();
   }
 
   render() {
     const ref = React.createRef();
-
     return (
       <div>
         <TippyPopover
-          onHide={() => this.handleClose()}
-          onShow={() => ref.current.onShow && ref.current.onShow()}
+          onShow={() => this.handlePopoverShow(ref)}
           content={
             <StylePicker ref={ref} {...this.props} />
           }
         >
-          <Tooltip arrow title={this.props.title}>
+          <Tooltip
+            arrow 
+            open={this.state.tooltipOpen}
+            onOpen={() => this.handleTootlipOpen()}
+            onClose={() => this.handleTootlipClose()}
+            title={this.props.title}
+          >
             {this.renderFontIcon()}
           </Tooltip>
         </TippyPopover>
@@ -48,7 +57,6 @@ export class StylePickerButton extends Component  {
   renderFontIcon() {
     return (
       <button 
-        // onClick={e => this.handleClick(e)}
         className="style-panel-button plain-button">
         <i className="material-icons">{this.props.icon}</i>
       </button>
