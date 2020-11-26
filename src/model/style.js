@@ -15,6 +15,8 @@ export const MAPPING = {
   VALUE: 'VALUE',
   /**  A two-value linear mapping */
   LINEAR: 'LINEAR',
+  /** A three-value divergent linear mapping */
+  DIVERGENT: 'DIVERGENT',
   /** A passthrough mapping (i.e. use data property verbatim)  */
   PASSTHROUGH: 'PASSTHROUGH',
   /** A discrete mapping */
@@ -42,10 +44,16 @@ export const STYLE_TYPE = {
   STRING: 'STRING'
 };
 
-const mapLinear = (x, x1, x2, f1, f2) => {
+export const mapLinear = (x, x1, x2, f1, f2) => {
   const t = (x - x1) / (x2 - x1);
   return f1 + t * (f2 - f1);
 };
+
+export const mapColor = (x, x1, x2, c1, c2) => ({
+  r: mapLinear(x, x1, x2, c1.r, c2.r),
+  g: mapLinear(x, x1, x2, c1.g, c2.g),
+  b: mapLinear(x, x1, x2, c1.b, c2.b),
+});
 
 /**
  * Get the flat style value calculated for the 
@@ -71,9 +79,7 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
     if( STYLE_TYPE.NUMBER === type ){
       return mapLinear(eleData, dataValue1, dataValue2, styleValue1, styleValue2);
     } else if( STYLE_TYPE.COLOR === type ){
-      const r = mapLinear(eleData, dataValue1, dataValue2, styleValue1.r, styleValue2.r);
-      const g = mapLinear(eleData, dataValue1, dataValue2, styleValue1.g, styleValue2.g);
-      const b = mapLinear(eleData, dataValue1, dataValue2, styleValue1.b, styleValue2.b);
+      const {r, g, b} = mapColor(eleData, dataValue1, dataValue2, styleValue1, styleValue2);
       if(Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b))
         return null;
       return `rgb(${r}, ${g}, ${b})`;

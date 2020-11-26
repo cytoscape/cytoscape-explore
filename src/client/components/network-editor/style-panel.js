@@ -57,7 +57,7 @@ export class StylePanel extends Component {
             <ColorSwatches selected={color} onSelect={onSelect} />
           }
           renderMapping={(gradient, onSelect) => 
-            <ColorGradients selected={gradient} onSelect={onSelect} /> 
+            <ColorGradients divergent={true} selected={gradient} onSelect={onSelect} /> 
           }
           renderDiscreteIcon={color => 
             <ColorSwatch color={color} />
