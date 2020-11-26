@@ -1,8 +1,7 @@
 import Cytoscape from 'cytoscape';
-import dagre from 'cytoscape-dagre';
-import fcose from 'cytoscape-fcose';
 import _ from 'lodash';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
@@ -15,16 +14,13 @@ import { NetworkEditorController } from './controller';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../../theme';
+import { DEFAULT_PADDING } from '../layout/defaults';
 
 export class NetworkEditor extends Component {
   constructor(props){
     super(props);
 
     this.bus = new EventEmitter();
-
-    // Cytoscape layout extensions
-    Cytoscape.use(dagre);
-    Cytoscape.use(fcose);
 
     this.cy = new Cytoscape({
       headless: true,
@@ -99,6 +95,8 @@ export class NetworkEditor extends Component {
     const enableSync = async () => {
       try {
         await this.cySyncher.load();
+
+        this.cy.fit(DEFAULT_PADDING);
       } catch(err){
         if( err instanceof DocumentNotFoundError ){
           await this.cySyncher.create();
@@ -157,6 +155,8 @@ export class NetworkEditor extends Component {
       this.updateSelectionClass();
     }).on('unselect', () => {
       this.updateSelectionClass();
+    }).on('remove', () => {
+      this.updateSelectionClass();
     }).on('ehstop', () => {
       this.controller.disableDrawMode();
     });
@@ -183,7 +183,10 @@ export class NetworkEditor extends Component {
         <CssBaseline />
         <div className="network-editor">
           <Header controller={controller} />
-          <div id="cy" className="cy" />
+          <div className="cy">
+            <div id="cy" />
+            <NetworkBackground controller={controller} />
+          </div>
           <ToolPanel controller={controller} />
           <StylePanel controller={controller} />
         </div>
@@ -191,5 +194,35 @@ export class NetworkEditor extends Component {
     );
   }
 }
+
+class NetworkBackground extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      bgColor: 'white',
+    };
+    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
+  }
+
+  componentDidMount(){
+    this.busProxy.on('setNetworkBackgroundColor', (color) => this.setState({ bgColor: color }));
+  }
+
+  componentWillUnmount(){
+    this.busProxy.removeAllListeners();
+  }
+
+  render() {
+    const { bgColor } = this.state;
+
+    return (
+      <div id="cy-background" style={{backgroundColor: bgColor}} />
+    );
+  }
+}
+
+NetworkBackground.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController)
+};
 
 export default NetworkEditor; 

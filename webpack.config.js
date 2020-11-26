@@ -61,7 +61,13 @@ let conf = {
     new DotEnvPlugin(),
 
     isProfile ? new BundleAnalyzerPlugin() : null
-  ].filter( isNonNil )
+  ].filter( isNonNil ),
+
+  resolve: {
+    alias: {
+      cytoscape: path.resolve(__dirname, 'node_modules/cytoscape/src/index.js')
+    }
+  }
 };
 
 module.exports = conf;

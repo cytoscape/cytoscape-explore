@@ -11,20 +11,17 @@ export class ConcentricPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.layoutOptions = {
-      spacingFactor: 0,
-    };
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.layoutOptions[key]) {
-      this.layoutOptions[key] = newValue;
-      this.props.onChange(this.layoutOptions);
+    if (newValue != this.props.layoutOptions[key]) {
+      this.props.layoutOptions[key] = newValue;
+      this.props.onChange(this.props.layoutOptions);
     }
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, layoutOptions } = this.props;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
@@ -39,7 +36,7 @@ export class ConcentricPanel extends Component {
               id="spacingFactor"
               min={0}
               max={10}
-              defaultValue={0}
+              defaultValue={layoutOptions.spacingFactor}
               onChange={(e, v) => this.handleChange(e, "spacingFactor", v)}
               {...sliderProps}
             />
@@ -69,6 +66,7 @@ const styles = theme => ({
 
 ConcentricPanel.propTypes = {
   classes: PropTypes.object.isRequired,
+  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 

@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import StylePicker from '../style/style-picker';
-import {Popover, Tooltip} from '@material-ui/core';
+import {Tooltip} from '@material-ui/core';
 import PropTypes from 'prop-types';
+import TippyPopover from '../tippy-popover';
 
 /**
  * A style picker button
@@ -13,45 +14,42 @@ export class StylePickerButton extends Component  {
 
   constructor(props) {
     super(props);
-    this.state = { anchorEl: null };
+    this.state = { tooltipOpen: false };
   }
 
-  handleClick(event) {
-    this.setState({ anchorEl: event.currentTarget });
+  handleTootlipOpen() {
+    this.setState({ tooltipOpen: true });
   }
 
-  handleClose() {
-    this.setState({ anchorEl: null });
+  handleTootlipClose() {
+    this.setState({ tooltipOpen: false });
+  }
+
+  handlePopoverShow(ref) {
+    ref.current.onShow && ref.current.onShow();
+    this.handleTootlipClose();
   }
 
   render() {
     const ref = React.createRef();
-    const { anchorEl } = this.state;
-
     return (
       <div>
-        <Tooltip arrow title={this.props.title}>
-          {(typeof this.props.icon === 'string' || this.props.icon instanceof String)
-            ? this.renderFontIcon()
-            : <div onClick={e => this.handleClick(e)}>{this.props.icon}</div>
+        <TippyPopover
+          onShow={() => this.handlePopoverShow(ref)}
+          content={
+            <StylePicker ref={ref} {...this.props} />
           }
-        </Tooltip>
-        <Popover 
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          onClose={() => this.handleClose()}
-          onEnter={() => ref.current.onShow && ref.current.onShow()}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
         >
-          <StylePicker ref={ref} {...this.props} />
-        </Popover>
+          <Tooltip
+            arrow 
+            open={this.state.tooltipOpen}
+            onOpen={() => this.handleTootlipOpen()}
+            onClose={() => this.handleTootlipClose()}
+            title={this.props.title}
+          >
+            {this.renderFontIcon()}
+          </Tooltip>
+        </TippyPopover>
       </div>
     );
   }
@@ -59,7 +57,6 @@ export class StylePickerButton extends Component  {
   renderFontIcon() {
     return (
       <button 
-        onClick={e => this.handleClick(e)}
         className="style-panel-button plain-button">
         <i className="material-icons">{this.props.icon}</i>
       </button>

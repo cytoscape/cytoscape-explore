@@ -5,8 +5,7 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
-
-let layout;
+import { DEFAULT_PADDING } from '../layout/defaults';
 
 /**
  * The network editor controller contains all high-level model operations that the network
@@ -59,10 +58,28 @@ export class NetworkEditorController {
       style.defaults.map((el) => {
         const { visualProperty: k, value: v } = el;
 
-        if (k === "NODE_FILL_COLOR")
-          this.vizmapper.node('background-color', styleFactory.color(v));
-        else if (k === "EDGE_STROKE_UNSELECTED_PAINT")
-          this.vizmapper.edge('line-color', styleFactory.color(v));
+        if (v != null) {
+          if (k === "NODE_FILL_COLOR") {
+            this.vizmapper.node('background-color', styleFactory.color(v));
+          } else if (k === "NODE_SHAPE") {
+            this.vizmapper.node('shape', styleFactory.string(v.toLowerCase()));
+          } else if (k === "NODE_BORDER_WIDTH") {
+            this.vizmapper.node('border-width', styleFactory.number(v));
+          } else if (k === "NODE_BORDER_PAINT") {
+            this.vizmapper.node('border-color', styleFactory.color(v));
+          } else if (k === "EDGE_STROKE_UNSELECTED_PAINT") {
+            this.vizmapper.edge('line-color', styleFactory.color(v));
+          } else if (k === "EDGE_WIDTH") {
+            this.vizmapper.edge('width', styleFactory.number(v));
+          } else if (k === "EDGE_LINE_TYPE") {
+            let cv = 'solid';
+            if (v == 'DOT') cv = 'dotted';
+            else if (v.includes('DASH')) cv = 'dashed';
+            this.vizmapper.edge('line-style', styleFactory.string(cv));
+          } else if (k === "NETWORK_BACKGROUND_PAINT") {
+            this.setNetworkBackgroundColor(v);
+          }
+        }
       });
       // ========================================================================================
     }
@@ -72,7 +89,7 @@ export class NetworkEditorController {
     const hasPositions = nodes && nodes.length > 0 && nodes[0].position != null;
 
     if (hasPositions) {
-      this.cy.fit();
+      this.cy.fit(DEFAULT_PADDING);
     } else {
       this.applyLayout({ name: 'grid' });
     }
@@ -80,17 +97,26 @@ export class NetworkEditorController {
     this.bus.emit('setNetwork', this.cy);
   }
 
+  setNetworkBackgroundColor(color) {
+    if (color !== this.networkBackgroundColor) {
+      this.networkBackgroundColor = color;
+      this.bus.emit('setNetworkBackgroundColor', color);
+    }
+  }
+
   /**
    * Stops the currently running layout, if there is one, and apply the new layout options.
    * @param {*} options 
    */
   applyLayout(options) {
-    if (layout != null) {
-      layout.stop();
+    if (this.layout) {
+      this.layout.stop();
     }
 
-    layout = this.cy.layout(options);
-    layout.run();
+    console.log(options);
+
+    this.layout = this.cy.layout(options);
+    this.layout.run();
   }
 
   /**
@@ -345,7 +371,6 @@ export class NetworkEditorController {
     eles.forEach(ele => {
       const val = ele.data(attribute);
       if(val) {
-        console.log(val);
         hasVal = true;
         min = Math.min(min, val);
         max = Math.max(max, val);

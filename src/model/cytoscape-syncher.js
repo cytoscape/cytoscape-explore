@@ -9,8 +9,8 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 const PORT = process.env.PORT;
 const SYNC_INTERVAL = 400;
 
-// TODO remove debug logging
-const log = console.log; // eslint-disable-line
+const LOG_SYNC = process.env.LOG_POUCH_DB === 'true';
+const log = LOG_SYNC ? console.log : _.noop;
 
 /**
  * A client creates an instance of `CytoscapeSyncher` to automatically manage synchronisation

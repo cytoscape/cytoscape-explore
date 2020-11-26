@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+import { throttle } from 'lodash';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
@@ -12,21 +12,45 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
 
+/**
+ * We want to save the last used layout options in memory
+ */
+const layoutOptions = [
+  {
+    name: 'fcose',
+    idealEdgeLength: 50,
+    nodeSeparation: 75,
+  },
+  {
+    name: 'concentric',
+    spacingFactor: 0,
+  },
+  {
+    name: 'dagre',
+    nodeSep: 50,
+    rankSep: 100,
+    rankDir: 'TB',
+  },
+];
+
 export class LayoutPanel extends Component {
 
   constructor(props) {
     super(props);
     this.controller = props.controller;
 
-    this.applyLayout = debounce((options) => {
+    this.applyLayout = throttle((options) => {
+      console.log('apply layout');
       this.controller.applyLayout(options);
-    }, 250);
+    }, 250, { leading: true });
 
     const opProps = {
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
+      // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
       { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
       { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
       { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
     ];
@@ -42,10 +66,8 @@ export class LayoutPanel extends Component {
     }
 
     if (value > 0) {
-      setTimeout(() => {
-        const name = this.state.layouts[value - 1].name;
-        this.applyLayout(Object.assign({ name: name }, options));
-      }, 250);
+      const name = this.state.layouts[value - 1].name;
+      this.applyLayout(Object.assign({ name: name }, options));
     }
   }
 
@@ -62,7 +84,7 @@ export class LayoutPanel extends Component {
         <AppBar position="relative" color="default">
           <Tabs
             value={value}
-            onChange={(e, v) => this.handleChange(v)}
+            onChange={(e, v) => this.handleChange(v, layoutOptions[v - 1])}
             variant="scrollable"
             scrollButtons="on"
             indicatorColor="primary"
