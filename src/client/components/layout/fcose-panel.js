@@ -10,17 +10,20 @@ export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
+
+    this.layoutOptions = Object.assign({}, props.layoutOptions);
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.props.layoutOptions[key]) {
-      this.props.layoutOptions[key] = newValue;
-      this.props.onChange(this.props.layoutOptions);
+    if (newValue != this.layoutOptions[key]) {
+      this.layoutOptions[key] = newValue;
+      this.props.onChange(this.layoutOptions);
     }
   }
 
   render() {
-    const { classes, layoutOptions } = this.props;
+    const { classes } = this.props;
+    const { layoutOptions } = this;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
