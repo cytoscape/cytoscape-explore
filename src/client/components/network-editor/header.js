@@ -45,46 +45,46 @@ export class Header extends Component {
   }
 
   handleClose() {
-    this.setState(Object.assign(this.state, {
+    this.setState({
       menuName: null,
       anchorEl: null,
       dialogName: null,
-    }));
+    });
   }
 
   showMenu(menuName, anchorEl) {
-    this.setState(Object.assign(this.state, {
+    this.setState({
       menuName: menuName,
       anchorEl: anchorEl,
       dialogName: null,
-    }));
+    });
   }
 
   goBackToMenu(menuName) {
-    this.setState(Object.assign(this.state, {
+    this.setState({
       menuName: menuName,
       dialogName: null,
-    }));
+    });
   }
 
   showDialog(dialogName, menuName) {
-    this.setState(Object.assign(this.state, {
+    this.setState({
       menuName: menuName,
       anchorEl: menuName ? this.state.anchorEl : null,
       dialogName: dialogName,
-    }));
+    });
   }
 
   hideDialog() {
-    this.setState(Object.assign(this.state, {
+    this.setState({
       menuName: null,
       anchorEl: null,
       dialogName: null,
-    }));
+    });
   }
 
   componentDidMount() {
-    const onSetNetwork = (cy) => this.setState(Object.assign(this.state, { networkName: cy.data('name') }));
+    const onSetNetwork = (cy) => this.setState({ networkName: cy.data('name') });
 
     this.busProxy.on('setNetwork', onSetNetwork);
   }
@@ -190,7 +190,7 @@ export class Header extends Component {
 
 const logoIconProps = {
   viewBox: '0 0 64 64',
-  style: { width: 'auto', fontSize: 38, margin: 0, color: '#12A1DE', },
+  style: { width: 'auto', fontSize: 38, margin: 0, },
   p: 0,
   m: 0,
 };

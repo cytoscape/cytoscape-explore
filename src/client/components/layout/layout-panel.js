@@ -64,12 +64,11 @@ export class LayoutPanel extends Component {
 
   handleChange(value, options) {
     if (value != this.state.value) {
-      this.setState(Object.assign(this.state, { value: value }));
+      this.setState({ value: value });
     }
 
     if (value > 0) {
-      const name = this.state.layouts[value - 1].name;
-      this.applyLayout(Object.assign({ name: name }, options));
+      this.applyLayout(options);
     }
   }
 

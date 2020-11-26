@@ -43,7 +43,7 @@ export class Cy3NetworkImportDialog extends Component {
   }
 
   async handleOk() {
-    this.setState(Object.assign(this.state, { loading: true }));
+    this.setState({ loading: true });
 
     // Return array of View SUIDs
     const fetchViewIds = async (netId) => {
@@ -93,7 +93,7 @@ export class Cy3NetworkImportDialog extends Component {
   }
 
   handleChange(event) {
-    this.setState(Object.assign(this.state, { value: Number(event.target.value) }));
+    this.setState({ value: Number(event.target.value) });
   }
 
   componentDidMount() {
@@ -107,8 +107,8 @@ export class Cy3NetworkImportDialog extends Component {
     
     fetch(`${CY3_URL}/v1/networks.names`)
       .then(res => res.json())
-      .then(data => this.setState(Object.assign(this.state, { data: data.sort(compareByName), error: null, loading: false })))
-      .catch(err => this.setState(Object.assign(this.state, { error: err, loading: false })));
+      .then(data => this.setState({ data: data.sort(compareByName), error: null, loading: false }))
+      .catch(err => this.setState({ error: err, loading: false }));
   }
 
   render() {
