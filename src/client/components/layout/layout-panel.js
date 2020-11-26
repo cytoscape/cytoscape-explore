@@ -20,10 +20,12 @@ const layoutOptions = [
     name: 'fcose',
     idealEdgeLength: 50,
     nodeSeparation: 75,
+    randomize: true,
+    animate: false
   },
   {
     name: 'concentric',
-    spacingFactor: 0,
+    spacingFactor: 1,
   },
   {
     name: 'dagre',
@@ -40,7 +42,6 @@ export class LayoutPanel extends Component {
     this.controller = props.controller;
 
     this.applyLayout = throttle((options) => {
-      console.log('apply layout');
       this.controller.applyLayout(options);
     }, 250, { leading: true });
 
@@ -49,10 +50,10 @@ export class LayoutPanel extends Component {
     };
     const layouts = [
       // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
-      { name: 'fcose', label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      { label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel layoutOptions={layoutOptions[0]} {...opProps} /> },
       // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
-      { name: 'concentric', label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
-      { name: 'dagre', label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
+      { label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel layoutOptions={layoutOptions[1]} {...opProps} /> },
+      { label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel layoutOptions={layoutOptions[2]} {...opProps} /> },
     ];
     this.state = {
       value: 0,
@@ -62,12 +63,11 @@ export class LayoutPanel extends Component {
 
   handleChange(value, options) {
     if (value != this.state.value) {
-      this.setState(Object.assign(this.state, { value: value }));
+      this.setState({ value: value });
     }
 
     if (value > 0) {
-      const name = this.state.layouts[value - 1].name;
-      this.applyLayout(Object.assign({ name: name }, options));
+      this.applyLayout(options);
     }
   }
 

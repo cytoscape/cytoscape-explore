@@ -19,22 +19,24 @@ export class DagrePanel extends Component {
     this.state = {
       rankDir: props.layoutOptions.rankDir,
     };
+    this.layoutOptions = props.layoutOptions;
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.props.layoutOptions[key]) {
+    if (newValue != this.layoutOptions[key]) {
       if (key === 'rankDir') {
         // If we don't update the state for this option, the toggle button is not selected
-        this.setState(Object.assign(this.state, { rankDir: newValue }));
+        this.setState({ rankDir: newValue });
       }
-      this.props.layoutOptions[key] = newValue;
-      this.props.onChange(this.props.layoutOptions);
+      this.layoutOptions[key] = newValue;
+      this.props.onChange(this.layoutOptions);
     }
   }
 
   render() {
     const { rankDir } = this.state;
-    const { classes, layoutOptions } = this.props;
+    const { classes } = this.props;
+    const { layoutOptions } = this;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
