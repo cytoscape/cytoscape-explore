@@ -34,7 +34,7 @@ export class ConcentricPanel extends Component {
             <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
             <Slider
               id="spacingFactor"
-              min={0}
+              min={1}
               max={10}
               defaultValue={layoutOptions.spacingFactor}
               onChange={(e, v) => this.handleChange(e, "spacingFactor", v)}

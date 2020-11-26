@@ -25,7 +25,7 @@ const layoutOptions = [
   },
   {
     name: 'concentric',
-    spacingFactor: 0,
+    spacingFactor: 1,
   },
   {
     name: 'dagre',
