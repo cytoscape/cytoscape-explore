@@ -17,6 +17,7 @@ export class FCosePanel extends Component {
   handleChange(event, key, newValue) {
     if (newValue != this.layoutOptions[key]) {
       this.layoutOptions[key] = newValue;
+      this.layoutOptions.randomize = false; // changing sliders should give smooth results
       this.props.onChange(this.layoutOptions);
     }
   }

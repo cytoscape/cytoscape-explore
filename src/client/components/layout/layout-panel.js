@@ -20,7 +20,7 @@ const layoutOptions = [
     name: 'fcose',
     idealEdgeLength: 50,
     nodeSeparation: 75,
-    randomize: false,
+    randomize: true,
     animate: false
   },
   {
