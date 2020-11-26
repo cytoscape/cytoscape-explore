@@ -21,7 +21,7 @@ const layoutOptions = [
     idealEdgeLength: 50,
     nodeSeparation: 75,
     randomize: false,
-    animate: true,
+    animate: false
   },
   {
     name: 'concentric',
