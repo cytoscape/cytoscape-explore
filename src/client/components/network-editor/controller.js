@@ -47,10 +47,8 @@ export class NetworkEditorController {
    */
   setNetwork(elements, data, style) {
     this.cy.elements().remove();
-    this.cy.removeData();
-    
+    this.cy.data({ name: data.name }); // TODO: Set other NETWORK attributes, but ignore some of them (e.g. 'selected').
     this.cy.add(elements);
-    this.cy.data(data);
 
     if (style) {
       // TODO: This convertions are only necessary until we receive the correct Style object ====
