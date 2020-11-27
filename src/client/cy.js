@@ -32,14 +32,30 @@ const registerVizmapper = (Cytoscape) => {
   Cytoscape('core', 'vizmapper', vizmapper);
 };
 
+const registerCyDataLocked = Cytoscape => {
+  function dataLocked(bool){
+    if(bool !== undefined){
+      this.scratch('_dataLocked', !!bool);
+    } else {
+      let locked = this.scratch('_dataLocked');
+
+      if( locked === undefined ){
+        return true;
+      } else {
+        return locked;
+      }
+    }
+  }
+
+  Cytoscape('core', 'dataLocked', dataLocked);
+};
+
 export const registerCytoscapeExtensions = () => {
   Cytoscape.use(edgehandles);
   Cytoscape.use(registerVizmapper);
-  // Layout extensions
-  Cytoscape.use(dagre);
-  Cytoscape.use(fcose);
+  Cytoscape.use(registerCyDataLocked);
 
-  // Cytoscape layout extensions
+  // Layout extensions
   Cytoscape.use(dagre);
   Cytoscape.use(fcose);
   Cytoscape.use(cola);
@@ -47,13 +63,74 @@ export const registerCytoscapeExtensions = () => {
   const cy = new Cytoscape();
   const ele = cy.add({});
 
-  const oldStyle = Object.getPrototypeOf(ele).style;
+  const eleProto = Object.getPrototypeOf(ele);
+  const origEleStyle = eleProto.style;
+  const origEleRemoveStyle = eleProto.removeStyle;
 
-  Object.getPrototypeOf(ele).style = function(){
+  eleProto.style = function(){
     if( process.NODE_ENV !== 'production' && arguments.length > 1 || (arguments.length === 1 && isObject(arguments[0])) ){
       console.warn(`Setting manual bypasses will not apply synchronised style for the graph.  Use the 'cy.vizmapper()' methods.  You can safely ignore this warning for temporary ad-hoc bypasses set by extensions.`);
     }
 
-    oldStyle.apply(this, arguments);
+    return origEleStyle.apply(this, arguments);
+  };
+
+  eleProto.removeStyle = function(){
+    if( process.NODE_ENV !== 'production' ){
+      console.warn(`Setting manual bypasses will not apply synchronised style for the graph.  Use the 'cy.vizmapper()' methods.  You can safely ignore this warning for temporary ad-hoc bypasses set by extensions.`);
+    }
+
+    return origEleRemoveStyle.apply(this, arguments);
+  };
+
+  const cyProto = Object.getPrototypeOf(cy);
+  const orgCyData = cyProto.data;
+  const orgCyRemoveData = cyProto.removeData;
+
+  cyProto.data = cyProto.attr = function(key){
+    const warn = () => process.NODE_ENV !== 'production' && console.warn(`cy.data('id') can not be overwritten.  The ID will not be changed.`);
+
+    if(this.dataLocked()){
+      const prevIdExists = orgCyData.call(this, 'data') !== undefined;
+
+      if(key === 'id' && arguments.length === 2 && prevIdExists){ // cy.data('id', 'foo')
+        warn();
+        return; // don't overwrite
+      } else if(isObject(key)){ // cy.data({ id: 'foo' })
+        const obj = key;
+
+        if(obj.id !== undefined && prevIdExists){
+          delete obj.id; // don't overwrite
+          warn();
+        }
+      }
+    }
+
+    return orgCyData.apply(this, arguments);
+  };
+
+  cyProto.removeData = cyProto.removeAttr = function(key){
+    const warn = () => process.NODE_ENV !== 'production' && console.warn(`cy.data('id') can not be removed.  The ID will not be removed.`);
+
+    if(this.dataLocked()){
+      if(key === 'id'){
+        warn();
+        return; // don't remove
+      } else if(key === undefined){
+        warn();
+
+        // remove everything but id
+        const data = this.data();
+        Object.keys(data).filter(k => k !== 'id').forEach(k => {
+          orgCyRemoveData.call(this, k);
+        });
+
+        return;
+      } else {
+        orgCyRemoveData.apply(this, arguments);
+      }
+    }
+
+    return this;
   };
 };
