@@ -212,3 +212,7 @@ ColorGradients.propTypes = {
   selected: PropTypes.any,
   divergent: PropTypes.bool,
 };
+ColorGradients.defaultProps = {
+  onSelect: () => null,
+  divergent: true,
+};
