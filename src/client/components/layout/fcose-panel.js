@@ -6,31 +6,25 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const DEFAULT_EDGE_LENGTH = 50;
-const DEFAULT_NODE_SEP = 4500;
-
 export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
-    this.layoutOptions = {
-      quality: 'proof',
-      idealEdgeLength: DEFAULT_EDGE_LENGTH,
-      nodeRepulsion: DEFAULT_NODE_SEP,
-      animate: false,
-      randomize: false
-    };
+
+    this.layoutOptions = Object.assign({}, props.layoutOptions);
   }
 
   handleChange(event, key, newValue) {
-    if (newValue != this.props.layoutOptions[key]) {
-      this.props.layoutOptions[key] = newValue;
-      this.props.onChange(this.props.layoutOptions);
+    if (newValue != this.layoutOptions[key]) {
+      this.layoutOptions[key] = newValue;
+      this.layoutOptions.randomize = false; // changing sliders should give smooth results
+      this.props.onChange(this.layoutOptions);
     }
   }
 
   render() {
     const { classes } = this.props;
+    const { layoutOptions } = this;
     const sliderProps = {
       className: classes.slider,
       valueLabelDisplay: 'auto',
@@ -46,7 +40,7 @@ export class FCosePanel extends Component {
                 id="idealEdgeLength"
                 min={1} // If 0, the app may freeze
                 max={100}
-                defaultValue={DEFAULT_EDGE_LENGTH}
+                defaultValue={layoutOptions.idealEdgeLength}
                 onChange={(e, v) => this.handleChange(e, "idealEdgeLength", v)}
                 {...sliderProps}
               />
@@ -56,11 +50,11 @@ export class FCosePanel extends Component {
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
               <Slider
-                id="nodeRepulsion"
+                id="nodeSeparation"
                 min={1} // If 0, the whole app freezes!
                 max={10000}
-                defaultValue={DEFAULT_NODE_SEP}
-                onChange={(e, v) => this.handleChange(e, "nodeRepulsion", v)}
+                defaultValue={layoutOptions.nodeSeparation}
+                onChange={(e, v) => this.handleChange(e, "nodeSeparation", v)}
                 {...sliderProps}
               />
             </FormControl>
