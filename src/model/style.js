@@ -15,17 +15,17 @@ export const MAPPING = {
   VALUE: 'VALUE',
   /**  A two-value linear mapping */
   LINEAR: 'LINEAR',
-  /** A three-value divergent linear mapping */
-  DIVERGENT: 'DIVERGENT',
   /** A passthrough mapping (i.e. use data property verbatim)  */
   PASSTHROUGH: 'PASSTHROUGH',
   /** A discrete mapping */
   DISCRETE: 'DISCRETE'
 };
 
-const assertDataRangeOrder = (dataValue1, dataValue2) => {
-  if(dataValue1 > dataValue2){
-    throw new Error(`Can't create mapping with misordered range`);
+const assertDataRangeOrder = (arr) => {
+  for(let i = 0; i < arr.length-1; i++) {
+    if(arr[i] > arr[i+1]) {
+      throw new Error(`Can't create mapping with misordered range`);
+    }
   }
 };
 
@@ -55,6 +55,21 @@ export const mapColor = (x, x1, x2, c1, c2) => ({
   b: mapLinear(x, x1, x2, c1.b, c2.b),
 });
 
+const dataPoints = (eleData, vals, styles) => { // assume vals is sorted
+  if(eleData >= vals[0]) {
+    for(let i = 0; i < vals.length -1; i++) {
+      if(eleData <= vals[i+1]) {
+        return { 
+          d1: vals[i], 
+          d2: vals[i+1], 
+          s1: styles[i], 
+          s2: styles[i+1] 
+        };
+      }
+    }
+  }
+};
+
 /**
  * Get the flat style value calculated for the 
  * @param {Cytoscape.Collection} ele 
@@ -73,16 +88,23 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
   } else if( MAPPING.PASSTHROUGH === mapping ){
     return ele.data(value.data);
   } else if( MAPPING.LINEAR === mapping ){
-    const { data, dataValue1, dataValue2, styleValue1, styleValue2 } = styleStruct.value;
+    const { data, dataValues, styleValues } = styleStruct.value;
     const eleData = ele.data(data);
-
     if( STYLE_TYPE.NUMBER === type ){
-      return mapLinear(eleData, dataValue1, dataValue2, styleValue1, styleValue2);
+      const d = dataPoints(eleData, dataValues, styleValues);
+      if(d !== undefined) {
+        const { d1, d2, s1, s2 } = d;
+        return mapLinear(eleData, d1, d2, s1, s2);
+      }
     } else if( STYLE_TYPE.COLOR === type ){
-      const {r, g, b} = mapColor(eleData, dataValue1, dataValue2, styleValue1, styleValue2);
-      if(Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b))
-        return null;
-      return `rgb(${r}, ${g}, ${b})`;
+      const d = dataPoints(eleData, dataValues, styleValues);
+      if(d !== undefined) {
+        const { d1, d2, s1, s2 } = d;
+        const { r, g, b } = mapColor(eleData, d1, d2, s1, s2);
+        if([r,g,b].some(Number.isNaN))
+          return null;
+        return `rgb(${r}, ${g}, ${b})`;
+      }
     }
   } else if( MAPPING.DISCRETE === mapping ){
     const { data, defaultValue, styleValues } = styleStruct.value;
@@ -141,10 +163,8 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
 /**
  * @typedef {Object} LinearNumberStyleValue
  * @property {String} data The data attribute that's mapped
- * @property {Number} dataValue1 The minimum value of the input data range
- * @property {Number} dataValue2 The maximum value of the inputn data range
- * @property {Number} styleValue1 The minimum output style property number
- * @property {Number} styleValue2 The minimum output style property number
+ * @property {Array<Number>} dataValues The data values
+ * @property {Array<Number>} styleValues The style values
  */
 
 /**
@@ -208,10 +228,8 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
 /**
  * @typedef {Object} LinearColorStyleValue
  * @property {String} data The data attribute that's mapped
- * @property {Number} dataValue1 The minimum value of the input data range
- * @property {Number} dataValue2 The maximum value of the inputn data range
- * @property {RgbColor} styleValue1 The minimum output style property color
- * @property {RgbColor} styleValue2 The minimum output style property color
+ * @property {Array<Number>} dataValues Data range
+ * @property {Array<RgbColor>} styleValues Style properties
  */
 
 /**
@@ -263,26 +281,23 @@ export const styleFactory = {
   /**
    * Create a linear mapping of a number
    * @param {String} data The data property name to map
-   * @param {Number} dataValue1 The bottom value of the input range of data values to map
-   * @param {Number} dataValue2 The top value of the input range of data values to map
-   * @param {Number} styleValue1 The bottom value of the output range of style values to map
-   * @param {Number} styleValue2 The top value of the output range of style values to map
+   * @param {Array<Number>} dataValues The points of the data values to map
+   * @param {Array<Number>} styleValues The style values corresponding to the data values.
    * @returns {LinearNumberStyleStruct} The style value object (JSON)
    */
-  linearNumber: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
-    assertDataRangeOrder(dataValue1, dataValue2);
+  linearNumber: (data, dataValues, styleValues) => {
+    assertDataRangeOrder(dataValues);
+    console.assert(dataValues.length == styleValues.length);
 
     return {
       type: STYLE_TYPE.NUMBER,
       mapping: MAPPING.LINEAR,
       value: {
         data,
-        dataValue1,
-        dataValue2,
-        styleValue1,
-        styleValue2
+        dataValues,
+        styleValues
       },
-      stringValue: `mapData(${data}, ${dataValue1}, ${dataValue2}, ${styleValue1}, ${styleValue2})`
+      stringValue: '???'
     };
   },
   
@@ -396,29 +411,24 @@ export const styleFactory = {
   /**
    * Create a linear mapping of a color
    * @param {String} data The data property name to map
-   * @param {Number} dataValue1 The bottom value of the input range of data values to map
-   * @param {Number} dataValue2 The top value of the input range of data values to map
-   * @param {Color} styleValue1 The bottom value of the output range of color values to map
-   * @param {Color} styleValue2 The top value of the output range of color values to map
+   * @param {Array<Number>} dataValues The points of the data values to map
+   * @param {Array<Number>} styleValues The style values corresponding to the data values.
    * @returns {LinearColorStyleStruct} The style value object (JSON)
    */
-  linearColor: (data, dataValue1, dataValue2, styleValue1, styleValue2) => {
-    assertDataRangeOrder(dataValue1, dataValue2);
+  linearColor: (data, dataValues, styleValues) => {
+    assertDataRangeOrder(dataValues);
+    console.assert(dataValues.length == styleValues.length);
 
-    const rgb1 = Color(styleValue1).rgb();
-    const rgb2 = Color(styleValue2).rgb();
-
+    const colorObjects = styleValues.map(c => Color(c).rgb().object());
     return {
       type: STYLE_TYPE.COLOR,
       mapping: MAPPING.LINEAR,
       value: {
         data,
-        dataValue1,
-        dataValue2,
-        styleValue1: rgb1.object(),
-        styleValue2: rgb2.object()
+        dataValues,
+        styleValues: colorObjects,
       },
-      stringValue: `mapData(${data}, ${dataValue1}, ${dataValue2}, ${rgb1.string()}, ${rgb2.string()})`
+      stringValue: '???'
     };
   }
 };

@@ -116,16 +116,16 @@ ColorSwatches.propTypes = {
 
 
 export function ColorGradient(props) {
-  const { styleValue1, styleValue2, styleValue3 } = props.value;
+  const [ val1, val2, val3 ] = props.value;
 
   let colors;
-  if(!styleValue3) {
-    colors = _.range(7).map(x => mapColor(x, 0, 6, styleValue1, styleValue2));
+  if(!val3) {
+    colors = _.range(7).map(x => mapColor(x, 0, 6, val1, val2));
   } else {
     colors = [].concat(
-      _.range(0,3).map(x => mapColor(x, 0, 3, styleValue1, styleValue2)),
-      styleValue2,
-      _.range(1,4).map(x => mapColor(x, 0, 3, styleValue2, styleValue3))
+      _.range(0,3).map(x => mapColor(x, 0, 3, val1, val2)),
+      val2,
+      _.range(1,4).map(x => mapColor(x, 0, 3, val2, val3))
     );
   }
 
@@ -149,11 +149,7 @@ export function ColorGradient(props) {
 }
 
 ColorGradient.propTypes = {
-  value: PropTypes.instanceOf({
-    styleValue1: PropTypes.any,
-    styleValue2: PropTypes.any,
-    styleValue3: PropTypes.any
-  }),
+  value: PropTypes.array,
   onSelect: PropTypes.func,
   selected: PropTypes.any
 };
@@ -165,20 +161,20 @@ export function ColorGradients(props) {
   const linearGradients = linearHues.hues.map(hue => {
     const s = colorConvert.hsl.rgb(hue, maxSat, maxLight);
     const e = colorConvert.hsl.rgb(hue, minSat, minLight);
-    return {
-      styleValue1: { r: s[0], g: s[1], b: s[2] },
-      styleValue2: { r: e[0], g: e[1], b: e[2] },
-    };
+    return [
+      { r:s[0], g:s[1], b:s[2] },
+      { r:e[0], g:e[1], b:e[2] },
+    ];
   });
 
   const divGrads = () => 
     colorBrewerDivergent.map(val => {
       const {start:[r1,g1,b1], mid:[r2,g2,b2], end:[r3,g3,b3]} = val;
-      return {
-        styleValue1: {r:r1, g:g1, b:b1},
-        styleValue2: {r:r2, g:g2, b:b2},
-        styleValue3: {r:r3, g:g3, b:b3},
-      };
+      return [
+        { r:r1, g:g1, b:b1 },
+        { r:r2, g:g2, b:b2 },
+        { r:r3, g:g3, b:b3 },
+      ];
     });
 
   return (
