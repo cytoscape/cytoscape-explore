@@ -19,6 +19,7 @@ export class AttributeSelect extends React.Component {
           value={this.props.selectedAttribute || ''}
           onChange={event => this.props.onChange(event.target.value)}
         >
+        <option key='' aria-label='None' value='' />
         {this.attributes.map(a => 
           <option key={a} value={a}>{a}</option>
         )}

@@ -76,17 +76,17 @@ export function SizeGradients(props) {
     <div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': _.isMatch(props.selected, {styleValue1:min, styleValue2:max})
+          'size-swatches-selected': _.isMatch(props.selected, [min, max])
         })}
-        onClick = {() => props.onSelect({styleValue1:min, styleValue2:max})}
+        onClick = {() => props.onSelect([min, max])}
         >
         {circles}
       </div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': _.isMatch(props.selected, {styleValue1:max, styleValue2:min})
+          'size-swatches-selected': _.isMatch(props.selected, [max, min])
         })}
-        onClick = {() => props.onSelect({styleValue1:max, styleValue2:min})}
+        onClick = {() => props.onSelect([max, min])}
         >
         {reversed}
       </div>

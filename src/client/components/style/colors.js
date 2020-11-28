@@ -4,41 +4,34 @@ import colorConvert from 'color-convert';
 import classNames from 'classnames';
 import Color from 'color';
 import PropTypes from 'prop-types';
+import { mapColor } from '../../../model/style';
 
 
 // TODO improve defaults
 // TODO move default colors into style.js ??
-const defaults = {
-  hues: [
-    0,
-    30,
-    60,
-    120,
-    180,
-    240,
-    300,
-  ],
-  minSaturation: 50,
-  maxSaturation: 50,
-  minLightness: 40,
-  maxLightness: 80,
-  range: 5
+const linearHues = {
+  hues: [ 0, 30, /*60,*/ 120, 180, 240, 300 ],
+  minSat: 50,
+  maxSat: 50,
+  minLight: 40,
+  maxLight: 80,
 };
 
 // TODO, divergent gradients not properly supported yet
-// const colorBrewerDivergent = [
-//   {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
-//   {start:[230,97,1],   mid:[247,247,247], end:[94,60,153]}, // PuOr
-//   {start:[123,50,148], mid:[247,247,247], end:[0,136,55]},  // PRGn
-//   {start:[166,97,26],  mid:[245,245,245], end:[1,133,113]}, // BrBG
-//   {start:[215,25,28],  mid:[255,255,191], end:[26,150,65]}, // RdLyGn
-// ];
+const colorBrewerDivergent = [
+  {start:[202,0,32],   mid:[247,247,247], end:[5,113,176]}, // RdBu
+  {start:[230,97,1],   mid:[247,247,247], end:[94,60,153]}, // PuOr
+  // {start:[123,50,148], mid:[247,247,247], end:[0,136,55]},  // PRGn
+  {start:[166,97,26],  mid:[245,245,245], end:[1,133,113]}, // BrBG
+  {start:[252,141,89],  mid:[255,255,191], end:[145,191,219]}, // 3-class RdYlBu
+];
 
 function rgbCss(c) {
   return Color(c).rgb().string();
 }
 
 export const defaultColor = {r:136,g:136,b:136}; // same as the #888 from the default style in style.js
+
 
 export function ColorSwatch(props) {
   return (
@@ -68,34 +61,24 @@ ColorSwatch.defaultProps = {
 export class ColorSwatches extends Component {
   constructor(props) {
     super(props);
-    this.state = Object.assign({}, defaults, props);
 
-    this.state.groups = this.state.hues.map(hue => {
-      const {
-        minSaturation: minS,
-        maxSaturation: maxS,
-        minLightness: minL,
-        maxLightness: maxL,
-        range
-      } = this.state;
+    const { minSat, maxSat, minLight, maxLight } = linearHues;
+    const range = 5;
 
+    this.groups = linearHues.hues.map(hue => {
       const colors = [];
       for(let i = 0; i < range; i++) {
         const p = i / (range - 1);
-        const s = minS + (maxS - minS) * p;
-        const l = minL + (maxL - minL) * p;
+        const s = minSat + (maxSat - minSat) * p;
+        const l = minLight + (maxLight - minLight) * p;
         const [r, g, b] = colorConvert.hsl.rgb(hue, s, l);
         colors.push({ r, g, b });
       }
-
-      return {
-        hue,
-        colors
-      };
+      return { hue, colors };
     });
 
     // Monochrome
-    this.state.groups.push({
+    this.groups.push({
       hue: 0,
       colors: [
         {r:40, g:40, b:40 },
@@ -108,11 +91,9 @@ export class ColorSwatches extends Component {
   }
 
   render() {
-    const { groups } = this.state;
-
     return (
       <div className="color-swatches">
-        { groups.map((group, i) => 
+        { this.groups.map((group, i) => 
           <div key={`group-${i}`} className="color-swatches-hue">
             { group.colors.map((c, i) => 
                 <ColorSwatch 
@@ -135,84 +116,103 @@ ColorSwatches.propTypes = {
 
 
 export function ColorGradient(props) {
-  const { styleValue1, styleValue2, styleValue3 } = props.value;
-  const bg = (styleValue3)
-    ? `linear-gradient(0.25turn, ${rgbCss(styleValue1)}, ${rgbCss(styleValue2)}, ${rgbCss(styleValue3)})`
-    : `linear-gradient(0.25turn, ${rgbCss(styleValue1)}, ${rgbCss(styleValue2)})` ;
-  
+  const [ val1, val2, val3 ] = props.value;
+
+  let colors;
+  if(!val3) {
+    colors = _.range(7).map(x => mapColor(x, 0, 6, val1, val2));
+  } else {
+    colors = [].concat(
+      _.range(0,3).map(x => mapColor(x, 0, 3, val1, val2)),
+      val2,
+      _.range(1,4).map(x => mapColor(x, 0, 3, val2, val3))
+    );
+  }
+
   return (
-    <div 
-      className={classNames({ 
-        'color-gradients-color': true, 
-        'color-gradients-color-selected': props.selected
-      })}
-      style={{ background: bg }}
-      onClick = {() => props.onSelect(props.value)} >
-    </div>
+      <div 
+        className={classNames({ 
+          'color-gradients-squares': true, 
+          'color-gradients-squares-selected': props.selected
+        })}
+        onClick = {() => props.onSelect(props.value)}
+      >
+        {colors.map((c,i) =>
+          <div
+            key={i}
+            className='color-gradients-squares-item'
+            style={{ backgroundColor: rgbCss(c) }} 
+          />
+        )}
+      </div>
   );
 }
 
 ColorGradient.propTypes = {
-  value: PropTypes.instanceOf({
-    styleValue1: PropTypes.any,
-    styleValue2: PropTypes.any,
-    styleValue3: PropTypes.any
-  }),
+  value: PropTypes.array,
   onSelect: PropTypes.func,
   selected: PropTypes.any
 };
 
 
 export function ColorGradients(props) {
-  props = Object.assign({}, defaults, props);
+  const { minSat, maxSat, minLight, maxLight } = linearHues;
 
-  const {
-    minSaturation: minS,
-    maxSaturation: maxS,
-    minLightness: minL,
-    maxLightness: maxL,
-  } = props;
-
-  const linearGradients = props.hues.map(hue => {
-    const s = colorConvert.hsl.rgb(hue, maxS, maxL);
-    const e = colorConvert.hsl.rgb(hue, minS, minL);
-    return {
-      styleValue1: { r: s[0], g: s[1], b: s[2] },
-      styleValue2: { r: e[0], g: e[1], b: e[2] },
-    };
+  const linearGradients = linearHues.hues.map(hue => {
+    const s = colorConvert.hsl.rgb(hue, maxSat, maxLight);
+    const e = colorConvert.hsl.rgb(hue, minSat, minLight);
+    return [
+      { r:s[0], g:s[1], b:s[2] },
+      { r:e[0], g:e[1], b:e[2] },
+    ];
   });
+
+  const divGrads = () => 
+    colorBrewerDivergent.map(val => {
+      const {start:[r1,g1,b1], mid:[r2,g2,b2], end:[r3,g3,b3]} = val;
+      return [
+        { r:r1, g:g1, b:b1 },
+        { r:r2, g:g2, b:b2 },
+        { r:r3, g:g3, b:b3 },
+      ];
+    });
 
   return (
     <div className="color-gradients">
-      {/* <div>Linear</div> */}
+      { !props.divergent ? null : <div>Linear</div> }
       <div>
       { linearGradients.map((value, i) => 
           <ColorGradient 
             value={value} 
-            key={`gradient-${i}`}
+            key={i}
             selected={_.isMatch(props.selected, value)}
             onSelect={props.onSelect} />
       )}
       </div>
-      {/* <div>Divergent</div>
-      <div>
-      { colorBrewerDivergent.map(value => 
-          <ColorGradient 
-            gradient={value} 
-            selected={_.isMatch(props.selected, value)} 
-            onSelect={props.onSelect} />
-      )}
-      </div> */}
+      { !props.divergent ? null :
+        <div>
+          <div>Divergent</div>
+          <div>
+          { divGrads().map((value, i) => 
+              <ColorGradient 
+                value={value} 
+                key={i}
+                selected={_.isMatch(props.selected, value)} 
+                onSelect={props.onSelect} />
+          )}
+          </div>
+        </div>
+      }
     </div>
   );
 }
 
 ColorGradients.propTypes = {
-  minSaturation: PropTypes.number,
-  maxSaturation: PropTypes.number,
-  minLightness: PropTypes.number,
-  maxLightness: PropTypes.number,
   onSelect: PropTypes.func,
-  hues: PropTypes.arrayOf(PropTypes.number),
-  selected: PropTypes.any
+  selected: PropTypes.any,
+  divergent: PropTypes.bool,
+};
+ColorGradients.defaultProps = {
+  onSelect: () => null,
+  divergent: true,
 };

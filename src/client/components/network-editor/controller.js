@@ -250,15 +250,16 @@ export class NetworkEditorController {
    * @param {String} selector 'node' or 'edge'
    * @param {String} property a style property that expects a color value, such as 'background-color'
    * @param {String} attribute The data attribute to map
-   * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
+   * @param {Array<Color>} styleValues The style mapping struct value to use as the mapping
    */
-  setColorLinearMapping(selector, property, attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute, this.cy.nodes());
-    if(!hasVal)
+  setColorLinearMapping(selector, property, attribute, styleValues) {
+    const diverging = styleValues.length == 3;
+    const dataValues = this._dataRange(selector, attribute, diverging);
+    if(!dataValues)
       return;
-    const style = styleFactory.linearColor(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    const style = styleFactory.linearColor(attribute, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
-    this.bus.emit('setColorLinearMapping', selector, property, attribute, value);
+    this.bus.emit('setColorLinearMapping', selector, property, attribute, styleValues);
   }
 
   /**
@@ -290,15 +291,16 @@ export class NetworkEditorController {
    * @param {String} selector 'node' or 'edge'
    * @param {String} property a style property that expects a numeric value.
    * @param {String} attribute The data attribute to map
-   * @param {LinearColorStyleValue} value The style mapping struct value to use as the mapping
+   * @param {Array<Number>} styleValues The style mapping struct value to use as the mapping
    */
-  setNumberLinearMapping(selector, property, attribute, value) {
-    const {hasVal, min, max} = this._minMax(attribute, this.cy.nodes());
-    if(!hasVal)
+  setNumberLinearMapping(selector, property, attribute, styleValues) {
+    const diverging = styleValues.length == 3;
+    const dataValues = this._dataRange(selector, attribute, diverging);
+    if(!dataValues)
       return;
-    const style = styleFactory.linearNumber(attribute,  min,  max, value.styleValue1, value.styleValue2);
+    const style = styleFactory.linearNumber(attribute, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
-    this.bus.emit('setNumberLinearMapping', selector, property, attribute, value);
+    this.bus.emit('setNumberLinearMapping', selector, property, attribute, styleValues);
   }
 
   /**
@@ -351,6 +353,24 @@ export class NetworkEditorController {
     const style = styleFactory.discreteString(attribute, defaultValue, valueMap);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setStringDiscreteMapping', selector, property, attribute, valueMap);
+  }
+
+
+  /**
+   * Returns the min, max and center values to use for a linear or diverging mapping.
+   * @private
+   */
+  _dataRange(selector, attribute, diverging) {
+    const {hasVal, min, max} = this._minMax(attribute, this.cy.elements(selector));
+    if(hasVal) {
+      if(diverging) {
+        // ensure the positive and negative ends of the range have the same magnitude
+        const bound = Math.max(Math.abs(min), Math.abs(max));
+        return [-bound, 0, bound];
+      } else {
+        return [min, max];
+      }
+    }
   }
 
   /**

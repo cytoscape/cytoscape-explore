@@ -61,7 +61,7 @@ export class StylePicker extends React.Component {
         this.setState({ style: {
           mapping: MAPPING.LINEAR,
           attribute: style.value.data,
-          mappingValue: style.value,
+          mappingValue: style.value.styleValues,
         }});
         break;
       case MAPPING.DISCRETE:

@@ -75,15 +75,21 @@
   align-items: center;
 }
 
-.color-gradients-color {
-  width: 300px;
-  height: 25px;
-  background-color: #888;
-  margin-bottom: 5px;
-  cursor: pointer;
-  border: none;
+.color-gradients-squares {
+  display: flex;
+  flex-direction: row;
+  border: 2px solid rgba(0, 0, 0, 0);
+  margin: 1px;
 }
 
-.color-gradients-color-selected {
+.color-gradients-squares-selected {
   border: 2px solid black;
+}
+
+.color-gradients-squares-item {
+  width: 24px;
+  height: 24px;
+  margin: none;
+  padding: none;
+  background-color: #888;
 }
