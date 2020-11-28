@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { Tabs, Tab, Paper, Tooltip, Popover } from "@material-ui/core";
+import { BottomNavigation, BottomNavigationAction } from "@material-ui/core";
+import { Paper, Tooltip, Popover } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
@@ -139,15 +140,13 @@ export class StylePicker extends React.Component {
           <div className="style-picker-heading">
             {this.props.title || "Visual Property"}
           </div>
-          <Tabs 
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-            value={this.state.tab} 
-            onChange={(event, tab) => this.handleTabChange(tab)} >
-            <Tab value={TAB.VALUE}   label='Default' />
-            <Tab value={TAB.MAPPING} label='Mapping' />
-          </Tabs>
+          <BottomNavigation
+            value={this.state.tab}
+            onChange={(event, tab) => this.handleTabChange(tab)}
+            showLabels >
+            <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
+            <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
+          </BottomNavigation>
         </Paper>
         { this.state.tab === TAB.VALUE
           ? this.renderSubComponentValue()
