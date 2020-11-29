@@ -1,15 +1,11 @@
 import React from 'react'; //eslint-disable-line
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 
-export function ShapeIcon({ type, shape, selected, onClick }) {
+export function ShapeIcon({ type, shape, onClick }) {
   return (
-    <div className={classNames({
-      'shape-selected': selected,
-      'shape-normal': !selected,
-      })}
-      onClick={() => onClick(shape)} >
+    <div onClick={() => onClick(shape)} >
       <div 
         style={{cursor:'pointer'}}
         className={`${type}-${shape}`} 
@@ -25,13 +21,11 @@ ShapeIcon.propTypes = {
     'none', 'triangle', 'circle', 'square', 'diamond', 'vee',
   ]),
   type: PropTypes.oneOf('node', 'line', 'arrow'),
-  selected: PropTypes.bool,
   onClick: PropTypes.func,
 };
 ShapeIcon.defaultProps = {
   shape: 'ellipse',
   type: 'node',
-  selected: false,
   onClick: () => null
 };
 
@@ -47,15 +41,17 @@ export function ShapeIconGroup({ type, selected, onSelect }) {
 
   return (
     <div className="shape-icons">
-      {shapes.map(shape => 
-        <ShapeIcon 
-          type={type} 
-          shape={shape} 
-          onClick={onSelect} 
-          selected={selected === shape} 
-          key={shape} 
-        />
-      )}
+      <ToggleButtonGroup 
+        exclusive={true}
+        value={selected}
+        onChange={(event,value) => onSelect(value)}
+      >
+        {shapes.map(shape =>
+          <ToggleButton value={shape} key={shape}>
+            <ShapeIcon type={type} shape={shape} />
+          </ToggleButton>
+        )}
+      </ToggleButtonGroup>
     </div>
   );
 }
