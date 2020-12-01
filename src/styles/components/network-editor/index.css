@@ -2,3 +2,9 @@
 @import "./tool-panel.css";
 @import "./style-panel.css";
 @import "./header.css";
+
+.network-editor {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
