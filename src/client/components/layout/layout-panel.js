@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { throttle } from 'lodash';
+import { debounce } from 'lodash';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
@@ -51,7 +51,7 @@ export class LayoutPanel extends Component {
     super(props);
     this.controller = props.controller;
 
-    this.applyLayout = throttle((options) => {
+    this.applyLayout = debounce((options) => {
       this.controller.applyLayout(options);
     }, 250, { leading: true });
 
