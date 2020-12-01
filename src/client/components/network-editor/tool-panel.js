@@ -4,6 +4,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 import Tooltip from '@material-ui/core/Tooltip';
+import { IconButton } from '@material-ui/core';
 
 export class ToolPanel extends Component {
   constructor(props){
@@ -28,14 +29,12 @@ export class ToolPanel extends Component {
     return (
       <div className="tool-panel">
         <Tooltip arrow placement="right" title="Add node">
-          <button 
-            onClick={() => controller.addNode()}
-            className="tool-panel-button plain-button">
-            <i className="material-icons">fiber_manual_record</i>
-          </button>
+          <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
+            <i className="material-icons">lens</i>
+          </IconButton>
         </Tooltip>
         <Tooltip arrow placement="right" title="Draw edge">
-          <button 
+          {/* <button 
             onClick={() => controller.toggleDrawMode()}
             className={classNames({
               'tool-panel-button': true,
@@ -44,14 +43,21 @@ export class ToolPanel extends Component {
               'button-toggle-on': controller.drawModeEnabled
             })}>
             <i className="material-icons icon-rot-330">arrow_forward</i>
-          </button>
+          </button> */}
+          <IconButton size="small" 
+            onClick={() => controller.toggleDrawMode()}
+            color="inherit" style={{
+              'background-color': controller.drawModeEnabled ? '#bbb' : 'transparent',
+              // 'color': controller.drawModeEnabled ? '#fff' : 'inherit'
+            }}
+          >
+            <i className="material-icons icon-rot-330">arrow_forward</i>
+          </IconButton>
         </Tooltip>
         <Tooltip arrow placement="right" title="Delete selected">
-          <button 
-            onClick={() => controller.deletedSelectedElements()}
-            className="tool-panel-button plain-button">
+          <IconButton size="small" color="inherit" onClick={() => controller.deletedSelectedElements()}>
             <i className="material-icons">close</i>
-          </button>
+          </IconButton>
         </Tooltip>
       </div>
     );

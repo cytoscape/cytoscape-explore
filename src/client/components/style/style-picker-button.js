@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import StylePicker from '../style/style-picker';
-import {Tooltip} from '@material-ui/core';
+import {Tooltip, IconButton} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import TippyPopover from '../tippy-popover';
 
@@ -56,10 +56,9 @@ export class StylePickerButton extends Component  {
 
   renderFontIcon() {
     return (
-      <button 
-        className="style-panel-button plain-button">
+      <IconButton size="small" color="inherit">
         <i className="material-icons">{this.props.icon}</i>
-      </button>
+      </IconButton>
     );
   }
 }
