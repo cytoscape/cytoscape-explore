@@ -176,7 +176,13 @@ export class NetworkEditorController {
    * Delete the selected (i.e. :selected) elements in the graph
    */
   deletedSelectedElements(){
-    const deletedEls = this.cy.$(':selected').remove();
+    let selectedEles = this.cy.$(':selected');
+
+    if( selectedEles.empty() ){
+      selectedEles = this.cy.elements();
+    }
+
+    const deletedEls = selectedEles.remove();
 
     this.bus.emit('deletedSelectedElements', deletedEls);
   }
