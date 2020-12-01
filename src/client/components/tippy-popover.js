@@ -9,7 +9,17 @@ export const TippyPopover = props => (
     trigger="click"
     placement="bottom"
     interactive={true}
-    hideOnClick={true}
+    hideOnClick={false}
+    onClickOutside={(instance, event) => {
+      const isTippy = target => target.closest('.tippy') != null;
+      const isPopover = target => target.closest('.MuiPopover-root') != null;
+
+      if(isTippy(event.target) || isPopover(event.target)){
+        // keep open
+      } else {
+        instance.hide();
+      }
+    }}
     content={props.content} 
     { ...props }>
       { props.children }
