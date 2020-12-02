@@ -11,7 +11,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
+import { Close } from '@material-ui/icons';
 import Popover from '@material-ui/core/Popover';
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
@@ -162,7 +162,7 @@ export class Header extends Component {
                         aria-label="close"
                         onClick={() => this.handleClose()}
                       >
-                        <CancelPresentationIcon />
+                        <Close />
                       </IconButton>
                     </Box>
                     <Divider />

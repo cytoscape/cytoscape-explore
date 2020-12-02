@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { throttle } from 'lodash';
+import { debounce } from 'lodash';
 import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
@@ -11,6 +11,7 @@ import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
+import { DEFAULT_PADDING } from './defaults';
 
 /**
  * We want to save the last used layout options in memory
@@ -21,17 +22,26 @@ const layoutOptions = [
     idealEdgeLength: 50,
     nodeSeparation: 75,
     randomize: true,
-    animate: false
+    animate: false,
+    padding: DEFAULT_PADDING
   },
   {
     name: 'concentric',
     spacingFactor: 1,
+    padding: DEFAULT_PADDING,
+    concentric: node => { // returns numeric value for each node, placing higher nodes in levels towards the centre
+      return node.degree();
+    },
+    levelWidth: () => { // the variation of concentric values in each level
+      return 2;
+    }
   },
   {
     name: 'dagre',
     nodeSep: 50,
     rankSep: 100,
     rankDir: 'TB',
+    padding: DEFAULT_PADDING
   },
 ];
 
@@ -41,7 +51,7 @@ export class LayoutPanel extends Component {
     super(props);
     this.controller = props.controller;
 
-    this.applyLayout = throttle((options) => {
+    this.applyLayout = debounce((options) => {
       this.controller.applyLayout(options);
     }, 250, { leading: true });
 

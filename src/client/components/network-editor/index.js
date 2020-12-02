@@ -69,12 +69,9 @@ export class NetworkEditor extends Component {
         }
       },
       {
-        selector: '.eh-preview, .eh-ghost-edge',
+        selector: 'node.eh-preview',
         style: {
-          'background-color': 'red',
-          'line-color': 'red',
-          'target-arrow-color': 'red',
-          'source-arrow-color': 'red'
+          'overlay-opacity': 0.25
         }
       },
       {
