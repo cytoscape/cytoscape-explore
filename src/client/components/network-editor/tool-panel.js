@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classNames from 'classnames';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
