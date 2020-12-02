@@ -1,6 +1,8 @@
 import React from 'react';
 import SvgIcon from '@material-ui/core/SvgIcon';
 
+/* ====[ LOGOS ]============================================================================== */
+
 export function AppLogoIcon(props) {
   return (
     <SvgIcon {...props}>
@@ -8,6 +10,8 @@ export function AppLogoIcon(props) {
     </SvgIcon>
   );
 }
+
+/* ====[ LAYOUTS ]============================================================================ */
 
 export function CircularLayoutIcon(props) {
   return (
@@ -32,3 +36,80 @@ export function HierarchicalLayoutIcon(props) {
     </SvgIcon>
   );
 }
+
+/* ====[ NODE SHAPES ]======================================================================== */
+
+export function DiamondIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M16,-0 L32,16 L16,32 L-0,16 L16,-0 z" />
+    </SvgIcon>
+  );
+}
+
+export function EllipseIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M16,32 C7.163,32 -0,24.837 -0,16 C-0,7.163 7.163,-0 16,-0 C24.837,-0 32,7.163 32,16 C32,24.837 24.837,32 16,32 z" />
+    </SvgIcon>
+  );
+}
+
+export function HexagonIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M7.917,32 L-0.166,16 L7.917,0 L24.083,0 L32.166,16 L24.083,32 z" />
+    </SvgIcon>
+  );
+}
+
+export function OctagonIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M9.373,32 L0,22.627 L0,9.373 L9.373,0 L22.627,-0 L32,9.373 L32,22.627 L22.627,32 z" />
+    </SvgIcon>
+  );
+}
+
+export function RectangleIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M0,0 L32,0 L32,32 L0,32 L0,0 z" />
+    </SvgIcon>
+  );
+}
+
+export function RhomboidIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M21.68,0 L-0,0 L10.32,32 L32,32 L21.68,0 z" />
+    </SvgIcon>
+  );
+}
+
+export function RoundRectangleIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M8,-0 L24,-0 C28.418,-0 32,3.582 32,8 L32,24 C32,28.418 28.418,32 24,32 L8,32 C3.582,32 -0,28.418 -0,24 L-0,8 C-0,3.582 3.582,-0 8,-0 z" />
+    </SvgIcon>
+  );
+}
+
+export function TriangleIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M0,32 L16,-0 L32,32 z" />
+    </SvgIcon>
+  );
+}
+
+export function VeeIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M32,0 L16,32 L0,0 L32,0 z M32,0 L0,0 L16,11 L32,0 z" />
+    </SvgIcon>
+  );
+}
+
+/* ====[ ARROW SHAPES ]======================================================================= */
+
