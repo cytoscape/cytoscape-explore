@@ -11,39 +11,6 @@ import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
-import { DEFAULT_PADDING } from './defaults';
-
-/**
- * We want to save the last used layout options in memory
- */
-const layoutOptions = [
-  {
-    name: 'fcose',
-    idealEdgeLength: 50,
-    nodeSeparation: 75,
-    randomize: true,
-    animate: false,
-    padding: DEFAULT_PADDING
-  },
-  {
-    name: 'concentric',
-    spacingFactor: 1,
-    padding: DEFAULT_PADDING,
-    concentric: node => { // returns numeric value for each node, placing higher nodes in levels towards the centre
-      return node.degree();
-    },
-    levelWidth: () => { // the variation of concentric values in each level
-      return 2;
-    }
-  },
-  {
-    name: 'dagre',
-    nodeSep: 50,
-    rankSep: 100,
-    rankDir: 'TB',
-    padding: DEFAULT_PADDING
-  },
-];
 
 export class LayoutPanel extends Component {
 
@@ -56,27 +23,33 @@ export class LayoutPanel extends Component {
     }, 250, { leading: true });
 
     const opProps = {
+      controller: this.controller,
       onChange: (options) => this.handleOptionsChange(options),
     };
     const layouts = [
-      // { name: 'cola', label: 'Clustered Cola', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <ColaPanel {...opProps} /> },
-      { label: 'Clustered', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel layoutOptions={layoutOptions[0]} {...opProps} /> },
-      // { name: 'cose', label: 'Clustered COSE', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <CosePanel {...opProps} /> },
-      { label: 'Circular', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel layoutOptions={layoutOptions[1]} {...opProps} /> },
-      { label: 'Hierarchical', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel layoutOptions={layoutOptions[2]} {...opProps} /> },
+      { label: 'Clustered', name: 'fcose', icon: <ClusteredLayoutIcon {...iconProps} />, optionsPanel: <FCosePanel {...opProps} /> },
+      { label: 'Circular', name: 'concentric', icon: <CircularLayoutIcon {...iconProps} />, optionsPanel: <ConcentricPanel {...opProps} /> },
+      { label: 'Hierarchical', name: 'dagre', icon: <HierarchicalLayoutIcon {...iconProps} />, optionsPanel: <DagrePanel {...opProps} /> },
     ];
     this.state = {
-      value: 0,
+      value: 0, // Start with the hidden tab, so it looks like no tab is selected
       layouts: layouts,
     };
   }
 
   handleChange(value, options) {
+    const { layouts } = this.state;
+
     if (value != this.state.value) {
       this.setState({ value: value });
     }
 
-    if (value > 0) {
+    if (value > 0 && value <= layouts.length) {
+      if (options == null) {
+        const { name } = layouts[value - 1]; // Remember that '0' is the hidden tab!
+        options = this.controller.getLayoutOptions(name);
+      }
+      
       this.applyLayout(options);
     }
   }
@@ -94,7 +67,7 @@ export class LayoutPanel extends Component {
         <AppBar position="relative" color="default">
           <Tabs
             value={value}
-            onChange={(e, v) => this.handleChange(v, layoutOptions[v - 1])}
+            onChange={(e, v) => this.handleChange(v)}
             variant="scrollable"
             scrollButtons="on"
             indicatorColor="primary"

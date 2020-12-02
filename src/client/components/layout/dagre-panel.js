@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { NetworkEditorController } from '../network-editor/controller';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -16,10 +17,11 @@ export class DagrePanel extends Component {
 
   constructor(props) {
     super(props);
+    this.controller = props.controller;
+    this.layoutOptions = this.controller.getLayoutOptions('dagre');
     this.state = {
-      rankDir: props.layoutOptions.rankDir,
+      rankDir: this.layoutOptions.rankDir,
     };
-    this.layoutOptions = props.layoutOptions;
   }
 
   handleChange(event, key, newValue) {
@@ -123,8 +125,8 @@ const styles = theme => ({
 
 DagrePanel.propTypes = {
   classes: PropTypes.object.isRequired,
-  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
+  controller: PropTypes.instanceOf(NetworkEditorController),
 };
 
 export default withStyles(styles)(DagrePanel);

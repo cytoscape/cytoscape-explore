@@ -37,6 +37,36 @@ export class NetworkEditorController {
     this.bus = bus || new EventEmitter();
 
     this.drawModeEnabled = false;
+
+    // Save the last used layout options
+    this.layoutOptions = {
+      fcose: {
+        name: 'fcose',
+        idealEdgeLength: 50,
+        nodeSeparation: 75,
+        randomize: true,
+        animate: false,
+        padding: DEFAULT_PADDING
+      },
+      concentric: {
+        name: 'concentric',
+        spacingFactor: 1,
+        padding: DEFAULT_PADDING,
+        concentric: node => { // returns numeric value for each node, placing higher nodes in levels towards the centre
+          return node.degree();
+        },
+        levelWidth: () => { // the variation of concentric values in each level
+          return 2;
+        }
+      },
+      dagre: {
+        name: 'dagre',
+        nodeSep: 50,
+        rankSep: 100,
+        rankDir: 'TB',
+        padding: DEFAULT_PADDING
+      },
+    };
   }
 
   /**
@@ -111,8 +141,23 @@ export class NetworkEditorController {
       this.layout.stop();
     }
 
+    // Save the values of the last used layout options
+    const { name } = options;
+    this.layoutOptions[name] = options;
+    // Apply the layout
     this.layout = this.cy.layout(options);
     this.layout.run();
+  }
+
+  /**
+   * Returns the last used layout options for the passed layout name,
+   * or the default values if the layout has not been applied yet.
+   * @param {String} name the layout algorithm name (not the layout label!)
+   * @return {Any} object with the layout options, including the layout 'name',
+   *               or an empty object if the name is not supported
+   */
+  getLayoutOptions(name) {
+    return Object.assign({}, this.layoutOptions[name]);
   }
 
   /**
