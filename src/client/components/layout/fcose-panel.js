@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { NetworkEditorController } from '../network-editor/controller';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -10,8 +11,8 @@ export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
-
-    this.layoutOptions = Object.assign({}, props.layoutOptions);
+    this.controller = props.controller;
+    this.layoutOptions = this.controller.getLayoutOptions('fcose');
   }
 
   handleChange(event, key, newValue) {
@@ -84,8 +85,8 @@ const styles = theme => ({
 
 FCosePanel.propTypes = {
   classes: PropTypes.object.isRequired,
-  layoutOptions: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
+  controller: PropTypes.instanceOf(NetworkEditorController),
 };
 
 export default withStyles(styles)(FCosePanel);
