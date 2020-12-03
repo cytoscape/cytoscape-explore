@@ -46,7 +46,7 @@ export class ToolPanel extends Component {
           <IconButton size="small" 
             onClick={() => controller.toggleDrawMode()}
             color="inherit" style={{
-              'background-color': controller.drawModeEnabled ? '#bbb' : 'transparent',
+              backgroundColor: controller.drawModeEnabled ? '#bbb' : 'transparent',
               // 'color': controller.drawModeEnabled ? '#fff' : 'inherit'
             }}
           >

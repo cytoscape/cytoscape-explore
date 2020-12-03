@@ -47,33 +47,33 @@ const allShapes = {
   ]
 };
 
-export function ShapeIcon({ type, name, onClick }) {
+export function ShapeIcon({ type, shape, onClick }) {
   const shapes = allShapes[type];
-  const shape = shapes.filter(obj => {
-    return obj.name === name;
+  const shapeObj = shapes.filter(obj => {
+    return obj.name === shape;
   })[0];
 
   return (
-    <Tooltip title={shape.label}>
-      <IconButton size="small" color="inherit" onClick={() => onClick(name)}>
-        {shape.icon}
+    <Tooltip title={shapeObj.label}>
+      <IconButton size="small" color="inherit" onClick={() => onClick(shapeObj.name)}>
+        {shapeObj.icon}
       </IconButton>
     </Tooltip>
   );
 }
 
 ShapeIcon.propTypes = {
-  name: PropTypes.oneOf([
+  type: PropTypes.oneOf('node', 'line', 'arrow'),
+  shape: PropTypes.oneOf([
     'ellipse', 'rectangle', 'round-rectangle', 'rhomboid', 'triangle', 'diamond', 'hexagon', 'octagon', 'vee',
     'solid', 'dotted', 'dashed',
     'none', 'triangle', 'circle', 'square', 'diamond', 'tee', 'triangle-cross',
   ]),
-  type: PropTypes.oneOf('node', 'line', 'arrow'),
   onClick: PropTypes.func,
 };
 ShapeIcon.defaultProps = {
-  name: 'ellipse',
   type: 'node',
+  shape: 'ellipse',
   onClick: () => null
 };
 
