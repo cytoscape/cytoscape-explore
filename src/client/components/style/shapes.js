@@ -1,40 +1,49 @@
 import React from 'react'; //eslint-disable-line
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import { IconButton, Tooltip } from '@material-ui/core';
 import { DiamondIcon, EllipseIcon, HexagonIcon, OctagonIcon, RectangleIcon, RoundRectangleIcon, RhomboidIcon, TriangleIcon, VeeIcon } from '../svg-icons';
+import { CircleArrowIcon, DiamondArrowIcon, NoneArrowIcon, SquareArrowIcon, TeeArrowIcon, TriangleArrowIcon, TriangleCrossArrowIcon } from '../svg-icons';
+import { DashedLineIcon, DottedLineIcon, SolidLineIcon } from '../svg-icons';
 
-const iconProps = {
+
+const nodeIconProps = {
   viewBox: '0 0 32 32',
-  style: { width: 'auto', fontSize: 18, margin: 0 },
+  style: { width: 'auto', fontSize: 24, margin: 0 },
   p: 0,
   m: 0,
 };
 
+/*
+ * NOTE: a) Not all Cy.js shapes are exposed here, but only the ones that are also supported by Cytoscape 3.
+ *       b) The labels are the ones used by Cytoscape 3, in order to keep this app consistent with the Cytoscape ecosystem.
+ */
 const allShapes = {
   node: [
-    { name: 'ellipse', label: 'Ellipse', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'rectangle', label: 'Rectangle', icon: <RectangleIcon {...iconProps} /> },
-    { name: 'round-rectangle', label: 'Round Rectangle', icon: <RoundRectangleIcon {...iconProps} /> },
-    { name: 'triangle', label: 'Triangle', icon: <TriangleIcon {...iconProps} /> },
-    { name: 'diamond', label: 'Diamond', icon: <DiamondIcon {...iconProps} /> },
-    { name: 'hexagon', label: 'Hexagon', icon: <HexagonIcon {...iconProps} /> },
-    { name: 'octagon', label: 'Octagon', icon: <OctagonIcon {...iconProps} /> },
-    { name: 'rhomboid', label: 'Parallelogram', icon: <RhomboidIcon {...iconProps} /> },
-    { name: 'vee', label: 'V', icon: <VeeIcon {...iconProps} /> },
+    { name: 'ellipse', label: 'Ellipse', icon: <EllipseIcon {...nodeIconProps} /> },
+    { name: 'rectangle', label: 'Rectangle', icon: <RectangleIcon {...nodeIconProps} /> },
+    { name: 'round-rectangle', label: 'Round Rectangle', icon: <RoundRectangleIcon {...nodeIconProps} /> },
+    { name: 'triangle', label: 'Triangle', icon: <TriangleIcon {...nodeIconProps} /> },
+    { name: 'diamond', label: 'Diamond', icon: <DiamondIcon {...nodeIconProps} /> },
+    { name: 'hexagon', label: 'Hexagon', icon: <HexagonIcon {...nodeIconProps} /> },
+    { name: 'octagon', label: 'Octagon', icon: <OctagonIcon {...nodeIconProps} /> },
+    { name: 'rhomboid', label: 'Parallelogram', icon: <RhomboidIcon {...nodeIconProps} /> },
+    { name: 'vee', label: 'V', icon: <VeeIcon {...nodeIconProps} /> },
   ],
   line: [
-    { name: 'solid', label: 'Solid', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'dotted', label: 'Dotted', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'dashed', label: 'Dashed', icon: <EllipseIcon {...iconProps} /> },
+    { name: 'solid', label: 'Solid', icon: <SolidLineIcon {...nodeIconProps} /> },
+    { name: 'dotted', label: 'Dots', icon: <DottedLineIcon {...nodeIconProps} /> },
+    { name: 'dashed', label: 'Dash', icon: <DashedLineIcon {...nodeIconProps} /> },
   ],
   arrow: [
-    { name: 'none', label: 'None', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'triangle', label: 'Triangle', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'circle', label: 'Circle', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'square', label: 'Square', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'diamond', label: 'Diamond', icon: <EllipseIcon {...iconProps} /> },
-    { name: 'vee', label: 'V', icon: <EllipseIcon {...iconProps} /> },
+    { name: 'none', label: 'None', icon: <NoneArrowIcon {...nodeIconProps} /> },
+    { name: 'triangle', label: 'Delta', icon: <TriangleArrowIcon {...nodeIconProps} /> },
+    { name: 'circle', label: 'Circle', icon: <CircleArrowIcon {...nodeIconProps} /> },
+    { name: 'square', label: 'Square', icon: <SquareArrowIcon {...nodeIconProps} /> },
+    { name: 'diamond', label: 'Diamond', icon: <DiamondArrowIcon {...nodeIconProps} /> },
+    { name: 'tee', label: 'T', icon: <TeeArrowIcon {...nodeIconProps} /> },
+    { name: 'triangle-cross', label: 'Cross Delta', icon: <TriangleCrossArrowIcon {...nodeIconProps} /> },
   ]
 };
 
@@ -57,7 +66,7 @@ ShapeIcon.propTypes = {
   name: PropTypes.oneOf([
     'ellipse', 'rectangle', 'round-rectangle', 'rhomboid', 'triangle', 'diamond', 'hexagon', 'octagon', 'vee',
     'solid', 'dotted', 'dashed',
-    'none', 'triangle', 'circle', 'square', 'diamond', 'vee',
+    'none', 'triangle', 'circle', 'square', 'diamond', 'tee', 'triangle-cross',
   ]),
   type: PropTypes.oneOf('node', 'line', 'arrow'),
   onClick: PropTypes.func,
@@ -68,13 +77,27 @@ ShapeIcon.defaultProps = {
   onClick: () => null
 };
 
+const StyledToggleButtonGroup = withStyles((theme) => ({
+  grouped: {
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    border: 'none',
+    '&:not(:first-child)': {
+      borderRadius: theme.shape.borderRadius,
+    },
+    '&:first-child': {
+      borderRadius: theme.shape.borderRadius,
+    },
+  },
+}))(ToggleButtonGroup);
 
 export function ShapeIconGroup({ type, selected, onSelect }) {
   const shapes = allShapes[type];
 
   return (
     <div className="shape-icons">
-      <ToggleButtonGroup 
+      <StyledToggleButtonGroup
+        size="small"
         exclusive={true}
         value={selected}
         onChange={(e, v) => onSelect(v)}
@@ -86,7 +109,7 @@ export function ShapeIconGroup({ type, selected, onSelect }) {
             </ToggleButton>
           </Tooltip>
         )}
-      </ToggleButtonGroup>
+      </StyledToggleButtonGroup>
     </div>
   );
 }

@@ -113,3 +113,92 @@ export function VeeIcon(props) {
 
 /* ====[ ARROW SHAPES ]======================================================================= */
 
+export function CircleArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M24,8 C28.418,8 32,11.582 32,16 C32,20.418 28.418,24 24,24 C20.159,23.988 16.913,21.231 16.15,17.5 L0,17.5 L0,14.5 L16.15,14.5 C16.893,10.658 20.138,8.098 24,8 z" />
+    </SvgIcon>
+  );
+}
+
+export function DiamondArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M24,8 L32,16 L24,24 L17.5,17.5 L-0,17.5 L-0,14.5 L17.5,14.5 L24,8 z" />
+    </SvgIcon>
+  );
+}
+
+export function NoneArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M-0,14.5 L32,14.5 L32,17.5 L-0,17.5 L-0,14.5 z" />
+    </SvgIcon>
+  );
+}
+
+export function SquareArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M16,24 L16,17.5 L0,17.5 L0,14.5 L16,14.5 L16,8 L32,8 L32,24 L16,24 z" />
+    </SvgIcon>
+  );
+}
+
+export function TeeArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M29,8 L29,24 L24,24 L24,17.5 L0,17.5 L0,14.5 L24,14.5 L24,8 L29,8 z" />
+    </SvgIcon>
+  );
+}
+
+export function TriangleArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M18,8 L32,16 L18,24 L18,17.5 L-0,17.5 L-0,14.5 L18,14.5 L18,8 z" />
+    </SvgIcon>
+  );
+}
+
+export function TriangleCrossArrowIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M13.5,8 L13.5,14.5 L18,14.5 L18,8 L32,16 L18,24 L18,17.5 L13.5,17.5 L13.5,24 L10.5,24 L10.5,17.5 L0,17.5 L0,14.5 L10.5,14.5 L10.5,8 L13.5,8 z" />
+    </SvgIcon>
+  );
+}
+
+/* ====[ LINE STYLES ]======================================================================== */
+
+export function DashedLineIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M29.789,0.09 L31.91,2.211 L24.839,9.282 L22.718,7.161 L29.789,0.09 z" />
+      <path d="M7.161,22.718 L9.282,24.839 L2.211,31.91 L0.09,29.789 L7.161,22.718 z" />
+      <path d="M18.475,11.404 L20.596,13.525 L13.525,20.596 L11.404,18.475 L18.475,11.404 z" />
+    </SvgIcon>
+  );
+}
+
+export function DottedLineIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M3.272,26.607 L5.393,28.728 L3.272,30.849 L1.151,28.728 L3.272,26.607 z" />
+      <path d="M7.515,22.364 L9.636,24.485 L7.515,26.607 L5.393,24.485 L7.515,22.364 z" />
+      <path d="M11.757,18.121 L13.879,20.243 L11.757,22.364 L9.636,20.243 L11.757,18.121 z" />
+      <path d="M16,13.879 L18.121,16 L16,18.121 L13.879,16 L16,13.879 z" />
+      <path d="M20.243,9.636 L22.364,11.757 L20.243,13.879 L18.121,11.757 L20.243,9.636 z" />
+      <path d="M24.485,5.393 L26.607,7.515 L24.485,9.636 L22.364,7.515 L24.485,5.393 z" />
+      <path d="M28.728,1.151 L30.849,3.272 L28.728,5.393 L26.607,3.272 L28.728,1.151 z" />
+    </SvgIcon>
+  );
+}
+
+export function SolidLineIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M0.09,29.789 L29.789,0.09 L31.91,2.211 L2.211,31.91 L0.09,29.789 z" />
+    </SvgIcon>
+  );
+}
