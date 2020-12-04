@@ -112,7 +112,7 @@ export function ShapeIconGroup({ type, selected, onSelect }) {
 
 ShapeIconGroup.propTypes = {
   type: ShapeIcon.propTypes.type,
-  selected: ShapeIcon.propTypes.name,
+  selected: ShapeIcon.propTypes.shape,
   onSelect: PropTypes.func,
 };
 ShapeIconGroup.defaultProps = {
