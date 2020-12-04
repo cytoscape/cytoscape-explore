@@ -5,7 +5,7 @@ import { ColorSwatch, ColorSwatches, ColorGradients } from '../style/colors';
 import { SizeSlider, SizeGradients } from '../style/sizes';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { LabelInput } from '../style/labels';
-import { Button } from '@material-ui/core';
+import { Button, Divider } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 
@@ -195,6 +195,8 @@ export class StylePanel extends Component {
             controller.setNumberDiscreteMapping('node', 'border-width',  attribute, valueMap);
           }}
         />
+
+        <Divider orientation="vertical" style={{marginLeft: '0.5em', marginRight: '0.5em'}} flexItem />
 
         <StylePickerButton 
           title="Edge Color"

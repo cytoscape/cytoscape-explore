@@ -3,7 +3,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 import Tooltip from '@material-ui/core/Tooltip';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Divider } from '@material-ui/core';
 
 export class ToolPanel extends Component {
   constructor(props){
@@ -29,7 +29,7 @@ export class ToolPanel extends Component {
       <div className="tool-panel">
         <Tooltip arrow placement="right" title="Add node">
           <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
-            <i className="material-icons">lens</i>
+            <i className="material-icons">add_circle</i>
           </IconButton>
         </Tooltip>
         <Tooltip arrow placement="right" title="Draw edge">
@@ -50,12 +50,13 @@ export class ToolPanel extends Component {
               // 'color': controller.drawModeEnabled ? '#fff' : 'inherit'
             }}
           >
-            <i className="material-icons icon-rot-330">arrow_forward</i>
+            <i className="material-icons icon-rot-330">call_made</i>
           </IconButton>
         </Tooltip>
+        <Divider style={{height: '1px', marginTop: '0.25em', marginBottom: '0.25em'}} flexItem />
         <Tooltip arrow placement="right" title="Delete selected">
           <IconButton size="small" color="inherit" onClick={() => controller.deletedSelectedElements()}>
-            <i className="material-icons">close</i>
+            <i className="material-icons">delete_forever</i>
           </IconButton>
         </Tooltip>
       </div>
