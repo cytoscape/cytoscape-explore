@@ -49,9 +49,7 @@ const allShapes = {
 
 export function ShapeIcon({ type, shape, onClick }) {
   const shapes = allShapes[type];
-  const shapeObj = shapes.filter(obj => {
-    return obj.name === shape;
-  })[0];
+  const shapeObj = shapes.filter(obj => obj.name === shape)[0];
 
   return (
     <Tooltip title={shapeObj.label}>
@@ -95,22 +93,20 @@ export function ShapeIconGroup({ type, selected, onSelect }) {
   const shapes = allShapes[type];
 
   return (
-    <div className="shape-icons">
-      <StyledToggleButtonGroup
-        size="small"
-        exclusive={true}
-        value={selected}
-        onChange={(e, v) => onSelect(v)}
-      >
-        {shapes.map(shape =>
-          <Tooltip title={shape.label} key={`tooltip-${shape.name}`}>
-            <ToggleButton value={shape.name} key={shape.name} selected={shape.name === selected}>
-              {shape.icon}
-            </ToggleButton>
-          </Tooltip>
-        )}
-      </StyledToggleButtonGroup>
-    </div>
+    <StyledToggleButtonGroup
+      size="small"
+      exclusive={true}
+      value={selected}
+      onChange={(e, v) => onSelect(v)}
+    >
+      {shapes.map(shape =>
+        <Tooltip title={shape.label} key={`tooltip-${shape.name}`}>
+          <ToggleButton value={shape.name} key={shape.name} selected={shape.name === selected}>
+            {shape.icon}
+          </ToggleButton>
+        </Tooltip>
+      )}
+    </StyledToggleButtonGroup>
   );
 }
 
