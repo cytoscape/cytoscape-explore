@@ -11,3 +11,4 @@ export const NODE_ENV = process.env.NODE_ENV;
 export const PORT = parseInt(process.env.PORT, 10);
 export const LOG_LEVEL = process.env.LOG_LEVEL;
 export const COUCHDB_URL = process.env.COUCHDB_URL;
+export const BASE_URL = process.env.BASE_URL;
