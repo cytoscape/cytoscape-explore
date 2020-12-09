@@ -375,6 +375,9 @@ export class CytoscapeSyncher {
    */
   destroy(){
     this.removeListeners();
+
+    this.localDb.close();
+    this.remoteDb.close();
   }
 }
 
