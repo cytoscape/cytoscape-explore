@@ -89,9 +89,21 @@ export class CytoscapeSyncher {
       data: _.clone(cy.data())
     };
 
-    const putRes = await localDb.put(_.clone(doc));
+    const putRes = await localDb.put(doc);
 
     this.cy.scratch({ rev: putRes.rev });
+
+    this.cy.elements().forEach(async ele => {
+      const doc = {
+        _id: ele.id(),
+        data: _.clone(ele.data()),
+        position: _.clone(ele.position())
+      };
+
+      const putRes = await localDb.put(doc);
+
+      ele.scratch({ rev: putRes.rev });
+    });
 
     // do initial, one-way synch from local db to server db
     const info = await localDb.replicate.to(remoteDb);
