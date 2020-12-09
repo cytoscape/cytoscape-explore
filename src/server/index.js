@@ -112,4 +112,4 @@ function onListening() {
   debugLog('Listening on ' + bind);
 }
 
-module.exports = app;
+export default app;

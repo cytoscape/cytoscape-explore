@@ -15,4 +15,5 @@ if( NODE_ENV !== 'production' ){
   });
 }
 
-module.exports = router;
+export default router;
+
