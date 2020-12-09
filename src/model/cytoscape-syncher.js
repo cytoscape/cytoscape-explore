@@ -37,6 +37,7 @@ export class CytoscapeSyncher {
 
     this.enabled = false;
     this.loadedOrCreated = false;
+    this.listenersAdded = false;
 
     this.cy = cy;
     this.secret = secret;
@@ -175,8 +176,11 @@ export class CytoscapeSyncher {
    * @private
    */
   addListeners(){
+    if(this.listenersAdded){ return; }
+
     this.dirtyEles = this.cy.collection();
     this.dirtyCy = false;
+    this.listenersAdded = true;
 
     const ignoreTargetEle = target => (
       target.hasClass('eh-handle')
@@ -361,12 +365,18 @@ export class CytoscapeSyncher {
    * @private
    */
   removeListeners(){
+    if(!this.listenersAdded){ return; }
+
     this.cyEmitter.removeAllListeners();
 
-    this.synchHandler.cancel();
-    this.synchHandler.removeAllListeners();
+    if(this.synchHandler){
+      this.synchHandler.cancel();
+      this.synchHandler.removeAllListeners();
+    }
 
     clearTimeout(this.synchTimeout);
+
+    this.listenersAdded = false;
   }
 
   /**
