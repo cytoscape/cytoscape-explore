@@ -20,6 +20,8 @@ export class NetworkEditor extends Component {
   constructor(props){
     super(props);
 
+    const id = _.get(props, ['match', 'params', 'id']);
+
     this.bus = new EventEmitter();
 
     this.cy = new Cytoscape({
@@ -30,7 +32,7 @@ export class NetworkEditor extends Component {
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
     // use placeholder id and secret for now...
-    this.cy.data({ id: 'networkid', name: 'New Network' });
+    this.cy.data({ id, name: 'New Network' });
 
     this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
 
@@ -219,7 +221,8 @@ class NetworkBackground extends Component {
 }
 
 NetworkBackground.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController)
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  match: PropTypes.object
 };
 
 export default NetworkEditor; 
