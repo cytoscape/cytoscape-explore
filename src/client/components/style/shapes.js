@@ -61,7 +61,7 @@ export function ShapeIcon({ type, shape, onClick }) {
 }
 
 ShapeIcon.propTypes = {
-  type: PropTypes.oneOf('node', 'line', 'arrow'),
+  type: PropTypes.oneOf(['node', 'line', 'arrow']),
   shape: PropTypes.oneOf([
     'ellipse', 'rectangle', 'round-rectangle', 'rhomboid', 'triangle', 'diamond', 'hexagon', 'octagon', 'vee',
     'solid', 'dotted', 'dashed',
