@@ -14,11 +14,14 @@ import stream from 'stream';
 import { NODE_ENV, PORT, COUCHDB_URL } from './env';
 import indexRouter from './routes/index';
 import apiRouter from './routes/api';
+import { registerCytoscapeExtensions } from '../model/cy-extensions';
 
 import PouchDB from 'pouchdb';
 import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 
+// extensions/plugins
 PouchDB.plugin(PouchDBMemoryAdapter);
+registerCytoscapeExtensions();
 
 const debugLog = debug('cytoscape-home:server');
 const app = express();
