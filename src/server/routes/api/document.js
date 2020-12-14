@@ -23,9 +23,8 @@ const postNetwork = async (importBody, req, res, next) => {
     const id = makeNetworkId();
     const cy = new Cytoscape();
 
-    cy.data({ id });
-
     importBody(cy, body);
+    cy.data({ id });
 
     const cySyncher = new CytoscapeSyncher(cy, 'secret');
 
