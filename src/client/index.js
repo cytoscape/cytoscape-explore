@@ -4,7 +4,7 @@ import debug from './debug';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router } from './router';
-import { registerCytoscapeExtensions } from './cy';
+import { registerCytoscapeExtensions } from '../model/cy-extensions';
 
 PouchDB.plugin(PouchDBMemoryAdapter);
 

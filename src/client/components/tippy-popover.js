@@ -22,13 +22,15 @@ export const TippyPopover = props => (
     }}
     content={props.content} 
     { ...props }>
-      { props.children }
+      <div>
+        { props.children }
+      </div>
   </Tippy>
 );
 
 TippyPopover.propTypes = {
-  content: PropTypes.Component,
-  children: PropTypes.Component
+  content: PropTypes.element,
+  children: PropTypes.any
 };
 
 export default TippyPopover;

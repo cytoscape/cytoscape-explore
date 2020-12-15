@@ -20,6 +20,7 @@ import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
+import uuid from 'uuid';
 
 
 /**
@@ -93,6 +94,11 @@ export class Header extends Component {
     this.busProxy.removeAllListeners();
   }
 
+  // temp: should be somewhere else, e.g. in network management page
+  createNewNetwork(){
+    window.open(`/document/cy${uuid()}`);
+  }
+
   render() {
     const { networkName, anchorEl, menuName, dialogName } = this.state;
     const cy = this.controller.cy;
@@ -140,6 +146,7 @@ export class Header extends Component {
                   <MenuList>
                     <MenuItem disabled={cy.nodes().length === 0} onClick={() => this.showDialog('layout', 'main')}>Layout</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
+                    <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                   </MenuList>
                 )}
                 {dialogName === 'layout' && (

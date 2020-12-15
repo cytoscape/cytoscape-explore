@@ -37,6 +37,7 @@ export class CytoscapeSyncher {
 
     this.enabled = false;
     this.loadedOrCreated = false;
+    this.listenersAdded = false;
 
     this.cy = cy;
     this.secret = secret;
@@ -88,9 +89,21 @@ export class CytoscapeSyncher {
       data: _.clone(cy.data())
     };
 
-    const putRes = await localDb.put(_.clone(doc));
+    const putRes = await localDb.put(doc);
 
     this.cy.scratch({ rev: putRes.rev });
+
+    this.cy.elements().forEach(async ele => {
+      const doc = {
+        _id: ele.id(),
+        data: _.clone(ele.data()),
+        position: _.clone(ele.position())
+      };
+
+      const putRes = await localDb.put(doc);
+
+      ele.scratch({ rev: putRes.rev });
+    });
 
     // do initial, one-way synch from local db to server db
     const info = await localDb.replicate.to(remoteDb);
@@ -175,8 +188,11 @@ export class CytoscapeSyncher {
    * @private
    */
   addListeners(){
+    if(this.listenersAdded){ return; }
+
     this.dirtyEles = this.cy.collection();
     this.dirtyCy = false;
+    this.listenersAdded = true;
 
     const ignoreTargetEle = target => (
       target.hasClass('eh-handle')
@@ -361,12 +377,18 @@ export class CytoscapeSyncher {
    * @private
    */
   removeListeners(){
+    if(!this.listenersAdded){ return; }
+
     this.cyEmitter.removeAllListeners();
 
-    this.synchHandler.cancel();
-    this.synchHandler.removeAllListeners();
+    if(this.synchHandler){
+      this.synchHandler.cancel();
+      this.synchHandler.removeAllListeners();
+    }
 
     clearTimeout(this.synchTimeout);
+
+    this.listenersAdded = false;
   }
 
   /**
@@ -375,6 +397,9 @@ export class CytoscapeSyncher {
    */
   destroy(){
     this.removeListeners();
+
+    this.localDb.close();
+    this.remoteDb.close();
   }
 }
 

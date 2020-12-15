@@ -8,9 +8,20 @@ import debug from 'debug';
 import http from 'http';
 import logger from './logger';
 import fs from 'fs';
-import { NODE_ENV, PORT, COUCHDB_URL } from './env';
 import proxy from 'express-http-proxy';
 import stream from 'stream';
+
+import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT } from './env';
+import indexRouter from './routes/index';
+import apiRouter from './routes/api';
+import { registerCytoscapeExtensions } from '../model/cy-extensions';
+
+import PouchDB from 'pouchdb';
+import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
+
+// extensions/plugins
+PouchDB.plugin(PouchDBMemoryAdapter);
+registerCytoscapeExtensions();
 
 const debugLog = debug('cytoscape-home:server');
 const app = express();
@@ -45,12 +56,13 @@ app.use(morgan('dev', {
 // proxy requests under /db to the CouchDB server
 app.use('/db', proxy(COUCHDB_URL));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: UPLOAD_LIMIT }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../..', 'public')));
 
-app.use('/', require('./routes/index'));
+app.use('/api', apiRouter);
+app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res) {
@@ -112,4 +124,4 @@ function onListening() {
   debugLog('Listening on ' + bind);
 }
 
-module.exports = app;
+export default app;

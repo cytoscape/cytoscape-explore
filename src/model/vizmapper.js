@@ -1,8 +1,11 @@
 import { CytoscapeSyncher } from './cytoscape-syncher'; // eslint-disable-line
-import { StyleStruct } from './style'; // eslint-disable-line
 import { MAPPING, STYLE_TYPE, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists, getFlatStyleForEle, PROPERTY_TYPE } from './style';
 import _ from 'lodash';
 import { EventEmitterProxy } from './event-emitter-proxy';
+
+/**
+ * @typedef {import('./style').StyleStruct} StyleStruct
+ */
 
 const NODE_SELECTOR = 'node';
 const EDGE_SELECTOR = 'edge';

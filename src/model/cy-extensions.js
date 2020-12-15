@@ -1,6 +1,6 @@
 import Cytoscape from 'cytoscape';
 import edgehandles from 'cytoscape-edgehandles';
-import VizMapper from '../model/vizmapper';
+import VizMapper from './vizmapper';
 import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
 import cola from 'cytoscape-cola';

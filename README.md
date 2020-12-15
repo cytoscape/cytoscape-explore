@@ -53,6 +53,8 @@ The following environment variables can be used to configure the server:
 - `COUCHDB_URL` : the URL of the CouchDB instance that the server should permanently store its data
 - `LOG_SYNC` : log CouchDB operations when set to `true`
 - `LOG_VIZMAPPER` : log VizMapper operations when set to `true`
+- `BASE_URL` : the base url of the server (e.g. `https://example.com`)
+- `UPLOAD_LIMIT` : max network upload size (e.g. `20kb`)
 
 
 ## Run targets
