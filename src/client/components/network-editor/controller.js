@@ -251,7 +251,15 @@ export class NetworkEditorController {
   }
 
   /**
-   * 
+   * Returns true if there are 1 or more elements selected.
+   * @param {String} selector The cyjs selector, 'node' or 'edge'.
+   */
+  isBypassing(selector) {
+    const selected = this.cy.$(selector+':selected');
+    return !selected.empty();
+  }
+
+  /**
    * @param {String} selector The cyjs selector, 'node' or 'edge'.
    * @param {String} attribute The data attribute name.
    */
@@ -292,7 +300,12 @@ export class NetworkEditorController {
    * @param {(Color|String)} color The color to set
    */
   setColor(selector, property, color) {
-    this.vizmapper.set(selector, property, styleFactory.color(color));
+    const selected = this.cy.$(selector+':selected');
+    if(!selected.empty())
+      this.vizmapper.bypass(selected, property, styleFactory.color(color));
+    else
+      this.vizmapper.set(selector, property, styleFactory.color(color));
+    console.log("okay");
     this.bus.emit('setColor', selector, property, color);
   }
 
@@ -333,7 +346,11 @@ export class NetworkEditorController {
    * @param {Number} value The value to set
    */
   setNumber(selector, property, value) {
-    this.vizmapper.set(selector, property, styleFactory.number(value));
+    const selected = this.cy.$(selector+':selected');
+    if(!selected.empty())
+      this.vizmapper.bypass(selected, property, styleFactory.number(value));
+    else
+      this.vizmapper.set(selector, property, styleFactory.number(value));
     this.bus.emit('setNumber', selector, property, value);
   }
 
@@ -376,7 +393,11 @@ export class NetworkEditorController {
    * @param {Number} text The value to set
    */
   setString(selector, property, text) {
-    this.vizmapper.set(selector, property, styleFactory.string(text));
+    const selected = this.cy.$(selector+':selected');
+    if(!selected.empty())
+      this.vizmapper.bypass(selected, property, styleFactory.string(text));
+    else
+      this.vizmapper.set(selector, property, styleFactory.string(text));
     this.bus.emit('setString', selector, property, text);
   }
 

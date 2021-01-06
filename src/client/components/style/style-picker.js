@@ -13,7 +13,8 @@ import { MAPPING } from '../../../model/style';
 
 const TAB = {
   VALUE: 'VALUE',
-  MAPPING: 'MAPPING'
+  MAPPING: 'MAPPING',
+  BYPASSING: 'BYPASSING'
 };
 
 export class StylePicker extends React.Component { 
@@ -39,12 +40,27 @@ export class StylePicker extends React.Component {
     };
   }
 
+
   onShow() {
+    this.setState({ initialized: true });
+
+    if(this.controller.isBypassing(this.props.selector)) {
+      this.setState({ 
+        tab: TAB.BYPASSING,
+        style: {
+          mapping: MAPPING.VALUE,
+          discreteValue: {},
+        }
+      });
+      return;
+    }
+
     const style = this.props.getStyle();
+
     this.setState({ 
-      initialized: true,
       tab: style.mapping == MAPPING.VALUE ? TAB.VALUE : TAB.MAPPING
     });
+
     switch(style.mapping) {
       case MAPPING.VALUE:
         this.setState({ style: {
@@ -130,6 +146,7 @@ export class StylePicker extends React.Component {
     return this.renderTabs();
   }
 
+
   renderTabs() {
     return (
       <div className="style-picker">
@@ -137,15 +154,20 @@ export class StylePicker extends React.Component {
           <div className="style-picker-heading">
             {this.props.title || "Visual Property"}
           </div>
-          <BottomNavigation
-            value={this.state.tab}
-            onChange={(event, tab) => this.handleTabChange(tab)}
-            showLabels >
-            <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
-            <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
-          </BottomNavigation>
+          { (this.state.tab === TAB.BYPASSING)
+            ? <div>
+                Setting style bypass
+              </div>
+            : <BottomNavigation
+                value={this.state.tab}
+                onChange={(event, tab) => this.handleTabChange(tab)}
+                showLabels >
+                <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
+                <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
+              </BottomNavigation>
+          }
         </Paper>
-        { this.state.tab === TAB.VALUE
+        { this.state.tab === TAB.VALUE || this.state.tab === TAB.BYPASSING
           ? this.renderSubComponentValue()
           : this.renderMapping()
         }

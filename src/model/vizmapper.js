@@ -176,7 +176,7 @@ export class VizMapper {
       assertPropertyIsSupported(property);
       assertValueIsSupported(value, property);
 
-      if( value.type !== MAPPING.VALUE ){
+      if( value.mapping !== MAPPING.VALUE ){
         throw new Error(`Can't set a bypass to a mapper`);
       }
 
