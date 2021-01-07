@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { BottomNavigation, BottomNavigationAction } from "@material-ui/core";
-import { Paper, Tooltip, Popover } from "@material-ui/core";
+import { Paper, Tooltip, Popover, Button } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
@@ -43,14 +43,16 @@ export class StylePicker extends React.Component {
 
   onShow() {
     this.setState({ initialized: true });
+    const numSelected = this.controller.bypassCount(this.props.selector);
 
-    if(this.controller.isBypassing(this.props.selector)) {
+    if(numSelected > 0) {
       this.setState({ 
         tab: TAB.BYPASSING,
         style: {
           mapping: MAPPING.VALUE,
           discreteValue: {},
-        }
+        },
+        numSelected
       });
       return;
     }
@@ -139,35 +141,63 @@ export class StylePicker extends React.Component {
     this.onStyleChanged(change.style);
   }
 
-
   render() {
     if(!this.state.initialized)
       return null;
-    return this.renderTabs();
+    else if(this.state.tab === TAB.BYPASSING)
+      return this.renderBypass();
+    else
+      return this.renderTabs();
   }
 
+  renderHeader() {
+    return (
+      <div className="style-picker-heading">
+        {this.props.title || "Visual Property"}
+      </div>
+    );
+  }
+
+  renderBypass() {
+    const { numSelected } = this.state;
+    const element = numSelected == 1
+      ? this.props.selector == 'node' ? "node" : "edge"
+      : this.props.selector == 'node' ? "nodes" : "edges";
+
+    return (
+      <div className="style-picker">
+        <Paper>
+          { this.renderHeader() }
+          <div>
+            Setting style bypass for {numSelected} selected {element}
+          </div>
+        </Paper>
+        { this.renderSubComponentValue() }
+        <div style={{ paddingBottom:'15px' }}>
+          <Button 
+            variant="contained"
+            onClick={() => this.props.onValueSet(null)}>
+            Remove Bypass
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   renderTabs() {
     return (
       <div className="style-picker">
         <Paper>
-          <div className="style-picker-heading">
-            {this.props.title || "Visual Property"}
-          </div>
-          { (this.state.tab === TAB.BYPASSING)
-            ? <div>
-                Setting style bypass
-              </div>
-            : <BottomNavigation
-                value={this.state.tab}
-                onChange={(event, tab) => this.handleTabChange(tab)}
-                showLabels >
-                <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
-                <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
-              </BottomNavigation>
-          }
+          { this.renderHeader() }
+          <BottomNavigation
+            value={this.state.tab}
+            onChange={(event, tab) => this.handleTabChange(tab)}
+            showLabels >
+            <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
+            <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
+          </BottomNavigation>
         </Paper>
-        { this.state.tab === TAB.VALUE || this.state.tab === TAB.BYPASSING
+        { this.state.tab === TAB.VALUE
           ? this.renderSubComponentValue()
           : this.renderMapping()
         }

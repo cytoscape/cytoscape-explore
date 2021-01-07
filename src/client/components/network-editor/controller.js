@@ -254,9 +254,9 @@ export class NetworkEditorController {
    * Returns true if there are 1 or more elements selected.
    * @param {String} selector The cyjs selector, 'node' or 'edge'.
    */
-  isBypassing(selector) {
+  bypassCount(selector) {
     const selected = this.cy.$(selector+':selected');
-    return !selected.empty();
+    return selected.size();
   }
 
   /**
@@ -297,15 +297,14 @@ export class NetworkEditorController {
    * Set a color propetry of all elements to single color.
    * @param {String} selector 'node' or 'edge'
    * @param {String} property a style property that expects a color value, such as 'background-color'
-   * @param {(Color|String)} color The color to set
+   * @param {(Color|String)} color The color to set, or null to clear the style.
    */
   setColor(selector, property, color) {
     const selected = this.cy.$(selector+':selected');
     if(!selected.empty())
-      this.vizmapper.bypass(selected, property, styleFactory.color(color));
+      this.vizmapper.bypass(selected, property, color == null ? null : styleFactory.color(color));
     else
       this.vizmapper.set(selector, property, styleFactory.color(color));
-    console.log("okay");
     this.bus.emit('setColor', selector, property, color);
   }
 
@@ -348,7 +347,7 @@ export class NetworkEditorController {
   setNumber(selector, property, value) {
     const selected = this.cy.$(selector+':selected');
     if(!selected.empty())
-      this.vizmapper.bypass(selected, property, styleFactory.number(value));
+      this.vizmapper.bypass(selected, property, value == null ? null : styleFactory.number(value));
     else
       this.vizmapper.set(selector, property, styleFactory.number(value));
     this.bus.emit('setNumber', selector, property, value);
@@ -395,7 +394,7 @@ export class NetworkEditorController {
   setString(selector, property, text) {
     const selected = this.cy.$(selector+':selected');
     if(!selected.empty())
-      this.vizmapper.bypass(selected, property, styleFactory.string(text));
+      this.vizmapper.bypass(selected, property, text == null ? null : styleFactory.string(text));
     else
       this.vizmapper.set(selector, property, styleFactory.string(text));
     this.bus.emit('setString', selector, property, text);

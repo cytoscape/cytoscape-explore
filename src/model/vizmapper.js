@@ -32,6 +32,12 @@ const assertPropertyIsSupported = (property, selector) => {
   }
 };
 
+const assertBypassValueIsSupported = (value, property) => {
+  if(value !== null) {
+    assertValueIsSupported(value, property);
+  }
+};
+
 const assertValueIsSupported = (value, property) => {
   if(value.type == null){
     throw new Error(`A style value must be generated from the 'styleFactory'.  This value object is invalid, as it's missing the 'type' field.`);
@@ -171,20 +177,22 @@ export class VizMapper {
    * @returns {StyleStruct} The current style (when `value` is unspecified)
    */
   bypass(eles, property, value){
-    if(value){
+    if(value || value === null) {
       assertElesNonempty(eles);
       assertPropertyIsSupported(property);
-      assertValueIsSupported(value, property);
+      assertBypassValueIsSupported(value, property);
 
-      if( value.mapping !== MAPPING.VALUE ){
+      if(value !== null && value.mapping !== MAPPING.VALUE) {
         throw new Error(`Can't set a bypass to a mapper`);
       }
 
       const _bypasses = this.cy.data('_bypasses') || {};
       const ids = eles.map(ele => ele.id());
-      const setBypassForId = id => _.set(_bypasses, [id, property], value);
 
-      ids.forEach(setBypassForId);
+      if(value === null)
+        ids.forEach(id => _.unset(_bypasses, [id, property]));
+      else
+        ids.forEach(id => _.set(_bypasses, [id, property], value));
 
       // store synched data
       this.cy.data({ _bypasses });
