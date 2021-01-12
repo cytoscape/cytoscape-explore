@@ -10,7 +10,7 @@
 ## Getting started
 
 - Windows Cloning
-  - The `build` directory includes symlinks, which most versions of Windows Git will not correctly clone by default. Make sure to clone using the following command:
+  - The `public` directory includes symlinks, which most versions of Windows Git will not correctly clone by default. Make sure to clone using the following command:
     - `git clone -c core.symlinks=true https://github.com/cytoscape/cytoscape-explore.git` 
 
 - Prerequisites:
