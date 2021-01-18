@@ -1,0 +1,18 @@
+version: "3"
+services:
+  cytoscapeexplore:
+    build: .
+    ports:
+      - "12345:3000"
+    environment:
+      NODE_ENV: production
+      COUCHDB_URL: "http://couchdb:5984"
+    depends_on: 
+      - couchdb
+    links:
+      - couchdb
+  couchdb:
+    image: "couchdb:2.3.1"
+    container_name: 'my-couchdb'
+    ports:
+      - "5984:5984"
