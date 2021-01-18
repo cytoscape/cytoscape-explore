@@ -15,12 +15,22 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../../theme';
 import { DEFAULT_PADDING } from '../layout/defaults';
+import uuid from 'uuid';
 
 export class NetworkEditor extends Component {
   constructor(props){
     super(props);
 
     const id = _.get(props, ['match', 'params', 'id']);
+    let secret = _.get(props, ['match', 'params', 'secret']);
+
+    const specifiedSecret = secret != null;
+
+    if (secret == null && id === 'demo') {
+      secret = 'demo';
+    } else if (!specifiedSecret){
+      secret = uuid();
+    }
 
     this.bus = new EventEmitter();
 
@@ -31,10 +41,9 @@ export class NetworkEditor extends Component {
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    // use placeholder id and secret for now...
     this.cy.data({ id, name: 'New Network' });
 
-    this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
+    this.cySyncher = new CytoscapeSyncher(this.cy, secret);
 
     this.controller = new NetworkEditorController(this.cy, this.cySyncher, this.bus);
 
@@ -94,14 +103,21 @@ export class NetworkEditor extends Component {
     const enableSync = async () => {
       try {
         await this.cySyncher.load();
+        await this.cySyncher.enable();
 
         this.cy.fit(DEFAULT_PADDING);
       } catch(err){
         if( err instanceof DocumentNotFoundError ){
+          if (!specifiedSecret) {
+            // relace url with one that includes the secret
+            this.props.history.replace(`/document/${id}/${secret}`);
+          } 
+
           await this.cySyncher.create();
+          await this.cySyncher.enable();
+        } else {
+          console.error(`Could not load or create document`, err);
         }
-      } finally {
-        await this.cySyncher.enable();
       }
     };
 
@@ -167,7 +183,7 @@ export class NetworkEditor extends Component {
     this.cyEmitter.removeAllListeners();
 
     // disable live synch for now...
-    // this.cySyncher.destroy();
+    this.cySyncher.destroy();
 
     this.cy.destroy();
 
@@ -193,6 +209,10 @@ export class NetworkEditor extends Component {
     );
   }
 }
+
+NetworkEditor.propTypes = {
+  history: PropTypes.any
+};
 
 class NetworkBackground extends Component {
   constructor(props){

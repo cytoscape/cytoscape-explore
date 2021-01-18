@@ -22,21 +22,21 @@ const postNetwork = async (importBody, req, res, next) => {
     const body = req.body;
     const id = makeNetworkId();
     const cy = new Cytoscape();
+    const secret = uuid();
+    const publicUrl = `${BASE_URL}/document/${id}`;
+    const privateUrl = `${publicUrl}/secret`;
 
     importBody(cy, body);
     cy.data({ id });
 
-    const cySyncher = new CytoscapeSyncher(cy, 'secret');
+    const cySyncher = new CytoscapeSyncher(cy, secret);
 
     await cySyncher.create();
 
     cySyncher.destroy();
     cy.destroy();
 
-    res.send({
-      id,
-      url: `${BASE_URL}/document/${id}`
-    });
+    res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
   } catch(err) {
     next(err);
   }
@@ -56,7 +56,7 @@ const getNetwork = async (exportCy, req, res, next) => {
 
     cy.data({ id });
 
-    const cySyncher = new CytoscapeSyncher(cy, 'secret');
+    const cySyncher = new CytoscapeSyncher(cy);
 
     await cySyncher.load();
 

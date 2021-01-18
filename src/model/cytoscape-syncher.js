@@ -1,6 +1,6 @@
 import { EventEmitterProxy } from './event-emitter-proxy';
 import EventEmitter from 'eventemitter3';
-import { isClient } from '../util';
+import { isClient, isServer } from '../util';
 import PouchDB  from 'pouchdb';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
@@ -8,6 +8,10 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 
 const PORT = process.env.PORT;
 const SYNC_INTERVAL = 400;
+
+const COUCHDB_USER = process.env.COUCHDB_USER;
+const COUCHDB_PASSWORD = process.env.COUCHDB_PASSWORD;
+const USE_COUCH_AUTH = ('' + process.env.USE_COUCH_AUTH).toLowerCase() === 'true';
 
 const LOG_SYNC = process.env.LOG_POUCH_DB === 'true';
 const log = LOG_SYNC ? console.log : _.noop;
@@ -45,14 +49,33 @@ export class CytoscapeSyncher {
     this.docId = networkId;
     this.networkId = networkId;
 
+    // always use 'demo' as secret for 'demo' document
+    if (this.docId === 'demo') {
+      this.secret = 'demo';
+    }
+
     this.emitter = new EventEmitter();
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
-
     const pouchOrigin = isClient() ? location.origin : `http://localhost:${PORT}`;
+    
+    const remotePouchOptions = {
+      fetch: (url, opts) => {
+        opts.headers.set('X-Secret', secret);
+  
+        return PouchDB.fetch(url, opts);
+      }
+    };
 
-    this.remoteDb = new PouchDB(`${pouchOrigin}/db/${this.dbName}`);
+    if (isServer() && USE_COUCH_AUTH) {
+      const auth = remotePouchOptions.auth = {};
+
+      auth.username = COUCHDB_USER;
+      auth.password = COUCHDB_PASSWORD;
+    }
+
+    this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
+    this.remoteDb = new PouchDB(`${pouchOrigin}/db/${this.dbName}`, remotePouchOptions);
 
     cy.scratch('_cySyncher', this);
   }
@@ -400,6 +423,7 @@ export class CytoscapeSyncher {
 
     this.localDb.close();
     this.remoteDb.close();
+    this.secretsDb.close();
   }
 }
 
