@@ -7,6 +7,7 @@ services:
     environment:
       NODE_ENV: production
       COUCHDB_URL: "http://couchdb:5984"
+    user: "node"
     depends_on: 
       - couchdb
     links:
