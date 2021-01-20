@@ -9,6 +9,10 @@
 
 ## Getting started
 
+- Windows Cloning
+  - The `public` directory includes symlinks, which most versions of Windows Git will not correctly clone by default. Make sure to clone using the following command:
+    - `git clone -c core.symlinks=true https://github.com/cytoscape/cytoscape-explore.git` 
+
 - Prerequisites:
   - Node.js
     - Option 1: Install [nvm](https://github.com/nvm-sh/nvm) so you can have multiple versions of node installed.
