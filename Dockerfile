@@ -1,18 +1,18 @@
-# Refer to:
-# https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
-# https://github.com/nodejs/docker-node
+FROM node:12
 
-FROM node:10
+ENV APP_DIR /usr/src/app
 
 # Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p $APP_DIR
+#RUN mkdir -p $NVM_DIR
+WORKDIR $APP_DIR
 
 # Bundle app
-COPY . /usr/src/app
+COPY . $APP_DIR
 
 # Install app dependencies
 RUN npm install
+RUN npm run build
 
 # Expose port
 EXPOSE 3000

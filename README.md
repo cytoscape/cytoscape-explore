@@ -77,17 +77,17 @@ The following environment variables can be used to configure the server:
 
 ## Running via Docker
 
-Build the container.  Here, `cytoscape-home` is used as the container name.
+Build the container.  Here, `cytoscape-explore` is used as the container name.
 
 ```
-cd cytoscape-home
-docker build -t cytoscape-home .
+cd cytoscape-explore
+docker build -t cytoscape-explore .
 ```
 
 Run the container:
 
 ```
-docker run -it -p 12345:3000 -u "node" -e "NODE_ENV=production" --name "cytoscape-home" cytoscape-home
+docker run -it -p 12345:3000 -e "NODE_ENV=production" --name "my-cytoscape-explore" cytoscape-explore
 ```
 
 Notes:
