@@ -124,3 +124,4 @@ By running `npm test`, you will run the tests, the linting, and a test build.
   1. For a specific version number (e.g. 1.2.3), run `npm version 1.2.3`.
 1. Push the release: `git push origin --tags`
 
+
