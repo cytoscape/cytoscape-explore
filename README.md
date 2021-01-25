@@ -125,4 +125,3 @@ By running `npm test`, you will run the tests, the linting, and a test build.
 1. Push the release: `git push origin --tags`
 
 
-
