@@ -7,6 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import { AppLogoIcon } from '../svg-icons';
+
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -20,6 +21,7 @@ import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
+import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import uuid from 'uuid';
 
 
@@ -145,7 +147,10 @@ export class Header extends Component {
                 {menuName === 'main' && !dialogName && (
                   <MenuList>
                     <MenuItem disabled={cy.nodes().length === 0} onClick={() => this.showDialog('layout', 'main')}>Layout</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('cy3-network-import')}>Import Network From Cytoscape</MenuItem>
+                    <Divider />
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
+                    <Divider />
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                   </MenuList>
                 )}
@@ -182,14 +187,23 @@ export class Header extends Component {
             )}
           </AppBar>
         </div>
-        {dialogName === 'network-import' && (
+        {dialogName === 'cy3-network-import' && (
           <Cy3NetworkImportDialog
-            id="network-import"
+            id="cy3-network-import"
             controller={this.controller}
             open={true}
             onClose={() => this.hideDialog()}
           />
-        )}
+          )}
+          {dialogName === 'ndex-network-import' &&(
+          <NDExNetworkImportDialog 
+            id = "ndex-network-import"
+            controller={this.controller}
+            open={true}
+            onClose={() => this.hideDialog()}
+          />
+          )}
+        
       </>
     );
   }
