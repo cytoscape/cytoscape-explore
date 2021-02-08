@@ -29,7 +29,7 @@ export class NDExNetworkImportDialog extends Component {
 
     this.state = {
       ndexUrl: `${NDEX_URL}`,
-      uuid: "",
+      uuid: "e5de6347-1b49-11e9-a05d-525400c25d22",
       error: null,
       loading: true,
     };
@@ -43,8 +43,8 @@ export class NDExNetworkImportDialog extends Component {
     this.setState({ loading: true });
 
     // Return the Style for the passed view
-    const fetchCX = async (netId, viewId) => {
-      const res = await fetch(`${NDEX_URL}/v1/networks/${netId}/views/${viewId}/currentStyle`);
+    const fetchCX = async (ndexUrl, uuid) => {
+      const res = await fetch(`${ndexUrl}/v3/networks/${uuid}`);
 
       if (!res.ok) {
         throw new Error(`NDEx error! status: ${res.status}`);
@@ -57,7 +57,12 @@ export class NDExNetworkImportDialog extends Component {
       const uuid = this.state.uuid;
       const ndexUrl = this.state.ndexUrl;
 
-      console.log('Getting CX for network: ' + ndexUrl + ' ' + uuid)
+      fetchCX(ndexUrl, uuid).then(cx => {
+        console.log('CX: ', cx);
+      }).catch(error => {
+        console.error(error)
+      });
+
     } catch (e) {
       console.log(e); // TODO Show error to user
     }

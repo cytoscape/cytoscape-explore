@@ -102,14 +102,14 @@ http.get('/json/:id', async function(req, res, next){
 /**
  * Create a new network document from CX format
  */
-http.post('/json', async function(req, res, next) {
+http.post('/cx', async function(req, res, next) {
   await postNetwork(importCX, req, res, next);
 });
 
 /**
  * Get a network document in CX format
  */
-http.get('/json/:id', async function(req, res, next){
+http.get('/cx/:id', async function(req, res, next){
   await getNetwork(exportCX, req, res, next);
 });
 
