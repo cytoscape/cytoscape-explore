@@ -1,27 +1,26 @@
 
-module.exports = Object.freeze({
-    CX_VERSION: 'CXVersion',
-    NODE: 'node',
-    EDGE: 'edge',
-    NETWORK: 'network',
 
-    NODES: 'nodes',
-    EDGES: 'edges',
+export const CX_VERSION = 'CXVersion';
+export const NODE= 'node';
+export const EDGE= 'edge';
+export const NETWORK= 'network';
 
-    ID: 'id',
-    X: 'x',
-    Y: 'y',
-    Z: 'z',
-    V: 'v',
+export const NODES= 'nodes';
+export const EDGES= 'edges';
 
-    AT: 'at',
-    N: 'n',
-    E: 'e',
+export const ID= 'id';
+export const X= 'x';
+export const Y= 'y';
+export const Z= 'z';
+export const V= 'v';
 
-    VISUAL_PROPERTIES: 'visualProperties',
-    DEFAULT: 'default',
+export const AT= 'at';
+export const N= 'n';
+export const E= 'e';
 
-    STYLE: 'style',
+export const VISUAL_PROPERTIES= 'visualProperties';
+export const DEFAULT= 'default';
 
-    PO: 'po'
-});
+export const STYLE= 'style';
+
+export const PO= 'po'
