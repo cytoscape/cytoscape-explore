@@ -423,7 +423,6 @@ export class CytoscapeSyncher {
 
     this.localDb.close();
     this.remoteDb.close();
-    this.secretsDb.close();
   }
 }
 
