@@ -24,7 +24,7 @@ const postNetwork = async (importBody, req, res, next) => {
     const cy = new Cytoscape();
     const secret = uuid();
     const publicUrl = `${BASE_URL}/document/${id}`;
-    const privateUrl = `${publicUrl}/secret`;
+    const privateUrl = `${publicUrl}/${secret}`;
 
     importBody(cy, body);
     cy.data({ id });
