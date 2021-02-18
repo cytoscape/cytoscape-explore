@@ -9,13 +9,11 @@ import { Header } from './header';
 import { ToolPanel } from './tool-panel';
 import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
-import { DocumentNotFoundError } from '../../../model/errors';
 import { NetworkEditorController } from './controller';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../../theme';
 import { DEFAULT_PADDING } from '../layout/defaults';
-import uuid from 'uuid';
 
 export class NetworkEditor extends Component {
   constructor(props){
@@ -24,12 +22,8 @@ export class NetworkEditor extends Component {
     const id = _.get(props, ['match', 'params', 'id']);
     let secret = _.get(props, ['match', 'params', 'secret']);
 
-    const specifiedSecret = secret != null;
-
     if (secret == null && id === 'demo') {
       secret = 'demo';
-    } else if (!specifiedSecret){
-      secret = uuid();
     }
 
     this.bus = new EventEmitter();
@@ -41,7 +35,7 @@ export class NetworkEditor extends Component {
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    this.cy.data({ id, name: 'New Network' });
+    this.cy.data({ id });
 
     this.cySyncher = new CytoscapeSyncher(this.cy, secret);
 
@@ -103,21 +97,14 @@ export class NetworkEditor extends Component {
     const enableSync = async () => {
       try {
         await this.cySyncher.load();
-        await this.cySyncher.enable();
+
+        if (this.cySyncher.editable()) {
+          await this.cySyncher.enable();
+        }
 
         this.cy.fit(DEFAULT_PADDING);
       } catch(err){
-        if( err instanceof DocumentNotFoundError ){
-          if (!specifiedSecret) {
-            // relace url with one that includes the secret
-            this.props.history.replace(`/document/${id}/${secret}`);
-          } 
-
-          await this.cySyncher.create();
-          await this.cySyncher.enable();
-        } else {
-          console.error(`Could not load or create document`, err);
-        }
+        console.error(`Could not load document`, err);
       }
     };
 

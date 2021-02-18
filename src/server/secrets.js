@@ -3,10 +3,7 @@ import { COUCHDB_URL } from './env';
 
 const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`);
 
-// whitelist of non-secret-protected couchdb ops (HTTP GET always whitelisted)
-const readOps = new Set(['_bulk_get', '_all_docs', '_revs_diff']);
-
-const isReadOp = (req, op) => req.method === 'GET' || readOps.has(op);
+const isReadOp = (req, op) => req.method === 'GET';
 const isWriteOp = (req, op) => !isReadOp(req, op);
 
 const handleSecrets = async (req, res, op, next) => {
@@ -49,7 +46,11 @@ export function secrets(req, res, next) {
   const isSecretUrl = urlSplit[2] === 'secrets';
   const isDocUrl = !isSecretUrl;
   const docId = isDocUrl ? urlSplit[2] : null;
-  const op = urlSplit[3] || null;
+  let op = urlSplit[3] || null;
+
+  if (op && op.indexOf('?') >= 0) { // remove text after ? (i.e. params)
+    op = op.substring(0, op.indexOf('?'));
+  }
 
   try {
     if (isSecretUrl) {

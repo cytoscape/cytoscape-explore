@@ -6,9 +6,9 @@ import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 
-const PORT = process.env.PORT;
 const SYNC_INTERVAL = 400;
 
+const COUCHDB_URL = process.env.COUCHDB_URL;
 const COUCHDB_USER = process.env.COUCHDB_USER;
 const COUCHDB_PASSWORD = process.env.COUCHDB_PASSWORD;
 const USE_COUCH_AUTH = ('' + process.env.USE_COUCH_AUTH).toLowerCase() === 'true';
@@ -57,11 +57,11 @@ export class CytoscapeSyncher {
     this.emitter = new EventEmitter();
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    const pouchOrigin = isClient() ? location.origin : `http://localhost:${PORT}`;
+    const pouchOrigin = isClient() ? location.origin : COUCHDB_URL;
     
     const remotePouchOptions = {
       fetch: (url, opts) => {
-        opts.headers.set('X-Secret', secret);
+        opts.headers.set('X-Secret', this.secret);
   
         return PouchDB.fetch(url, opts);
       }
@@ -74,14 +74,29 @@ export class CytoscapeSyncher {
       auth.password = COUCHDB_PASSWORD;
     }
 
-    this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
-    this.remoteDb = new PouchDB(`${pouchOrigin}/db/${this.dbName}`, remotePouchOptions);
+    if (this.editable() || isServer()) {
+      this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
+      
+      let remoteUrl;
+
+      if (isServer()) {
+        remoteUrl = `${pouchOrigin}/${this.dbName}`; // server gets unrestricted access
+      } else {
+        remoteUrl = `${pouchOrigin}/db/${this.dbName}`; // /db applied security
+      }
+      
+      this.remoteDb = new PouchDB(remoteUrl, remotePouchOptions);
+    }
 
     cy.scratch('_cySyncher', this);
   }
 
+  editable() {
+    return this.secret != null;
+  }
+
   enable(){
-    if( this.enabled ){ return; }
+    if(this.enabled || !this.editable()) { return; }
 
     this.enabled = true;
 
@@ -150,6 +165,16 @@ export class CytoscapeSyncher {
 
     const { cy, localDb, remoteDb, dbName, docId } = this;
 
+    if (!this.editable() && isClient()) { // load one-time read-only view
+      const res = await fetch(`/api/document/${this.networkId}`);
+      const json = await res.json();
+
+      if (json.data) { cy.data(json.data); }
+      if (json.elements) { cy.add(json.elements); }
+
+      return;
+    }
+
     // do initial, one-way synch from server db to local db
     const info = await localDb.replicate.from(remoteDb);
 
@@ -211,7 +236,7 @@ export class CytoscapeSyncher {
    * @private
    */
   addListeners(){
-    if(this.listenersAdded){ return; }
+    if (this.listenersAdded || !this.editable()) { return; }
 
     this.dirtyEles = this.cy.collection();
     this.dirtyCy = false;
