@@ -6,8 +6,14 @@
 export const importJSON = (cy, json) => {
   const { data, elements } = json;
 
-  cy.data(data);
-  cy.add(elements);
+
+  if (data) {
+    cy.data(data);
+  }
+  
+  if (elements && Array.isArray(elements) && elements.length > 0) {
+    cy.add(elements);
+  }
 };
 
 /**

@@ -70,6 +70,13 @@ export class NetworkEditorController {
   }
 
   /**
+   * Gets whether the network is editable
+   */
+  editable() {
+    return this.cySyncher.editable();
+  }
+
+  /**
    * Replaces the current network with the passed one.
    * @param {Object} [elements] Cytoscape elements object
    * @param {Object} [data] Cytoscape data object

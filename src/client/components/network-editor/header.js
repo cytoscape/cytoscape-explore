@@ -96,7 +96,27 @@ export class Header extends Component {
 
   // temp: should be somewhere else, e.g. in network management page
   createNewNetwork(){
-    window.open(`/document/cy${uuid()}`);
+    let create = async () => {
+      let res = await fetch('/api/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: {},
+          elements: [
+          ]
+        })
+      });
+
+      let body = await res.json();
+
+      console.log('Created network', body);
+
+      window.open(`${body.privateUrl}`);
+    };
+
+    create();
   }
 
   render() {
