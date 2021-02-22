@@ -58,7 +58,9 @@ export function secrets(req, res, next) {
     } else if (isDocUrl) {
       handleDoc(req, res, docId, op, next);
     } else {
-      next();
+      const err = Error('Users do not have access to non-document data in the DB');
+
+      next(err);
     }
   } catch (err) {
     next(err);
