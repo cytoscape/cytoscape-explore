@@ -55,6 +55,9 @@ The following environment variables can be used to configure the server:
 - `PORT` : the port on which the server runs (default 3000)
 - `LOG_LEVEL` : the log level for `out.log`
 - `COUCHDB_URL` : the URL of the CouchDB instance that the server should permanently store its data
+- `USE_COUCH_AUTH` : set to `true` if you want to use CouchDB auth via `COUCHDB_USER` & `COUCHDB_PASSWORD`
+- `COUCHDB_USER` : admin user name
+- `COUCHDB_PASSWORD` : admin user password
 - `LOG_SYNC` : log CouchDB operations when set to `true`
 - `LOG_VIZMAPPER` : log VizMapper operations when set to `true`
 - `BASE_URL` : the base url of the server (e.g. `https://example.com`)
@@ -123,4 +126,5 @@ By running `npm test`, you will run the tests, the linting, and a test build.
   1. For a breaking API change, run `npm version major.`
   1. For a specific version number (e.g. 1.2.3), run `npm version 1.2.3`.
 1. Push the release: `git push origin --tags`
+
 
