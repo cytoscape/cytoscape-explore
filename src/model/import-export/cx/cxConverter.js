@@ -2,16 +2,12 @@
 import {processAttributeDeclarations, updateInferredTypes, getExpandedAttributes} from './cxUtil.js';
 
 export const convert = (cx) => {
-    const output = {
-        style: [],
+    const output = {    
         elements: {},
-        layout: {},
-        'background-color': null
+        cxVisualProperties: undefined,
+        cxNodeBypasses: [],
+        cxEdgeBypasses: []
     }
-
-    let cxVisualProperties = undefined;
-    let cxNodeBypasses = [];
-    let cxEdgeBypasses = [];
 
     let nodeAttributeTypeMap = new Map();
     let edgeAttributeTypeMap = new Map();
@@ -45,14 +41,14 @@ export const convert = (cx) => {
                 updateInferredTypes(edgeAttributeTypeMap, edgeAttributeNameMap, cxEdge['v']);
             });
         } else if (cxAspect['visualProperties']) {
-            cxVisualProperties = cxAspect['visualProperties'];
+            output.cxVisualProperties = cxAspect['visualProperties'];
         } else if (cxAspect['nodeBypasses']) {
             cxAspect.nodeBypasses.forEach(bypass => {
-                cxNodeBypasses.push(bypass);
+                output.cxNodeBypasses.push(bypass);
             });
         } else if (cxAspect['edgeBypasses']) {
             cxAspect.edgeBypasses.forEach(bypass => {
-                cxEdgeBypasses.push(bypass);
+                output.cxEdgeBypasses.push(bypass);
             });
         }
     });
