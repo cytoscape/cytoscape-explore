@@ -25,22 +25,22 @@ export class NetworkAnalyser {
 
     this.bus.on('setNetwork', () => this._reset());
 
-    this.cy.on('add',    'node', evt => this._addElement(this.attributes['node'], evt.target));
-    this.cy.on('remove', 'node', evt => null);
-    this.cy.on('add',    'edge', evt => this._addElement(this.attributes['edge'], evt.target));
-    this.cy.on('remove', 'edge', evt => null);
-  }
+    this.cy.on('add',    'node', evt => this._addElement('node', evt.target));
+    this.cy.on('add',    'edge', evt => this._addElement('edge', evt.target));
+    this.cy.on('remove', 'node', evt => this._removeElement('node', evt.target));
+    this.cy.on('remove', 'edge', evt => this._removeElement('edge', evt.target));
+    this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
+    this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
 
-  getCount(selector) {
-    return this.cy.elements(selector).size();
+    // MKTODO - Listen for data attribute changes on nodes to change.
+    // MKTODO - Track the min/max range
   }
 
   getAttributes(selector) {
     const keys = this.attributes[selector].keys();
     const hidden = hiddenAttrs[selector];
-    return Array.from(keys)
-      .filter(x=> !hidden.has(x))
-      .sort();
+    const attrs = Array.from(keys).filter(x=> !hidden.has(x)).sort();
+    return attrs.length > 0 ? attrs : undefined;
   }
 
   getTypes(selector, attrName) {
@@ -50,21 +50,39 @@ export class NetworkAnalyser {
     }
   }
 
+  getCount(selector, attrName, type) {
+    if(!attrName) {
+      return this.cy.elements(selector).size();
+    }
+    const info = this.attributes[selector].get(attrName);
+    if(info) {
+      if(type) {
+        return info.types.get(type).elementCount;
+      } else {
+        return info.elementCount;
+      }
+    } else {
+      return 0;
+    }
+  }
+
+
   _reset() {
     this.attributes = {
       node: new Map(),
       edge: new Map()
     };
-    this._collect(this.attributes.node, 'node');
-    this._collect(this.attributes.edge, 'edge');
+    const collect = (selector) => {
+      const eles = this.cy.elements(selector);
+      eles.forEach(ele => this._addElement(selector, ele));
+    };
+    collect('node');
+    collect('edge');
   }
 
-  _collect(map, selector) {
-    const eles = this.cy.elements(selector);
-    eles.forEach(ele => this._addElement(map, ele));
-  }
 
-  _addElement(map, ele) {
+  _addElement(selector, ele) {
+    const map = this.attributes[selector];
     const data = ele.data();
     const attrs = Object.keys(data);
 
@@ -88,6 +106,33 @@ export class NetworkAnalyser {
         map.set(attr, newInfo);
       }
     });
+  }
+
+
+  _removeElement(selector, ele) {
+    const map = this.attributes[selector];
+    const data = ele.data();
+    const attrs = Object.keys(data);
+
+    attrs.forEach(attr => {
+      const type = this._toType(data[attr]);
+      const info = map.get(attr);
+      if(info) {
+        _.update(info, 'elementCount', x => x - 1);
+        _.update(info.types.get(type), 'elementCount', x => x - 1);
+        if(info.elementCount == 0) {
+          map.delete(attr);
+        }
+      } 
+    });
+  }
+
+
+  _updateElement(selector, ele) {
+    console.log("updateElement " + selector);
+    // just do this for now
+    this._removeElement(selector, ele);
+    this._addElement(selector, ele);
   }
 
   _toType(val) {
