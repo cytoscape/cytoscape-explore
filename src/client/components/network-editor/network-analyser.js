@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 
 // TODO add list types, add boolean?
 export const ATTR_TYPE = {
@@ -10,7 +8,12 @@ export const ATTR_TYPE = {
 
 const hiddenAttrs = {
   node: new Set([ 'id' ]),
-  edge: new Set([ 'id', 'source', 'target' ])
+  edge: new Set([ 'id', 'source', 'target' ]),
+};
+
+const COMMON = {
+  add: () => null,
+  delete: () => null
 };
 
 export class NetworkAnalyser {
@@ -22,47 +25,56 @@ export class NetworkAnalyser {
     this.bus = bus;
 
     this._reset();
-
     this.bus.on('setNetwork', () => this._reset());
 
     this.cy.on('add',    'node', evt => this._addElement('node', evt.target));
     this.cy.on('add',    'edge', evt => this._addElement('edge', evt.target));
     this.cy.on('remove', 'node', evt => this._removeElement('node', evt.target));
     this.cy.on('remove', 'edge', evt => this._removeElement('edge', evt.target));
-    this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
-    this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
+    // this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
+    // this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
 
     // MKTODO - Listen for data attribute changes on nodes to change.
     // MKTODO - Track the min/max range
   }
 
+
   getAttributes(selector) {
-    const keys = this.attributes[selector].keys();
-    const hidden = hiddenAttrs[selector];
-    const attrs = Array.from(keys).filter(x=> !hidden.has(x)).sort();
+    const attrNames = this.attributes[selector].keys();
+    const attrs = Array.from(attrNames).filter(a => !hiddenAttrs[selector].has(a)).sort();
     return attrs.length > 0 ? attrs : undefined;
   }
 
+
   getTypes(selector, attrName) {
-    const info = this.attributes[selector].get(attrName);
-    if(info) {
-      return Array.from(info.types).filter(t => t[1].elementCount > 0).map(t => t[0]);
+    const attrInfo = this.attributes[selector].get(attrName);
+    if(attrInfo) {
+      // MKTODO if the size of one of the sets == total node count then just return that type
+      return Array.from(attrInfo.types)
+        .filter(t => t[1].set == COMMON || t[1].set.size > 0)
+        .map(t => t[0]);
     }
   }
+
 
   getCount(selector, attrName, type) {
     if(!attrName) {
       return this.cy.elements(selector).size();
     }
-    const info = this.attributes[selector].get(attrName);
-    if(info) {
-      if(type) {
-        return info.types.get(type).elementCount;
-      } else {
-        return info.elementCount;
-      }
-    } else {
-      return 0;
+    const attrInfo = this.attributes[selector].get(attrName);
+    if(attrInfo) {
+        const typeInfo = attrInfo.types.get(type);
+        if(typeInfo.set == COMMON) {
+          let total = this.getCount(selector);
+          attrInfo.types.forEach((value) => {
+            if(value.set != COMMON) {
+              total -= value.set.size;
+            }
+          });
+          return total;
+        } else {
+          return typeInfo.set.size;
+        }
     }
   }
 
@@ -81,26 +93,30 @@ export class NetworkAnalyser {
   }
 
 
+  // TWo things: iterate over all known attributes
+  // If a new attribute is found
   _addElement(selector, ele) {
     const map = this.attributes[selector];
     const data = ele.data();
-    const attrs = Object.keys(data);
+    const first = map.size == 0; // is this the first node or edge to be processed?
+
+    // collect all known attributes
+    const attrs = new Set(Object.keys(data).filter(a => !hiddenAttrs[selector].has(a))); // data may contain attributes not encountered yet
+    Array.from(map.keys()).forEach(a => attrs.add(a)); // all existing attributes need to be updated as well
 
     attrs.forEach(attr => {
       const type = this._toType(data[attr]);
-      const info = map.get(attr);
-      if(info) {
-        _.update(info, 'elementCount', x => x + 1);
-        _.update(info.types.get(type), 'elementCount', x => x + 1);
+      const attrInfo = map.get(attr);
+      if(attrInfo) {
+        attrInfo.types.get(type).set.add(ele); // COMMON has add() method that does nothing
       } else {
+        // encountering attribute for the first time
         const newInfo = {
-          name: attr,
-          elementCount: 1,
           types: new Map([
-            [ ATTR_TYPE.NUMBER,  { elementCount: 0 } ],
-            [ ATTR_TYPE.STRING,  { elementCount: 0 } ],
-            [ ATTR_TYPE.UNKNOWN, { elementCount: 0 } ],
-            [ type,              { elementCount: 1 } ]
+            [ ATTR_TYPE.NUMBER,  { set: new Set() } ],
+            [ ATTR_TYPE.STRING,  { set: new Set() } ],
+            [ ATTR_TYPE.UNKNOWN, { set: first ? new Set() : COMMON } ],  // if we have processed at least one node but haven't seen this attribute yet then make unknown the common type
+            [ type,              { set: first ? COMMON : new Set(ele) } ]  // override previous entry for the type
           ])
         };
         map.set(attr, newInfo);
@@ -116,24 +132,14 @@ export class NetworkAnalyser {
 
     attrs.forEach(attr => {
       const type = this._toType(data[attr]);
-      const info = map.get(attr);
-      if(info) {
-        _.update(info, 'elementCount', x => x - 1);
-        _.update(info.types.get(type), 'elementCount', x => x - 1);
-        if(info.elementCount == 0) {
-          map.delete(attr);
-        }
-      } 
+      const attrInfo = map.get(attr);
+      if(attrInfo) {
+        const typeInfo = attrInfo.types.get(type);
+        typeInfo.set.delete(ele); // COMMON delete() method does nothing
+      }
     });
   }
 
-
-  _updateElement(selector, ele) {
-    console.log("updateElement " + selector);
-    // just do this for now
-    this._removeElement(selector, ele);
-    this._addElement(selector, ele);
-  }
 
   _toType(val) {
     switch(typeof(val)) {
@@ -141,29 +147,6 @@ export class NetworkAnalyser {
       case 'string': return ATTR_TYPE.STRING;
       default:       return ATTR_TYPE.UNKNOWN;
     }
-  }
-
-  /**
-   * Returns the min and max values of a numeric attribute.
-   * @private
-   */
-  _minMax(attribute, eles) {
-    eles = eles || this.cy.elements();
-    let hasVal = false;
-    let min = Number.POSITIVE_INFINITY; 
-    let max = Number.NEGATIVE_INFINITY;
-
-    // compute min and max values
-    eles.forEach(ele => {
-      const val = ele.data(attribute);
-      if(val) {
-        hasVal = true;
-        min = Math.min(min, val);
-        max = Math.max(max, val);
-      }
-    }); 
-
-    return {hasVal, min, max};
   }
 
 }
