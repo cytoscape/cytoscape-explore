@@ -35,7 +35,7 @@ export class NetworkAnalyser {
     this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
     this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
 
-    // MKTODO - Listen for data attribute changes on nodes to change.
+    // MKTODO - test multiple delete
     // MKTODO - Track the min/max range
   }
 
@@ -88,7 +88,7 @@ export class NetworkAnalyser {
   isMissing(selector, attrName) {
     const total   = this.getCount(selector);
     const missing = this.getCount(selector, attrName, ATTR_TYPE.MISSING);
-    return total == missing;
+    return total <= missing; // total may be less than if multiple elements were deleted at once
   }
 
   _getNonHiddenAttrs(selector, data) {
@@ -163,7 +163,7 @@ export class NetworkAnalyser {
       if(!found) { // then it must be in the COMMON set
         const eleCount = this.getCount(selector); // ele has already been removed
         const storedCount = this._getStoredCount(selector, attr);
-        if(eleCount == storedCount) {
+        if(eleCount <= storedCount) {
           for(const typeInfo of attrInfo.types.values()) {
             if(typeInfo.set == COMMON) {
               typeInfo.set = new Set(); // replace COMMON with an empty set so that we know its empty  // MKTODO another option would be to use instances of COMMON and have an isEmpty method.

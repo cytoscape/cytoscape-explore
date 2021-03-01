@@ -219,4 +219,42 @@ describe('Network Analyser', () => {
     expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.UNKNOWN ]);
   });
 
+  it('remove two nodes at the same time', () => {
+    cy.remove(cy.$('#a,#b')); // removes node 'a' and 'b'
+
+    expect( analyser.getCount('node') ).to.equal( 1 );
+    expect( analyser.getCount('edge') ).to.equal( 0 );
+
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr1') ).to.be.false;
+
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.STRING) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr2') ).to.be.true;
+
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr3') ).to.be.false;
+
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr4') ).to.be.true;
+
+    expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr3' ]);
+
+    expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING ]);
+    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.NUMBER ]);
+    expect( analyser.getTypes('node','attr4') ).to.have.members([ ATTR_TYPE.MISSING ]);
+  });
+
 });
