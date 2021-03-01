@@ -26,6 +26,7 @@ describe('Network Analyser', () => {
         { data: { 
           id: 'b',
           attr1: 'bsdf',
+          attr2: null, 
           attr3: 'blah'
         }},
         { data: { 
@@ -56,26 +57,34 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 3 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 0 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr1') ).to.be.false;
 
     expect( analyser.getCount('node','attr2',ATTR_TYPE.STRING) ).to.equal( 0 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.NUMBER) ).to.equal( 1 );
-    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 2 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr2') ).to.be.false;
 
     expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
-    expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr3') ).to.be.false;
 
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.be.undefined;
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.be.undefined;
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.be.undefined;
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.MISSING) ).to.equal( 3 );
+    expect( analyser.isMissing('node', 'attr4') ).to.be.true;
 
     expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr2', 'attr3' ]);
     expect( analyser.getAttributes('edge') ).to.eql([ 'eattr1', 'eattr2' ]);
 
     expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING ]);
-    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    expect( analyser.getTypes('node','attr4') ).to.be.undefined;
+    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN, ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER, ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr4') ).to.have.members([ ATTR_TYPE.MISSING ]);
     expect( analyser.getTypes('edge','eattr1')).to.have.members([ ATTR_TYPE.STRING ]);
   });
 
@@ -101,26 +110,34 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 3 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 1 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr1') ).to.be.false;
 
     expect( analyser.getCount('node','attr2',ATTR_TYPE.STRING) ).to.equal( 0 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.NUMBER) ).to.equal( 2 );
-    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 2 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr2') ).to.be.false;
 
     expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
-    expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 2 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.MISSING) ).to.equal( 2 );
+    expect( analyser.isMissing('node', 'attr3') ).to.be.false;
 
     expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.equal( 0 );
     expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.equal( 1 );
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 3 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.MISSING) ).to.equal( 3 );
+    expect( analyser.isMissing('node', 'attr4') ).to.be.false;
 
     expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr2', 'attr3', 'attr4' ]);
     expect( analyser.getAttributes('edge') ).to.eql([ 'eattr1', 'eattr2' ]);
 
     expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER ]);
-    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    expect( analyser.getTypes('node','attr4') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
+    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN, ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER, ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr4') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.MISSING ]);
     expect( analyser.getTypes('edge','eattr1')).to.have.members([ ATTR_TYPE.STRING ]);
   });
 
@@ -140,47 +157,66 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 2 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 0 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr1') ).to.be.false;
 
-    // should this now be undefined?
     expect( analyser.getCount('node','attr2',ATTR_TYPE.STRING) ).to.equal( 0 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.NUMBER) ).to.equal( 0 );
-    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 2 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
+    expect( analyser.isMissing('node', 'attr2') ).to.be.false;
 
     expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr3',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.isMissing('node', 'attr3') ).to.be.false;
 
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.be.undefined;
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.be.undefined;
-    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.be.undefined;
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.STRING) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr4',ATTR_TYPE.MISSING) ).to.equal( 2 );
+    expect( analyser.isMissing('node', 'attr4') ).to.be.true;
 
+    expect( analyser.isMissing('edge', 'eattr1') ).to.be.true;
+    expect( analyser.isMissing('edge', 'eattr2') ).to.be.true;
 
-    // The only reference to attr2 is now gone? Do we remove this attribute from the analyser?
-    expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr3' ]);
-    expect( analyser.getAttributes('edge') ).to.be.undefined;
+    expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr2', 'attr3' ]);
+    expect( analyser.getAttributes('edge') ).to.eql([  ]);
 
-    // expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING ]);
-    // expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    // expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER, ATTR_TYPE.UNKNOWN ]);
-    // expect( analyser.getTypes('node','attr4') ).to.be.undefined;
-    // expect( analyser.getTypes('edge','eattr1')).to.have.members([ ATTR_TYPE.STRING ]);
+    expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING ]);
+    expect( analyser.getTypes('node','attr2') ).to.have.members([ ATTR_TYPE.UNKNOWN, ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('node','attr3') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER ]);
+    expect( analyser.getTypes('node','attr4') ).to.have.members([ ATTR_TYPE.MISSING ]);
+    expect( analyser.getTypes('edge','eattr1')).to.have.members([ ATTR_TYPE.MISSING ]);
   });
 
 
-  xit('update data properties', () => {
+  it('update data properties', () => {
     cy.$('#a').data('attr1', 22); // attr1 is now a number
 
-    expect( analyser.getCount('node','attr1') ).to.equal( 3 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 2 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
     expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.NUMBER ]);
 
     cy.$('#a').data('attr1', 'blarf'); // string agian!
 
-    expect( analyser.getCount('node','attr1') ).to.equal( 3 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 3 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
     expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING ]);
+
+    cy.$('#a').removeAttr('attr1'); 
+    // cytoscape.js doesn't actually remove the data attribute, it sets it to undefined, so it ends um in the UNKNOWN category
+
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.STRING) ).to.equal( 2 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.NUMBER) ).to.equal( 0 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
+    expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
+    expect( analyser.getTypes('node','attr1') ).to.have.members([ ATTR_TYPE.STRING, ATTR_TYPE.UNKNOWN ]);
   });
 
 });
