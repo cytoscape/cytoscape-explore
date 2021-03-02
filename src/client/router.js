@@ -9,6 +9,7 @@ export const Router = () => (
       <Route path='/' exact>
         <Redirect to='/document/demo' />
       </Route>
+      <Route path='/document/:id/:secret' component={NetworkEditor} />
       <Route path='/document/:id' component={NetworkEditor} />
       <Route status={404} component={PageNotFound} exact />
     </Switch>

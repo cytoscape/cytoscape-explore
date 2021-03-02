@@ -15,6 +15,7 @@ import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT } from './env';
 import indexRouter from './routes/index';
 import apiRouter from './routes/api';
 import { registerCytoscapeExtensions } from '../model/cy-extensions';
+import { secrets } from './secrets';
 
 import PouchDB from 'pouchdb';
 import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
@@ -53,13 +54,14 @@ app.use(morgan('dev', {
   })
 }));
 
-// proxy requests under /db to the CouchDB server
-app.use('/db', proxy(COUCHDB_URL));
-
 app.use(bodyParser.json({ limit: UPLOAD_LIMIT }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../..', 'public')));
+
+// proxy requests under /db to the CouchDB server
+app.use('/db', secrets); // apply security before proxy
+app.use('/db', proxy(COUCHDB_URL));
 
 app.use('/api', apiRouter);
 app.use('/', indexRouter);

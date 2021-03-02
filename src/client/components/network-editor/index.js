@@ -9,7 +9,6 @@ import { Header } from './header';
 import { ToolPanel } from './tool-panel';
 import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
-import { DocumentNotFoundError } from '../../../model/errors';
 import { NetworkEditorController } from './controller';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -21,6 +20,11 @@ export class NetworkEditor extends Component {
     super(props);
 
     const id = _.get(props, ['match', 'params', 'id']);
+    let secret = _.get(props, ['match', 'params', 'secret']);
+
+    if (secret == null && id === 'demo') {
+      secret = 'demo';
+    }
 
     this.bus = new EventEmitter();
 
@@ -31,10 +35,9 @@ export class NetworkEditor extends Component {
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    // use placeholder id and secret for now...
-    this.cy.data({ id, name: 'New Network' });
+    this.cy.data({ id });
 
-    this.cySyncher = new CytoscapeSyncher(this.cy, 'secret');
+    this.cySyncher = new CytoscapeSyncher(this.cy, secret);
 
     this.controller = new NetworkEditorController(this.cy, this.cySyncher, this.bus);
 
@@ -95,13 +98,13 @@ export class NetworkEditor extends Component {
       try {
         await this.cySyncher.load();
 
+        if (this.cySyncher.editable()) {
+          await this.cySyncher.enable();
+        }
+
         this.cy.fit(DEFAULT_PADDING);
       } catch(err){
-        if( err instanceof DocumentNotFoundError ){
-          await this.cySyncher.create();
-        }
-      } finally {
-        await this.cySyncher.enable();
+        console.error(`Could not load document`, err);
       }
     };
 
@@ -167,7 +170,7 @@ export class NetworkEditor extends Component {
     this.cyEmitter.removeAllListeners();
 
     // disable live synch for now...
-    // this.cySyncher.destroy();
+    this.cySyncher.destroy();
 
     this.cy.destroy();
 
@@ -193,6 +196,10 @@ export class NetworkEditor extends Component {
     );
   }
 }
+
+NetworkEditor.propTypes = {
+  history: PropTypes.any
+};
 
 class NetworkBackground extends Component {
   constructor(props){
