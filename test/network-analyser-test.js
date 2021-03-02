@@ -59,12 +59,14 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr1',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
     expect( analyser.getCount('node','attr1',ATTR_TYPE.MISSING) ).to.equal( 0 );
     expect( analyser.isMissing('node', 'attr1') ).to.be.false;
+    expect( analyser.getNumberRange('node', 'attr1') ).to.be.undefined;
 
     expect( analyser.getCount('node','attr2',ATTR_TYPE.STRING) ).to.equal( 0 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.NUMBER) ).to.equal( 1 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
     expect( analyser.isMissing('node', 'attr2') ).to.be.false;
+    expect( analyser.getNumberRange('node', 'attr2') ).to.eql( { min: 1.0, max: 1.0 } );
 
     expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
@@ -93,7 +95,7 @@ describe('Network Analyser', () => {
     cy.add({ data: { // node
       id: 'x',
       attr1: 99,
-      attr2: 1.0,
+      attr2: 2.0,
       attr4: 99
     }});
     cy.add({ data: { //edge
@@ -101,7 +103,7 @@ describe('Network Analyser', () => {
       source: 'a', 
       target: 'x',
       eattr1: 'asdf',
-      eattr2: 99
+      eattr2: 200
     }});
 
     expect( analyser.getCount('node') ).to.equal( 4 );
@@ -118,6 +120,7 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr2',ATTR_TYPE.UNKNOWN) ).to.equal( 1 );
     expect( analyser.getCount('node','attr2',ATTR_TYPE.MISSING) ).to.equal( 1 );
     expect( analyser.isMissing('node', 'attr2') ).to.be.false;
+    expect( analyser.getNumberRange('node', 'attr2') ).to.eql( { min: 1.0, max: 2.0 } );
 
     expect( analyser.getCount('node','attr3',ATTR_TYPE.STRING) ).to.equal( 1 );
     expect( analyser.getCount('node','attr3',ATTR_TYPE.NUMBER) ).to.equal( 1 );
@@ -130,6 +133,8 @@ describe('Network Analyser', () => {
     expect( analyser.getCount('node','attr4',ATTR_TYPE.UNKNOWN) ).to.equal( 0 );
     expect( analyser.getCount('node','attr4',ATTR_TYPE.MISSING) ).to.equal( 3 );
     expect( analyser.isMissing('node', 'attr4') ).to.be.false;
+
+    expect( analyser.getNumberRange('edge', 'eattr2') ).to.eql( { min: 99, max: 200 } );
 
     expect( analyser.getAttributes('node') ).to.eql([ 'attr1', 'attr2', 'attr3', 'attr4' ]);
     expect( analyser.getAttributes('edge') ).to.eql([ 'eattr1', 'eattr2' ]);

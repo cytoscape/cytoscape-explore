@@ -91,6 +91,19 @@ export class NetworkAnalyser {
     return total <= missing; // total may be less than if multiple elements were deleted at once
   }
 
+  getNumberRange(selector, attrName) {
+    const attrInfo = this.attributes[selector].get(attrName);
+    if(attrInfo) {
+      const typeInfo = attrInfo.types.get(ATTR_TYPE.NUMBER);
+      if(typeInfo.min && typeInfo.max) {
+        return { 
+          min: typeInfo.min, 
+          max: typeInfo.max 
+        };
+      }
+    }
+  }
+
   _getNonHiddenAttrs(selector, data) {
     const attrNames = Array.isArray(data) ? data : Object.keys(data);
     return attrNames.filter(a => !hiddenAttrs[selector].has(a));
@@ -127,7 +140,12 @@ export class NetworkAnalyser {
       const type = this._toType(data, attr);
       const attrInfo = map.get(attr);
       if(attrInfo) {
-        attrInfo.types.get(type).set.add(ele); // COMMON has add() method that does nothing
+        // update existing attribute
+        const typeInfo = attrInfo.types.get(type);
+        typeInfo.set.add(ele); // COMMON has add() method that does nothing
+        if(type == ATTR_TYPE.NUMBER) {
+          this._expandRange(typeInfo, data[attr]);
+        }
       } else {
         // encountering attribute for the first time
         const newInfo = {
@@ -139,11 +157,23 @@ export class NetworkAnalyser {
             [ type,              { set: first ? COMMON : new Set(ele) } ]  // override previous entry for the type
           ])
         };
+        if(type == ATTR_TYPE.NUMBER) {
+          this._expandRange(newInfo.types.get(ATTR_TYPE.NUMBER), data[attr]);
+        }
         map.set(attr, newInfo);
       }
     }
   }
 
+
+  _expandRange(typeInfo, val) {
+    if(typeInfo.min === undefined) {
+      typeInfo.min = typeInfo.max = val;
+    } else {
+      typeInfo.min = Math.min(typeInfo.min, val);
+      typeInfo.max = Math.max(typeInfo.max, val);
+    }
+  }
 
   _removeElement(selector, ele) {
     const map = this.attributes[selector];
