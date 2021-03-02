@@ -26,17 +26,15 @@ export class NetworkAnalyser {
     this.bus = bus;
 
     this._reset();
-    this.bus.on('setNetwork', () => this._reset());
 
+    this.bus.on('setNetwork', () => this._reset());
+    
     this.cy.on('add',    'node', evt => this._addElement('node', evt.target));
     this.cy.on('add',    'edge', evt => this._addElement('edge', evt.target));
     this.cy.on('remove', 'node', evt => this._removeElement('node', evt.target));
     this.cy.on('remove', 'edge', evt => this._removeElement('edge', evt.target));
     this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
     this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
-
-    // MKTODO - test multiple delete
-    // MKTODO - Track the min/max range
   }
 
 

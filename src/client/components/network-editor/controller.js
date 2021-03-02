@@ -1,6 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
+import { NetworkAnalyser } from './network-analyser';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
@@ -35,6 +36,9 @@ export class NetworkEditorController {
 
     /** @type {EventEmitter} */
     this.bus = bus || new EventEmitter();
+
+    /** @type {NetworkAnalyser} */
+    this.networkAnalyser = new NetworkAnalyser(cy, bus);
 
     this.drawModeEnabled = false;
 
@@ -432,39 +436,16 @@ export class NetworkEditorController {
    * @private
    */
   _dataRange(selector, attribute, diverging) {
-    const {hasVal, min, max} = this._minMax(attribute, this.cy.elements(selector));
-    if(hasVal) {
+    const range = this.networkAnalyser.getNumberRange(selector, attribute);
+    if(range) {
+      const { min, max } = range;
       if(diverging) {
-        // ensure the positive and negative ends of the range have the same magnitude
         const bound = Math.max(Math.abs(min), Math.abs(max));
         return [-bound, 0, bound];
       } else {
-        return [min, max];
+        return [ min, max ];
       }
-    }
-  }
-
-  /**
-   * Returns the min and max values of a numeric attribute.
-   * @private
-   */
-  _minMax(attribute, eles) {
-    eles = eles || this.cy.elements();
-    let hasVal = false;
-    let min = Number.POSITIVE_INFINITY; 
-    let max = Number.NEGATIVE_INFINITY;
-
-    // compute min and max values
-    eles.forEach(ele => {
-      const val = ele.data(attribute);
-      if(val) {
-        hasVal = true;
-        min = Math.min(min, val);
-        max = Math.max(max, val);
-      }
-    }); 
-
-    return {hasVal, min, max};
+    } 
   }
   
 }
