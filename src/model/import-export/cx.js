@@ -1,4 +1,5 @@
-import { convert }  from './cx/cxConverter.js'
+import { convertCX }  from './cx/cxConverter.js';
+import { convertCY } from './cx/cyConverter.js';
 import { styleFactory } from '../../model/style';
 
 const DEFAULT_MAPPER_FUNCTIONS = {
@@ -38,7 +39,7 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
  */
 export const importCX = (cy, cx) => {
   
-  const converted = convert(cx);
+  const converted = convertCX(cx);
   
   cy.add(converted.elements);
  
@@ -53,7 +54,7 @@ export const importCX = (cy, cx) => {
         applyDefaultPropertyMap(vizmapper, property.default.edge);
       }
       if (property.default.network) {
-
+        //cy.setNetworkBackgroundColor('#00BB00');
       }
     }
   })
@@ -65,7 +66,6 @@ export const importCX = (cy, cx) => {
  * @param {Cytoscape.Core} cy 
  */
 export const exportCX = (cy) => {
-  const cx = { data: cy.data() }; // TODO convert cy data to CX
-
+  const cx = convertCY(cy);
   return cx;
 };

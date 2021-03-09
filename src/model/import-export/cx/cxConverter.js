@@ -1,8 +1,10 @@
 
-import {processAttributeDeclarations, updateInferredTypes, getExpandedAttributes} from './cxUtil.js';
+import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cxUtil.js';
 
-export const convert = (cx) => {
-    const output = {    
+
+
+export const convertCX = (cx) => {
+    const output = {
         elements: {},
         cxVisualProperties: undefined,
         cxNodeBypasses: [],
