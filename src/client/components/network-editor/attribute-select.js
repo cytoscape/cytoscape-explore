@@ -7,10 +7,10 @@ export class AttributeSelect extends React.Component {
 
   constructor(props) {
     super(props);
-    this.attributes = props.controller.getPublicAttributes(props.selector);
   }
 
   render() {
+    const attributes = this.props.controller.networkAnalyser.getAttributes(this.props.selector);
     return (
       <FormControl style={{minWidth: 150}} variant="outlined">
         <InputLabel id="attribute-select-label">{this.props.label}</InputLabel>
@@ -21,7 +21,7 @@ export class AttributeSelect extends React.Component {
           onChange={event => this.props.onChange(event.target.value)}
         >
         <option key='' aria-label='None' value='' />
-        {this.attributes.map(a => 
+        {attributes.map(a => 
           <option key={a} value={a}>{a}</option>
         )}
         </Select>
