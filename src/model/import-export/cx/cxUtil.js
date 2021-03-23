@@ -15,21 +15,24 @@ export const getCxMajorVersion = (versionString) => {
     return versionString ? getCxVersion(versionString)[0] : 1;
 };
 
+export const CX_TO_JS = 'CX_TO_JS';
+export const JS_TO_CX = 'JS_TO_CX';
+
 export const processAttributeDeclarations = (cxAttributeDeclarations, 
     nodeAttributeNameMap, 
     nodeAttributeTypeMap, 
     nodeAttributeDefaultValueMap, 
     edgeAttributeNameMap, edgeAttributeTypeMap, 
-    edgeAttributeDefaultValueMap) => {
+    edgeAttributeDefaultValueMap, conversionDirection = CX_TO_JS) => {
     //console.log(" cxAttributeDeclarations: " + JSON.stringify(cxAttributeDeclarations, null, 2));
     cxAttributeDeclarations.forEach((cxAttributeDeclaration) => {
         if (cxAttributeDeclaration['nodes']) {
-            updateAttributeNameMap(nodeAttributeNameMap, cxAttributeDeclaration.nodes);
+            updateAttributeNameMap(nodeAttributeNameMap, cxAttributeDeclaration.nodes, conversionDirection);
             updateAttributeTypeMap(nodeAttributeTypeMap, cxAttributeDeclaration.nodes);
             updateAttributeDefaultValueMap(nodeAttributeDefaultValueMap, cxAttributeDeclaration.nodes);
         }
         if (cxAttributeDeclaration['edges']) {
-            updateAttributeNameMap(edgeAttributeNameMap, cxAttributeDeclaration.edges);
+            updateAttributeNameMap(edgeAttributeNameMap, cxAttributeDeclaration.edges, conversionDirection);
             updateAttributeTypeMap(edgeAttributeTypeMap, cxAttributeDeclaration.edges);
             updateAttributeDefaultValueMap(edgeAttributeDefaultValueMap, cxAttributeDeclaration.edges);
         }
@@ -45,12 +48,16 @@ export const updateAttributeTypeMap = (attributeTypeMap, attributeDeclarations) 
     });
 };
 
-export const updateAttributeNameMap = (attributeNameMap, attributeDeclarations) => {
+export const updateAttributeNameMap = (attributeNameMap, attributeDeclarations, conversionDirection) => {
     Object.keys(attributeDeclarations).forEach((attributeName) => {
         const attributeDeclaration = attributeDeclarations[attributeName];
         if (attributeDeclaration['a']) {
             //console.log('attribute ' + attributeDeclaration.a + ' should be renamed to ' + attributeName);
-            attributeNameMap.set(attributeDeclaration.a, attributeName);
+            if (conversionDirection === CX_TO_JS) {
+                attributeNameMap.set(attributeDeclaration.a, attributeName); 
+            } else if (conversionDirection === JS_TO_CX) {
+                attributeNameMap.set(attributeName, attributeDeclaration.a); 
+            }
         }
     });
 };

@@ -1,5 +1,7 @@
 
 import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cxUtil.js';
+import { savedAspects } from './converterConstants';
+import {  isAspectKeyInArray } from './converter-utils';
 
 export const cxNodeToJsNode = (cxNode) => {
 
@@ -7,25 +9,6 @@ export const cxNodeToJsNode = (cxNode) => {
 
 export const cxEdgeToJsEdge = (cxEdge) => {
 
-};
-
-const savedAspects = [
-    'metaData',
-    'attributeDeclarations',
-    'networkAttributes',
-    'visualEditorProperties',
-    'cyHiddenAttributes',
-    'cyTableColumn'
-];
-
-export const isSavedAspect = (aspect) => {
-    let output = false;
-    savedAspects.forEach( aspectKey => {
-        if (aspect[aspectKey]) {
-            output = true;
-        }
-    });
-    return output;
 };
 
 export const convertCX = (cx) => {
@@ -38,7 +21,7 @@ export const convertCX = (cx) => {
     };
 
     let savedData = {
-        "_cx2_data" : {
+        "_cx2-data" : {
             'ndex-uuid' : undefined,
             'saved-aspects' : []
         }
@@ -127,8 +110,8 @@ export const convertCX = (cx) => {
             });
         } 
  
-        if (isSavedAspect(cxAspect)) {
-            savedData['_cx2_data']['saved-aspects'].push(cxAspect);
+        if (isAspectKeyInArray(cxAspect, savedAspects)) {
+            savedData['_cx2-data']['saved-aspects'].push(cxAspect);
         }
     });
 

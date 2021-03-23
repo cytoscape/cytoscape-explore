@@ -1,3 +1,5 @@
+import { isAspectKeyInArray } from './converter-utils';
+
 const getMetaDataAspect = (...args) => {
   const metaData = args.map( element => {
     const name = Object.keys(element)[0];
@@ -134,56 +136,59 @@ const getCyHiddenAttributesAspect = (cy, vizmapper) => {
   };
 };
 
+
+const UNCHANGED_SAVED_ASPECTS = [
+  'networkAttributes',
+  'visualEditorProperties',
+  'cyHiddenAttributes',
+  'cyTableColumn'
+];
+
+
 export const convertCY = (cy) => {
   const vizmapper = cy.vizmapper();
   
   const attributeDeclarationsApect = getAttributeDeclarationsAspect(cy, vizmapper);
-  const networkAttributesAspect = getNetworkAttributesAspect(cy, vizmapper);
   const nodesAspect = getNodesAspect(cy, vizmapper);
   const edgesAspect = getEdgesAspect(cy, vizmapper);
   const visualPropertiesAspect = getVisualPropertiesAspect(cy, vizmapper);
   const nodeBypassesAspect = getNodeBypassesAspect(cy, vizmapper);
   const edgeBypassesAspect = getEdgeBypassesAspect(cy, vizmapper);
-  const visualEditorPropertiesAspect = getVisualEditorPropertiesAspect(cy, vizmapper);
-  const cyHiddenAttributesAspect = getCyHiddenAttributesAspect(cy, vizmapper);
-  const cyTableColumnAspect = getCyTableColumnAspect(cy, vizmapper);
-
-const metaDataAspect = getMetaDataAspect(
-  attributeDeclarationsApect,
-      networkAttributesAspect,
-      nodesAspect,
-      edgesAspect,
-      visualPropertiesAspect,
-      nodeBypassesAspect,
-      edgeBypassesAspect,
-      visualEditorPropertiesAspect,
-      cyHiddenAttributesAspect,
-      cyTableColumnAspect
-);
-
-  const cx = [
-      {
-          "CXVersion": "2.0",
-          "hasFragments": false
-      },
-      metaDataAspect,
-      attributeDeclarationsApect,
-      networkAttributesAspect,
-      nodesAspect,
-      edgesAspect,
-      visualPropertiesAspect,
-      nodeBypassesAspect,
-      edgeBypassesAspect,
-      visualEditorPropertiesAspect,
-      cyHiddenAttributesAspect,
-      cyTableColumnAspect,
-      {
-          "status": [
-              {
-                  "success": true
-              }
-          ]
-      }
+ 
+  let computedAspects = [
+    attributeDeclarationsApect,
+    nodesAspect,
+    edgesAspect,
+    visualPropertiesAspect,
+    nodeBypassesAspect,
+    edgeBypassesAspect
   ];
+ 
+  let savedAspects = cy.data("_cx2-data")['saved-aspects'];
+
+  const metaDataAspect = getMetaDataAspect(
+    computedAspects.concat(savedAspects)
+  );
+
+  const firstAspects = [
+    {
+      "CXVersion": "2.0",
+      "hasFragments": false
+  },
+  metaDataAspect];
+
+  const statusAspect = [
+    {
+      "status": [
+          {
+              "success": true
+          }
+      ]
+  }
+  ];
+
+  const unchangedSavedAspects = savedAspects.filter(aspect => isAspectKeyInArray(aspect, UNCHANGED_SAVED_ASPECTS));
+
+  const cx = firstAspects.concat(computedAspects).concat(unchangedSavedAspects).concat(statusAspect);
   return cx;
 };
