@@ -18,7 +18,7 @@ const DEFAULT_STYLE_FACTORY_FUNCTIONS = {
   'EDGE_TARGET_ARROW_COLOR': (value) => styleFactory.color(value),
   'EDGE_TARGET_ARROW_SHAPE': (value) => styleFactory.string(value),
   'EDGE_LINE_STYLE': (value) => styleFactory.string(value)
-}
+};
 
 const DEFAULT_JS_STYLE_NAMES = {
   'NODE_BACKGROUND_COLOR': 'background-color',
@@ -36,15 +36,15 @@ const DEFAULT_JS_STYLE_NAMES = {
   'EDGE_TARGET_ARROW_COLOR': 'target-arrow-color',
   'EDGE_TARGET_ARROW_SHAPE': 'target-arrow-shape',
   'EDGE_LINE_STYLE': 'line-style'
-}
+};
 
 const convertStyle = (visualPropertyKey, cxValue) => {
   if (DEFAULT_STYLE_FACTORY_FUNCTIONS[visualPropertyKey]) {
     return DEFAULT_STYLE_FACTORY_FUNCTIONS[visualPropertyKey](cxValue);
   } else {
-    console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to styleFactory function.`)
+    console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to styleFactory function.`);
   }
-}
+};
 
 const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
   Object.keys(defaultProperties).forEach(visualPropertyKey => {
@@ -54,18 +54,18 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
     const vizmapperPropertyValue = convertStyle(visualPropertyKey, visualPropertyValue);
 
     if (!vizmapperPropertyKey) {
-      console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`)
+      console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`);
     } else {
       if (visualPropertyKey.startsWith('NODE_')) {
         vizmapper.node(vizmapperPropertyKey, vizmapperPropertyValue);
       } else if (visualPropertyKey.startsWith('EDGE_')) {
         vizmapper.edge(vizmapperPropertyKey, vizmapperPropertyValue);
       } else {
-        throw new Error(`Visual Property ${visualPropertyKey} cannot be resolved to vizmapper function. Must be NODE_ or EDGE_`)
+        throw new Error(`Visual Property ${visualPropertyKey} cannot be resolved to vizmapper function. Must be NODE_ or EDGE_`);
       }
     }
-  })
-}
+  });
+};
 
 /**
  * Import CX into a Cytoscape instance
@@ -94,8 +94,7 @@ export const importCX = (cy, cx) => {
         //cy.setNetworkBackgroundColor('#00BB00');
       }
     }
-  })
-
+  });
 };
 
 /**

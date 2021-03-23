@@ -2,11 +2,11 @@ const getMetaDataAspect = (...args) => {
   const metaData = args.map( element => {
     const name = Object.keys(element)[0];
     const elementCount = element[name].length;
-    return { name, elementCount }
-  })
+    return { name, elementCount };
+  });
   
   return {metaData};
-}
+};
 
 const getCyTableColumnAspect = (cy, vizmapper) => {
   const nodeColumns = [];//getCyTableColumns('node');
@@ -14,8 +14,8 @@ const getCyTableColumnAspect = (cy, vizmapper) => {
   const networkColumns = [];
   return {
       "cyTableColumn": nodeColumns.concat(edgeColumns).concat(networkColumns)
-  }
-}
+  };
+};
 
 
 const getCyTableColumns = (selector = 'node') => {
@@ -29,26 +29,26 @@ const getCyTableColumns = (selector = 'node') => {
       });
   });
   return Array.from(attrNames);
-}
+};
 
 const getAttributeDeclarationsAspect = (cy, vizmapper) => {
   return {
     attributeDelarations: []
-  }
-}
+  };
+};
 
 const getNetworkAttributesAspect = (cy, vizmapper) => {
   return {
     networkAttributes: []
-  }
-}
+  };
+};
 
 const getNormalizedKey = (key) => {
   switch(key) {
     case "name" : return 'n';
     default: return key;
   }
-}
+};
 
 const getNodeV = (object) => {
   let v = {};
@@ -56,9 +56,9 @@ const getNodeV = (object) => {
     key => {
       v[getNormalizedKey(key)] = object.data(key);
     }
-  )
+  );
   return v;
-}
+};
 
 const getEdgeV = (object) => {
   let v = {};
@@ -66,9 +66,9 @@ const getEdgeV = (object) => {
     key => {
       v[key] = object.data(key);
     }
-  )
+  );
   return v;
-}
+};
 
 const getNodesAspect = (cy, vizmapper) => {
   const nodes = cy.elements('node').map( node => {
@@ -80,12 +80,12 @@ const getNodesAspect = (cy, vizmapper) => {
       x: node.position().x,
       y: node.position().y,
       v
-    }
-  })
+    };
+  });
   return {
     nodes: nodes
-  }
-}
+  };
+};
 
 const getEdgesAspect = (cy, vizmapper) => {
   const edges = cy.elements('edge').map( edge => {
@@ -97,42 +97,42 @@ const getEdgesAspect = (cy, vizmapper) => {
         s: edge.source().id(),
         t: edge.target().id(),
         v
-      }
-    })
+      };
+    });
   return {
     edges: edges
-  }
-}
+  };
+};
 
 const getVisualPropertiesAspect = (cy, vizmapper) => {
   return {
     visualProperties: []
-  }
-}
+  };
+};
 
 const getNodeBypassesAspect = (cy, vizmapper) => {
   return {
     nodeBypasses: []
-  }
-}
+  };
+};
 
 const getEdgeBypassesAspect = (cy, vizmapper) => {
   return {
     edgeBypasses: []
-  }
-}
+  };
+};
 
 const getVisualEditorPropertiesAspect = (cy, vizmapper) => {
   return {
     cyVisualProperties: []
-  }
-}
+  };
+};
 
 const getCyHiddenAttributesAspect = (cy, vizmapper) => {
   return {
     cyHiddenAttributes: []
-  }
-}
+  };
+};
 
 export const convertCY = (cy) => {
   const vizmapper = cy.vizmapper();
@@ -186,4 +186,4 @@ const metaDataAspect = getMetaDataAspect(
       }
   ];
   return cx;
-}
+};

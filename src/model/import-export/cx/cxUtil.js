@@ -9,11 +9,11 @@ export const getCxVersion = (versionString) => {
         }
     });
     return versionArray;
-}
+};
 
 export const getCxMajorVersion = (versionString) => {
     return versionString ? getCxVersion(versionString)[0] : 1;
-}
+};
 
 export const processAttributeDeclarations = (cxAttributeDeclarations, 
     nodeAttributeNameMap, 
@@ -34,7 +34,7 @@ export const processAttributeDeclarations = (cxAttributeDeclarations,
             updateAttributeDefaultValueMap(edgeAttributeDefaultValueMap, cxAttributeDeclaration.edges);
         }
     });
-}
+};
 
 export const updateAttributeTypeMap = (attributeTypeMap, attributeDeclarations) => {
     Object.keys(attributeDeclarations).forEach((attributeName) => {
@@ -43,7 +43,7 @@ export const updateAttributeTypeMap = (attributeTypeMap, attributeDeclarations) 
             attributeTypeMap.set(attributeName, attributeDeclaration.d);
         }
     });
-}
+};
 
 export const updateAttributeNameMap = (attributeNameMap, attributeDeclarations) => {
     Object.keys(attributeDeclarations).forEach((attributeName) => {
@@ -53,7 +53,7 @@ export const updateAttributeNameMap = (attributeNameMap, attributeDeclarations) 
             attributeNameMap.set(attributeDeclaration.a, attributeName);
         }
     });
-}
+};
 
 export const updateAttributeDefaultValueMap = (attributeDefaultValueMap, attributeDeclarations) => {
     Object.keys(attributeDeclarations).forEach((attributeName) => {
@@ -63,7 +63,7 @@ export const updateAttributeDefaultValueMap = (attributeDefaultValueMap, attribu
             attributeDefaultValueMap.set(attributeName, attributeDeclaration.v);
         }
     });
-}
+};
 
 export const updateInferredTypes = (attributeTypeMap, attributeNameMap, v) => {
     v && Object.keys(v).forEach((key) => {
@@ -73,8 +73,8 @@ export const updateInferredTypes = (attributeTypeMap, attributeNameMap, v) => {
             const newKey = attributeNameMap.has(key) ? attributeNameMap.get(key) : key;
             attributeTypeMap.set(newKey, inferredType);
         }
-    })
-}
+    });
+};
 
 export const getExpandedAttributes = (v, attributeNameMap, attributeDefaultValueMap) => {
     let data = {};
@@ -88,5 +88,5 @@ export const getExpandedAttributes = (v, attributeNameMap, attributeDefaultValue
         }
     });
     return data;
-}
+};
 

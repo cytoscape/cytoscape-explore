@@ -3,8 +3,7 @@ import uuid from 'uuid';
 import Cytoscape from 'cytoscape';
 import CytoscapeSyncher from '../../../model/cytoscape-syncher';
 import { BASE_URL } from '../../env';
-import { importCX, exportCX } from '../../../model/import-export/cx';
-import { importJSON, exportJSON } from '../../../model/import-export/json';
+import { importJSON } from '../../../model/import-export/json';
 
 const http = Express.Router();
 

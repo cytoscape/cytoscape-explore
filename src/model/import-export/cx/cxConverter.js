@@ -3,11 +3,11 @@ import { processAttributeDeclarations, updateInferredTypes, getExpandedAttribute
 
 export const cxNodeToJsNode = (cxNode) => {
 
-}
+};
 
 export const cxEdgeToJsEdge = (cxEdge) => {
 
-}
+};
 
 const savedAspects = [
     'metaData',
@@ -16,18 +16,17 @@ const savedAspects = [
     'visualEditorProperties',
     'cyHiddenAttributes',
     'cyTableColumn'
-]
+];
 
 export const isSavedAspect = (aspect) => {
-    let output = false
+    let output = false;
     savedAspects.forEach( aspectKey => {
-        console.log("checking aspect key: " + aspectKey + " " + !(!aspect[aspectKey]))
         if (aspect[aspectKey]) {
             output = true;
         }
-    })
+    });
     return output;
-}
+};
 
 export const convertCX = (cx) => {
     const output = {
@@ -36,14 +35,14 @@ export const convertCX = (cx) => {
         cxVisualProperties: undefined,
         cxNodeBypasses: [],
         cxEdgeBypasses: []
-    }
+    };
 
     let savedData = {
         "_cx2_data" : {
             'ndex-uuid' : undefined,
             'saved-aspects' : []
         }
-    }
+    };
 
     let nodeAttributeTypeMap = new Map();
     let edgeAttributeTypeMap = new Map();
@@ -113,8 +112,8 @@ export const convertCX = (cx) => {
                 element['position'] = {
                     x: cxNode['x'],
                     y: cxNode['y']
-                }
-                output.elements.nodes.push(element)
+                };
+                output.elements.nodes.push(element);
             });
         } else if (cxAspect['edges']) {
             const cxEdges = cxAspect['edges'];
@@ -124,7 +123,7 @@ export const convertCX = (cx) => {
                 element['data']['id'] = cxEdge.id.toString();
                 element['data']['source'] = cxEdge['s'];
                 element['data']['target'] = cxEdge['t'];
-                output.elements.edges.push(element)
+                output.elements.edges.push(element);
             });
         } 
  
@@ -136,4 +135,4 @@ export const convertCX = (cx) => {
     output.data = savedData;
 
     return output;
-}
+};

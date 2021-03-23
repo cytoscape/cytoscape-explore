@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { Input } from '@material-ui/core'
-import { InputLabel } from '@material-ui/core'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { Input } from '@material-ui/core';
+import { InputLabel } from '@material-ui/core';
+
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+import FormControl from '@material-ui/core/FormControl';
+
 import Button from '@material-ui/core/Button';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import Link from '@material-ui/core/Link';
+
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
@@ -60,7 +58,7 @@ export class NDExNetworkImportDialog extends Component {
       fetchCX(ndexUrl, uuid).then(cx => {
         console.log('CX: ', cx);
       }).catch(error => {
-        console.error(error)
+        console.error(error);
       });
 
     } catch (e) {
