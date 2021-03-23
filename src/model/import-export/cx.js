@@ -56,8 +56,6 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
     if (!vizmapperPropertyKey) {
       console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`)
     } else {
-      console.log('visualPropertyValue: ', visualPropertyValue);
-      console.log('visualPropertKey: ' + vizmapperPropertyKey);
       if (visualPropertyKey.startsWith('NODE_')) {
         vizmapper.node(vizmapperPropertyKey, vizmapperPropertyValue);
       } else if (visualPropertyKey.startsWith('EDGE_')) {
@@ -77,6 +75,8 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
 export const importCX = (cy, cx) => {
 
   const converted = convertCX(cx);
+
+  cy.data(converted.data);
 
   cy.add(converted.elements);
 

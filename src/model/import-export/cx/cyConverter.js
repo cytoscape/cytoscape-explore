@@ -50,7 +50,7 @@ const getNormalizedKey = (key) => {
   }
 }
 
-const getV = (object) => {
+const getNodeV = (object) => {
   let v = {};
   Object.keys(object.data()).filter( key =>  key !== 'id').forEach(
     key => {
@@ -60,10 +60,20 @@ const getV = (object) => {
   return v;
 }
 
+const getEdgeV = (object) => {
+  let v = {};
+  Object.keys(object.data()).filter( key =>  key !== 'id' && key !== 'source' && key !== 'target').forEach(
+    key => {
+      v[key] = object.data(key);
+    }
+  )
+  return v;
+}
+
 const getNodesAspect = (cy, vizmapper) => {
   const nodes = cy.elements('node').map( node => {
 
-  let v = getV(node);
+  let v = getNodeV(node);
 
   return {
       id: node.id(),
@@ -78,8 +88,19 @@ const getNodesAspect = (cy, vizmapper) => {
 }
 
 const getEdgesAspect = (cy, vizmapper) => {
+  const edges = cy.elements('edge').map( edge => {
+
+    let v = getEdgeV(edge);
+  
+    return {
+        id: edge.id(),
+        s: edge.source().id(),
+        t: edge.target().id(),
+        v
+      }
+    })
   return {
-    edges: []
+    edges: edges
   }
 }
 

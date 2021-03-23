@@ -1,14 +1,48 @@
 
 import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cxUtil.js';
 
+export const cxNodeToJsNode = (cxNode) => {
 
+}
+
+export const cxEdgeToJsEdge = (cxEdge) => {
+
+}
+
+const savedAspects = [
+    'metaData',
+    'attributeDeclarations',
+    'networkAttributes',
+    'visualEditorProperties',
+    'cyHiddenAttributes',
+    'cyTableColumn'
+]
+
+export const isSavedAspect = (aspect) => {
+    let output = false
+    savedAspects.forEach( aspectKey => {
+        console.log("checking aspect key: " + aspectKey + " " + !(!aspect[aspectKey]))
+        if (aspect[aspectKey]) {
+            output = true;
+        }
+    })
+    return output;
+}
 
 export const convertCX = (cx) => {
     const output = {
         elements: {},
+        data: undefined,
         cxVisualProperties: undefined,
         cxNodeBypasses: [],
         cxEdgeBypasses: []
+    }
+
+    let savedData = {
+        "_cx2_data" : {
+            'ndex-uuid' : undefined,
+            'saved-aspects' : []
+        }
     }
 
     let nodeAttributeTypeMap = new Map();
@@ -69,7 +103,6 @@ export const convertCX = (cx) => {
     //Add edges
     output.elements['edges'] = [];
 
-
     cx.forEach((cxAspect) => {
         if (cxAspect['nodes']) {
             const cxNodes = cxAspect['nodes'];
@@ -93,8 +126,14 @@ export const convertCX = (cx) => {
                 element['data']['target'] = cxEdge['t'];
                 output.elements.edges.push(element)
             });
+        } 
+ 
+        if (isSavedAspect(cxAspect)) {
+            savedData['_cx2_data']['saved-aspects'].push(cxAspect);
         }
     });
+
+    output.data = savedData;
 
     return output;
 }
