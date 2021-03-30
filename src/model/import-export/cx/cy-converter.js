@@ -1,4 +1,5 @@
 import { isAspectKeyInArray } from './converter-utils';
+import { CX_DATA_KEY } from './converter-constants';
 
 const getMetaDataAspect = (elements) => {
   const metaData = elements.map( element => {
@@ -164,7 +165,7 @@ export const convertCY = (cy) => {
     edgeBypassesAspect
   ];
  
-  let savedAspects = cy.data("_cx2-data")['saved-aspects'];
+  let savedAspects = cy.data(CX_DATA_KEY)['saved-aspects'];
 
   const metaDataAspect = getMetaDataAspect(
     computedAspects.concat(savedAspects)

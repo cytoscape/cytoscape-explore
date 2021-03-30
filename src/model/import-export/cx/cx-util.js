@@ -18,23 +18,24 @@ export const getCxMajorVersion = (versionString) => {
 export const CX_TO_JS = 'CX_TO_JS';
 export const JS_TO_CX = 'JS_TO_CX';
 
-export const processAttributeDeclarations = (cxAttributeDeclarations, 
-    nodeAttributeNameMap, 
-    nodeAttributeTypeMap, 
-    nodeAttributeDefaultValueMap, 
-    edgeAttributeNameMap, edgeAttributeTypeMap, 
-    edgeAttributeDefaultValueMap, conversionDirection = CX_TO_JS) => {
+export const createAttributeDeclarations = () => {
+    return {
+        typeMap : new Map(),
+        aliasMap : new Map(),
+        defaultValueMap : new Map()
+    };
+};
+
+export const updateAttributeDeclarations = (cxAttributeDeclarations, 
+    attributeDeclarations, 
+    elementKey, 
+    conversionDirection = CX_TO_JS) => {
     //console.log(" cxAttributeDeclarations: " + JSON.stringify(cxAttributeDeclarations, null, 2));
     cxAttributeDeclarations.forEach((cxAttributeDeclaration) => {
-        if (cxAttributeDeclaration['nodes']) {
-            updateAttributeNameMap(nodeAttributeNameMap, cxAttributeDeclaration.nodes, conversionDirection);
-            updateAttributeTypeMap(nodeAttributeTypeMap, cxAttributeDeclaration.nodes);
-            updateAttributeDefaultValueMap(nodeAttributeDefaultValueMap, cxAttributeDeclaration.nodes);
-        }
-        if (cxAttributeDeclaration['edges']) {
-            updateAttributeNameMap(edgeAttributeNameMap, cxAttributeDeclaration.edges, conversionDirection);
-            updateAttributeTypeMap(edgeAttributeTypeMap, cxAttributeDeclaration.edges);
-            updateAttributeDefaultValueMap(edgeAttributeDefaultValueMap, cxAttributeDeclaration.edges);
+        if (cxAttributeDeclaration[elementKey]) {
+            updateAttributeAliasMap(attributeDeclarations.aliasMap, cxAttributeDeclaration[elementKey], conversionDirection);
+            updateAttributeTypeMap(attributeDeclarations.typeMap, cxAttributeDeclaration[elementKey]);
+            updateAttributeDefaultValueMap(attributeDeclarations.defaultValueMap, cxAttributeDeclaration[elementKey]);
         }
     });
 };
@@ -48,15 +49,15 @@ export const updateAttributeTypeMap = (attributeTypeMap, attributeDeclarations) 
     });
 };
 
-export const updateAttributeNameMap = (attributeNameMap, attributeDeclarations, conversionDirection) => {
+export const updateAttributeAliasMap = (attributeAliasMap, attributeDeclarations, conversionDirection) => {
     Object.keys(attributeDeclarations).forEach((attributeName) => {
         const attributeDeclaration = attributeDeclarations[attributeName];
         if (attributeDeclaration['a']) {
             //console.log('attribute ' + attributeDeclaration.a + ' should be renamed to ' + attributeName);
             if (conversionDirection === CX_TO_JS) {
-                attributeNameMap.set(attributeDeclaration.a, attributeName); 
+                attributeAliasMap.set(attributeDeclaration.a, attributeName); 
             } else if (conversionDirection === JS_TO_CX) {
-                attributeNameMap.set(attributeName, attributeDeclaration.a); 
+                attributeAliasMap.set(attributeName, attributeDeclaration.a); 
             }
         }
     });
@@ -83,17 +84,25 @@ export const updateInferredTypes = (attributeTypeMap, attributeNameMap, v) => {
     });
 };
 
-export const getExpandedAttributes = (v, attributeNameMap, attributeDefaultValueMap) => {
-    let data = {};
+
+
+export const renameAttributesByAlias = (v, attributeAliasMap) => {
+    const data = {};
     v && Object.keys(v).forEach((key) => {
-        const newKey = attributeNameMap.has(key) ? attributeNameMap.get(key) : key;
+        const newKey = attributeAliasMap.has(key) ? attributeAliasMap.get(key) : key;
         data[newKey] = v[key];
     });
+    return data;
+};
+
+export const addDefaultValues = (v, attributeDefaultValueMap) => {
+    const data = {};
     attributeDefaultValueMap.forEach((value, key) => {
         if (!data[key]) {
             data[key] = value;
         }
     });
+    Object.assign(data, v);
     return data;
 };
 

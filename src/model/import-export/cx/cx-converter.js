@@ -1,6 +1,6 @@
 
-import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cx-util.js';
-import { savedAspects } from './converter-constants';
+import { updateAttributeDeclarations as updateAttributeDeclarations, updateInferredTypes, renameAttributesByAlias, addDefaultValues, createAttributeDeclarations } from './cx-util.js';
+import { SAVED_ASPECTS, CX_DATA_KEY } from './converter-constants';
 import {  isAspectKeyInArray } from './converter-utils';
 
 export const cxNodeToJsNode = (cxNode) => {
@@ -9,6 +9,14 @@ export const cxNodeToJsNode = (cxNode) => {
 
 export const cxEdgeToJsEdge = (cxEdge) => {
 
+};
+
+export const createData = (v, attributeAliasMap, attributeDefaultValueMap) => {
+    
+    const renamedData = renameAttributesByAlias(v, attributeAliasMap);
+    const dataWithDefaultValues = addDefaultValues(renamedData, attributeDefaultValueMap);
+
+    return dataWithDefaultValues;
 };
 
 export const convertCX = (cx) => {
@@ -20,43 +28,37 @@ export const convertCX = (cx) => {
         cxEdgeBypasses: []
     };
 
-    let savedData = {
-        "_cx2-data" : {
-            'ndex-uuid' : undefined,
-            'saved-aspects' : []
-        }
+    let savedData = {};
+
+    savedData[CX_DATA_KEY] = {
+        'ndex-uuid' : undefined,
+        'saved-aspects' : []
     };
 
-    let nodeAttributeTypeMap = new Map();
-    let edgeAttributeTypeMap = new Map();
-
-    let nodeAttributeNameMap = new Map();
-    let edgeAttributeNameMap = new Map();
-
-    let nodeAttributeDefaultValueMap = new Map();
-    let edgeAttributeDefaultValueMap = new Map();
+    const nodeAttributeDeclarations = createAttributeDeclarations();
+    const edgeAttributeDeclarations = createAttributeDeclarations();
 
     cx.forEach((cxAspect) => {
         if (cxAspect['attributeDeclarations']) {
             const cxAttributeDeclarations = cxAspect['attributeDeclarations'];
-            //console.log(" cxAttributeDeclarations: " + JSON.stringify(cxAttributeDeclarations, null, 2));
-            processAttributeDeclarations(cxAttributeDeclarations,
-                nodeAttributeNameMap,
-                nodeAttributeTypeMap,
-                nodeAttributeDefaultValueMap,
-                edgeAttributeNameMap,
-                edgeAttributeTypeMap,
-                edgeAttributeDefaultValueMap
+            
+            updateAttributeDeclarations(cxAttributeDeclarations,
+                nodeAttributeDeclarations,
+                'nodes'
+            );
+            updateAttributeDeclarations(cxAttributeDeclarations,
+                edgeAttributeDeclarations,
+                'edges'
             );
         } else if (cxAspect['nodes']) {
             const cxNodes = cxAspect['nodes'];
             cxNodes.forEach((cxNode) => {
-                updateInferredTypes(nodeAttributeTypeMap, nodeAttributeNameMap, cxNode['v']);
+                updateInferredTypes(nodeAttributeDeclarations.typeMap, nodeAttributeDeclarations.aliasMap, cxNode['v']);
             });
         } else if (cxAspect['edges']) {
             const cxEdges = cxAspect['edges'];
             cxEdges.forEach((cxEdge) => {
-                updateInferredTypes(edgeAttributeTypeMap, edgeAttributeNameMap, cxEdge['v']);
+                updateInferredTypes(edgeAttributeDeclarations.typeMap, edgeAttributeDeclarations.aliasMap, cxEdge['v']);
             });
         } else if (cxAspect['visualProperties']) {
             output.cxVisualProperties = cxAspect['visualProperties'];
@@ -71,11 +73,11 @@ export const convertCX = (cx) => {
         }
     });
 
-    nodeAttributeTypeMap.forEach((inferredType, attributeName) => {
+    nodeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
         //console.log('inferred attribute type for node: ' + attributeName + ': ' + inferredType);
     });
 
-    edgeAttributeTypeMap.forEach((inferredType, attributeName) => {
+    edgeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
         //console.log('inferred attribute type for edge: ' + attributeName + ': ' + inferredType);
     });
 
@@ -90,7 +92,7 @@ export const convertCX = (cx) => {
             const cxNodes = cxAspect['nodes'];
             cxNodes.forEach((cxNode) => {
                 const element = {};
-                element['data'] = getExpandedAttributes(cxNode['v'], nodeAttributeNameMap, nodeAttributeDefaultValueMap);
+                element['data'] = createData(cxNode['v'], nodeAttributeDeclarations.aliasMap, nodeAttributeDeclarations.defaultValueMap);
                 element['data']['id'] = cxNode.id.toString();
                 element['position'] = {
                     x: cxNode['x'],
@@ -102,7 +104,7 @@ export const convertCX = (cx) => {
             const cxEdges = cxAspect['edges'];
             cxEdges.forEach((cxEdge) => {
                 const element = {};
-                element['data'] = getExpandedAttributes(cxEdge['v'], edgeAttributeNameMap, edgeAttributeDefaultValueMap);
+                element['data'] = createData(cxEdge['v'], edgeAttributeDeclarations.aliasMap, edgeAttributeDeclarations.defaultValueMap);
                 element['data']['id'] = cxEdge.id.toString();
                 element['data']['source'] = cxEdge['s'];
                 element['data']['target'] = cxEdge['t'];
@@ -110,8 +112,8 @@ export const convertCX = (cx) => {
             });
         } 
  
-        if (isAspectKeyInArray(cxAspect, savedAspects)) {
-            savedData['_cx2-data']['saved-aspects'].push(cxAspect);
+        if (isAspectKeyInArray(cxAspect, SAVED_ASPECTS)) {
+            savedData[CX_DATA_KEY]['saved-aspects'].push(cxAspect);
         }
     });
 
