@@ -1,7 +1,7 @@
 
 import { updateAttributeDeclarations as updateAttributeDeclarations, updateInferredTypes, renameAttributesByAlias, addDefaultValues, createAttributeDeclarations } from './cx-util.js';
 import { SAVED_ASPECTS, CX_DATA_KEY } from './converter-constants';
-import {  isAspectKeyInArray } from './converter-utils';
+import { isAspectKeyInArray } from './converter-utils';
 
 export const cxNodeToJsNode = (cxNode) => {
 
@@ -12,11 +12,19 @@ export const cxEdgeToJsEdge = (cxEdge) => {
 };
 
 export const createData = (v, attributeAliasMap, attributeDefaultValueMap) => {
-    
+
     const renamedData = renameAttributesByAlias(v, attributeAliasMap);
     const dataWithDefaultValues = addDefaultValues(renamedData, attributeDefaultValueMap);
-
     return dataWithDefaultValues;
+};
+
+export const createAttributeDeclarationUnion = (attributeDeclarations) => {
+    const keys = new Set([...attributeDeclarations.aliasMap.values(), ...attributeDeclarations.typeMap.keys(), ...attributeDeclarations.defaultValueMap.keys()]);
+    const output = {};
+    keys.forEach(key => {
+        output[key] = {d: attributeDeclarations.typeMap.get(key)};
+    });
+    return output;
 };
 
 export const convertCX = (cx) => {
@@ -31,17 +39,18 @@ export const convertCX = (cx) => {
     let savedData = {};
 
     savedData[CX_DATA_KEY] = {
-        'ndex-uuid' : undefined,
-        'saved-aspects' : []
+        'ndex-uuid': undefined,
+        'saved-aspects': []
     };
 
     const nodeAttributeDeclarations = createAttributeDeclarations();
     const edgeAttributeDeclarations = createAttributeDeclarations();
+    const networkAttributes = {};
 
     cx.forEach((cxAspect) => {
         if (cxAspect['attributeDeclarations']) {
             const cxAttributeDeclarations = cxAspect['attributeDeclarations'];
-            
+
             updateAttributeDeclarations(cxAttributeDeclarations,
                 nodeAttributeDeclarations,
                 'nodes'
@@ -50,6 +59,12 @@ export const convertCX = (cx) => {
                 edgeAttributeDeclarations,
                 'edges'
             );
+            cxAttributeDeclarations.forEach((cxAttributeDeclaration) => {
+                if (cxAttributeDeclaration['networkAttributes']) {
+                    console.log('instance of networkAttributes: ', cxAttributeDeclaration['networkAttributes']);
+                    Object.assign(networkAttributes, cxAttributeDeclaration['networkAttributes']);
+                }
+            });
         } else if (cxAspect['nodes']) {
             const cxNodes = cxAspect['nodes'];
             cxNodes.forEach((cxNode) => {
@@ -81,6 +96,15 @@ export const convertCX = (cx) => {
         //console.log('inferred attribute type for edge: ' + attributeName + ': ' + inferredType);
     });
 
+    const attributeDeclarationUnion = {
+        "attributeDeclarations": {
+        nodes: createAttributeDeclarationUnion(nodeAttributeDeclarations),
+        edges: createAttributeDeclarationUnion(edgeAttributeDeclarations),
+        networkAttributes : networkAttributes
+        }
+    };
+   
+
     //Add nodes
     output.elements['nodes'] = [];
 
@@ -110,12 +134,14 @@ export const convertCX = (cx) => {
                 element['data']['target'] = cxEdge['t'];
                 output.elements.edges.push(element);
             });
-        } 
- 
+        }
+
         if (isAspectKeyInArray(cxAspect, SAVED_ASPECTS)) {
             savedData[CX_DATA_KEY]['saved-aspects'].push(cxAspect);
         }
     });
+
+    savedData[CX_DATA_KEY]['saved-aspects'].splice(1, 0, attributeDeclarationUnion);
 
     output.data = savedData;
 

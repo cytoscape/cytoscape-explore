@@ -150,6 +150,11 @@ export const convertCY = (cy) => {
   const vizmapper = cy.vizmapper();
   
   const attributeDeclarationsApect = getAttributeDeclarationsAspect(cy, vizmapper);
+ 
+  const nodeAttributeDeclarations = createAttributeDeclarations();
+  const edgeAttributeDeclarations = createAttributeDeclarations();
+  
+  
   const nodesAspect = getNodesAspect(cy, vizmapper);
   const edgesAspect = getEdgesAspect(cy, vizmapper);
   const visualPropertiesAspect = getVisualPropertiesAspect(cy, vizmapper);

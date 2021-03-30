@@ -1,6 +1,5 @@
 export const SAVED_ASPECTS = [
   'metaData',
-  'attributeDeclarations',
   'networkAttributes',
   'visualEditorProperties',
   'cyHiddenAttributes',
