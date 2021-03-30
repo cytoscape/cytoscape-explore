@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { isSavedAspect } from '../src/model/import-export/cx/cxConverter'
+import { isSavedAspect } from '../src/model/import-export/cx/cx-converter'
 
 describe('CX Conversion', () => {
   

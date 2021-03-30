@@ -1,5 +1,5 @@
-import { convertCX } from './cx/cxConverter.js';
-import { convertCY } from './cx/cyConverter.js';
+import { convertCX } from './cx/cx-converter.js';
+import { convertCY } from './cx/cy-converter.js';
 import { styleFactory } from '../../model/style';
 
 const DEFAULT_STYLE_FACTORY_FUNCTIONS = {

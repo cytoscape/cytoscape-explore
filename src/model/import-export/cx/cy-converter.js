@@ -1,7 +1,8 @@
 import { isAspectKeyInArray } from './converter-utils';
 
-const getMetaDataAspect = (...args) => {
-  const metaData = args.map( element => {
+const getMetaDataAspect = (elements) => {
+  const metaData = elements.map( element => {
+    console.log('processing aspect for metadata: ', element);
     const name = Object.keys(element)[0];
     const elementCount = element[name].length;
     return { name, elementCount };

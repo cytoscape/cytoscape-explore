@@ -1,6 +1,6 @@
 
-import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cxUtil.js';
-import { savedAspects } from './converterConstants';
+import { processAttributeDeclarations, updateInferredTypes, getExpandedAttributes } from './cx-util.js';
+import { savedAspects } from './converter-constants';
 import {  isAspectKeyInArray } from './converter-utils';
 
 export const cxNodeToJsNode = (cxNode) => {
