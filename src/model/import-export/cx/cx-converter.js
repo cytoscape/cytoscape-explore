@@ -45,6 +45,7 @@ export const convertCX = (cx) => {
 
     const nodeAttributeDeclarations = createAttributeDeclarations();
     const edgeAttributeDeclarations = createAttributeDeclarations();
+    let metadata = undefined;
     const networkAttributes = {};
 
     cx.forEach((cxAspect) => {
@@ -134,6 +135,8 @@ export const convertCX = (cx) => {
                 element['data']['target'] = cxEdge['t'];
                 output.elements.edges.push(element);
             });
+        } else if (cxAspect['metaData']) {
+            metadata = cxAspect;
         }
 
         if (isAspectKeyInArray(cxAspect, SAVED_ASPECTS)) {
@@ -141,7 +144,8 @@ export const convertCX = (cx) => {
         }
     });
 
-    savedData[CX_DATA_KEY]['saved-aspects'].splice(1, 0, attributeDeclarationUnion);
+    savedData[CX_DATA_KEY]['saved-aspects'].unshift(attributeDeclarationUnion);
+    savedData[CX_DATA_KEY]['saved-aspects'].unshift(metadata);
 
     output.data = savedData;
 
