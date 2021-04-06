@@ -1,5 +1,7 @@
 import { isAspectKeyInArray } from './converter-utils';
 import { CX_DATA_KEY } from './converter-constants';
+import { NetworkAnalyser} from './../../../client/components/network-editor/network-analyser'
+import EventEmitter from 'eventemitter3';
 
 const getMetaDataAspect = (elements) => {
   const metaData = elements.map( element => {
@@ -34,7 +36,22 @@ const getCyTableColumns = (selector = 'node') => {
   return Array.from(attrNames);
 };
 
+const getAttributeDeclarations = (objects) => {
+  let output = {};
+  objects.forEach(object => {
+
+  })
+  return output;
+}
+
 const getAttributeDeclarationsAspect = (cy, vizmapper) => {
+ 
+  const dummyEmitter = new EventEmitter();
+ 
+  const analyser = new NetworkAnalyser(cy, dummyEmitter);
+  
+  console.log(analyser.getAttributes('node'));
+
   return {
     attributeDelarations: []
   };
@@ -151,9 +168,8 @@ export const convertCY = (cy) => {
   
   const attributeDeclarationsApect = getAttributeDeclarationsAspect(cy, vizmapper);
  
-  const nodeAttributeDeclarations = createAttributeDeclarations();
-  const edgeAttributeDeclarations = createAttributeDeclarations();
-  
+  //const nodeAttributeDeclarations = createAttributeDeclarations();
+  //const edgeAttributeDeclarations = createAttributeDeclarations();
   
   const nodesAspect = getNodesAspect(cy, vizmapper);
   const edgesAspect = getEdgesAspect(cy, vizmapper);
