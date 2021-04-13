@@ -2,6 +2,7 @@ import EventEmitter from 'eventemitter3';
 import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
+import { UndoSupport } from '../undo/undo';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
@@ -40,9 +41,12 @@ export class NetworkEditorController {
     /** @type {NetworkAnalyser} */
     this.networkAnalyser = new NetworkAnalyser(cy, bus);
 
+    /** @type {UndoSupport} */
+    this.undoSupport = new UndoSupport(bus);
+
     this.drawModeEnabled = false;
 
-    // Save the last used layout options
+    // Save the last used layout optionst
     this.layoutOptions = {
       fcose: {
         name: 'fcose',
@@ -188,6 +192,12 @@ export class NetworkEditorController {
     });
 
     this.bus.emit('addNode', node);
+
+    this.undoSupport.post({
+      title: 'Add Node',
+      undo: () => this.cy.remove(node),
+      redo: () => this.cy.add(node)
+    });
   }
 
   /**
