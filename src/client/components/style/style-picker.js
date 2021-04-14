@@ -9,6 +9,7 @@ import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
+import _ from 'lodash';
 
 
 const TAB = {
@@ -41,7 +42,25 @@ export class StylePicker extends React.Component {
   }
 
 
+  onHide() {
+    const vizmapper = this.controller.vizmapper;
+
+    const styleBefore = this.styleSnapshot;
+    const styleAfter = vizmapper.getStyleSnapshot();
+
+    if(!_.isEqual(styleBefore, styleAfter)) {
+      this.controller.undoSupport.post({
+        title: this.props.title,
+        undo: () => vizmapper.setStyleSnapshot(styleBefore),
+        redo: () => vizmapper.setStyleSnapshot(styleAfter)
+      });
+    }
+  }
+
+
   onShow() {
+    this.styleSnapshot = this.controller.vizmapper.getStyleSnapshot();
+
     this.setState({ initialized: true });
     const numSelected = this.controller.bypassCount(this.props.selector);
 

@@ -30,12 +30,17 @@ export class StylePickerButton extends Component  {
     this.handleTootlipClose();
   }
 
+  handlePopoverHide(ref) {
+    ref.current.onHide && ref.current.onHide();
+  }
+
   render() {
     const ref = React.createRef();
     return (
       <div>
         <TippyPopover
           onShow={() => this.handlePopoverShow(ref)}
+          onHide={() => this.handlePopoverHide(ref)}
           content={
             <StylePicker ref={ref} {...this.props} />
           }

@@ -40,14 +40,16 @@ export class UndoButton extends Component  {
         placement="right" 
         title={this.getButtonTooltip()}
       >
-        <IconButton 
-          size="small" 
-          color="inherit" 
-          disabled={this.state.disabled}
-          onClick={() => this.run()}
-        >
-          <i className="material-icons">{this.props.icon}</i>
-        </IconButton>
+        <span>
+          <IconButton 
+            size="small" 
+            color="inherit" 
+            disabled={this.state.disabled}
+            onClick={() => this.run()}
+          >
+            <i className="material-icons">{this.props.icon}</i>
+          </IconButton>
+        </span>
       </Tooltip>
     );
   }
@@ -58,7 +60,7 @@ UndoButton.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   icon: PropTypes.string,
   title: PropTypes.string,
-  type: PropTypes.oneOf('undo', 'redo')
+  type: PropTypes.oneOf(['undo', 'redo'])
 };
 
 export default UndoButton;

@@ -99,6 +99,25 @@ export class VizMapper {
     this.cySyncher.resetStyle();
   }
   
+  // For use by the undo stack
+  getStyleSnapshot() {
+    const _styles = this.cy.data('_styles') || {};
+    return _.cloneDeep(_styles);
+  }
+
+  getBypassSnapshot() {
+    const _bypasses = this.cy.data('_bypasses') || {};
+    return _.cloneDeep(_bypasses);
+  }
+
+  setStyleSnapshot(_styles) {
+    this.cy.data({ _styles });
+  }
+
+  setBypassSnapshot(_bypasses) {
+    this.cy.data({ _bypasses });
+  }
+
   /**
    * Set a global style
    * @param {String} selector A selector of elements on which style is applied ('node' or 'edge')
@@ -113,7 +132,6 @@ export class VizMapper {
     const _styles = this.cy.data('_styles') || {};
 
     _.set(_styles, [selector, property], value);
-
     this.cy.data({ _styles });
 
     this.cy.emit('vmstyle', selector, property, value);
@@ -187,8 +205,8 @@ export class VizMapper {
       }
 
       const _bypasses = this.cy.data('_bypasses') || {};
-      const ids = eles.map(ele => ele.id());
 
+      const ids = eles.map(ele => ele.id());
       if(value === null)
         ids.forEach(id => _.unset(_bypasses, [id, property]));
       else

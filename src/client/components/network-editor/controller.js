@@ -42,7 +42,8 @@ export class NetworkEditorController {
     this.networkAnalyser = new NetworkAnalyser(cy, bus);
 
     /** @type {UndoSupport} */
-    this.undoSupport = new UndoSupport(bus);
+    this.undoSupport = new UndoSupport(this);
+    this._initSyncUndoListeners();
 
     this.drawModeEnabled = false;
 
@@ -75,6 +76,22 @@ export class NetworkEditorController {
         padding: DEFAULT_PADDING
       },
     };
+  }
+
+  _initSyncUndoListeners() {
+    // TODO Do we need to use EventEmitterProxy to properly remove listeners? Probably!
+    // TODO Do we need to coalesce events coming from the syncher? Probably!
+  
+    function addEle(ele) {
+      const cy = ele.cy();
+      this.undoSupport.post({
+        title: (ele.isNode() ? "Add Node" : "Add Edge") + " (from syncher)",
+        undo: () => cy.remove(ele),
+        redo: () => cy.add(ele)
+      });
+    }
+  
+    this.cySyncher.emitter.on('add', addEle);
   }
 
   /**
@@ -191,13 +208,13 @@ export class NetworkEditorController {
       }
     });
 
-    this.bus.emit('addNode', node);
-
     this.undoSupport.post({
-      title: 'Add Node',
+      title: "Add Node ",
       undo: () => this.cy.remove(node),
-      redo: () => this.cy.add(node)
+      redo: () => this.cy.add(node),
     });
+
+    this.bus.emit('addNode', node);
   }
 
   /**
@@ -249,6 +266,12 @@ export class NetworkEditorController {
     }
 
     const deletedEls = selectedEles.remove();
+
+    this.undoSupport.post({
+      title: "Remove Elements", 
+      undo: () => this.cy.add(deletedEls),
+      redo: () => this.cy.remove(deletedEls)
+    });
 
     this.bus.emit('deletedSelectedElements', deletedEls);
   }

@@ -1,8 +1,9 @@
+
 export class UndoSupport {
 
-  constructor(bus) {
+  constructor(controller) {
     /** @type {EventEmitter} */
-    this.bus = bus;
+    this.bus = controller.bus;
 
     this.stacks = {
       undo: [],
@@ -11,6 +12,7 @@ export class UndoSupport {
   }
 
   post(edit) {
+    console.log("Undo Edit Posted: " + edit.title);
     this.stacks.undo.push(edit);
     this.stacks.redo = [];
     this.bus.emit('undo', 'post');
