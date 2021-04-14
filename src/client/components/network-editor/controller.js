@@ -82,14 +82,13 @@ export class NetworkEditorController {
     // TODO Do we need to use EventEmitterProxy to properly remove listeners? Probably!
     // TODO Do we need to coalesce events coming from the syncher? Probably!
   
-    function addEle(ele) {
-      const cy = ele.cy();
+    const addEle = (ele) => {
       this.undoSupport.post({
         title: (ele.isNode() ? "Add Node" : "Add Edge") + " (from syncher)",
-        undo: () => cy.remove(ele),
-        redo: () => cy.add(ele)
+        undo: () => ele.cy().remove(ele),
+        redo: () => ele.cy().add(ele)
       });
-    }
+    };
   
     this.cySyncher.emitter.on('add', addEle);
   }
@@ -181,6 +180,32 @@ export class NetworkEditorController {
     this.layout.run();
   }
 
+  getNodePositionsSnapshot() {
+    const positionMap = new Map();
+    this.cy.nodes().forEach(node => {
+      positionMap.set(node.id(), { ...node.position() });
+    });
+    return positionMap;
+  }
+
+  postLayoutUndoEdit(positionMap) {
+    const positionsBefore = positionMap;
+    const positionsAfter  = this.getNodePositionsSnapshot();
+
+    const setPositions = (snapshot) => {
+      for(const [id, position] of snapshot.entries()) {
+        this.cy.nodes(`#${id}`).position(position);
+      }
+      this.cy.center();
+    };
+
+    this.undoSupport.post({
+      title: "Layout",
+      undo: () => setPositions(positionsBefore),
+      redo: () => setPositions(positionsAfter)
+    });
+  }
+
   /**
    * Returns the last used layout options for the passed layout name,
    * or the default values if the layout has not been applied yet.
@@ -258,17 +283,18 @@ export class NetworkEditorController {
   /**
    * Delete the selected (i.e. :selected) elements in the graph
    */
-  deletedSelectedElements(){
+  deletedSelectedElements() {
     let selectedEles = this.cy.$(':selected');
 
-    if( selectedEles.empty() ){
+    if(selectedEles.empty()) {
       selectedEles = this.cy.elements();
     }
 
     const deletedEls = selectedEles.remove();
 
+    // TODO If I delete nodes then what about the adjacent edges?
     this.undoSupport.post({
-      title: "Remove Elements", 
+      title: "Delete Elements", 
       undo: () => this.cy.add(deletedEls),
       redo: () => this.cy.remove(deletedEls)
     });
