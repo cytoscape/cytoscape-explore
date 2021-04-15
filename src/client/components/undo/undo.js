@@ -1,24 +1,51 @@
 
 const MAX_DEPTH = 25;
 
+
+function compositeEdit(prev, edit) {
+  return {
+    ...edit,
+    undo: () => {
+      edit.undo();
+      prev.undo();
+    },
+    redo: () => {
+      prev.redo();
+      edit.redo();
+    }
+  };
+}
+
+
 export class UndoSupport {
 
   constructor(controller) {
     /** @type {EventEmitter} */
     this.bus = controller.bus;
-
     this.stacks = {
       undo: [],
       redo: []
     };
   }
 
-  post(edit) {
+  post(edit, coalesce = false) {
     console.log("Undo Edit Posted: " + edit.title);
-    this.stacks.undo.push(edit);
+
+    if(coalesce 
+      && this.stacks.undo.length > 0 
+      && edit.tag !== undefined 
+      && edit.tag === this.stacks.undo[this.stacks.undo.length-1].tag
+    ) {
+      const prev = this.stacks.undo.pop();
+      this.stacks.undo.push(compositeEdit(prev, edit));
+    } else {
+      this.stacks.undo.push(edit);
+    }
+
     if(this.stacks.undo.length >= MAX_DEPTH) {
       this.stacks.undo = this.stacks.undo.slice(1);
     }
+
     this.stacks.redo = [];
     this.bus.emit('undo', 'post');
   }

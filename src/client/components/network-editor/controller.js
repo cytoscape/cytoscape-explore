@@ -84,13 +84,19 @@ export class NetworkEditorController {
   
     const addEle = (ele) => {
       this.undoSupport.post({
-        title: (ele.isNode() ? "Add Node" : "Add Edge") + " (from syncher)",
+        title: (ele.isNode() ? "Add Node" : "Add Edge") + " (remote)",
+        tag: 'sync-add',
         undo: () => ele.cy().remove(ele),
         redo: () => ele.cy().add(ele)
-      });
+      }, true);
     };
   
     this.cySyncher.emitter.on('add', addEle);
+
+    // this.cySyncher.emitter.on('add',    () => console.log('syncher: add'));
+    // this.cySyncher.emitter.on('remove', () => console.log('syncher: remove'));
+    // this.cySyncher.emitter.on('ele',    () => console.log('syncher: ele'));  // move
+    // this.cySyncher.emitter.on('cy',     () => console.log('syncher: cy'));  // style changes, and bypass 
   }
 
   /**
@@ -234,9 +240,9 @@ export class NetworkEditorController {
     });
 
     this.undoSupport.post({
-      title: "Add Node ",
+      title: 'Add Node',
       undo: () => this.cy.remove(node),
-      redo: () => this.cy.add(node),
+      redo: () => this.cy.add(node)
     });
 
     this.bus.emit('addNode', node);
