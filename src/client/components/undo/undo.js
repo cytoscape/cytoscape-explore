@@ -1,4 +1,6 @@
 
+const MAX_DEPTH = 25;
+
 export class UndoSupport {
 
   constructor(controller) {
@@ -14,6 +16,9 @@ export class UndoSupport {
   post(edit) {
     console.log("Undo Edit Posted: " + edit.title);
     this.stacks.undo.push(edit);
+    if(this.stacks.undo.length >= MAX_DEPTH) {
+      this.stacks.undo = this.stacks.undo.slice(1);
+    }
     this.stacks.redo = [];
     this.bus.emit('undo', 'post');
   }
