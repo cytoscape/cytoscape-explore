@@ -29,8 +29,6 @@ export class UndoSupport {
   }
 
   post(edit, coalesce = false) {
-    console.log("Undo Edit Posted: " + edit.title);
-
     if(coalesce 
       && this.stacks.undo.length > 0 
       && edit.tag !== undefined 
@@ -48,6 +46,12 @@ export class UndoSupport {
 
     this.stacks.redo = [];
     this.bus.emit('undo', 'post');
+  }
+
+  invalidate() {
+    this.stacks.undo = [];
+    this.stacks.redo = [];
+    this.bus.emit('undo', 'invalidate');
   }
 
   run(type = 'undo') {

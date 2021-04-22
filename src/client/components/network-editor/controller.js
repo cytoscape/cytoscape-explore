@@ -79,24 +79,21 @@ export class NetworkEditorController {
   }
 
   _initSyncUndoListeners() {
-    // TODO Do we need to use EventEmitterProxy to properly remove listeners? Probably!
-    // TODO Do we need to coalesce events coming from the syncher? Probably!
-  
-    const addEle = (ele) => {
-      this.undoSupport.post({
-        title: (ele.isNode() ? "Add Node" : "Add Edge") + " (remote)",
-        tag: 'sync-add',
-        undo: () => ele.cy().remove(ele),
-        redo: () => ele.cy().add(ele)
-      }, true);
-    };
-  
-    this.cySyncher.emitter.on('add', addEle);
+    // Comment out UNDO edits for syncher events for now
 
-    // this.cySyncher.emitter.on('add',    () => console.log('syncher: add'));
-    // this.cySyncher.emitter.on('remove', () => console.log('syncher: remove'));
-    // this.cySyncher.emitter.on('ele',    () => console.log('syncher: ele'));  // move
-    // this.cySyncher.emitter.on('cy',     () => console.log('syncher: cy'));  // style changes, and bypass 
+    // const addEle = (ele) => {
+    //   this.undoSupport.post({
+    //     title: (ele.isNode() ? "Add Node" : "Add Edge") + " (remote)",
+    //     tag: 'sync-add',
+    //     undo: () => ele.cy().remove(ele),
+    //     redo: () => ele.cy().add(ele)
+    //   }, true);
+    // };
+  
+    this.cySyncher.emitter.on('add',    () => this.undoSupport.invalidate()); // node/edge added
+    this.cySyncher.emitter.on('remove', () => this.undoSupport.invalidate()); // node/edge removed
+    this.cySyncher.emitter.on('ele',    () => this.undoSupport.invalidate()); // node position change
+    this.cySyncher.emitter.on('cy',     () => this.undoSupport.invalidate()); // style/bypass change
   }
 
   /**
@@ -230,19 +227,22 @@ export class NetworkEditorController {
     function randomArg(... args) {
       return args[Math.floor(Math.random() * args.length)];
     }
-    const node = this.cy.add({
+
+    const nodeData = {
       renderedPosition: { x: 60 + Math.round(Math.random() * 70), y: 60 + Math.round(Math.random() * 70) },
       data: {
         attr1: Math.random(), // betwen 0 and 1
         attr2: Math.random() * 2.0 - 1.0, // between -1 and 1
         attr3: randomArg("A", "B", "C")
       }
-    });
+    };
+    const node = this.cy.add(nodeData);
 
+    let undoNode = node;
     this.undoSupport.post({
       title: 'Add Node',
-      undo: () => this.cy.remove(node),
-      redo: () => this.cy.add(node)
+      undo: () => this.cy.remove(undoNode),
+      redo: () => undoNode = this.cy.add(nodeData)
     });
 
     this.bus.emit('addNode', node);
