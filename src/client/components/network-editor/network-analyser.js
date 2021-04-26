@@ -1,3 +1,5 @@
+import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
+import _ from 'lodash';
 
 // TODO add list types, add boolean?
 export const ATTR_TYPE = {
@@ -12,10 +14,55 @@ const hiddenAttrs = {
   edge: new Set([ 'id', 'source', 'target' ]),
 };
 
-const COMMON = {
-  add: () => null,
-  delete: () => false
-};
+const COMMON = new Set();
+COMMON.add = function() { return null; };
+
+class Metric {
+  constructor(attrInfo) {
+    this.attrInfo = attrInfo;
+    this.value = null;
+  }
+
+  get() {
+    if (this.value != null) {
+      return this.value;
+    } else {
+      this.value = this.calculate(this.attrInfo);
+
+      return this.value;
+    }
+  }
+
+  calculate() {
+    // implement in subclass
+  }
+
+  dirty() {
+    this.value = null;
+  }
+}
+
+class Range extends Metric {
+  calculate() {
+    let attrInfo = this.attrInfo;
+    let attrName = attrInfo.name;
+    let min = Infinity, max = -Infinity;
+    let eleSet = attrInfo.types.get(ATTR_TYPE.NUMBER);
+
+    for (const ele of eleSet) {
+      const val = ele.data(attrName);
+
+      min = Math.min(min, val);
+      max = Math.max(max, val);
+    }
+
+    if (isNaN(min) || isNaN(max)) {
+      return null;
+    }
+
+    return { min, max };
+  }
+}
 
 export class NetworkAnalyser {
 
@@ -29,12 +76,19 @@ export class NetworkAnalyser {
 
     this.bus.on('setNetwork', () => this._reset());
     
-    this.cy.on('add',    'node', evt => this._addElement('node', evt.target));
-    this.cy.on('add',    'edge', evt => this._addElement('edge', evt.target));
-    this.cy.on('remove', 'node', evt => this._removeElement('node', evt.target));
-    this.cy.on('remove', 'edge', evt => this._removeElement('edge', evt.target));
-    this.cy.on('data',   'node', evt => this._updateElement('node', evt.target));
-    this.cy.on('data',   'edge', evt => this._updateElement('edge', evt.target));
+    this.cyEmitter = new EventEmitterProxy(this.cy);
+
+    this.cyEmitter.on('add',    'node', evt => this._addElement('node', evt.target));
+    this.cyEmitter.on('add',    'edge', evt => this._addElement('edge', evt.target));
+    this.cyEmitter.on('remove', 'node', evt => this._removeElement('node', evt.target));
+    this.cyEmitter.on('remove', 'edge', evt => this._removeElement('edge', evt.target));
+    this.cyEmitter.on('data',   'node', evt => this._updateElement('node', evt.target));
+    this.cyEmitter.on('data',   'edge', evt => this._updateElement('edge', evt.target));
+  }
+
+
+  destroy() {
+    this.cyEmitter.removeAllListeners();
   }
 
 
@@ -125,6 +179,8 @@ export class NetworkAnalyser {
   // TWo things: iterate over all known attributes
   // If a new attribute is found
   _addElement(selector, ele) {
+    ele = ele.element(); // ensure not a collection of n>1
+
     const map = this.attributes[selector];
     const data = ele.data();
     const first = map.size == 0; // is this the first node or edge to be processed?
@@ -144,16 +200,23 @@ export class NetworkAnalyser {
         if(type == ATTR_TYPE.NUMBER) {
           this._expandRange(typeInfo, data[attr]);
         }
+
+        attrInfo.dirtyMetrics();
       } else {
         // encountering attribute for the first time
         const newInfo = {
+          name: attr,
           types: new Map([
             [ ATTR_TYPE.NUMBER,  { set: new Set() } ],
             [ ATTR_TYPE.STRING,  { set: new Set() } ],
             [ ATTR_TYPE.UNKNOWN, { set: new Set() } ],
             [ ATTR_TYPE.MISSING, { set: first ? new Set() : COMMON } ],  // if we have processed at least one node but haven't seen this attribute yet then make unknown the common type
             [ type,              { set: first ? COMMON : new Set(ele) } ]  // override previous entry for the type
-          ])
+          ]),
+          range: new Range(newInfo),
+          dirtyMetrics: function() {
+            this.range.dirty();
+          }
         };
         if(type == ATTR_TYPE.NUMBER) {
           this._expandRange(newInfo.types.get(ATTR_TYPE.NUMBER), data[attr]);
@@ -174,11 +237,15 @@ export class NetworkAnalyser {
   }
 
   _removeElement(selector, ele) {
+    ele = ele.element(); // ensure not a collection of n>1
+
     const map = this.attributes[selector];
     const toRemove = [];
 
     for(const [attr, attrInfo] of map.entries()) {
       let found = false;
+
+      attrInfo.dirtyMetrics();
 
       for(const typeInfo of attrInfo.types.values()) {
         if(typeInfo.set != COMMON && typeInfo.set.delete(ele)) {
