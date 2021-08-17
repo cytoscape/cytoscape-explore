@@ -21,6 +21,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 import uuid from 'uuid';
+import ImportWizard from '../network-import/import-wizard';
 
 
 /**
@@ -166,6 +167,7 @@ export class Header extends Component {
                   <MenuList>
                     <MenuItem disabled={cy.nodes().length === 0} onClick={() => this.showDialog('layout', 'main')}>Layout</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                   </MenuList>
                 )}
@@ -204,6 +206,14 @@ export class Header extends Component {
         </div>
         {dialogName === 'network-import' && (
           <Cy3NetworkImportDialog
+            id="network-import"
+            controller={this.controller}
+            open={true}
+            onClose={() => this.hideDialog()}
+          />
+        )}
+        {dialogName === 'new-import' && (
+          <ImportWizard
             id="network-import"
             controller={this.controller}
             open={true}
