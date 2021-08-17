@@ -11,24 +11,33 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import { AppLogoIcon } from '../svg-icons';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
 import DescriptionIcon from '@material-ui/icons/Description';
 import { NetworkEditorController } from '../network-editor/controller';
+import { Cy3ImportSubWizard } from './cy3-import-wizard';
+
 
 const PARENT_STEP = {
   SELECT_A_WIZARD: "SELECT_A_WIZARD",
-  SUB_WIZARD: "SUB_WIZARD",
-  CONFIRM: "CONFIRM"
+  SUB_WIZARD: "SUB_WIZARD"
 };
 
 const SUB_WIZARD = {
+  UNSELECTED: null,
   CY3: "CY3",
   NDEX: "NDEX",
   EXCEL: "EXCEL"
 };
+
+export const BUTTON_STATE = {
+  ENABLED: "enabled",
+  DISABLED: "disabled",
+  HIDDEN: "hidden"
+};
+
 
 export class ImportWizard extends Component {
 
@@ -38,13 +47,20 @@ export class ImportWizard extends Component {
 
     this.state = {
       open: true,
-      subWizardButton: null,
       parentStep: PARENT_STEP.SELECT_A_WIZARD,
+
+      subWizard: SUB_WIZARD.UNSELECTED,
+      subWizardButton: SUB_WIZARD.UNSELECTED,
+      subWizardStep: 1,
+
+      continueButton: BUTTON_STATE.DISABLED,
+      backButton: BUTTON_STATE.HIDDEN,
+      finishButton: BUTTON_STATE.HIDDEN,
     };
   }
 
   handleEntering() {
-    
+    // ???
   }
 
   handleCancel() {
@@ -52,8 +68,41 @@ export class ImportWizard extends Component {
     this.props.onClose && this.props.onClose();
   }
 
-  route() {
-    // controller logic
+  handleContinue() {
+    if(this.state.parentStep == PARENT_STEP.SELECT_A_WIZARD) {
+      this.setState({ 
+        parentStep: PARENT_STEP.SUB_WIZARD,
+        subWizard: this.state.subWizardButton,
+        backButton: BUTTON_STATE.ENABLED
+      });
+    } else {
+      this.setState({
+        subWizardStep: this.state.subWizardStep + 1
+      });
+    }
+  }
+
+  handleBack() {
+    if(this.state.subWizardStep == 1) {
+      this.setState({ 
+        parentStep: PARENT_STEP.SELECT_A_WIZARD,
+        subWizardStep: 0,
+        backButton: BUTTON_STATE.HIDDEN
+      });
+    } else {
+      this.setState({
+        subWizardStep: this.state.subWizardStep - 1
+      });
+    }
+  }
+
+  handleButtonState({ continueButton, backButton, finishButton }) {
+    if(continueButton)
+      this.setState({ continueButton });
+    if(backButton)
+      this.setState({ backButton });
+    if(finishButton)
+      this.setState({ finishButton });
   }
 
   render() {
@@ -61,7 +110,8 @@ export class ImportWizard extends Component {
       <Dialog
         disableBackdropClick
         disableEscapeKeyDown
-        maxWidth="xs"
+        fullWidth
+        maxWidth="md"
         onEntering={() => this.handleEntering()}
         aria-labelledby="confirmation-dialog-title"
         open={this.state.open}
@@ -81,16 +131,40 @@ export class ImportWizard extends Component {
           {this.renderPage()}
         </DialogContent>
         <DialogActions>
-          <Button
-            autoFocus
-            disabled={!this.state.subWizardButton}
-            variant="contained"
-            color="primary"
-            endIcon={<KeyboardArrowRightIcon />}
-            onClick={() => this.handleCancel()}
-          >
-            Continue
-          </Button>
+          { this.state.backButton !== BUTTON_STATE.HIDDEN &&
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={this.state.backButton !== BUTTON_STATE.ENABLED}
+              startIcon={<KeyboardArrowLeftIcon />}
+              onClick={() => this.handleBack()}
+            >
+              Back
+            </Button>
+          }
+          { this.state.continueButton !== BUTTON_STATE.HIDDEN &&
+            <Button
+              autoFocus
+              disabled={this.state.continueButton !== BUTTON_STATE.ENABLED}
+              variant="contained"
+              color="primary"
+              endIcon={<KeyboardArrowRightIcon />}
+              onClick={() => this.handleContinue()}
+            >
+              Continue
+            </Button>
+          }
+          { this.state.finishButton !== BUTTON_STATE.HIDDEN &&
+            <Button
+              disabled={this.state.finishButton !== BUTTON_STATE.ENABLED}
+              variant="contained"
+              color="primary"
+              endIcon={<CheckCircleIcon />}
+              onClick={() => this.handleFinish()}
+            >
+              Finish
+            </Button>
+          }
         </DialogActions>
       </Dialog>
     );
@@ -98,8 +172,14 @@ export class ImportWizard extends Component {
 
   renderTitleText() {
     switch(this.state.parentStep) {
-      case PARENT_STEP.SELECT_A_WIZARD: 
-        return "Import Network";
+      case PARENT_STEP.SELECT_A_WIZARD: return "Import Network";
+      case PARENT_STEP.SUB_WIZARD:
+        switch(this.state.subWizard) {
+          case SUB_WIZARD.CY3:   return "Import from Cytoscape Desktop";
+          case SUB_WIZARD.NDEX:  return "Import from NDEx";
+          case SUB_WIZARD.EXCEL: return "Import from Excel File";
+        }
+        break;
     }
   }
 
@@ -107,11 +187,19 @@ export class ImportWizard extends Component {
     switch(this.state.parentStep) {
       case PARENT_STEP.SELECT_A_WIZARD: 
         return this.renderWizardSelector();
+      case PARENT_STEP.SUB_WIZARD:
+        return this.renderSubWizard();
     }
   }
 
   renderWizardSelector() {
-    const handleButton = (subWizardButton) => this.setState({ subWizardButton });
+    const handleButton = (subWizardButton) => {
+      this.setState({ 
+        subWizardButton, 
+        continueButton: BUTTON_STATE.ENABLED 
+      });
+    };
+
     return (
       <List subheader={<ListSubheader>Import From...</ListSubheader>}>
         <ListItem
@@ -146,6 +234,14 @@ export class ImportWizard extends Component {
         </ListItem>
       </List>
     );
+  }
+
+  renderSubWizard() {
+    const step = this.state.subWizardStep;
+    switch(this.state.subWizard) {
+      case SUB_WIZARD.CY3: 
+        return <Cy3ImportSubWizard step={step} setButtonState={(s) => this.handleButtonState(s)} />;
+    }
   }
 
 }
