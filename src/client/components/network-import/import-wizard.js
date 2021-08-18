@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -16,8 +16,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
 import DescriptionIcon from '@material-ui/icons/Description';
-import { NetworkEditorController } from '../network-editor/controller';
-import { Cy3ImportSubWizard } from './cy3-import-wizard';
+import Cy3ImportSubWizard from './cy3-import-wizard';
 
 
 const PARENT_STEP = {
@@ -32,30 +31,36 @@ const SUB_WIZARD = {
   EXCEL: "EXCEL"
 };
 
-export const BUTTON_STATE = {
-  ENABLED: "enabled",
-  DISABLED: "disabled",
-  HIDDEN: "hidden"
-};
 
-
-export class ImportWizard extends Component {
+export class ImportWizard extends React.Component {
 
   constructor(props){
     super(props);
-    this.controller = props.controller;
+
+    this.wizardCallbacks = {
+      _onFinish:   () => null,
+      _onContinue: () => null,
+      _onCancel:   () => null,
+      _onBack:     () => null,
+      onFinish:   (f) => this.wizardCallbacks._onFinish = f,
+      onContinue: (f) => this.wizardCallbacks._onContinue = f,
+      onCancel:   (f) => this.wizardCallbacks._onCancel = f,
+      onBack:     (f) => this.wizardCallbacks._onBack = f,
+      setButtonState:  (s) => this.handleButtonState(s),
+      closeWizard:      () => this.setState({ open: false }),
+      returnToSelector: () => this.handleReturnToSelector(),
+      sanity: 99,
+    };
 
     this.state = {
       open: true,
       parentStep: PARENT_STEP.SELECT_A_WIZARD,
-
       subWizard: SUB_WIZARD.UNSELECTED,
       subWizardButton: SUB_WIZARD.UNSELECTED,
-      subWizardStep: 1,
-
-      continueButton: BUTTON_STATE.DISABLED,
-      backButton: BUTTON_STATE.HIDDEN,
-      finishButton: BUTTON_STATE.HIDDEN,
+      // can be 'enabled', 'disabled' or 'hidden'
+      continueButton: 'disabled',
+      backButton: 'hidden',
+      finishButton: 'hidden',
     };
   }
 
@@ -66,6 +71,7 @@ export class ImportWizard extends Component {
   handleCancel() {
     this.setState({ open: false });
     this.props.onClose && this.props.onClose();
+    this.wizardCallbacks._onCancel();
   }
 
   handleContinue() {
@@ -73,27 +79,26 @@ export class ImportWizard extends Component {
       this.setState({ 
         parentStep: PARENT_STEP.SUB_WIZARD,
         subWizard: this.state.subWizardButton,
-        backButton: BUTTON_STATE.ENABLED
+        backButton: 'enabled'
       });
-    } else {
-      this.setState({
-        subWizardStep: this.state.subWizardStep + 1
-      });
-    }
+    } 
+    this.wizardCallbacks._onContinue();
   }
 
   handleBack() {
-    if(this.state.subWizardStep == 1) {
-      this.setState({ 
-        parentStep: PARENT_STEP.SELECT_A_WIZARD,
-        subWizardStep: 0,
-        backButton: BUTTON_STATE.HIDDEN
-      });
-    } else {
-      this.setState({
-        subWizardStep: this.state.subWizardStep - 1
-      });
-    }
+    this.wizardCallbacks._onBack();
+  }
+
+  handleFinish() {
+    this.wizardCallbacks._onFinish();
+  }
+
+  handleReturnToSelector() {
+    this.setState({ 
+      parentStep: PARENT_STEP.SELECT_A_WIZARD,
+      backButton: 'hidden',
+      finishButton: 'hidden'
+    });
   }
 
   handleButtonState({ continueButton, backButton, finishButton }) {
@@ -131,21 +136,21 @@ export class ImportWizard extends Component {
           {this.renderPage()}
         </DialogContent>
         <DialogActions>
-          { this.state.backButton !== BUTTON_STATE.HIDDEN &&
+          { this.state.backButton !== 'hidden' &&
             <Button
               variant="contained"
               color="primary"
-              disabled={this.state.backButton !== BUTTON_STATE.ENABLED}
+              disabled={this.state.backButton !== 'enabled'}
               startIcon={<KeyboardArrowLeftIcon />}
               onClick={() => this.handleBack()}
             >
               Back
             </Button>
           }
-          { this.state.continueButton !== BUTTON_STATE.HIDDEN &&
+          { this.state.continueButton !== 'hidden' &&
             <Button
               autoFocus
-              disabled={this.state.continueButton !== BUTTON_STATE.ENABLED}
+              disabled={this.state.continueButton !== 'enabled'}
               variant="contained"
               color="primary"
               endIcon={<KeyboardArrowRightIcon />}
@@ -154,9 +159,9 @@ export class ImportWizard extends Component {
               Continue
             </Button>
           }
-          { this.state.finishButton !== BUTTON_STATE.HIDDEN &&
+          { this.state.finishButton !== 'hidden' &&
             <Button
-              disabled={this.state.finishButton !== BUTTON_STATE.ENABLED}
+              disabled={this.state.finishButton !== 'enabled'}
               variant="contained"
               color="primary"
               endIcon={<CheckCircleIcon />}
@@ -196,7 +201,7 @@ export class ImportWizard extends Component {
     const handleButton = (subWizardButton) => {
       this.setState({ 
         subWizardButton, 
-        continueButton: BUTTON_STATE.ENABLED 
+        continueButton: 'enabled' 
       });
     };
 
@@ -237,17 +242,15 @@ export class ImportWizard extends Component {
   }
 
   renderSubWizard() {
-    const step = this.state.subWizardStep;
     switch(this.state.subWizard) {
       case SUB_WIZARD.CY3: 
-        return <Cy3ImportSubWizard step={step} setButtonState={(s) => this.handleButtonState(s)} />;
+        return <Cy3ImportSubWizard wizardCallbacks={this.wizardCallbacks} />;
     }
   }
 
 }
 
 ImportWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };
