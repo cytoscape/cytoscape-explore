@@ -15,6 +15,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
+import CancelIcon from '@material-ui/icons/Cancel';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Cy3ImportSubWizard from './cy3-import-wizard';
 
@@ -57,10 +58,11 @@ export class ImportWizard extends React.Component {
       parentStep: PARENT_STEP.SELECT_A_WIZARD,
       subWizard: SUB_WIZARD.UNSELECTED,
       subWizardButton: SUB_WIZARD.UNSELECTED,
-      // can be 'enabled', 'disabled' or 'hidden'
+      // button state... can be 'enabled', 'disabled' or 'hidden'
       continueButton: 'disabled',
       backButton: 'hidden',
       finishButton: 'hidden',
+      cancelButton: 'hidden'
     };
   }
 
@@ -101,13 +103,15 @@ export class ImportWizard extends React.Component {
     });
   }
 
-  handleButtonState({ continueButton, backButton, finishButton }) {
+  handleButtonState({ continueButton, backButton, finishButton, cancelButton }) {
     if(continueButton)
       this.setState({ continueButton });
     if(backButton)
       this.setState({ backButton });
     if(finishButton)
       this.setState({ finishButton });
+    if(cancelButton)
+      this.setState({ cancelButton });
   }
 
   render() {
@@ -116,7 +120,7 @@ export class ImportWizard extends React.Component {
         disableBackdropClick
         disableEscapeKeyDown
         fullWidth
-        maxWidth="md"
+        maxWidth='sm'
         onEntering={() => this.handleEntering()}
         aria-labelledby="confirmation-dialog-title"
         open={this.state.open}
@@ -159,6 +163,17 @@ export class ImportWizard extends React.Component {
               Continue
             </Button>
           }
+          { this.state.cancelButton !== 'hidden' &&
+            <Button
+              disabled={this.state.cancelButton !== 'enabled'}
+              variant="contained"
+              color="primary"
+              endIcon={<CancelIcon />}
+              onClick={() => this.handleCancel()}
+            >
+              Cancel
+            </Button>
+          }
           { this.state.finishButton !== 'hidden' &&
             <Button
               disabled={this.state.finishButton !== 'enabled'}
@@ -174,7 +189,7 @@ export class ImportWizard extends React.Component {
       </Dialog>
     );
   }
-
+  
   renderTitleText() {
     switch(this.state.parentStep) {
       case PARENT_STEP.SELECT_A_WIZARD: return "Import Network";
