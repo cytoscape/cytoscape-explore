@@ -6,6 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Link from '@material-ui/core/Link';
+import { NetworkEditorController } from '../network-editor/controller';
 
 const CY3_URL = 'http://localhost:1234';
 
@@ -14,6 +15,7 @@ export class Cy3ImportSubWizard extends Component {
 
   constructor(props) {
     super(props);
+    this.controller = props.controller;
 
     props.wizardCallbacks.onContinue(() => this.handleContinue());
     props.wizardCallbacks.onFinish(() => this.handleFinish());
@@ -22,7 +24,6 @@ export class Cy3ImportSubWizard extends Component {
     this.state = {
       step: 1,
       data: null,
-      value: null,
       error: null,
       loading: true,
       selectedSUID: null
@@ -30,21 +31,42 @@ export class Cy3ImportSubWizard extends Component {
   }
 
   componentDidMount() {
-    console.log("cy3.componentDidMount");
-    this.updateButtons(this.state.step);
-
-    // const compareByName = function(a, b) {
-    //   var na = a.name.toUpperCase(); // ignore upper and lowercase
-    //   var nb = b.name.toUpperCase(); // ignore upper and lowercase
-    //   if (na < nb) return -1;
-    //   if (na > nb) return 1;
-    //   return 0;
-    // };
-    
+    this.updateButtons(this.state);
     this.fetchNetworkData();
   }
 
+  updateButtons(state) {
+    console.log("updateButtons: " + JSON.stringify(state));
+    const { step, data, error, loading, selectedSUID } = state;
+    const { setButtonState } = this.props.wizardCallbacks;
+
+    // Note: backButton is always visible by default
+    if(step == 1) {
+      if (loading || error || !data || data.length === 0) {
+        setButtonState({ continueButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
+      } else {
+        setButtonState({ continueButton: 'enabled', cancelButton: 'hidden', finishButton: 'hidden' });
+      }
+    } else if(step == 2) {
+      if(selectedSUID) {
+        setButtonState({ continueButton: 'enabled', cancelButton: 'hidden', finishButton: 'hidden'  });
+      } else {
+        setButtonState({ continueButton: 'disbled', cancelButton: 'hidden', finishButton: 'hidden'  });
+      }
+    } else if(step == 3) {
+      setButtonState({ continueButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled'});
+    }
+  }
+
   fetchNetworkData() {
+    const compareByName = (a, b) => {
+      const na = a.name.toUpperCase();
+      const nb = b.name.toUpperCase();
+      if (na < nb) return -1;
+      if (na > nb) return 1;
+      return 0;
+    };
+
     fetch(`${CY3_URL}/v1/networks.names`)
     .then(res => res.json())
     .then(networks =>
@@ -63,17 +85,68 @@ export class Cy3ImportSubWizard extends Component {
           ))
         )
       )
+      .then(data => data.sort(compareByName))
       .then(data => this.setState({ data, error: null, loading: false }))
-      .then(() => this.updateButtons())
+      .then(() => this.updateButtons({ ...this.state, loading: false }))
       .catch(err => this.setState({ error: err, loading: false }))
     )
     .catch(err => this.setState({ error: err, loading: false }));
   }
 
+  async handleFinish() {
+    this.setState({ loading: true });
+
+    // Return array of View SUIDs
+    const fetchViewIds = async (netId) => {
+      const res = await fetch(`${CY3_URL}/v1/networks/${netId}/views`);
+      return res.ok ? await res.json() : [];
+    };
+
+    // Return Network or View data (json) 
+    const fetchNetworkOrView = async (netId, viewId) => {
+      // If no views, import just the network
+      const url = viewId ?
+        `${CY3_URL}/v1/networks/${netId}/views/${viewId}` :
+        `${CY3_URL}/v1/networks/${netId}`; 
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`CyREST error! status: ${res.status}`);
+      } else {
+        return await res.json();
+      }
+    };
+
+    // Return the Style for the passed view
+    const fetchStyle = async (netId, viewId) => {
+      const res = await fetch(`${CY3_URL}/v1/networks/${netId}/views/${viewId}/currentStyle`);
+      
+      if (!res.ok) {
+        throw new Error(`CyREST error! status: ${res.status}`);
+      } else {
+        return await res.json();
+      }
+    };
+
+    try {
+      const netId = this.state.selectedSUID;
+      const viewIds = await fetchViewIds(netId);
+      const viewId = viewIds && viewIds.length > 0 ? viewIds[0] : undefined;
+      const net = await fetchNetworkOrView(netId, viewId);
+      const style = viewId ? await fetchStyle(netId, viewId) : undefined;
+      
+      this.controller.setNetwork(net.elements, net.data, style);
+    } catch(e) {
+      console.log(e); // TODO Show error to user
+    }
+
+    this.props.wizardCallbacks.closeWizard();
+  }
+
   updateStep(nextStep) {
     const step = nextStep(this.state.step);
     this.setState({ step });
-    this.updateButtons();
+    this.updateButtons({ ...this.state, step });
     return step;
   }
 
@@ -87,15 +160,11 @@ export class Cy3ImportSubWizard extends Component {
       this.props.wizardCallbacks.returnToSelector();
   }
 
-  handleFinish() {
-    this.props.wizardCallbacks.closeWizard();
-  }
-
   render() {
     return (
       <div>
         <div>
-        <Stepper alternativeLabel activeStep={this.state.step-1}>
+        <Stepper alternativeLabel activeStep={this.state.step-1} >
           <Step><StepLabel>Connect to Cytoscape Desktop</StepLabel></Step>
           <Step><StepLabel>Select a Network</StepLabel></Step>
           <Step><StepLabel>Import Network</StepLabel></Step>
@@ -106,20 +175,6 @@ export class Cy3ImportSubWizard extends Component {
         </div>
       </div>
     );
-  }
-
-  updateButtons() {
-    const { step, data, error, loading } = this.state;
-    const { setButtonState } = this.props.wizardCallbacks;
-    if(step == 1) {
-      if (loading || error || !data || data.length === 0) {
-        setButtonState({ continueButton: 'hidden', cancelButton: 'enabled' });
-      } else {
-        setButtonState({ continueButton: 'enabled', cancelButton: 'hidden' });
-      }
-    } else if(step == 3) {
-      setButtonState({ continueButton: 'hidden', finishButton: 'enabled'});
-    }
   }
 
   renderContent() {
@@ -137,7 +192,11 @@ export class Cy3ImportSubWizard extends Component {
     } else if(step == 2) {
       return this.renderNetworkList();
     } else if(step == 3) {
-      return this.renderConfirm();
+      if (loading) {
+        return this.renderLoading();
+      } else {
+        return this.renderConfirm();
+      }
     }
   }
 
@@ -163,10 +222,12 @@ export class Cy3ImportSubWizard extends Component {
   }
 
   renderConfirm() {
+    const network = this.state.data.filter(net => net.SUID == this.state.selectedSUID)[0];
     return (
-      <Alert severity="success">
+      <Alert variant="outlined" severity="success">
         <AlertTitle>Confirm Network Import</AlertTitle>
-        The network (insert network name) will be imported into Cytoscape Explore.
+        <p> The network <b>{network.name}</b> will be imported into Cytoscape Explore. </p>
+        { this.renderNetworkImage(network.SUID, 300, 150) }
       </Alert>
     );
   }
@@ -177,7 +238,6 @@ export class Cy3ImportSubWizard extends Component {
         <AlertTitle>Error Connecting to Cytoscape 3</AlertTitle>
         Please make sure <Link color="error" target="_blank" href='https://cytoscape.org/download.html'>Cytoscape Desktop</Link> is
         installed and running before you try again.
-        { JSON.stringify(this.state.error) }
       </Alert>
     );
   }
@@ -191,34 +251,40 @@ export class Cy3ImportSubWizard extends Component {
     );
   }
 
+  renderNetworkImage(suid, w, h) {
+    // This cyREST endpoint only acceps 'w' or 'h' but not both at the same time.
+    const imgUrl = (w > h)
+      ? `${CY3_URL}/v1/networks/${suid}/views/first.png?w=${w}`
+      : `${CY3_URL}/v1/networks/${suid}/views/first.png?h=${h}`;
+
+    return <div style={{
+      backgroundImage: `url(${imgUrl})`,
+      width: w,
+      height: h,
+      backgroundPosition: 'center',
+      backgroundSize: 'cover'
+    }}/>;
+  }
+
+
   renderNetworkList() {
     const { data } = this.state;
 
-    const createNetImageStyle = (suid, w, h) => {
-      // This cyREST endpoint only acceps 'w' or 'h' but not both at the same time.
-      const imgUrl = (w > h)
-        ? `${CY3_URL}/v1/networks/${suid}/views/first.png?w=${w}`
-        : `${CY3_URL}/v1/networks/${suid}/views/first.png?h=${h}`;
-
-      return {
-        backgroundImage: `url(${imgUrl})`,
-        width: w,
-        height: h,
-        backgroundPosition: 'center',
-        backgroundSize: 'cover'
-      };
+    const handleNetworkSelect = (selectedSUID) => {
+      this.setState({ selectedSUID });
+      this.updateButtons({ ...this.state, selectedSUID });
     };
 
     return (
       <div>
-        <div><h4>Select a network for import</h4></div>
+        <div><h3>Select a network for import</h3></div>
         <List>
         { data.map(net => (
           <ListItem 
             button
             key={net.SUID} 
             selected={this.state.selectedSUID === net.SUID}
-            onClick={() => this.setState({ selectedSUID: net.SUID })}
+            onClick={() => handleNetworkSelect(net.SUID)}
           >
             <div key={net.SUID} style={{ border: '1px solid #DCDCDC', width: '100%', display: 'flex', flexDirection: 'row' }}>
               <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }} > 
@@ -230,7 +296,7 @@ export class Cy3ImportSubWizard extends Component {
                 </div>
               </div>
               <div>
-                <div style={ createNetImageStyle(net.SUID, 300, 150) } />
+                { this.renderNetworkImage(net.SUID, 250, 120) }
               </div>
             </div>
           </ListItem>
@@ -244,6 +310,7 @@ export class Cy3ImportSubWizard extends Component {
 
 
 Cy3ImportSubWizard.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
   wizardCallbacks: PropTypes.any
 };
 

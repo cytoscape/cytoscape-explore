@@ -18,6 +18,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Cy3ImportSubWizard from './cy3-import-wizard';
+import { NetworkEditorController } from '../network-editor/controller';
 
 
 const PARENT_STEP = {
@@ -37,6 +38,7 @@ export class ImportWizard extends React.Component {
 
   constructor(props){
     super(props);
+    this.controller = props.controller;
 
     this.wizardCallbacks = {
       _onFinish:   () => null,
@@ -259,13 +261,14 @@ export class ImportWizard extends React.Component {
   renderSubWizard() {
     switch(this.state.subWizard) {
       case SUB_WIZARD.CY3: 
-        return <Cy3ImportSubWizard wizardCallbacks={this.wizardCallbacks} />;
+        return <Cy3ImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
     }
   }
 
 }
 
 ImportWizard.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };
