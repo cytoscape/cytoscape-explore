@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Step, StepLabel, Stepper } from '@material-ui/core';
+import { Button, Step, StepLabel, Stepper } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -91,6 +91,11 @@ export class Cy3ImportSubWizard extends Component {
       .catch(err => this.setState({ error: err, loading: false }))
     )
     .catch(err => this.setState({ error: err, loading: false }));
+  }
+
+  handleRetry() {
+    this.setState({ step: 1, data: null, error: null, loading: true });
+    this.fetchNetworkData();
   }
 
   async handleFinish() {
@@ -238,6 +243,15 @@ export class Cy3ImportSubWizard extends Component {
         <AlertTitle>Error Connecting to Cytoscape 3</AlertTitle>
         Please make sure <Link color="error" target="_blank" href='https://cytoscape.org/download.html'>Cytoscape Desktop</Link> is
         installed and running before you try again.
+        <p>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => this.handleRetry()}
+          >
+            Retry
+          </Button>
+        </p>
       </Alert>
     );
   }
@@ -247,6 +261,15 @@ export class Cy3ImportSubWizard extends Component {
       <Alert severity="info">
         <AlertTitle>No Networks</AlertTitle>
         The current Cytoscape 3 session has no networks.
+        <p>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => this.handleRetry()}
+          >
+            Retry
+          </Button>
+        </p>
       </Alert>
     );
   }
