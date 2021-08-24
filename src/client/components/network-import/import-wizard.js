@@ -18,6 +18,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Cy3ImportSubWizard from './cy3-import-wizard';
+import NDExImportSubWizard from './ndex-import-wizard';
 import { NetworkEditorController } from '../network-editor/controller';
 
 
@@ -261,7 +262,9 @@ export class ImportWizard extends React.Component {
   renderSubWizard() {
     switch(this.state.subWizard) {
       case SUB_WIZARD.CY3: 
-        return <Cy3ImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
+        return <Cy3ImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
+      case SUB_WIZARD.NDEX:
+        return <NDExImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
     }
   }
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Step, StepLabel, Stepper } from '@material-ui/core';
 import List from '@material-ui/core/List';
@@ -11,7 +11,7 @@ import { NetworkEditorController } from '../network-editor/controller';
 const CY3_URL = 'http://localhost:1234';
 
 
-export class Cy3ImportSubWizard extends Component {
+export class Cy3ImportSubWizard extends React.Component {
 
   constructor(props) {
     super(props);
