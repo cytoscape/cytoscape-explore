@@ -19,6 +19,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Cy3ImportSubWizard from './cy3-import-wizard';
 import { NetworkEditorController } from '../network-editor/controller';
+import NDExImportSubWizard from './ndex-import-wizard';
 
 
 const PARENT_STEP = {
@@ -101,7 +102,9 @@ export class ImportWizard extends React.Component {
     this.setState({ 
       parentStep: PARENT_STEP.SELECT_A_WIZARD,
       backButton: 'hidden',
-      finishButton: 'hidden'
+      finishButton: 'hidden',
+      cancelButton: 'hidden',
+      continueButton: this.state.subWizardButton ? 'enabled' : 'disabled'
     });
   }
 
@@ -262,6 +265,8 @@ export class ImportWizard extends React.Component {
     switch(this.state.subWizard) {
       case SUB_WIZARD.CY3: 
         return <Cy3ImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
+      case SUB_WIZARD.NDEX:
+        return <NDExImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
     }
   }
 
