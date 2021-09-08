@@ -38,6 +38,76 @@ const DEFAULT_JS_STYLE_NAMES = {
   'EDGE_LINE_STYLE': 'line-style'
 };
 
+const colorMapper = {
+  valueCvtr: ((value) => styleFactory.color(value)),
+  jsValueType: styleFactory.color,
+  discreteMappingFactory: styleFactory.discreteColor,
+  cotinuousMappingFactory: styleFactory.linearColor
+};
+
+const numberMapper = {
+  valueCvtr: ((value) => styleFactory.number(value)),
+  jsValueType: styleFactory.number,
+  discreteMappingFactory: styleFactory.discreteNumber,
+  cotinuousMappingFactory: styleFactory.linearNumber
+};
+
+const stringMapper = {
+  valueCvtr: ((value) => styleFactory.string(value)),
+  jsValueType: styleFactory.string(),
+  discreteMappingFactory: styleFactory.discreteString,
+  passthroughMappingFactory: styleFactory.stringPassthrough
+};
+
+const STYLE_CONVERTING_TABLE = {
+  'NODE_BACKGROUND_COLOR':
+      { jsVPName :  'background-color',
+        mapper: colorMapper
+      },
+  'NODE_WIDTH': {jsVPName :  'width',
+          mapper: numberMapper
+       },
+  'NODE_HEIGHT': {jsVPName :  'height',
+    mapper: numberMapper
+  },
+  'NODE_LABEL': {jsVPName :  'label',
+          mapper: stringMapper
+        },
+  'NODE_BORDER_COLOR': {jsVPName :  'border-color',
+          mapper: colorMapper
+        },
+  'NODE_BORDER_WIDTH': {jsVPName :  'border-width',
+    mapper: numberMapper
+  },
+  'NODE_SHAPE':{jsVPName :  'shape',
+    mapper: stringMapper
+  },
+
+  'EDGE_WIDTH': {jsVPName :  'width',
+    mapper: numberMapper
+  },
+  'EDGE_LINE_COLOR': { jsVPName :  'line-color',
+    mapper: colorMapper
+  },
+  'EDGE_SOURCE_ARROW_COLOR':{ jsVPName :  'source-arrow-color',
+    mapper: colorMapper
+  },
+  'EDGE_SOURCE_ARROW_SHAPE': {jsVPName :  'source-arrow-shape',
+    mapper: stringMapper
+  },
+  'EDGE_TARGET_ARROW_COLOR':{ jsVPName :  'target-arrow-color',
+    mapper: colorMapper
+  },
+  'EDGE_TARGET_ARROW_SHAPE': {jsVPName :  'target-arrow-shape',
+    mapper: stringMapper
+  },
+  'EDGE_LINE_STYLE': {jsVPName :  'line-style',
+    mapper: stringMapper
+  }
+};
+
+
+
 const convertStyle = (visualPropertyKey, cxValue) => {
   if (DEFAULT_STYLE_FACTORY_FUNCTIONS[visualPropertyKey]) {
     return DEFAULT_STYLE_FACTORY_FUNCTIONS[visualPropertyKey](cxValue);
@@ -68,6 +138,32 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
 };
 
 /**
+ *
+ * @param selector   node or edge
+ * @param vizmapper
+ * @param mapping    nodeMapping or edgeMapping object in the vis properties aspect
+ * @param defaultTable   the node or edge default table in vis properites
+ */
+const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   {
+  for (const [vpName, mapping] of Object.entries(styleMappings)) {
+    const jsvpName = DEFAULT_JS_STYLE_NAMES[vpName];
+    if ( jsvpName ) {
+      const attr = mapping.definition.attribute;
+      if ( mapping.type ==="DISCRETE") {
+        const valueMap = {};
+        mapping.definition.map.forEach (function (mappingEntry)  {
+          const newValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(mappingEntry.vp).value;
+          valueMap[mappingEntry.v] =  newValue;
+        });
+        const defaultValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]).value;
+        const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr,defaultValue, valueMap);
+        vizmapper.set(selector,STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+      }
+    }
+  }
+};
+
+/**
  * Import CX into a Cytoscape instance
  * @param {Cytoscape.Core} cy 
  * @param {*} cx 
@@ -94,7 +190,21 @@ export const importCX = (cy, cx) => {
         //cy.setNetworkBackgroundColor('#00BB00');
       }
     }
+    if (property.nodeMapping ) {
+      convertMapping( 'node', vizmapper, property.nodeMapping, property.default.node);
+    }
+    if (property.edgeMapping ) {
+      convertMapping( 'edge', vizmapper, property.edgeMapping, property.default.edge);
+    }
+
   });
+
+ /* const style = styleFactory.discreteString("type", "ellipse",
+      {protein: "rectangle",
+                proteinfamily: "octagon",
+        smallmolecule: "triangle"
+      }   );
+  vizmapper.set('node', "shape", style); */
 };
 
 /**

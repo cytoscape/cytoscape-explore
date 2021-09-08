@@ -5,6 +5,7 @@ import CytoscapeSyncher from '../../../model/cytoscape-syncher';
 import { BASE_URL } from '../../env';
 import { importCX, exportCX } from '../../../model/import-export/cx';
 import { importJSON, exportJSON } from '../../../model/import-export/json';
+//import * as ndex from "ndex-client";
 
 const http = Express.Router();
 
@@ -42,6 +43,37 @@ const postNetwork = async (importBody, req, res, next) => {
     next(err);
   }
 };
+
+const postNetworkURL = async (importBody, req, res, next) => {
+  try {
+    const body = req.body;
+    const id = makeNetworkId();
+    const cy = new Cytoscape();
+    const secret = uuid();
+    const publicUrl = `${BASE_URL}/document/${id}`;
+    const privateUrl = `${publicUrl}/${secret}`;
+
+/*    const ndex0 = new ndex.NDEx(body.server + '/v2');
+    const ndexuuid = body.uuid;
+    const rawcx2 = await ndex0.getCX2Network(ndexuuid);
+
+    cy.data({ id });
+
+    const cySyncher = new CytoscapeSyncher(cy, 'secret');
+    importBody(cy, rawcx2);
+
+    await cySyncher.create();
+
+    cySyncher.destroy();
+    cy.destroy();
+
+    res.send({ id, secret, url: privateUrl, privateUrl, publicUrl }); */
+  } catch(err) {
+    next(err);
+  }
+};
+
+
 
 /**
  * Get a network
@@ -106,6 +138,14 @@ http.get('/json/:id', async function(req, res, next){
 http.post('/cx', async function(req, res, next) {
   await postNetwork(importCX, req, res, next);
 });
+
+/**
+ * Create a new network document from CX format
+ */
+http.post('/cxurl', async function(req, res, next) {
+  await postNetworkURL(importCX, req, res, next);
+});
+
 
 /**
  * Get a network document in CX format

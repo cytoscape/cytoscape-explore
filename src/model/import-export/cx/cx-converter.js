@@ -130,7 +130,7 @@ export const convertCX = (cx) => {
             cxEdges.forEach((cxEdge) => {
                 const element = {};
                 element['data'] = createData(cxEdge['v'], edgeAttributeDeclarations.aliasMap, edgeAttributeDeclarations.defaultValueMap);
-                element['data']['id'] = cxEdge.id.toString();
+                element['data']['id'] = "e" + cxEdge.id.toString();
                 element['data']['source'] = cxEdge['s'];
                 element['data']['target'] = cxEdge['t'];
                 output.elements.edges.push(element);

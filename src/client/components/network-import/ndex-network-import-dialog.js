@@ -3,11 +3,18 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { Input } from '@material-ui/core';
 import { InputLabel } from '@material-ui/core';
+import Cytoscape from 'cytoscape';
+import uuid from 'uuid';
+
 
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
+import { importCX } from '../../../model/import-export/cx';
+import CytoscapeSyncher from '../../../model/cytoscape-syncher';
+
+
 
 import FormControl from '@material-ui/core/FormControl';
 
@@ -16,7 +23,9 @@ import Button from '@material-ui/core/Button';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
-const NDEX_URL = 'http://dev.ndexbio.org';
+import * as ndex from 'ndex-client';
+
+const NDEX_URL = 'https://dev.ndexbio.org';
 
 export class NDExNetworkImportDialog extends Component {
 
@@ -27,7 +36,7 @@ export class NDExNetworkImportDialog extends Component {
 
     this.state = {
       ndexUrl: `${NDEX_URL}`,
-      uuid: "e5de6347-1b49-11e9-a05d-525400c25d22",
+      uuid: "135fe4e5-9896-11eb-81d5-525400c25d22",
       error: null,
       loading: true,
     };
@@ -40,26 +49,27 @@ export class NDExNetworkImportDialog extends Component {
   async handleOk() {
     this.setState({ loading: true });
 
-    // Return the Style for the passed view
-    const fetchCX = async (ndexUrl, uuid) => {
-      const res = await fetch(`${ndexUrl}/v3/networks/${uuid}`);
+    const ndex0 = new ndex.NDEx(NDEX_URL + '/v2');
 
-      if (!res.ok) {
-        throw new Error(`NDEx error! status: ${res.status}`);
-      } else {
-        return await res.json();
-      }
-    };
+    // Return the Style for the passed view
 
     try {
-      const uuid = this.state.uuid;
-      const ndexUrl = this.state.ndexUrl;
+      const ndexuuid = this.state.uuid;
+      //const ndexUrl = this.state.ndexUrl;
 
-      fetchCX(ndexUrl, uuid).then(cx => {
-        console.log('CX: ', cx);
-      }).catch(error => {
-        console.error(error);
-      });
+      const rawcx2 = await ndex0.getCX2Network(ndexuuid);
+
+      const cy = new Cytoscape();
+
+      const tid = 'cy' + uuid();
+
+      cy.data({ id: tid });
+
+      const cySyncher = new CytoscapeSyncher(cy, 'secret');
+
+      importCX(cy, rawcx2);
+
+      this.controller.setNetwork(cy.elements, cy.data, cy.style());
 
     } catch (e) {
       console.log(e); // TODO Show error to user
@@ -76,7 +86,7 @@ export class NDExNetworkImportDialog extends Component {
   }
 
   componentDidMount() {
-    const compareByName = function (a, b) {
+ /*   const compareByName = function (a, b) {
       var na = a.name.toUpperCase(); // ignore upper and lowercase
       var nb = b.name.toUpperCase(); // ignore upper and lowercase
       if (na < nb) return -1;
@@ -87,7 +97,7 @@ export class NDExNetworkImportDialog extends Component {
     fetch(`${NDEX_URL}/v1/networks.names`)
       .then(res => res.json())
       .then(data => this.setState({ data: data.sort(compareByName), error: null, loading: false }))
-      .catch(err => this.setState({ error: err, loading: false }));
+      .catch(err => this.setState({ error: err, loading: false })); */
   }
 
 
