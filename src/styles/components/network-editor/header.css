@@ -1,9 +1,5 @@
 .header {
-  flex: 0 1 auto;
-
-  & > header {
-    box-shadow: 0 0 10px 4px rgba(154, 161, 177, 0.15), 0 4px 40px -8px rgba(36, 40, 47, 0.25), 0 4px 4px -2px rgba(91, 94, 105, 0.15);
-  }
+  border-bottom: 2px solid #050505;
 }
 
 .header .logo {
@@ -21,4 +17,28 @@
 
 .header .grow {
   flex-grow: 1;
+}
+
+.header-title-area {
+  margin-left: 2em;
+  line-height: 1;
+}
+
+.header-title-text {
+  font-weight: bold;
+}
+
+.header-title-save-status {
+  opacity: 0.666;
+  font-size: 0.8em;
+  margin-top: 0.25em;
+}
+
+.header-tools {
+
+}
+
+.header-separator {
+  width: 1em;
+  display: inline-block;
 }

@@ -27,7 +27,7 @@ export class StylePicker extends React.Component {
 
     this.state = {
       // internal state
-      initialized: false,
+      initialized: false || props.initialized,
       tab: TAB.VALUE,
       // discrete value popover state
       popoverAnchorEl: null,
