@@ -54,7 +54,7 @@ const numberMapper = {
 
 const stringMapper = {
   valueCvtr: ((value) => styleFactory.string(value)),
-  jsValueType: styleFactory.string(),
+  jsValueType: styleFactory.string,
   discreteMappingFactory: styleFactory.discreteString,
   passthroughMappingFactory: styleFactory.stringPassthrough
 };
@@ -158,6 +158,13 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
         const defaultValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]).value;
         const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr,defaultValue, valueMap);
         vizmapper.set(selector,STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+      } else if (mapping.type === 'CONTINUOUS') {
+        const coreDef = mapping.definition.map[1];
+        const style = STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory(attr,
+            [coreDef.min, coreDef.max],
+            [STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(coreDef.minVPValue).value,
+              STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(coreDef.maxVPValue).value]);
+        vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
       }
     }
   }
