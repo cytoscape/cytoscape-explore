@@ -11,6 +11,7 @@ export class FCosePanel extends Component {
 
   constructor(props) {
     super(props);
+
     this.controller = props.controller;
     this.layoutOptions = this.controller.getLayoutOptions('fcose');
   }
@@ -34,7 +35,7 @@ export class FCosePanel extends Component {
     return (
       <form className={classes.container} noValidate autoComplete="off">
         <div>
-          <Tooltip title="The ideal edge length">
+          <Tooltip arrow title="The ideal edge length">
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.label}>Edge Length</FormLabel>
               <Slider
@@ -47,7 +48,7 @@ export class FCosePanel extends Component {
               />
             </FormControl>
           </Tooltip>
-          <Tooltip title="The separation amount between nodes">
+          <Tooltip arrow title="The separation amount between nodes">
             <FormControl component="fieldset">
               <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
               <Slider

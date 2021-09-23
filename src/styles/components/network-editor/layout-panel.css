@@ -1,0 +1,32 @@
+.layout-panel {
+  & .MuiTabs-root .MuiButtonBase-root {
+    width: 78px !important;
+    min-width: auto !important;
+    /* background: red; */
+  }
+
+  & div[role="tabpanel"] .MuiBox-root {
+    margin-top: 1em;
+    padding: 0;
+  }
+
+  & .MuiTabs-indicator {
+    opacity: 0;
+  }
+
+  & * + fieldset.MuiFormControl-root {
+    margin-top: 0.5em;
+  }
+
+  & .MuiSlider-root {
+    width: 220px;
+  }
+
+  & .MuiToggleButtonGroup-root {
+    margin-top: 1em;
+  }
+}
+
+.layout-panel-reapply {
+  width: 100%;
+}
