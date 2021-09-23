@@ -1,128 +1,191 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
-import { BottomNavigation, BottomNavigationAction } from "@material-ui/core";
-import { Paper, Tooltip, Popover, Button } from "@material-ui/core";
+import { Popover, Button, Paper } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
-import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
-import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
-import TrendingUpIcon from '@material-ui/icons/TrendingUp';
+import { FormControl, Select } from "@material-ui/core";
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
-import _ from 'lodash';
 
 
+export function StylePanel({ title, children }) {
+  return (
+    <div>
+      <div className="style-picker-heading">
+        {title || "Style Panel"}
+      </div>
+      <div>
+        {children}
+      </div>
+    </div>
+  );
+}
+StylePanel.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.any
+};
+
+
+
+export function StyleSection({ title, children }) {
+  return (
+    <div>
+      <hr/>
+      <b>{title || "style section"}</b>
+      <div style={{ padding: '5px', paddingBottom: '15px'} }>
+        {children}
+      </div>
+    </div>
+  );
+}
+StyleSection.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.any
+};
+
+
+
+
+class StylePopoverButton extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      popoverAnchorEl: null,
+      popoverDataVal: null,
+      popoverStyleVal: null,
+    };
+  }
+
+  render() {
+    const handlePopoverOpen = (event, dataVal, styleVal) => {
+      this.setState({ 
+        popoverAnchorEl: event.currentTarget,
+        popoverDataVal: dataVal,
+        popoverStyleVal: styleVal,
+      });
+    };
+    const handlePopoverClose = () => {
+      this.setState({
+        popoverAnchorEl: null,
+        popoverDataVal: null,
+        popoverStyleVal: null,
+      });
+    };
+
+    const { dataVal, styleVal } = this.props;
+
+    return (
+      // TODO: The onClick handler on the top div is problematic, 
+      // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
+      // Should probably get a reference to the discrete icon, or pass the onClick handler down to the icon.
+      <div> 
+        <div 
+          style={{ padding: '5px', textAlign: 'left' }}
+          onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)} 
+        >
+          { this.props.renderDiscreteIcon(styleVal) }
+        </div>
+        <Popover 
+          open={Boolean(this.state.popoverAnchorEl)}
+          anchorEl={this.state.popoverAnchorEl}
+          onClose={handlePopoverClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <div style={{ padding: '10px', backgroundColor: 'white'}}> 
+            { this.props.renderValue(
+                this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
+                newStyleVal => this.props.handleChange(newStyleVal, this.state.popoverDataVal)
+              ) 
+            }
+          </div>
+        </Popover>
+      </div>
+    );
+  }
+}
+StylePopoverButton.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  dataVal: PropTypes.any,
+  styleVal: PropTypes.any,
+  renderValue: PropTypes.func,
+  renderDiscreteIcon: PropTypes.func,
+  handleChange: PropTypes.func,
+};
+
+
+// TODO: change the name of this enum
 const TAB = {
-  VALUE: 'VALUE',
   MAPPING: 'MAPPING',
   BYPASSING: 'BYPASSING'
 };
 
+
 export class StylePicker extends React.Component { 
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.controller = props.controller;
     this.attributes = this.controller.getPublicAttributes(props.selector);
 
-    this.state = {
-      // internal state
-      initialized: false || props.initialized,
-      tab: TAB.VALUE,
-      // discrete value popover state
-      popoverAnchorEl: null,
-      popoverDataVal: null,
-      popoverStyleVal: null,
-      // style state
-      style: {
-        mapping: MAPPING.VALUE,
-        discreteValue: {},
-      }
-    };
-  }
+    // Hook into the event bus to control the lifecycle!!!!
+    // Need to know when selection changes in order to switch into bypass mode.
+    // Need to know when style changes in order to support collaborative editing.
+    //    -- This is tricky because we don't want a circular event loop
 
-
-  onHide() {
-    const vizmapper = this.controller.vizmapper;
-
-    if(this.state.tab === TAB.BYPASSING) {
-      const styleBefore = this.bypassSnapshot;
-      const styleAfter = vizmapper.getBypassSnapshot();
-      if(!_.isEqual(styleBefore, styleAfter)) {
-        this.controller.undoSupport.post({
-          title: `${this.props.title} (${this.state.numSelected} ${this.getBypassElementLabel()})`,
-          undo: () => vizmapper.setBypassSnapshot(styleBefore),
-          redo: () => vizmapper.setBypassSnapshot(styleAfter)
-        });
-      }
-    } else {
-      const styleBefore = this.styleSnapshot;
-      const styleAfter = vizmapper.getStyleSnapshot();
-      if(!_.isEqual(styleBefore, styleAfter)) {
-        this.controller.undoSupport.post({
-          title: this.props.title,
-          undo: () => vizmapper.setStyleSnapshot(styleBefore),
-          redo: () => vizmapper.setStyleSnapshot(styleAfter)
-        });
-      }
-    }
-  }
-
-
-  onShow() {
-    this.styleSnapshot = this.controller.vizmapper.getStyleSnapshot();
-    this.bypassSnapshot = this.controller.vizmapper.getBypassSnapshot();
-
-    this.setState({ initialized: true });
     const numSelected = this.controller.bypassCount(this.props.selector);
 
     if(numSelected > 0) {
-      this.setState({ 
+      this.state = { 
         tab: TAB.BYPASSING,
         style: {
           mapping: MAPPING.VALUE,
           discreteValue: {},
         },
         numSelected
-      });
+      };
       return;
     }
 
     const style = this.props.getStyle();
 
-    this.setState({ 
-      tab: style.mapping == MAPPING.VALUE ? TAB.VALUE : TAB.MAPPING
-    });
-
     switch(style.mapping) {
       case MAPPING.VALUE:
-        this.setState({ style: {
-          mapping: MAPPING.VALUE,
-          scalarValue: style.value
-        }});
+        this.state = { style: {
+            mapping: MAPPING.VALUE,
+            scalarValue: style.value
+        }};
         break;
       case MAPPING.PASSTHROUGH:
-        this.setState({ style: {
+        this.state = { style: {
           mapping: MAPPING.PASSTHROUGH,
           attribute: style.value.data
-        }});
+        }};
         break;
       case MAPPING.LINEAR:
-        this.setState({ style: {
+        this.state = { style: {
           mapping: MAPPING.LINEAR,
           attribute: style.value.data,
           mappingValue: style.value.styleValues,
-        }});
+        }};
         break;
       case MAPPING.DISCRETE:
-        this.setState({ style: {
+        this.state = { style: {
           mapping: MAPPING.DISCRETE,
           attribute: style.value.data,
           discreteDefault: style.value.defaultValue,
           discreteValue: { ...style.value.styleValues } // TODO do we need to use spread op?
-        }});
+        }};
         break;
     }
+    this.state.tab = TAB.MAPPING;
   }
 
   onStyleChanged(style) {
@@ -146,25 +209,25 @@ export class StylePicker extends React.Component {
     }
   }
 
-  handleTabChange(tab) {
-    this.setState({ tab });
+  // handleTabChange(tab) {
+  //   this.setState({ tab });
    
-    // Auto select the mapping type in obvious situations
-    const { onMappingSet, onDiscreteSet, onPassthroughSet } = this.props;
-    let mapping;
+  //   // Auto select the mapping type in obvious situations
+  //   const { onMappingSet, onDiscreteSet, onPassthroughSet } = this.props;
+  //   let mapping;
 
-    if(tab === TAB.VALUE)
-      mapping = MAPPING.VALUE;
-    else if(onMappingSet && !onDiscreteSet && !onPassthroughSet)
-      mapping = MAPPING.LINEAR;
-    else if(!onMappingSet && onDiscreteSet && !onPassthroughSet)
-      mapping = MAPPING.DISCRETE;
-    else if(!onMappingSet && !onDiscreteSet && onPassthroughSet)
-      mapping = MAPPING.PASSTHROUGH;
+  //   if(tab === TAB.VALUE)
+  //     mapping = MAPPING.VALUE;
+  //   else if(onMappingSet && !onDiscreteSet && !onPassthroughSet)
+  //     mapping = MAPPING.LINEAR;
+  //   else if(!onMappingSet && onDiscreteSet && !onPassthroughSet)
+  //     mapping = MAPPING.DISCRETE;
+  //   else if(!onMappingSet && !onDiscreteSet && onPassthroughSet)
+  //     mapping = MAPPING.PASSTHROUGH;
 
-    if(mapping)
-      this.handleStyleChange({ mapping });
-  }
+  //   if(mapping)
+  //     this.handleStyleChange({ mapping });
+  // }
 
   handleStyleChange(changes) {
     const change = { style: {...this.state.style, ...changes }};
@@ -173,20 +236,10 @@ export class StylePicker extends React.Component {
   }
 
   render() {
-    if(!this.state.initialized)
-      return null;
-    else if(this.state.tab === TAB.BYPASSING)
+    if(this.state.tab === TAB.BYPASSING)
       return this.renderBypass();
     else
-      return this.renderTabs();
-  }
-
-  renderHeader() {
-    return (
-      <div className="style-picker-heading">
-        {this.props.title || "Visual Property"}
-      </div>
-    );
+      return this.renderStyleTypeSelector();
   }
 
   getBypassElementLabel() {
@@ -198,17 +251,8 @@ export class StylePicker extends React.Component {
   }
 
   renderBypass() {
-    const { numSelected } = this.state;
-    const elementLabel = this.getBypassElementLabel();
-
     return (
       <div className="style-picker">
-        <Paper>
-          { this.renderHeader() }
-          <div>
-            Setting style bypass for {numSelected} selected {elementLabel}
-          </div>
-        </Paper>
         { this.renderSubComponentValue() }
         <div style={{ paddingBottom:'15px' }}>
           <Button 
@@ -221,20 +265,33 @@ export class StylePicker extends React.Component {
     );
   }
 
-  renderTabs() {
+  renderStyleTypeSelector() {
+    const handleMappingTypeChange = (mapping) => {
+      this.handleStyleChange({ mapping });
+    };
     return (
       <div className="style-picker">
-        <Paper>
-          { this.renderHeader() }
-          <BottomNavigation
-            value={this.state.tab}
-            onChange={(event, tab) => this.handleTabChange(tab)}
-            showLabels >
-            <BottomNavigationAction label="DEFAULT" value={TAB.VALUE} />
-            <BottomNavigationAction label="MAPPING" value={TAB.MAPPING} />
-          </BottomNavigation>
-        </Paper>
-        { this.state.tab === TAB.VALUE
+        <FormControl style={{ width: '100%' }} size="small" variant="outlined">
+          <Select
+            native
+            value={this.state.style.mapping}
+            onChange={event => handleMappingTypeChange(event.target.value)}
+          >
+            {
+              <option key={MAPPING.VALUE} value={MAPPING.VALUE}>Single Value</option>
+            } 
+            { !this.props.onMappingSet ? null :
+              <option key={MAPPING.LINEAR} value={MAPPING.LINEAR}>Continuous Mapping</option>
+            }
+            { !this.props.onPassthroughSet ? null :
+              <option key={MAPPING.PASSTHROUGH} value={MAPPING.PASSTHROUGH}>Passthrough Mapping</option>
+            }
+            { !this.props.onDiscreteSet ? null :
+              <option key={MAPPING.DISCRETE} value={MAPPING.DISCRETE}>Discrete Mapping</option>
+            }
+          </Select>
+        </FormControl>
+        { this.state.style.mapping == MAPPING.VALUE
           ? this.renderSubComponentValue()
           : this.renderMapping()
         }
@@ -243,10 +300,15 @@ export class StylePicker extends React.Component {
   }
 
   renderSubComponentValue() {
-    const onSelect = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
+    const handleChange = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
     return (
-      <div className="style-picker-value"> 
-        { this.props.renderValue(this.state.style.scalarValue, onSelect) }
+      <div style={{ paddingTop: '5px' }}>
+        <StylePopoverButton 
+          handleChange={handleChange}
+          dataVal={0} 
+          styleVal={this.state.style.scalarValue} 
+          {...this.props}
+        />
       </div>
     );
   }
@@ -257,8 +319,7 @@ export class StylePicker extends React.Component {
     
     return (
       <div>
-        <div className="style-picker-mapping-box">
-          <div style={{ paddingRight:'15px' }}>
+          <div style={{ width: '100%' }}>
             <AttributeSelect
               controller={this.controller}
               selector={this.props.selector}
@@ -266,7 +327,7 @@ export class StylePicker extends React.Component {
               onChange={handleAttribute}
             />
           </div>
-          <ToggleButtonGroup 
+          {/* <ToggleButtonGroup 
             exclusive={true}
             value={this.state.style.mapping}
             onChange={(event,value) => handleMapping(value)}
@@ -292,8 +353,7 @@ export class StylePicker extends React.Component {
                 </Tooltip>
               </ToggleButton>
             }
-          </ToggleButtonGroup>
-        </div>
+          </ToggleButtonGroup> */}
         {(() => {
           if(!this.state.style.attribute)
             return null;
@@ -320,66 +380,38 @@ export class StylePicker extends React.Component {
 
   renderDiscrete() {
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
-    
-    const handlePopoverOpen = (event, dataVal, styleVal) => {
-      this.setState({ 
-        popoverAnchorEl: event.currentTarget,
-        popoverDataVal: dataVal,
-        popoverStyleVal: styleVal,
-      });
-    };
-    const handlePopoverClose = () => {
-      this.setState({
-        popoverAnchorEl: null,
-        popoverDataVal: null,
-        popoverStyleVal: null,
-      });
-    };
+    const discreteDefault = this.props.getDiscreteDefault();
+
     const handleDiscreteChange = (dataVal, newStyleVal) => {
       const discreteValue = { ...this.state.style.discreteValue };
       discreteValue[dataVal] = newStyleVal;
-      this.setState({ popoverStyleVal: newStyleVal });
+      // this.setState({ popoverStyleVal: newStyleVal });
       this.handleStyleChange({ discreteValue });
     };
-    const discreteDefault = this.props.getDiscreteDefault();
 
     return (
-      <div>
-        <List 
-          // This style causes this List to scroll and not the entire Popover from the StylePickerButton
-          style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 300 }} 
-          dense={true}
-        >
-          {dataVals.map(dataVal => {
-            const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
-            return (
-              <ListItem key={dataVal}>
-                <ListItemText primary={dataVal} />
-                <ListItemSecondaryAction>
-                  <div onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)}>
-                    { this.props.renderDiscreteIcon(styleVal) }
-                  </div>
-                </ListItemSecondaryAction>
-              </ListItem>
-            );})
-          }
+      <List 
+        // This style causes this List to scroll and not the entire Popover from the StylePickerButton
+        style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 300 }} 
+        dense={true}
+      >
+        {dataVals.map(dataVal => {
+          const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
+          return (
+            <ListItem key={dataVal}>
+              <ListItemText primary={dataVal} />
+              <ListItemSecondaryAction>
+                <StylePopoverButton 
+                  handleChange={handleDiscreteChange} 
+                  dataVal={dataVal} 
+                  styleVal={styleVal} 
+                  {...this.props}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
+          );})
+        }
         </List>
-        <Popover 
-          open={Boolean(this.state.popoverAnchorEl)}
-          anchorEl={this.state.popoverAnchorEl}
-          onClose={handlePopoverClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <div className="style-picker-value"> 
-            { this.props.renderValue(
-                this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
-                newStyleVal => handleDiscreteChange(this.state.popoverDataVal, newStyleVal)
-              ) 
-            }
-          </div>
-        </Popover>
-      </div>
     );
   }
 

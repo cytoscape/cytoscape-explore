@@ -10,9 +10,10 @@ import { DashedLineIcon, DottedLineIcon, SolidLineIcon } from '../svg-icons';
 
 const nodeIconProps = {
   viewBox: '0 0 32 32',
-  style: { width: 'auto', fontSize: 24, margin: 0 },
+  style: { fontSize: 24, margin: 0, color: 'grey' },  // TODO why does the color have to be set here??? Doesn't seem right.
   p: 0,
   m: 0,
+  
 };
 
 /*
@@ -52,11 +53,11 @@ export function ShapeIcon({ type, shape, onClick }) {
   const shapeObj = shapes.filter(obj => obj.name === shape)[0];
 
   return (
-    <Tooltip title={shapeObj.label}>
-      <IconButton size="small" color="inherit" onClick={() => onClick(shapeObj.name)}>
+    <div>
+      <IconButton size="small" color="primary" onClick={() => onClick(shapeObj.name)}>
         {shapeObj.icon}
       </IconButton>
-    </Tooltip>
+    </div>
   );
 }
 
