@@ -12,8 +12,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
 import { importCX } from '../../../model/import-export/cx';
-import CytoscapeSyncher from '../../../model/cytoscape-syncher';
-
 
 
 import FormControl from '@material-ui/core/FormControl';
@@ -23,9 +21,10 @@ import Button from '@material-ui/core/Button';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
-import * as ndex from 'ndex-client';
+import ndexClient from 'ndex-client';
 
 const NDEX_URL = 'https://dev.ndexbio.org';
+const REST_SERVER_URL = 'http://localhost:3000';
 
 export class NDExNetworkImportDialog extends Component {
 
@@ -49,7 +48,22 @@ export class NDExNetworkImportDialog extends Component {
   async handleOk() {
     this.setState({ loading: true });
 
-    const ndex0 = new ndex.NDEx(NDEX_URL + '/v2');
+    const res = await fetch( "/api/document/cxurl", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"server": this.state.ndexUrl,
+                                     "uuid": this.state.uuid})
+        }
+    );
+
+    const urls = await res.json();
+    const newURL = urls.publicUrl;
+
+    location.replace(newURL);
+
+ /*   const ndex0 = new ndexClient.NDEx(NDEX_URL + '/v2');
 
     // Return the Style for the passed view
 
@@ -65,7 +79,7 @@ export class NDExNetworkImportDialog extends Component {
 
       cy.data({ id: tid });
 
-      const cySyncher = new CytoscapeSyncher(cy, 'secret');
+     // const cySyncher = new CytoscapeSyncher(cy, 'secret');
 
       importCX(cy, rawcx2);
 
@@ -73,7 +87,7 @@ export class NDExNetworkImportDialog extends Component {
 
     } catch (e) {
       console.log(e); // TODO Show error to user
-    }
+    } */
 
     this.onClose();
   }

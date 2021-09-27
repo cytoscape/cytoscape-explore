@@ -137,6 +137,22 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
   });
 };
 
+// result is {dataValues:[], styleValues[]}
+const _continuousMappingCvtr = (result, currentV) => {
+  if ( currentV.min != undefined && currentV.max != undefined) {
+    if( result.dataValues.length === 0
+         || currentV.min != result.dataValues[result.dataValues.length-1]) {
+      result.dataValues.push ( currentV.min);
+      result.styleValues.push ( currentV.minVPValue);
+    }
+
+    result.dataValues.push ( currentV.max);
+    result.styleValues.push ( currentV.maxVPValue);
+
+  }
+  return result;
+};
+
 /**
  *
  * @param selector   node or edge
@@ -159,16 +175,24 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
         const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr,defaultValue, valueMap);
         vizmapper.set(selector,STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
       } else if (mapping.type === 'CONTINUOUS') {
-        const coreDef = mapping.definition.map[1];
+
+        let newList = mapping.definition.map.reduce(_continuousMappingCvtr, {dataValues:[], styleValues:[]});
+        let cyStyleValues = newList.styleValues.map( x => STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(x).value );
+    /*    const segmentCnt = mapping.definition.map.length;
+        const lowerDef = mapping.definition.map[1];
+        const upperDef = mapping.definition.map[segmentCnt-2]; */
         const style = STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory(attr,
-            [coreDef.min, coreDef.max],
-            [STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(coreDef.minVPValue).value,
-              STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(coreDef.maxVPValue).value]);
+             newList.dataValues, cyStyleValues);
         vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+      } else if ( mapping.type === 'PASSTHROUGH') {
+        vizmapper.set(selector,STYLE_CONVERTING_TABLE[vpName].jsVPName,
+            STYLE_CONVERTING_TABLE[vpName].mapper.passthroughMappingFactory(attr));
       }
     }
   }
 };
+
+
 
 /**
  * Import CX into a Cytoscape instance

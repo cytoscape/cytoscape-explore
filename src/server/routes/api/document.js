@@ -5,13 +5,36 @@ import CytoscapeSyncher from '../../../model/cytoscape-syncher';
 import { BASE_URL } from '../../env';
 import { importCX, exportCX } from '../../../model/import-export/cx';
 import { importJSON, exportJSON } from '../../../model/import-export/json';
-//import * as ndex from "ndex-client";
 import ndexClient from 'ndex-client';
 
 const http = Express.Router();
 
 const makeNetworkId = () => 'cy' + uuid();
 
+const postCXNetwork = async (importBody, rawcx) => {
+  //try {
+  //const body = req.body;
+  const id = makeNetworkId();
+  const cy = new Cytoscape();
+  const secret = uuid();
+  const publicUrl = `${BASE_URL}/document/${id}`;
+  const privateUrl = `${publicUrl}/${secret}`;
+
+  cy.data({ id });
+
+  const cySyncher = new CytoscapeSyncher(cy, 'secret');
+  importBody(cy, rawcx);
+
+  await cySyncher.create();
+
+  cySyncher.destroy();
+  cy.destroy();
+
+  return { id, secret, url: privateUrl, privateUrl, publicUrl };
+  /* } catch(err) {
+     next(err);
+   } */
+};
 /**
  * Post (create) a new network
  * @param {Function} importBody A function that takes (cy, body) and converts the body to cy
@@ -21,25 +44,9 @@ const makeNetworkId = () => 'cy' + uuid();
  */
 const postNetwork = async (importBody, req, res, next) => {
   try {
-    const body = req.body;
-    const id = makeNetworkId();
-    const cy = new Cytoscape();
-    const secret = uuid();
-    const publicUrl = `${BASE_URL}/document/${id}`;
-    const privateUrl = `${publicUrl}/${secret}`;
 
-    cy.data({ id });
-
-    const cySyncher = new CytoscapeSyncher(cy, 'secret');
-    importBody(cy, body);
-  
-    await cySyncher.create();
-   
-
-    cySyncher.destroy();
-    cy.destroy();
-
-    res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
+    let response = await postCXNetwork(importBody, req.body);
+    res.send(response);
   } catch(err) {
     next(err);
   }
@@ -48,33 +55,16 @@ const postNetwork = async (importBody, req, res, next) => {
 const postNetworkURL = async (importBody, req, res, next) => {
   try {
     const body = req.body;
-    const id = makeNetworkId();
-    const cy = new Cytoscape();
-    const secret = uuid();
-    const publicUrl = `${BASE_URL}/document/${id}`;
-    const privateUrl = `${publicUrl}/${secret}`;
 
     const ndex0 = new ndexClient.NDEx(body.server + '/v2');
-    const ndexuuid = body.uuid;
-    const rawcx2 = await ndex0.getCX2Network(ndexuuid);
+    const rawcx2 = await ndex0.getCX2Network(body.uuid);
 
-    cy.data({ id });
-
-    const cySyncher = new CytoscapeSyncher(cy, 'secret');
-    importBody(cy, rawcx2);
-
-    await cySyncher.create();
-
-    cySyncher.destroy();
-    cy.destroy();
-
-    res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
+    let response = await postCXNetwork(importBody, rawcx2);
+    res.send(response);
   } catch(err) {
     next(err);
   }
 };
-
-
 
 /**
  * Get a network

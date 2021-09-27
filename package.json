@@ -63,7 +63,7 @@
     "http-proxy-middleware": "^0.19.1",
     "lodash": "^4.17.20",
     "morgan": "^1.10.0",
-    "ndex-client": "git+https://github.com/ndexbio/ndex-js-client.git#node-server-compat",
+    "ndex-client": "git+https://github.com/ndexbio/ndex-js-client.git#develop",
     "node-fetch": "^2.6.1",
     "npm": "^7.11.1",
     "pouchdb": "^7.2.1",
