@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Color from 'color';
 import PropTypes from 'prop-types';
 import { mapColor } from '../../../model/style';
+import { FormatColorResetTwoTone } from '@material-ui/icons';
 
 
 // TODO improve defaults
@@ -153,7 +154,10 @@ ColorGradient.propTypes = {
   onSelect: PropTypes.func,
   selected: PropTypes.any
 };
-
+ColorGradient.defaultProps = {
+  onSelect: () => null,
+  selected: false
+};
 
 export function ColorGradients(props) {
   const { minSat, maxSat, minLight, maxLight } = linearHues;

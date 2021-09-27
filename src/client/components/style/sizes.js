@@ -32,8 +32,8 @@ SizeSlider.propTypes = {
 };
 
 
-export function SizeGradients(props) {
-  const { min, max, steps } = props;
+export function SizeGradient(props) {
+  const { min, max, steps, reversed } = props;
 
   const sizeSteps = (stepMin, stepMax) => {
     const step = (stepMax - stepMin) / (steps - 1);
@@ -44,32 +44,41 @@ export function SizeGradients(props) {
     return sizes;
   };
 
-  let circles, reversed;
+  let circles;
 
   if(props.variant === 'border') {
     const sizes = sizeSteps(2, 10);
-    circles = sizes.map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-${size}`}/>
-    ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-r-${size}`}/>
-    ));
+    if(!reversed) {
+      circles = sizes.map(size => (
+        <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-${size}`}/>
+      ));
+    } else {
+      circles = sizes.reverse().map(size => (
+        <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-r-${size}`}/>
+      ));
+    }
   } else if(props.variant === 'line') {
     const sizes = sizeSteps(2, 10);
-    circles = sizes.map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-${size}`}/>
-    ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-r-${size}`}/>
-    ));
+    if(!reversed) {
+      circles = sizes.map(size => (
+        <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-${size}`}/>
+      ));
+    } else {
+      circles = sizes.reverse().map(size => (
+        <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-r-${size}`}/>
+      ));
+    }
   } else { // 'solid'
     const sizes = sizeSteps(20, 40);
-    circles = sizes.map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-${size}`}/>
-    ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-r-${size}`}/>
-    ));
+    if(!reversed) {
+      circles = sizes.map(size => (
+        <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-${size}`}/>
+      ));
+    } else {
+      circles = sizes.reverse().map(size => (
+        <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-r-${size}`}/>
+      ));
+    }
   }
 
   return (
@@ -80,16 +89,35 @@ export function SizeGradients(props) {
         })}
         onClick = {() => props.onSelect([min, max])}
         >
-        {circles}
+        { circles }
       </div>
-      <div className={classNames({ 
-          'size-swatches': true, 
-          'size-swatches-selected': _.isMatch(props.selected, [max, min])
-        })}
-        onClick = {() => props.onSelect([max, min])}
-        >
-        {reversed}
-      </div>
+    </div>
+  );
+}
+
+SizeGradient.propTypes = {
+  reversed: PropTypes.bool,
+  onSelect: PropTypes.func,
+  selected: PropTypes.any,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  steps: PropTypes.number,
+  variant: PropTypes.oneOf(['solid', 'border', 'line']),
+};
+SizeGradient.defaultProps = {
+  onSelect: () => null,
+  min: 20,
+  max: 40,
+  steps: 5,
+  variant: 'solid',
+};
+
+
+export function SizeGradients(props) {
+  return (
+    <div>
+      <SizeGradient {...props} />
+      <SizeGradient reversed={true} {...props} />
     </div>
   );
 }
@@ -102,7 +130,6 @@ SizeGradients.propTypes = {
   steps: PropTypes.number,
   variant: PropTypes.oneOf(['solid', 'border', 'line']),
 };
-
 SizeGradients.defaultProps = {
   onSelect: () => null,
   min: 20,

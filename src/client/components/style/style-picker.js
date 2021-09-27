@@ -84,23 +84,17 @@ class StylePopoverButton extends React.Component {
           style={{ padding: '5px', textAlign: 'left' }}
           onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)} 
         >
-          { this.props.renderDiscreteIcon(styleVal) }
+          { this.props.renderButton(styleVal) }
         </div>
         <Popover 
           open={Boolean(this.state.popoverAnchorEl)}
           anchorEl={this.state.popoverAnchorEl}
           onClose={handlePopoverClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <div style={{ padding: '10px', backgroundColor: 'white'}}> 
-            { this.props.renderValue(
+            { this.props.renderPicker(
                 this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
                 newStyleVal => this.props.handleChange(newStyleVal, this.state.popoverDataVal)
               ) 
@@ -112,11 +106,10 @@ class StylePopoverButton extends React.Component {
   }
 }
 StylePopoverButton.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
   dataVal: PropTypes.any,
   styleVal: PropTypes.any,
-  renderValue: PropTypes.func,
-  renderDiscreteIcon: PropTypes.func,
+  renderButton: PropTypes.func,
+  renderPicker: PropTypes.func,
   handleChange: PropTypes.func,
 };
 
@@ -209,26 +202,6 @@ export class StylePicker extends React.Component {
     }
   }
 
-  // handleTabChange(tab) {
-  //   this.setState({ tab });
-   
-  //   // Auto select the mapping type in obvious situations
-  //   const { onMappingSet, onDiscreteSet, onPassthroughSet } = this.props;
-  //   let mapping;
-
-  //   if(tab === TAB.VALUE)
-  //     mapping = MAPPING.VALUE;
-  //   else if(onMappingSet && !onDiscreteSet && !onPassthroughSet)
-  //     mapping = MAPPING.LINEAR;
-  //   else if(!onMappingSet && onDiscreteSet && !onPassthroughSet)
-  //     mapping = MAPPING.DISCRETE;
-  //   else if(!onMappingSet && !onDiscreteSet && onPassthroughSet)
-  //     mapping = MAPPING.PASSTHROUGH;
-
-  //   if(mapping)
-  //     this.handleStyleChange({ mapping });
-  // }
-
   handleStyleChange(changes) {
     const change = { style: {...this.state.style, ...changes }};
     this.setState(change);
@@ -278,16 +251,16 @@ export class StylePicker extends React.Component {
             onChange={event => handleMappingTypeChange(event.target.value)}
           >
             {
-              <option key={MAPPING.VALUE} value={MAPPING.VALUE}>Single Value</option>
+              <option key={MAPPING.VALUE} value={MAPPING.VALUE}>{this.props.valueLabel}</option>
             } 
             { !this.props.onMappingSet ? null :
-              <option key={MAPPING.LINEAR} value={MAPPING.LINEAR}>Continuous Mapping</option>
+              <option key={MAPPING.LINEAR} value={MAPPING.LINEAR}>{this.props.mappingLabel}</option>
             }
             { !this.props.onPassthroughSet ? null :
-              <option key={MAPPING.PASSTHROUGH} value={MAPPING.PASSTHROUGH}>Passthrough Mapping</option>
+              <option key={MAPPING.PASSTHROUGH} value={MAPPING.PASSTHROUGH}>{this.props.passthroughLabel}</option>
             }
             { !this.props.onDiscreteSet ? null :
-              <option key={MAPPING.DISCRETE} value={MAPPING.DISCRETE}>Discrete Mapping</option>
+              <option key={MAPPING.DISCRETE} value={MAPPING.DISCRETE}>{this.props.discreteLabel}</option>
             }
           </Select>
         </FormControl>
@@ -307,7 +280,8 @@ export class StylePicker extends React.Component {
           handleChange={handleChange}
           dataVal={0} 
           styleVal={this.state.style.scalarValue} 
-          {...this.props}
+          renderButton={this.props.renderValueButton}
+          renderPicker={this.props.renderValuePicker}
         />
       </div>
     );
@@ -327,33 +301,6 @@ export class StylePicker extends React.Component {
               onChange={handleAttribute}
             />
           </div>
-          {/* <ToggleButtonGroup 
-            exclusive={true}
-            value={this.state.style.mapping}
-            onChange={(event,value) => handleMapping(value)}
-            >
-            { !this.props.onPassthroughSet ? null :
-              <ToggleButton value={MAPPING.PASSTHROUGH} >
-                <Tooltip title="Passthrough Mapping">
-                  <span>1 : 1</span>
-                </Tooltip>
-              </ToggleButton>
-            }
-            { !this.props.onMappingSet ? null :
-              <ToggleButton value={MAPPING.LINEAR}>
-                <Tooltip title="Continuous Mapping">
-                  <TrendingUpIcon />
-                </Tooltip>
-              </ToggleButton>
-            }
-            { !this.props.onDiscreteSet ? null :
-              <ToggleButton value={MAPPING.DISCRETE}>
-                <Tooltip title="Discrete Mapping">
-                  <FormatListNumberedIcon />
-                </Tooltip>
-              </ToggleButton>
-            }
-          </ToggleButtonGroup> */}
         {(() => {
           if(!this.state.style.attribute)
             return null;
@@ -369,12 +316,14 @@ export class StylePicker extends React.Component {
   }
 
   renderSubComponentLinear() {
-    // TODO change to 'props.renderLinear'
-    const onSelect = mappingValue => this.handleStyleChange({ mappingValue });
+    const handleMappingChange = mappingValue => this.handleStyleChange({ mappingValue });
     return (
-        <div className="style-picker-value">
-         { this.props.renderMapping(this.state.style.mappingValue, onSelect) }
-        </div>
+      <StylePopoverButton 
+        handleChange={handleMappingChange} 
+        styleVal={this.state.style.mappingValue} 
+        renderButton={this.props.renderMappingButton}
+        renderPicker={this.props.renderMappingPicker}
+      />
     );
   }
 
@@ -405,7 +354,8 @@ export class StylePicker extends React.Component {
                   handleChange={handleDiscreteChange} 
                   dataVal={dataVal} 
                   styleVal={styleVal} 
-                  {...this.props}
+                  renderButton={this.props.renderValueButton}
+                  renderPicker={this.props.renderValuePicker}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -419,9 +369,11 @@ export class StylePicker extends React.Component {
 
 StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
-  renderMapping: PropTypes.func,
-  renderValue: PropTypes.func,
-  renderDiscreteIcon: PropTypes.func,
+  selector: PropTypes.oneOf(['node', 'edge']),
+  renderMappingPicker: PropTypes.func,
+  renderMappingButton: PropTypes.func,
+  renderValuePicker: PropTypes.func,
+  renderValueButton: PropTypes.func,
   getStyle: PropTypes.func,
   getDiscreteDefault: PropTypes.func,
   onValueSet: PropTypes.func,
@@ -430,11 +382,17 @@ StylePicker.propTypes = {
   onPassthroughSet: PropTypes.func,
   title: PropTypes.string,
   icon: PropTypes.string,
-  selector: PropTypes.oneOf(['node', 'edge']),
+  valueLabel: PropTypes.string,
+  mappingLabel: PropTypes.string,
+  passthroughLabel: PropTypes.string,
+  discreteLabel: PropTypes.string,
 };
 StylePicker.defaultProps = {
   selector: 'node',
-  icon: 'star',
+  valueLabel: 'Single Value',
+  mappingLabel: 'Continuous Mapping',
+  passthroughLabel: 'Passthrough Mapping',
+  discreteLabel: 'Discrete Mapping',
 };
 
 export default StylePicker;

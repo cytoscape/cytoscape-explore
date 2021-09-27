@@ -55,7 +55,7 @@ export function ShapeIcon({ type, shape, onClick }) {
   return (
     <div>
       <IconButton size="small" color="primary" onClick={() => onClick(shapeObj.name)}>
-        {shapeObj.icon}
+        {shapeObj ? shapeObj.icon : "none"}
       </IconButton>
     </div>
   );
