@@ -89,9 +89,17 @@ export class ColorSwatches extends Component {
         {r:230,g:230,b:230},
       ]
     });
+
+    this.state = {
+      color: props.selected
+    };
   }
 
   render() {
+    const onSelect = (color) => {
+      this.setState({ color });
+      this.props.onSelect(color);
+    };
     return (
       <div className="color-swatches">
         { this.groups.map((group, i) => 
@@ -100,8 +108,8 @@ export class ColorSwatches extends Component {
                 <ColorSwatch 
                   color={c}
                   key={`swatch-${i}`}
-                  selected={_.isEqual(this.props.selected, c)} 
-                  onClick={this.props.onSelect} />
+                  selected={_.isEqual(this.state.color, c)} 
+                  onClick={onSelect} />
             )}
           </div>
         )}
@@ -117,6 +125,10 @@ ColorSwatches.propTypes = {
 
 
 export function ColorGradient(props) {
+  if(!props.value) {
+    return <div>NONE</div>;
+  }
+
   const [ val1, val2, val3 ] = props.value;
 
   let colors;
@@ -148,7 +160,6 @@ export function ColorGradient(props) {
       </div>
   );
 }
-
 ColorGradient.propTypes = {
   value: PropTypes.array,
   onSelect: PropTypes.func,
@@ -158,6 +169,8 @@ ColorGradient.defaultProps = {
   onSelect: () => null,
   selected: false
 };
+
+
 
 export function ColorGradients(props) {
   const { minSat, maxSat, minLight, maxLight } = linearHues;

@@ -289,7 +289,7 @@ export class StylePicker extends React.Component {
 
   renderMapping() {
     const handleAttribute = (attribute) => this.handleStyleChange({ attribute });
-    const handleMapping = (mapping) => this.handleStyleChange({ mapping });
+    // const handleMapping = (mapping) => this.handleStyleChange({ mapping });
     
     return (
       <div>
@@ -376,6 +376,7 @@ StylePicker.propTypes = {
   renderValueButton: PropTypes.func,
   getStyle: PropTypes.func,
   getDiscreteDefault: PropTypes.func,
+  getMappingDefault: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
   onDiscreteSet: PropTypes.func,
