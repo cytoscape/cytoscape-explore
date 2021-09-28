@@ -395,4 +395,5 @@ StylePicker.defaultProps = {
   discreteLabel: 'Discrete Mapping',
 };
 
+
 export default StylePicker;

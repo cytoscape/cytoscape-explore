@@ -11,12 +11,53 @@ import { LabelInput } from '../style/labels';
 import { StylePicker, StyleSection, StylePanel } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
 
+
+export function ColorStylePicker({ controller, selector, styleProps }) {
+  return <StylePicker
+    controller={controller}
+    valueLabel="Single Color"
+    mappingLabel="Color Gradient"
+    discreteLabel="Color per Data Value"
+    renderValueButton={color => 
+      <ColorSwatch color={color} />
+    }
+    renderValuePicker={(color, onSelect) => 
+      <ColorSwatches selected={color} onSelect={onSelect} />
+    }
+    renderMappingButton={(gradient) => 
+      <ColorGradient value={gradient} /> 
+    }
+    renderMappingPicker={(gradient, onSelect) => 
+      <ColorGradients selected={gradient} onSelect={onSelect} /> 
+    }
+    getStyle={() => 
+      controller.getStyle(selector, styleProps[0])
+    }
+    getDiscreteDefault={() =>
+      styleProps.forEach(p => controller.getDiscreteDefault(selector, p))
+    }
+    onValueSet={color => 
+      styleProps.forEach(p => controller.setColor(selector, p, color))
+    }
+    onMappingSet={(attribute, gradient) => 
+      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient))
+    }
+    onDiscreteSet={(attribute, valueMap) => 
+      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap))
+    }
+  />;
+}
+ColorStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  selector: PropTypes.oneOf(['node', 'edge']),
+  styleProps: PropTypes.array
+};
+
+
 export class ToolPanel extends Component {
   constructor(props){
     super(props);
-
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
-
     this.state = {
       toolRender: () => <div></div>
     };
@@ -24,7 +65,6 @@ export class ToolPanel extends Component {
 
   componentDidMount(){
     const dirty = () => this.setState({ dirty: Date.now() });
-
     this.busProxy.on('toggleDrawMode', dirty);
   }
 
@@ -70,38 +110,10 @@ export class ToolPanel extends Component {
           render={() => 
             <StylePanel title="Node Body">
               <StyleSection title="Color">
-                <StylePicker
+                <ColorStylePicker
                   controller={controller}
-                  valueLabel="Single Color"
-                  mappingLabel="Color Gradient"
-                  discreteLabel="Color per Data Value"
-                  renderValueButton={color => 
-                    <ColorSwatch color={color} />
-                  }
-                  renderValuePicker={(color, onSelect) => 
-                    <ColorSwatches selected={color} onSelect={onSelect} />
-                  }
-                  renderMappingButton={(gradient) => 
-                    <ColorGradient value={gradient} /> 
-                  }
-                  renderMappingPicker={(gradient, onSelect) => 
-                    <ColorGradients selected={gradient} onSelect={onSelect} /> 
-                  }
-                  getStyle={() => 
-                    controller.getStyle('node', 'background-color')
-                  }
-                  getDiscreteDefault={() =>
-                    controller.getDiscreteDefault('node', 'background-color')
-                  }
-                  onValueSet={color => 
-                    controller.setColor('node', 'background-color', color)
-                  }
-                  onMappingSet={(attribute, gradient) => 
-                    controller.setColorLinearMapping('node', 'background-color', attribute, gradient)
-                  }
-                  onDiscreteSet={(attribute, valueMap) => 
-                    controller.setColorDiscreteMapping('node', 'background-color', attribute, valueMap)
-                  }
+                  selector='node'
+                  styleProps={['background-color']}
                 />
               </StyleSection>
               <StyleSection title="Shape">
@@ -178,38 +190,10 @@ export class ToolPanel extends Component {
           render={() => 
             <StylePanel title="Node Border">
               <StyleSection title="Color">
-                <StylePicker
+                <ColorStylePicker
                   controller={controller}
-                  valueLabel="Single Color"
-                  mappingLabel="Color Gradient"
-                  discreteLabel="Color per Data Value"
-                  renderValueButton={color => 
-                    <ColorSwatch color={color} />
-                  }
-                  renderValuePicker={(color, onSelect) => 
-                    <ColorSwatches selected={color} onSelect={onSelect} />
-                  }
-                  renderMappingButton={(gradient) => 
-                    <ColorGradient value={gradient} /> 
-                  }
-                  renderMappingPicker={(gradient, onSelect) => 
-                    <ColorGradients selected={gradient} onSelect={onSelect} /> 
-                  }
-                  getStyle={() => 
-                    controller.getStyle('node', 'border-color')
-                  }
-                  getDiscreteDefault={() =>
-                    controller.getDiscreteDefault('node', 'border-color')
-                  }
-                  onValueSet={color => 
-                    controller.setColor('node', 'border-color', color)
-                  }
-                  onMappingSet={(gradient, attribute) => 
-                    controller.setColorLinearMapping('node', 'border-color', gradient, attribute)
-                  }
-                  onDiscreteSet={(attribute, valueMap) => 
-                    controller.setColorDiscreteMapping('node', 'border-color', attribute, valueMap)
-                  }
+                  selector='node'
+                  styleProps={['border-color']}
                 />
               </StyleSection>
               <StyleSection title="Width">
@@ -291,42 +275,10 @@ export class ToolPanel extends Component {
           render={() => 
             <StylePanel title="Edge">
               <StyleSection title="Color">
-                <StylePicker
+                <ColorStylePicker
                   selector='edge'
                   controller={controller}
-                  renderValueButton={color => 
-                    <ColorSwatch color={color} />
-                  }
-                  renderValuePicker={(color, onSelect) => 
-                    <ColorSwatches selected={color} onSelect={onSelect} />
-                  }
-                  renderMappingButton={(gradient) => 
-                    <ColorGradient value={gradient} /> 
-                  }
-                  renderMappingPicker={(gradient, onSelect) => 
-                    <ColorGradients selected={gradient} onSelect={onSelect} /> 
-                  }
-                  getStyle={() => 
-                    controller.getStyle('edge', 'line-color')
-                  }
-                  getDiscreteDefault={() =>
-                    controller.getDiscreteDefault('edge', 'line-color')
-                  }
-                  onValueSet={color => {
-                    controller.setColor('edge', 'line-color', color);
-                    controller.setColor('edge', 'source-arrow-color', color);
-                    controller.setColor('edge', 'target-arrow-color', color);
-                  }}
-                  onMappingSet={(attribute, gradient) => {
-                    controller.setColorLinearMapping('edge', 'line-color', attribute, gradient);
-                    controller.setColorLinearMapping('edge', 'source-arrow-color', attribute, gradient);
-                    controller.setColorLinearMapping('edge', 'target-arrow-color', attribute, gradient);
-                  }}
-                  onDiscreteSet={(attribute, valueMap) => {
-                    controller.setColorDiscreteMapping('edge', 'line-color', attribute, valueMap);
-                    controller.setColorDiscreteMapping('edge', 'source-arrow-color', attribute, valueMap);
-                    controller.setColorDiscreteMapping('edge', 'target-arrow-color', attribute, valueMap);
-                  }}
+                  styleProps={['line-color', 'source-arrow-color', 'target-arrow-color']}
                 />
               </StyleSection>
               <StyleSection title="Width">
