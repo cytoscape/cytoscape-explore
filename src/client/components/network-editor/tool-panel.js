@@ -4,54 +4,12 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 import Tooltip from '@material-ui/core/Tooltip';
 import { IconButton, Divider, Box, Button } from '@material-ui/core';
-import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
 import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { LabelInput } from '../style/labels';
-import { StylePicker, StyleSection, StylePanel } from '../style/style-picker';
+import { StyleSection, StylePanel, StylePicker, ColorStylePicker, ShapeStylePicker, SizeStylePicker } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
 
-
-export function ColorStylePicker({ controller, selector, styleProps }) {
-  return <StylePicker
-    controller={controller}
-    valueLabel="Single Color"
-    mappingLabel="Color Gradient"
-    discreteLabel="Color per Data Value"
-    renderValueButton={color => 
-      <ColorSwatch color={color} />
-    }
-    renderValuePicker={(color, onSelect) => 
-      <ColorSwatches selected={color} onSelect={onSelect} />
-    }
-    renderMappingButton={(gradient) => 
-      <ColorGradient value={gradient} /> 
-    }
-    renderMappingPicker={(gradient, onSelect) => 
-      <ColorGradients selected={gradient} onSelect={onSelect} /> 
-    }
-    getStyle={() => 
-      controller.getStyle(selector, styleProps[0])
-    }
-    getDiscreteDefault={() =>
-      styleProps.forEach(p => controller.getDiscreteDefault(selector, p))
-    }
-    onValueSet={color => 
-      styleProps.forEach(p => controller.setColor(selector, p, color))
-    }
-    onMappingSet={(attribute, gradient) => 
-      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient))
-    }
-    onDiscreteSet={(attribute, valueMap) => 
-      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap))
-    }
-  />;
-}
-ColorStylePicker.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
-  selector: PropTypes.oneOf(['node', 'edge']),
-  styleProps: PropTypes.array
-};
 
 
 export class ToolPanel extends Component {
@@ -98,7 +56,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Layout" 
           tool="layout" 
-          icon="share" // bubble_chart" // "scatter_plot"  "grain"
+          icon="share" // bubble_chart"  "scatter_plot"  "grain"
           render={() => <LayoutPanel controller={controller} />}>
         </ToolButton>
         
@@ -117,74 +75,25 @@ export class ToolPanel extends Component {
                 />
               </StyleSection>
               <StyleSection title="Shape">
-                <StylePicker 
+                <ShapeStylePicker
                   controller={controller}
-                  valueLabel="Single Shape"
-                  discreteLabel="Shape per Data Value"
-                  renderValueButton={(shape) => 
-                    <ShapeIcon type='node' shape={shape} />
-                  }
-                  renderValuePicker={(shape, onSelect) => 
-                    <ShapeIconGroup type='node' selected={shape} onSelect={onSelect} />
-                  }
-                  getStyle={() => 
-                    controller.getStyle('node', 'shape')
-                  }
-                  getDiscreteDefault={() =>
-                    controller.getDiscreteDefault('node', 'shape')
-                  }
-                  onValueSet={shape => 
-                    controller.setString('node', 'shape', shape)
-                  }
-                  onDiscreteSet={(attribute, valueMap) => {
-                    controller.setStringDiscreteMapping('node', 'shape',  attribute, valueMap);
-                  }}
+                  selector='node'
+                  styleProp='shape'
                 />
               </StyleSection>
               <StyleSection title="Size">
-                <StylePicker
-                  title="Size"
-                  valueLabel="Single Size"
-                  mappingLabel="Size Mapping"
-                  discreteLabel="Sized per Data Value"
+                <SizeStylePicker
                   controller={controller}
-                  renderValueButton={(size) => 
-                    <Button variant="outlined">{size}</Button>
-                  }
-                  renderValuePicker={(size, onSelect) => 
-                    <SizeSlider min={10} max={50} defaultValue={size} onSelect={onSelect} /> 
-                  }
-                  renderMappingButton={(sizeRange) => 
-                    <SizeGradient selected={sizeRange} /> 
-                  } 
-                  renderMappingPicker={(sizeRange, onSelect) => 
-                    <SizeGradients variant='solid' min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
-                  } 
-                  getStyle={() => 
-                    controller.getStyle('node', 'width')
-                  }
-                  getDiscreteDefault={() =>
-                    controller.getDiscreteDefault('node', 'width')
-                  }
-                  onValueSet={size => {
-                    controller.setNumber('node', 'width',  size);
-                    controller.setNumber('node', 'height', size);
-                  }}
-                  onMappingSet={(attribute, sizeRange) => {
-                    controller.setNumberLinearMapping('node', 'width',  attribute, sizeRange);
-                    controller.setNumberLinearMapping('node', 'height', attribute, sizeRange);
-                  }}
-                  onDiscreteSet={(attribute, valueMap) => {
-                    controller.setNumberDiscreteMapping('node', 'width',  attribute, valueMap);
-                    controller.setNumberDiscreteMapping('node', 'height', attribute, valueMap);
-                  }}
+                  selector='node'
+                  styleProps={['width', 'height']}
+                  variant='solid'
                 />
               </StyleSection>
             </StylePanel>
           }
         />
 
-        <ToolButton 
+        {/* <ToolButton 
           title="Node Border" 
           icon="trip_origin"
           render={() => 
@@ -397,7 +306,7 @@ export class ToolPanel extends Component {
               </StyleSection>
             </StylePanel>
           }
-        />
+        /> */}
 
       </Box>
     </div>);
