@@ -9,7 +9,7 @@ import { MAPPING } from '../../../model/style';
 import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
-
+import { LabelInput } from '../style/labels';
 
 export function StylePanel({ title, children }) {
   return (
@@ -94,7 +94,7 @@ class StylePopoverButton extends React.Component {
           transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <div style={{ padding: '10px', backgroundColor: 'white'}}> 
-            { this.props.renderPicker(
+            { this.props.renderPopover(
                 this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
                 newStyleVal => this.props.handleChange(newStyleVal, this.state.popoverDataVal)
               ) 
@@ -109,7 +109,7 @@ StylePopoverButton.propTypes = {
   dataVal: PropTypes.any,
   styleVal: PropTypes.any,
   renderButton: PropTypes.func,
-  renderPicker: PropTypes.func,
+  renderPopover: PropTypes.func,
   handleChange: PropTypes.func,
 };
 
@@ -289,10 +289,9 @@ export class StylePicker extends React.Component {
   }
 
   render() {
-    if(this.state.tab === TAB.BYPASSING)
-      return this.renderBypass();
-    else
-      return this.renderNormal();
+    return this.state.tab === TAB.BYPASSING
+      ? this.renderBypass()
+      : this.renderNormal();
   }
 
   renderBypass() {
@@ -339,35 +338,17 @@ export class StylePicker extends React.Component {
 
   renderValue() {
     const handleChange = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
-    return <StylePopoverButton 
-      handleChange={handleChange}
-      dataVal={0} 
-      styleVal={this.state.style.scalarValue} 
-      renderButton={this.props.renderValueButton}
-      renderPicker={this.props.renderValuePicker}
-    />;
+    return this.props.renderValue(this.state.style.scalarValue, handleChange);
   }
 
   renderContinuous() {
     const handleMappingChange = mappingValue => this.handleStyleChange({ mappingValue });
-    return <StylePopoverButton 
-      handleChange={handleMappingChange} 
-      styleVal={this.state.style.mappingValue} 
-      renderButton={this.props.renderMappingButton}
-      renderPicker={this.props.renderMappingPicker}
-    />;
+    return this.props.renderMapping(this.state.style.mappingValue, handleMappingChange);
   }
 
   renderDiscrete() {
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
     const discreteDefault = this.props.getDiscreteDefault();
-
-    const handleDiscreteChange = (dataVal, newStyleVal) => {
-      const discreteValue = { ...this.state.style.discreteValue };
-      discreteValue[dataVal] = newStyleVal;
-      this.handleStyleChange({ discreteValue });
-    };
-
     return (
       <List 
         // This style causes this List to scroll and not the entire Popover from the StylePickerButton
@@ -376,17 +357,19 @@ export class StylePicker extends React.Component {
       >
         {dataVals.map(dataVal => {
           const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
+          const handleChange = (newStyleVal) => {
+            const discreteValue = { ...this.state.style.discreteValue };
+            discreteValue[dataVal] = newStyleVal;
+            this.handleStyleChange({ discreteValue });
+          };
           return (
             <ListItem key={dataVal}>
               <ListItemText primary={dataVal} />
               <ListItemSecondaryAction>
-                <StylePopoverButton 
-                  handleChange={handleDiscreteChange} 
-                  dataVal={dataVal} 
-                  styleVal={styleVal} 
-                  renderButton={this.props.renderValueButton}
-                  renderPicker={this.props.renderValuePicker}
-                />
+                { this.props.renderDiscrete
+                  ? this.props.renderDiscrete(styleVal, handleChange)
+                  : this.props.renderValue(styleVal, handleChange)
+                }
               </ListItemSecondaryAction>
             </ListItem>
           );})
@@ -394,25 +377,19 @@ export class StylePicker extends React.Component {
         </List>
     );
   }
-
 }
-
 StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   selector: PropTypes.oneOf(['node', 'edge']),
-  renderMappingPicker: PropTypes.func,
-  renderMappingButton: PropTypes.func,
-  renderValuePicker: PropTypes.func,
-  renderValueButton: PropTypes.func,
+  renderMapping: PropTypes.func,
+  renderValue: PropTypes.func,
+  renderDiscrete: PropTypes.func,
   getStyle: PropTypes.func,
   getDiscreteDefault: PropTypes.func,
-  getMappingDefault: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
   onDiscreteSet: PropTypes.func,
   onPassthroughSet: PropTypes.func,
-  title: PropTypes.string,
-  icon: PropTypes.string,
   valueLabel: PropTypes.string,
   mappingLabel: PropTypes.string,
   passthroughLabel: PropTypes.string,
@@ -435,17 +412,29 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     valueLabel="Single Color"
     mappingLabel="Color Gradient"
     discreteLabel="Color per Data Value"
-    renderValueButton={color => 
-      <ColorSwatch color={color} />
+    renderValue={(currentColor, setColor) => 
+      <StylePopoverButton 
+        styleVal={currentColor}
+        handleChange={setColor}
+        renderButton={color => 
+          <ColorSwatch color={color} />
+        }
+        renderPopover={(color, onSelect) => 
+          <ColorSwatches selected={color} onSelect={onSelect} />
+        }
+      />
     }
-    renderValuePicker={(color, onSelect) => 
-      <ColorSwatches selected={color} onSelect={onSelect} />
-    }
-    renderMappingButton={(gradient) => 
-      <ColorGradient value={gradient} /> 
-    }
-    renderMappingPicker={(gradient, onSelect) => 
-      <ColorGradients selected={gradient} onSelect={onSelect} /> 
+    renderMapping={(currentGradient, setGradient) => 
+      <StylePopoverButton 
+        styleVal={currentGradient}
+        handleChange={setGradient}
+        renderButton={(gradient) => 
+          <ColorGradient value={gradient} /> 
+        }
+        renderPopover={(gradient, onSelect) => 
+          <ColorGradients selected={gradient} onSelect={onSelect} /> 
+        }
+      />
     }
     getStyle={() => 
       controller.getStyle(selector, styleProps[0])
@@ -471,18 +460,35 @@ ColorStylePicker.propTypes = {
 };
 
 
-export function ShapeStylePicker({ controller, selector, styleProp }) {
+export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
+  let valueLabel, discreteLabel;
+  if(variant == 'node') {
+      valueLabel = "Single Shape";
+      discreteLabel = "Shape per Data Value";
+  } else if(variant == 'line') {
+      valueLabel = "Same for all edges";
+      discreteLabel = "Line style per Data Value";
+  } else if(variant == 'arrow') {
+      valueLabel = "Same for all edges";
+      discreteLabel = "Line style per Data Value";
+  }
   return (
     <StylePicker 
       controller={controller}
       selector={selector}
-      valueLabel="Single Shape"
-      discreteLabel="Shape per Data Value"
-      renderValueButton={(shape) => 
-        <ShapeIcon type={selector} shape={shape} />
-      }
-      renderValuePicker={(shape, onSelect) => 
-        <ShapeIconGroup type={selector} selected={shape} onSelect={onSelect} />
+      valueLabel={valueLabel}
+      discreteLabel={discreteLabel}
+      renderValue={(currentShape, setShape) => 
+        <StylePopoverButton 
+          styleVal={currentShape}
+          handleChange={setShape}
+          renderButton={(shape) => 
+            <ShapeIcon type={variant} shape={shape} />
+          }
+          renderPopover={(shape, onSelect) => 
+            <ShapeIconGroup type={variant} selected={shape} onSelect={onSelect} />
+          }
+        />
       }
       getStyle={() => 
         controller.getStyle(selector, styleProp)
@@ -502,12 +508,19 @@ export function ShapeStylePicker({ controller, selector, styleProp }) {
 ShapeStylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   selector: PropTypes.oneOf(['node', 'edge']),
-  styleProp: PropTypes.string
+  styleProp: PropTypes.string,
+  variant: PropTypes.oneOf(['node', 'line', 'arrow']),
 };
 
 
 
 export function SizeStylePicker({ controller, selector, variant, styleProps }) {
+  let min, max;
+  if(variant == 'solid')
+    [min, max] = [10, 50];
+  else if(variant == 'line' || variant == 'border')
+    [min, max] = [0, 10];
+
   return (
     <StylePicker
       valueLabel="Single Size"
@@ -515,18 +528,33 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
       discreteLabel="Sized per Data Value"
       controller={controller}
       selector={selector}
-      renderValueButton={(size) => 
-        <Button variant="outlined">{size}</Button>
+      renderValue={(size, onSelect) => 
+        <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
       }
-      renderValuePicker={(size, onSelect) => 
-        <SizeSlider min={10} max={50} defaultValue={size} onSelect={onSelect} /> 
+      renderMapping={(currentSize, setSize) => 
+        <StylePopoverButton 
+          styleVal={currentSize}
+          handleChange={setSize}
+          renderButton={(sizeRange) => 
+            <SizeGradient selected={sizeRange} /> 
+          }
+          renderPopover={(gradient, onSelect) => 
+            <SizeGradients variant={variant} min={min} max={max} selected={gradient} onSelect={onSelect} /> 
+          }
+        />
       }
-      renderMappingButton={(sizeRange) => 
-        <SizeGradient selected={sizeRange} /> 
-      } 
-      renderMappingPicker={(sizeRange, onSelect) => 
-        <SizeGradients variant={variant} min={10} max={50} selected={sizeRange} onSelect={onSelect} /> 
-      } 
+      renderDiscrete={(currentSize, setSize) => 
+        <StylePopoverButton 
+          styleVal={currentSize}
+          handleChange={setSize}
+          renderButton={size => 
+            <Button variant='outlined'>{size}</Button>
+          }
+          renderPopover={(size, onSelect) => 
+            <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
+          }
+        />
+      }
       getStyle={() => 
         controller.getStyle(selector, styleProps[0])
       }
@@ -552,4 +580,34 @@ SizeStylePicker.propTypes = {
   variant: PropTypes.oneOf(['solid', 'border', 'line']),
 };
 
+
+export function TextStylePicker({ controller, selector, styleProp }) {
+  return (
+    <StylePicker 
+      controller={controller}
+      selector={selector}
+      passthroughLabel="Text Mapping"
+      valueSet={"Same Label for all " + (selector == 'node' ? "nodes" : "edges")}
+      renderValue={(text, onChange) =>
+        <LabelInput value={text} onChange={onChange} />
+      }
+      getStyle={() => 
+        controller.getStyle(selector, styleProp)
+      }
+      onValueSet={text => 
+        controller.setString(selector, styleProp, text)
+      }
+      onPassthroughSet={attribute => 
+        controller.setStringPassthroughMapping(selector, styleProp, attribute)
+      }
+    />
+  );
+}
+TextStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  selector: PropTypes.oneOf(['node', 'edge']),
+  styleProp: PropTypes.string
+};
+
+                
 export default StylePicker;
