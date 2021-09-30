@@ -62,6 +62,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Node Body" 
           icon="lens"
+          tool="node_body"
           render={() => 
             <StylePanel title="Node Body">
               <StyleSection title="Color">
@@ -94,6 +95,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Node Border" 
           icon="trip_origin"
+          tool="node_border"
           render={() => 
             <StylePanel title="Node Border">
               <StyleSection title="Color">
@@ -118,6 +120,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Node Label" 
           icon="do_not_disturb_on"
+          tool="node_label"
           render={() => 
             <StylePanel title="Node Label">
               <StyleSection title="Text">
@@ -145,6 +148,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Edge" 
           icon="remove"
+          tool="edge"
           render={() => 
             <StylePanel title="Edge">
               <StyleSection title="Color">
@@ -177,6 +181,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Edge Arrows" 
           icon="arrow_back"
+          tool="edge_arrows"
           render={() =>
             <StylePanel title="Edge Arrows">
               <StyleSection title="Source Arrow">
