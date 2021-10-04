@@ -4,6 +4,7 @@ import { Popover, Button, Tooltip } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
+import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
 import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
@@ -11,21 +12,54 @@ import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
 import { LabelInput } from '../style/labels';
 
-export function StylePanel({ title, children }) {
-  return (
-    <div>
-      <div className="style-picker-heading">
-        {title || "Style Panel"}
-      </div>
+
+
+export class StylePanel extends React.Component {
+  constructor(props) {
+    super(props);
+    this.cyEmitter = new EventEmitterProxy(this.props.controller.cy);
+    this.cyEmitter.on('select unselect', () => {
+      const numSelected = this.props.controller.bypassCount(this.props.selector);
+      this.setState({ numSelected });
+    }) ;
+    const numSelected = this.props.controller.bypassCount(this.props.selector);
+    this.state = { numSelected };
+  }
+
+  componentWillUnmount() {
+    this.cyEmitter.removeAllListeners();
+  }
+
+  getBypassMessage() {
+    const { selector } = this.props;
+    const { numSelected } = this.state;
+    if(numSelected == 1)
+      return "1 " + (selector == 'node' ? "node" : "edge") + " selected";
+    return numSelected + " " + (selector == 'node' ? "nodes" : "edges") + " selected";
+  }
+
+  render() {
+    return (
       <div>
-        {children}
+        <div className="style-picker-heading">
+          { this.props.title || "Style Panel" }
+        </div>
+        { this.state.numSelected > 0 
+          ? <div style={{ textAlign: 'center' }}>{ this.getBypassMessage() }</div> 
+          : null 
+        }
+        <div>
+          { this.props.children }
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 StylePanel.propTypes = {
   title: PropTypes.string,
-  children: PropTypes.any
+  children: PropTypes.any,
+  selector: PropTypes.oneOf(['node', 'edge']),
+  controller: PropTypes.instanceOf(NetworkEditorController),
 };
 
 
@@ -194,72 +228,85 @@ MappingAndAttributeSelector.defaultProps = {
 
 
 
-
-// TODO: change the name of this enum
-const TAB = {
-  MAPPING: 'MAPPING',
-  BYPASSING: 'BYPASSING'
-};
-
-
 export class StylePicker extends React.Component { 
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
+    this.controller = props.controller; 
 
-    // Hook into the event bus to control the lifecycle!!!!
-    // Need to know when selection changes in order to switch into bypass mode.
-    // Need to know when style changes in order to support collaborative editing.
-    //    -- This is tricky because we don't want a circular event loop
+    this.cyEmitter = new EventEmitterProxy(props.controller.cy);
+    // TODO debounce?
+    this.cyEmitter.on('select unselect', () => this.onSelectionChange());
 
-    const numSelected = this.controller.bypassCount(this.props.selector);
-
+    const numSelected = props.controller.bypassCount(this.props.selector);
     if(numSelected > 0) {
-      this.state = { 
-        tab: TAB.BYPASSING,
-        style: {
-          mapping: MAPPING.VALUE,
-          discreteValue: {},
-        },
-        numSelected
-      };
-      return;
+      this.state = this.getBypassingState(numSelected);
+    } else {
+      this.state = this.getMappingState();
     }
+  }
 
+  componentWillUnmount() {
+    this.cyEmitter.removeAllListeners();
+  }
+
+  onSelectionChange() {
+    const numSelected = this.controller.bypassCount(this.props.selector);
+    if(numSelected > 0) {
+      this.setState(this.getBypassingState(numSelected));
+    } else {
+      this.setState(this.getMappingState());
+    }
+  }
+
+  getBypassingState(numSelected) {
+    return { 
+      bypassing: true,
+      numSelected,
+      style: {
+        mapping: MAPPING.VALUE,
+        discreteValue: {},
+      },
+    };
+  }
+
+  getMappingState() {
     const style = this.props.getStyle();
-
     switch(style.mapping) {
       case MAPPING.VALUE:
-        this.state = { style: {
+        return { 
+          bypassing: false,
+          style: {
             mapping: MAPPING.VALUE,
             scalarValue: style.value
-        }};
-        break;
+          }};
       case MAPPING.PASSTHROUGH:
-        this.state = { style: {
-          mapping: MAPPING.PASSTHROUGH,
-          attribute: style.value.data
-        }};
-        break;
+        return { 
+          bypassing: false,
+          style: {
+            mapping: MAPPING.PASSTHROUGH,
+            attribute: style.value.data
+          }};
       case MAPPING.LINEAR:
-        this.state = { style: {
-          mapping: MAPPING.LINEAR,
-          attribute: style.value.data,
-          mappingValue: style.value.styleValues,
-        }};
-        break;
+        return { 
+          bypassing: false,
+          style: {
+            mapping: MAPPING.LINEAR,
+            attribute: style.value.data,
+            mappingValue: style.value.styleValues,
+          }};
       case MAPPING.DISCRETE:
-        this.state = { style: {
-          mapping: MAPPING.DISCRETE,
-          attribute: style.value.data,
-          discreteDefault: style.value.defaultValue,
-          discreteValue: { ...style.value.styleValues } // TODO do we need to use spread op?
-        }};
-        break;
+        return { 
+          bypassing: false,
+          style: {
+            mapping: MAPPING.DISCRETE,
+            attribute: style.value.data,
+            discreteDefault: style.value.defaultValue,
+            discreteValue: { ...style.value.styleValues } // TODO do we need to use spread op?
+          }};
     }
-    this.state.tab = TAB.MAPPING;
   }
+
 
   onStyleChanged(style) {
     switch(style.mapping) {
@@ -289,7 +336,7 @@ export class StylePicker extends React.Component {
   }
 
   render() {
-    return this.state.tab === TAB.BYPASSING
+    return this.state.bypassing
       ? this.renderBypass()
       : this.renderNormal();
   }

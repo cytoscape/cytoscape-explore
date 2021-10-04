@@ -64,7 +64,10 @@ export class ToolPanel extends Component {
           icon="lens"
           tool="node_body"
           render={() => 
-            <StylePanel title="Node Body">
+            <StylePanel 
+              title="Node Body"
+              selector="node"
+              controller={controller}>
               <StyleSection title="Color">
                 <ColorStylePicker
                   controller={controller}
@@ -97,7 +100,10 @@ export class ToolPanel extends Component {
           icon="trip_origin"
           tool="node_border"
           render={() => 
-            <StylePanel title="Node Border">
+            <StylePanel 
+              title="Node Border"
+              selector="node"
+              controller={controller}>
               <StyleSection title="Color">
                 <ColorStylePicker
                   controller={controller}
@@ -122,7 +128,10 @@ export class ToolPanel extends Component {
           icon="do_not_disturb_on"
           tool="node_label"
           render={() => 
-            <StylePanel title="Node Label">
+            <StylePanel 
+              title="Node Label"
+              selector="node"
+              controller={controller}>
               <StyleSection title="Text">
                 <TextStylePicker
                   controller={controller}
@@ -131,13 +140,10 @@ export class ToolPanel extends Component {
                 />
               </StyleSection>
               <StyleSection title="Color">
-                <div>TODO (already have support for colors)</div>
-              </StyleSection>
-              <StyleSection title="Font">
-                <div>TODO</div>
+                <div>Choose color</div>
               </StyleSection>
               <StyleSection title="Position">
-                <div>TODO</div>
+                <div>Choose Font</div>
               </StyleSection>
             </StylePanel>
           }
@@ -150,7 +156,10 @@ export class ToolPanel extends Component {
           icon="remove"
           tool="edge"
           render={() => 
-            <StylePanel title="Edge">
+            <StylePanel 
+              title="Edge"
+              selector="edge"
+              controller={controller}>
               <StyleSection title="Color">
                 <ColorStylePicker
                   controller={controller}
@@ -183,7 +192,10 @@ export class ToolPanel extends Component {
           icon="arrow_back"
           tool="edge_arrows"
           render={() =>
-            <StylePanel title="Edge Arrows">
+            <StylePanel 
+              title="Edge Arrows"
+              selector="edge"
+              controller={controller}>
               <StyleSection title="Source Arrow">
                 <ShapeStylePicker
                   controller={controller}
