@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Popover, Button } from "@material-ui/core";
+import { Popover, Button, Tooltip } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
@@ -357,6 +357,12 @@ export class StylePicker extends React.Component {
       >
         {dataVals.map(dataVal => {
           const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
+          let dataValText = String(dataVal);
+          let abbreviated = false;
+          if(dataValText.length > 10) {
+            dataValText = dataValText.slice(0, 9) + "...";
+            abbreviated = true;
+          }
           const handleChange = (newStyleVal) => {
             const discreteValue = { ...this.state.style.discreteValue };
             discreteValue[dataVal] = newStyleVal;
@@ -364,7 +370,12 @@ export class StylePicker extends React.Component {
           };
           return (
             <ListItem key={dataVal}>
-              <ListItemText primary={dataVal} />
+              { abbreviated
+                ? <Tooltip title={dataVal}>
+                    <ListItemText primary={dataValText} />
+                  </Tooltip>
+                : <ListItemText primary={dataValText} />
+              }
               <ListItemSecondaryAction>
                 { this.props.renderDiscrete
                   ? this.props.renderDiscrete(styleVal, handleChange)
@@ -515,12 +526,7 @@ ShapeStylePicker.propTypes = {
 
 
 export function SizeStylePicker({ controller, selector, variant, styleProps }) {
-  let min, max;
-  if(variant == 'solid')
-    [min, max] = [10, 50];
-  else if(variant == 'line' || variant == 'border')
-    [min, max] = [0, 10];
-
+  let [min, max] = (variant == 'solid') ? [10, 50] : [0, 10];
   return (
     <StylePicker
       valueLabel="Single Size"
