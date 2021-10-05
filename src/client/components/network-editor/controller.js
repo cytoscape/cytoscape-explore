@@ -385,6 +385,16 @@ export class NetworkEditorController {
   }
 
   /**
+   * Get the style bypass values for selected elements.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
+   */
+  getBypassStyle(selector, property) {
+    const selected = this.cy.$(selector+':selected');
+    return this.vizmapper.bypass(selected, property);
+  }
+
+  /**
    * Set the color of all elements to a linear mapping
    * @param {String} selector 'node' or 'edge'
    * @param {String} property a style property that expects a color value, such as 'background-color'

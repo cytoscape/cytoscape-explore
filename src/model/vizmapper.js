@@ -221,12 +221,16 @@ export class VizMapper {
 
       assertElesNonempty(ele);
       assertPropertyIsSupported(property);
-      assertIsSingleEle(ele);
+      // assertIsSingleEle(ele);
 
       const _bypasses = this.cy.data('_bypasses') || {};
-      const getBypassForId = id => _.get(_bypasses, [id, property]);
+      // const getBypassForId = id => _.get(_bypasses, [id, property]);
+      // return getBypassForId(ele.id());
 
-      return getBypassForId(ele.id());
+      const ret = {};
+      const ids = eles.map(ele => ele.id());
+      ids.forEach(id => ret[id] = _.get(_bypasses, [id, property, 'value']));
+      return ret;
     }
   }
 
