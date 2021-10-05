@@ -26,7 +26,7 @@
   - CouchDB
     - Mac: `brew install couchdb && brew services start couchdb`
     - Linux: Use `dnf`, `zypper`, `apt`, etc.
-    - Or use [the installer](http://couchdb.apache.org)
+    - Or use [the installer](https://downloads.apache.org/couchdb/binary/mac/2.3.1/)
 - Start off by running `npm install`.
 - The main target you will run during development is `npm run watch`.
   - This automatically builds the clientside code in the background.  The browser will refresh automatically when the code is rebuilt.
