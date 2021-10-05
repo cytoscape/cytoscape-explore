@@ -171,6 +171,25 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
   }
 };
 
+const applyBypasses = ( selector, cy, bypasses ) => {
+    const vizmapper = cy.vizmapper();
+    bypasses.forEach( elmt => {
+        const eid = (selector ==='node'? '' : 'e') + elmt.id;
+        const selected = cy.$id(eid);
+        if(!selected.empty()) {
+            for (const [vpName, vpValue] of Object.entries(elmt.v)) {
+                if ( STYLE_CONVERTING_TABLE[vpName]) {
+                    const jsVPName = STYLE_CONVERTING_TABLE[vpName].jsVPName;
+                    vizmapper.bypass(selected, jsVPName,
+                        STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(vpValue));
+                }
+            }
+        } else
+            console.warning(selector + ' with id=' + elmt.id + " was not found.");
+    });
+
+
+};
 
 
 /**
@@ -209,12 +228,14 @@ export const importCX = (cy, cx) => {
 
   });
 
- /* const style = styleFactory.discreteString("type", "ellipse",
-      {protein: "rectangle",
-                proteinfamily: "octagon",
-        smallmolecule: "triangle"
-      }   );
-  vizmapper.set('node', "shape", style); */
+  if( converted.cxNodeBypasses) {
+        applyBypasses('node', cy, converted.cxNodeBypasses);
+  }
+
+  if( converted.cxEdgeBypasses) {
+      applyBypasses('edge', cy, converted.cxEdgeBypasses);
+  }
+
 };
 
 /**
