@@ -30,7 +30,7 @@ const postCXNetwork = async (importBody, rawcx) => {
   cySyncher.destroy();
   cy.destroy();
 
-  return { id, secret, url: privateUrl, privateUrl, publicUrl };
+  return { id, secret, url: privateUrl, publicUrl };
   /* } catch(err) {
      next(err);
    } */

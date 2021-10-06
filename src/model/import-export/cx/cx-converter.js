@@ -135,6 +135,10 @@ export const convertCX = (cx) => {
                 element['data']['target'] = cxEdge['t'];
                 output.elements.edges.push(element);
             });
+        } else if (cxAspect['networkAttributes'] ) {
+            if ( cxAspect['networkAttributes'].length === 1) {
+                savedData.name = cxAspect['networkAttributes'][0].name;
+            }
         } else if (cxAspect['metaData']) {
             metadata = cxAspect;
         }
