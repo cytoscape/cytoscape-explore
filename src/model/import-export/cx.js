@@ -152,12 +152,16 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
                 const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultValue, valueMap);
                 vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
             } else if (mapping.type === 'CONTINUOUS') {
-
-                let newList = mapping.definition.map.reduce(_continuousMappingCvtr, {dataValues: [], styleValues: []});
-                let cyStyleValues = newList.styleValues.map(x => STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(x).value);
-                const style = STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory(attr,
-                    newList.dataValues, cyStyleValues);
-                vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+                if ( STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory) {
+                    let newList = mapping.definition.map.reduce(_continuousMappingCvtr, {
+                        dataValues: [],
+                        styleValues: []
+                    });
+                    let cyStyleValues = newList.styleValues.map(x => STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(x).value);
+                    const style = STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory(attr,
+                        newList.dataValues, cyStyleValues);
+                    vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+                }
             } else if (mapping.type === 'PASSTHROUGH') {
                 if ( STYLE_CONVERTING_TABLE[vpName].mapper.passthroughMappingFactory ) {
                     vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName,
