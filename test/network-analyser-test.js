@@ -49,6 +49,9 @@ describe('Network Analyser', () => {
     analyser = new NetworkAnalyser(cy, bus);
   });
 
+  afterEach(() => {
+    cy.destroy();
+  });
 
   it('intialized correctly', () => {
     expect( analyser.getCount('node') ).to.equal( 3 );
