@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: row;
   border-left: 2px solid #0e0e0e;
+  /* font-size: 0.8em; */
 }
 
 .tool-panel-buttons {
@@ -30,4 +31,27 @@
   width: 1.75em;
   height: 1.75em;
   border-radius: 0.25em;
+}
+
+.tool-panel-heading {
+  font-size: 1.25em;
+  font-weight: bold;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid #3e3e3e;
+  margin-bottom: 0.5em;
+  margin-left: -0.5em;
+  margin-right: -0.5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.tool-panel-section {
+  position: relative;
+  border-top: 1px solid #3e3e3e;
+  border-bottom: 1px solid #3e3e3e;
+  padding: 1em 0;
+
+  & + .tool-panel-section {
+    border-top: 0 solid transparent;
+  }
 }

@@ -128,6 +128,19 @@ export class Header extends Component {
     create();
   }
 
+  async loadGAL() {
+    const { cy } = this.controller;
+
+    const res = await fetch('/sample-data/gal.json');
+    const netJson = await res.json();
+
+    cy.elements().remove();
+
+    cy.add(netJson);
+
+    cy.layout({ name: 'grid' }).run();
+  }
+
   render() {
     const { networkName, anchorEl, menuName, dialogName } = this.state;
     const cy = this.controller.cy;
@@ -228,6 +241,7 @@ export class Header extends Component {
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
+                    <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
                 )}
               </Popover>

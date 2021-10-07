@@ -35,7 +35,7 @@
     "watch": "run-p watch:*",
     "test:mocha": "mocha -r dotenv/config -r esm",
     "test:bundle": "run-s bundle",
-    "test": "run-s lint test:*"
+    "test": "run-s test:mocha test:bundle lint"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",

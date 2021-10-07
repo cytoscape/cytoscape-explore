@@ -33,7 +33,7 @@ export class ConcentricPanel extends Component {
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
-        <Tooltip title="The separation between nodes">
+        <Tooltip arrow title="The separation between nodes">
           <FormControl component="fieldset">
             <FormLabel component="legend" className={classes.label}>Separation</FormLabel>
             <Slider

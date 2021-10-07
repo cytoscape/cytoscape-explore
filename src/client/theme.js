@@ -42,6 +42,9 @@ const themeOptions = {
   props: {
     MuiAppBar: {
       color: 'transparent',
+    },
+    MuiSlider: {
+      color: 'secondary'
     }
   },
 };
