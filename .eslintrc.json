@@ -23,6 +23,7 @@
   },
   "plugins": [],
   "rules": {
-    "semi": "error"
+    "semi": "error",
+    "no-unused-vars": "warn"
   }
 }
