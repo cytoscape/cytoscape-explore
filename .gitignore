@@ -9,3 +9,4 @@ pouch__all_dbs__
 /config.json
 /cytoscape-explore.code-workspace
 .idea
+/.project

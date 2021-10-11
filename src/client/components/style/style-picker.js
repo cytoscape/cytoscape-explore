@@ -9,6 +9,7 @@ import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
+import _ from 'lodash';
 
 
 const TAB = {
@@ -41,7 +42,37 @@ export class StylePicker extends React.Component {
   }
 
 
+  onHide() {
+    const vizmapper = this.controller.vizmapper;
+
+    if(this.state.tab === TAB.BYPASSING) {
+      const styleBefore = this.bypassSnapshot;
+      const styleAfter = vizmapper.getBypassSnapshot();
+      if(!_.isEqual(styleBefore, styleAfter)) {
+        this.controller.undoSupport.post({
+          title: `${this.props.title} (${this.state.numSelected} ${this.getBypassElementLabel()})`,
+          undo: () => vizmapper.setBypassSnapshot(styleBefore),
+          redo: () => vizmapper.setBypassSnapshot(styleAfter)
+        });
+      }
+    } else {
+      const styleBefore = this.styleSnapshot;
+      const styleAfter = vizmapper.getStyleSnapshot();
+      if(!_.isEqual(styleBefore, styleAfter)) {
+        this.controller.undoSupport.post({
+          title: this.props.title,
+          undo: () => vizmapper.setStyleSnapshot(styleBefore),
+          redo: () => vizmapper.setStyleSnapshot(styleAfter)
+        });
+      }
+    }
+  }
+
+
   onShow() {
+    this.styleSnapshot = this.controller.vizmapper.getStyleSnapshot();
+    this.bypassSnapshot = this.controller.vizmapper.getBypassSnapshot();
+
     this.setState({ initialized: true });
     const numSelected = this.controller.bypassCount(this.props.selector);
 
@@ -158,18 +189,24 @@ export class StylePicker extends React.Component {
     );
   }
 
+  getBypassElementLabel() {
+    const { numSelected } = this.state;
+    const { selector } = this.props;
+    return numSelected == 1
+      ? selector == 'node' ? "node" : "edge"
+      : selector == 'node' ? "nodes" : "edges";
+  }
+
   renderBypass() {
     const { numSelected } = this.state;
-    const element = numSelected == 1
-      ? this.props.selector == 'node' ? "node" : "edge"
-      : this.props.selector == 'node' ? "nodes" : "edges";
+    const elementLabel = this.getBypassElementLabel();
 
     return (
       <div className="style-picker">
         <Paper>
           { this.renderHeader() }
           <div>
-            Setting style bypass for {numSelected} selected {element}
+            Setting style bypass for {numSelected} selected {elementLabel}
           </div>
         </Paper>
         { this.renderSubComponentValue() }

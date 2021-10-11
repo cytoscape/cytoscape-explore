@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
+import { UndoButton } from '../undo/undo-button';
 import Tooltip from '@material-ui/core/Tooltip';
 import { IconButton, Divider } from '@material-ui/core';
 
@@ -53,12 +54,19 @@ export class ToolPanel extends Component {
             <i className="material-icons icon-rot-330">call_made</i>
           </IconButton>
         </Tooltip>
-        <Divider style={{height: '1px', marginTop: '0.25em', marginBottom: '0.25em'}} flexItem />
         <Tooltip arrow placement="right" title="Delete selected">
           <IconButton size="small" color="inherit" onClick={() => controller.deletedSelectedElements()}>
             <i className="material-icons">delete_forever</i>
           </IconButton>
         </Tooltip>
+        <Divider style={{height: '1px', marginTop: '0.25em', marginBottom: '0.25em'}} flexItem />
+        <Tooltip arrow placement="right" title="Fit Network">
+          <IconButton size="small" color="inherit" onClick={() => controller.cy.fit()}>
+            <i className="material-icons">fit_screen</i>
+          </IconButton>
+        </Tooltip>
+        <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
+        <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
       </div>
     );
   }
