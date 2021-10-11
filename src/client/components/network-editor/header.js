@@ -223,6 +223,14 @@ export class Header extends Component {
             onClose={() => this.hideDialog()}
           />
         )}
+        {dialogName === 'ndex-network-import' && (
+            <NDExNetworkImportDialog
+                id="ndex-network-import"
+                controller={this.controller}
+                open={true}
+                onClose={() => this.hideDialog()}
+            />
+        )}
       </>
     );
   }
