@@ -90,9 +90,21 @@ export class NDExImportSubWizard extends React.Component {
     }
   }
 
-  handleFinish() {
+  async handleFinish() {
     // TODO actually import the network !!!
-    this.props.wizardCallbacks.closeWizard();
+    const res = await fetch( "/api/document/cxurl", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({"server": "https://www.ndexbio.org",
+            "uuid": this.state.selectedId})
+        }
+    );
+
+    const urls = await res.json();
+
+    location.replace(urls.url);
   }
 
   handleContinue() {
