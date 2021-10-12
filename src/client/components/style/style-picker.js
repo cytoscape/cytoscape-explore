@@ -227,20 +227,6 @@ MappingAndAttributeSelector.defaultProps = {
 };
 
 
-function BypassButton({ onClick, variant }) {
-  return (
-    <Button variant="outlined" size="small" onClick={onClick}>
-      { variant == 'add' ? 'Add Bypass' : 'Remove Bypass' }
-    </Button>
-  );
-}
-BypassButton.propTypes = {
-  onClick: PropTypes.func,
-  variant: PropTypes.oneOf(['add', 'remove']),
-};
-
-
-
 export class StylePicker extends React.Component { 
 
   constructor(props) {
@@ -263,6 +249,11 @@ export class StylePicker extends React.Component {
   }
 
   onSelectionChange() {
+    this.refreshStyleState();
+  }
+
+  refreshStyleState() {
+    // Synchronize the style state from the style model.
     const numSelected = this.controller.bypassCount(this.props.selector);
     if(numSelected > 0)
       this.setState(this.getBypassingState(numSelected));
@@ -271,35 +262,31 @@ export class StylePicker extends React.Component {
   }
 
   getBypassingState(numSelected) {
-    if(!this.props.getBypassStyle) {
-      return { 
-        bypassing: true,
-        numSelected
-      };
-    }
-    const bypassStyle = this.props.getBypassStyle();
+    const state = { 
+      bypassing: true,
+      numSelected,
+      style: {},
+    };
 
-    if(numSelected === 1) {
-      const scalarValue = bypassStyle[Object.keys(bypassStyle)[0]];
-      return { 
-        bypassing: true,
-        numSelected,
-        style: {
+    const bypassStyle = this.props.getBypassStyle();
+    
+    // If all the selected elements have the same value.
+    if(bypassStyle.length == 1) {
+      const scalarValue = bypassStyle[0].styleVal;
+      if(scalarValue == 'unset') {
+        state.bypassType = 'all-unset';
+      } else {
+        // add this so that renderValue() will work.
+        state.style = { 
           mapping: MAPPING.VALUE,
-          scalarValue
-        }
-      };
+          scalarValue,
+        };
+        state.bypassType = 'all-same';
+      }
     } else {
-      return { 
-        bypassing: true,
-        numSelected,
-        style: {
-          mapping: MAPPING.DISCRETE,
-          attribute: 'id',
-          discreteValue: bypassStyle,
-        }
-      };
+      state.bypassType = 'mixed';
     }
+    return state;
   }
 
   getMappingState() {
@@ -435,9 +422,7 @@ export class StylePicker extends React.Component {
           return (
             <ListItem key={dataVal}>
               { abbreviated
-                ? <Tooltip title={dataVal}>
-                    <ListItemText primary={dataValText} />
-                  </Tooltip>
+                ? <Tooltip title={dataVal}><ListItemText primary={dataValText}/></Tooltip>
                 : <ListItemText primary={dataValText} />
               }
               <ListItemSecondaryAction>
@@ -454,38 +439,35 @@ export class StylePicker extends React.Component {
   }
 
   renderBypass() {
-    if(this.state.numSelected == 1 && !this.state.style.scalarValue) {
-      const addDefaultBypass = () => {
-        const scalarValue = this.props.getDiscreteDefault();
+    const BypassButton = ({ variant }) => {
+      const scalarValue = variant == 'add' ? this.props.getDiscreteDefault() : null;
+      const onClick = () => { 
         this.handleStyleChange({ mapping: MAPPING.VALUE, scalarValue });
+        this.refreshStyleState();
       };
-      return <BypassButton variant='add' onClick={addDefaultBypass} />;
-    }
+      return <Button variant="outlined" size="small" style={{marginTop:'10px'}} onClick={onClick}>
+        { variant == 'add' ? 'Add Bypass' : 'Remove Bypass' }
+      </Button>;
+    };
 
-    const removeBypass = () => this.handleStyleChange({ mapping: MAPPING.VALUE, scalarValue: null });
-    
-    if(this.state.numSelected == 1) {
+    const { bypassType } = this.state;
+    if(bypassType == 'mixed') {
+      return <div>
+        The selected elements have different bypass values.
+        <br />
+        <BypassButton variant='remove' />
+      </div>;
+    } else if(bypassType == 'all-same') {
       return <div>
         { this.renderValue() }
-        <BypassButton variant='remove' onClick={removeBypass} />
+        <BypassButton variant='remove' />
       </div>;
+    } else if(bypassType == 'all-unset') {
+      return <BypassButton variant='add' />; 
     }
-
-    return (
-      <div>
-        { this.state.numSelected + " selected" }
-        <br />
-        <BypassButton variant='remove' onClick={removeBypass} />
-      </div>
-    );
   }
-
-  renderRemoveBypassButton() {
-    const onClick = () => this.handleStyleChange({ mapping: MAPPING.VALUE, scalarValue: null });
-    return <Button variant="outlined" size="small" onClick={onClick}>Remove Bypass</Button>;
-  }
-
 }
+
 StylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   selector: PropTypes.oneOf(['node', 'edge']),
@@ -604,6 +586,9 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     getStyle={() => 
       controller.getStyle(selector, styleProp)
     }
+    getBypassStyle={() =>
+      controller.getBypassStyle(selector, styleProp)
+    }
     getDiscreteDefault={() =>
       controller.getDiscreteDefault(selector, styleProp)
     }
@@ -662,6 +647,9 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
     getStyle={() => 
       controller.getStyle(selector, styleProps[0])
     }
+    getBypassStyle={() =>
+      controller.getBypassStyle(selector, styleProps[0])
+    }
     getDiscreteDefault={() =>
       controller.getDiscreteDefault(selector, styleProps[0])
     }
@@ -695,6 +683,9 @@ export function TextStylePicker({ controller, selector, styleProp }) {
     }
     getStyle={() => 
       controller.getStyle(selector, styleProp)
+    }
+    getBypassStyle={() =>
+      controller.getBypassStyle(selector, styleProp)
     }
     onValueSet={text => 
       controller.setString(selector, styleProp, text)

@@ -224,12 +224,21 @@ export class VizMapper {
       // assertIsSingleEle(ele);
 
       const _bypasses = this.cy.data('_bypasses') || {};
-      // const getBypassForId = id => _.get(_bypasses, [id, property]);
-      // return getBypassForId(ele.id());
 
-      const ret = {};
-      const ids = eles.map(ele => ele.id());
-      ids.forEach(id => ret[id] = _.get(_bypasses, [id, property, 'value']));
+      // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
+      const ret = [];
+
+      const ids = eles.slice(0,5).map(ele => ele.id());
+      ids.forEach(id => {
+        const styleVal = _.get(_bypasses, [id, property, 'value']) || 'unset';
+        const existing = ret.find(e => e.styleVal == styleVal);
+        if(existing) {
+          existing.ids.push(id);
+        } else {
+          ret.push({ styleVal, ids:[id] });
+        }
+      });
+      ret.sort((s1, s2) => s1.ids.length - s2.ids.length);
       return ret;
     }
   }
