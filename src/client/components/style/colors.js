@@ -172,56 +172,71 @@ ColorGradient.defaultProps = {
 
 
 
-export function ColorGradients(props) {
-  const { minSat, maxSat, minLight, maxLight } = linearHues;
+export class ColorGradients extends Component {
+  constructor(props) {
+    super(props);
+    const { minSat, maxSat, minLight, maxLight } = linearHues;
 
-  const linearGradients = linearHues.hues.map(hue => {
-    const s = colorConvert.hsl.rgb(hue, maxSat, maxLight);
-    const e = colorConvert.hsl.rgb(hue, minSat, minLight);
-    return [
-      { r:s[0], g:s[1], b:s[2] },
-      { r:e[0], g:e[1], b:e[2] },
-    ];
-  });
-
-  const divGrads = () => 
-    colorBrewerDivergent.map(val => {
-      const {start:[r1,g1,b1], mid:[r2,g2,b2], end:[r3,g3,b3]} = val;
+    this.linearGradients = linearHues.hues.map(hue => {
+      const s = colorConvert.hsl.rgb(hue, maxSat, maxLight);
+      const e = colorConvert.hsl.rgb(hue, minSat, minLight);
       return [
-        { r:r1, g:g1, b:b1 },
-        { r:r2, g:g2, b:b2 },
-        { r:r3, g:g3, b:b3 },
+        { r:s[0], g:s[1], b:s[2] },
+        { r:e[0], g:e[1], b:e[2] },
       ];
     });
 
-  return (
-    <div className="color-gradients">
-      { !props.divergent ? null : <div>Linear</div> }
+    this.divGrads = () => 
+      colorBrewerDivergent.map(val => {
+        const {start:[r1,g1,b1], mid:[r2,g2,b2], end:[r3,g3,b3]} = val;
+        return [
+          { r:r1, g:g1, b:b1 },
+          { r:r2, g:g2, b:b2 },
+          { r:r3, g:g3, b:b3 },
+        ];
+      });
+
+    this.state = {
+      selected: props.selected
+    };
+  }
+
+  render() {
+    const onSelect = (value) => {
+      this.setState({ selected: value });
+      this.props.onSelect(value);
+    };
+    return (
       <div>
-      { linearGradients.map((value, i) => 
-          <ColorGradient 
-            value={value} 
-            key={i}
-            selected={_.isMatch(props.selected, value)}
-            onSelect={props.onSelect} />
-      )}
-      </div>
-      { !props.divergent ? null :
-        <div>
-          <div>Divergent</div>
+        <div className="color-gradients">
+          { !this.props.divergent ? null : <div>Linear</div> }
           <div>
-          { divGrads().map((value, i) => 
+          { this.linearGradients.map((value, i) => 
               <ColorGradient 
                 value={value} 
                 key={i}
-                selected={_.isMatch(props.selected, value)} 
-                onSelect={props.onSelect} />
+                selected={_.isMatch(this.state.selected, value)}
+                onSelect={onSelect} />
           )}
           </div>
         </div>
-      }
-    </div>
-  );
+        { !this.props.divergent ? null :
+          <div className="color-gradients">
+            <div>Divergent</div>
+            <div>
+            { this.divGrads().map((value, i) => 
+                <ColorGradient 
+                  value={value} 
+                  key={i}
+                  selected={_.isMatch(this.state.selected, value)} 
+                  onSelect={onSelect} />
+            )}
+            </div>
+          </div>
+        }
+      </div>
+    );
+  }
 }
 
 ColorGradients.propTypes = {

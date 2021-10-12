@@ -51,10 +51,12 @@ const allShapes = {
 export function ShapeIcon({ type, shape, onClick }) {
   const shapes = allShapes[type];
   const shapeObj = shapes.filter(obj => obj.name === shape)[0];
-
   return (
     <div>
-      <IconButton size="small" color="primary" onClick={() => onClick(shapeObj.name)}>
+      <IconButton 
+        size="small" 
+        color="primary" 
+        onClick={() => onClick(shapeObj.name)}>
         {shapeObj ? shapeObj.icon : "none"}
       </IconButton>
     </div>
@@ -69,11 +71,13 @@ ShapeIcon.propTypes = {
     'none', 'triangle', 'circle', 'square', 'diamond', 'tee', 'triangle-cross',
   ]),
   onClick: PropTypes.func,
+  selected: PropTypes.boolean
 };
 ShapeIcon.defaultProps = {
   type: 'node',
   shape: 'ellipse',
-  onClick: () => null
+  onClick: () => null,
+  selected: false
 };
 
 const StyledToggleButtonGroup = withStyles((theme) => ({
@@ -92,6 +96,7 @@ const StyledToggleButtonGroup = withStyles((theme) => ({
 
 export function ShapeIconGroup({ type, selected, onSelect }) {
   const shapes = allShapes[type];
+  console.log("selected shape: " + selected);
 
   return (
     <StyledToggleButtonGroup
