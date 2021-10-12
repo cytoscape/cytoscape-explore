@@ -441,6 +441,7 @@ export const PROPERTY_TYPE = {
   'height': STYLE_TYPE.NUMBER,
   'line-color': STYLE_TYPE.COLOR,
   'label': STYLE_TYPE.STRING,
+  'color': STYLE_TYPE.COLOR, // node label color
   'border-color': STYLE_TYPE.COLOR,
   'border-width': STYLE_TYPE.NUMBER,
   'shape': STYLE_TYPE.STRING,
@@ -461,6 +462,7 @@ export const NODE_STYLE_PROPERTIES = [
   'border-color',
   'border-width',
   'shape',
+  'color', // label color
 ];
 
 /** An object map of the default node style values */
@@ -472,6 +474,7 @@ export const DEFAULT_NODE_STYLE = {
   'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
   'shape': styleFactory.string('ellipse'),
+  'color': styleFactory.color('#111'), // label color
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);

@@ -140,10 +140,11 @@ export class ToolPanel extends Component {
                 />
               </StyleSection>
               <StyleSection title="Color">
-                <div>Choose color</div>
-              </StyleSection>
-              <StyleSection title="Position">
-                <div>Choose Font</div>
+                <ColorStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['color']}
+                />
               </StyleSection>
             </StylePanel>
           }
