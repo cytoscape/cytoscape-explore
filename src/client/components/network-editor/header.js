@@ -21,7 +21,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
-import uuid from 'uuid';
 import ImportWizard from '../network-import/import-wizard';
 
 

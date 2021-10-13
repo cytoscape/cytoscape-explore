@@ -3,15 +3,12 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { Input } from '@material-ui/core';
 import { InputLabel } from '@material-ui/core';
-import Cytoscape from 'cytoscape';
-import uuid from 'uuid';
 
 
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
-import { importCX } from '../../../model/import-export/cx';
 
 
 import FormControl from '@material-ui/core/FormControl';
@@ -21,10 +18,7 @@ import Button from '@material-ui/core/Button';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
-import ndexClient from 'ndex-client';
-
 const NDEX_URL = 'https://dev.ndexbio.org';
-const REST_SERVER_URL = 'http://localhost:3000';
 
 export class NDExNetworkImportDialog extends Component {
 

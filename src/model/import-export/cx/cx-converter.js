@@ -3,11 +3,11 @@ import { updateAttributeDeclarations as updateAttributeDeclarations, updateInfer
 import { SAVED_ASPECTS, CX_DATA_KEY } from './converter-constants';
 import { isAspectKeyInArray } from './converter-utils';
 
-export const cxNodeToJsNode = (cxNode) => {
+export const cxNodeToJsNode = () => {
 
 };
 
-export const cxEdgeToJsEdge = (cxEdge) => {
+export const cxEdgeToJsEdge = () => {
 
 };
 
@@ -89,13 +89,13 @@ export const convertCX = (cx) => {
         }
     });
 
-    nodeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
-        //console.log('inferred attribute type for node: ' + attributeName + ': ' + inferredType);
-    });
+    // nodeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
+    //     //console.log('inferred attribute type for node: ' + attributeName + ': ' + inferredType);
+    // });
 
-    edgeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
-        //console.log('inferred attribute type for edge: ' + attributeName + ': ' + inferredType);
-    });
+    // edgeAttributeDeclarations.typeMap.forEach((inferredType, attributeName) => {
+    //     //console.log('inferred attribute type for edge: ' + attributeName + ': ' + inferredType);
+    // });
 
     const attributeDeclarationUnion = {
         "attributeDeclarations": {
@@ -104,7 +104,7 @@ export const convertCX = (cx) => {
         networkAttributes : networkAttributes
         }
     };
-   
+
 
     //Add nodes
     output.elements['nodes'] = [];
