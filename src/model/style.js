@@ -450,6 +450,8 @@ export const PROPERTY_TYPE = {
   'target-arrow-shape': STYLE_TYPE.STRING,
   'target-arrow-color': STYLE_TYPE.COLOR,
   'line-style': STYLE_TYPE.STRING,
+  'text-halign': STYLE_TYPE.STRING,
+  'text-valign': STYLE_TYPE.STRING,
 }; 
 
 /**  Supported node style properties  */
@@ -463,6 +465,8 @@ export const NODE_STYLE_PROPERTIES = [
   'border-width',
   'shape',
   'color', // label color
+  'text-halign',
+  'text-valign',
 ];
 
 /** An object map of the default node style values */
@@ -475,6 +479,8 @@ export const DEFAULT_NODE_STYLE = {
   'border-width': styleFactory.number(1),
   'shape': styleFactory.string('ellipse'),
   'color': styleFactory.color('#111'), // label color
+  'text-halign': styleFactory.string('top'),
+  'text-valign': styleFactory.string('center'),
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);

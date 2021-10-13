@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 import Tooltip from '@material-ui/core/Tooltip';
 import { IconButton, Divider, Box } from '@material-ui/core';
-import { StyleSection, StylePanel, ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker } from '../style/style-picker';
+import { StyleSection, StylePanel } from '../style/style-picker'; 
+import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker, NodeLabelPositionStylePicker } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
 
 
@@ -144,6 +145,11 @@ export class ToolPanel extends Component {
                   controller={controller}
                   selector='node'
                   styleProps={['color']}
+                />
+              </StyleSection>
+              <StyleSection title="Position">
+                <NodeLabelPositionStylePicker
+                  controller={controller}
                 />
               </StyleSection>
             </StylePanel>

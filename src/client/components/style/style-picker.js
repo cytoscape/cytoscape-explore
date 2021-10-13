@@ -10,7 +10,7 @@ import { MAPPING } from '../../../model/style';
 import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
-import { LabelInput } from '../style/labels';
+import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
 
 
 
@@ -127,7 +127,7 @@ class StylePopoverButton extends React.Component {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <div style={{ padding: '10px', backgroundColor: 'white'}}> 
+          <div style={{ padding: '10px' }}> 
             { this.props.renderPopover(
                 this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
                 newStyleVal => this.props.handleChange(newStyleVal, this.state.popoverDataVal)
@@ -291,6 +291,9 @@ export class StylePicker extends React.Component {
 
   getMappingState() {
     const style = this.props.getStyle();
+
+    console.log(JSON.stringify(style));
+
     switch(style.mapping) {
       case MAPPING.VALUE:
         return { 
@@ -700,6 +703,92 @@ TextStylePicker.propTypes = {
   selector: PropTypes.oneOf(['node', 'edge']),
   styleProp: PropTypes.string
 };
+
+
+
+export function NodeLabelPositionStylePicker({ controller }) {
+  const selector = 'node';
+  const defaultValue = LABEL_POS.TOP;
+  return <StylePicker 
+    controller={controller}
+    selector={selector}
+    valueLabel='Position'
+    discreteLabel='Position per Data Value'
+    renderValue={(value, setValue) => 
+      <div style={{marginTop:'10px'}}>
+        <LabelPosition value={value} onSelect={setValue} />
+      </div>
+    }
+    renderDiscrete={(value, setValue) => 
+      <StylePopoverButton 
+        styleVal={value}
+        handleChange={setValue}
+        renderButton={(value) => 
+          <PositionButton value={value} />
+        }
+        renderPopover={(value, onSelect) => 
+          <LabelPosition value={value} onSelect={onSelect} />
+        }
+      />
+    }
+    getStyle={() => {
+      const h = controller.getStyle(selector, 'text-halign');
+      const v = controller.getStyle(selector, 'text-valign');
+      if(h.mapping == MAPPING.DISCRETE) {
+        const styleValues = {};
+        for (const key of Object.keys(h.value.styleValues)) {
+          const halign = h.value.styleValues[key];
+          const valign = v.value.styleValues[key];
+          const pos = stylePropsToLabelPos(halign, valign);
+          styleValues[key] = pos;
+        }
+        return {
+          type: 'STRING',
+          mapping: MAPPING.DISCRETE,
+          value: {
+            data: h.value.data,
+            defaultValue,
+            styleValues,
+          }
+        };
+      } else {
+        return {
+          type: 'STRING',
+          mapping: MAPPING.VALUE,
+          value: stylePropsToLabelPos(h.value, v.value)
+        };
+      }
+    }}
+    getBypassStyle={() => {
+      const h = controller.getBypassStyle(selector, 'text-halign');
+      const v = controller.getBypassStyle(selector, 'text-valign');
+      return {
+        type: 'STRING',
+        mapping: MAPPING.VALUE,
+        value: stylePropsToLabelPos(h.value, v.value)
+      };
+    }}
+    onValueSet={pos => {
+      controller.setString(selector, 'text-halign', pos.halign);
+      controller.setString(selector, 'text-valign', pos.valign);
+    }}
+    onDiscreteSet={(attribute, valueMap) => {
+      const halignMap = {};
+      const valignMap = {};
+      for (const [key, {halign, valign}] of Object.entries(valueMap)) {
+        halignMap[key] = halign;
+        valignMap[key] = valign;
+      }
+      controller.setStringDiscreteMapping(selector, 'text-halign', attribute, halignMap);
+      controller.setStringDiscreteMapping(selector, 'text-valign', attribute, valignMap);
+    }}
+    getDiscreteDefault={() => defaultValue}  // TODO is it ok to hardcode this?
+  />;
+}
+NodeLabelPositionStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+};
+
 
                 
 export default StylePicker;
