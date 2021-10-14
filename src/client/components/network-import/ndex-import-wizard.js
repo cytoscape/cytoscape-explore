@@ -51,7 +51,7 @@ export class NDExImportSubWizard extends React.Component {
       return;
 
     this.setState({ loading: true });
-    
+
     delay(700)
     .then(() => fetch("http://public.ndexbio.org/v2/search/network?start=0&size=10",
       {
@@ -92,13 +92,12 @@ export class NDExImportSubWizard extends React.Component {
 
   async handleFinish() {
     // TODO actually import the network !!!
-    const res = await fetch( "/api/document/cxurl", {
+    const res = await fetch( `/api/document/cx-import`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({"server": "https://www.ndexbio.org",
-            "uuid": this.state.selectedId})
+          body: JSON.stringify({ ndexUUID: this.state.selectedId })
         }
     );
 
@@ -200,17 +199,17 @@ export class NDExImportSubWizard extends React.Component {
           inputProps={{ 'aria-label': 'search google maps' }}
           onChange={(evt) => searchString = evt.target.value}
         />
-        <IconButton 
-          style={{padding: 10}} 
+        <IconButton
+          style={{padding: 10}}
           aria-label="search"
           onClick={runSearch}
         >
           <SearchIcon />
         </IconButton>
         <Divider style={{height: 28, margin: 4}} orientation="vertical" />
-        <IconButton 
-          color="primary" 
-          tyle={{padding: 10}} 
+        <IconButton
+          color="primary"
+          tyle={{padding: 10}}
           aria-label="directions"
         >
           <PersonOutlineIcon />

@@ -18,8 +18,6 @@ import Button from '@material-ui/core/Button';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
-const NDEX_URL = 'https://dev.ndexbio.org';
-
 export class NDExNetworkImportDialog extends Component {
 
   constructor(props) {
@@ -28,7 +26,6 @@ export class NDExNetworkImportDialog extends Component {
     this.onClose = props.onClose;
 
     this.state = {
-      ndexUrl: `${NDEX_URL}`,
       uuid: "135fe4e5-9896-11eb-81d5-525400c25d22",
       error: null,
       loading: true,
@@ -42,14 +39,12 @@ export class NDExNetworkImportDialog extends Component {
   async handleOk() {
     this.setState({ loading: true });
 
-    const res = await fetch( "/api/document/cxurl", {
+    const res = await fetch( '/api/document/cx-import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({"server": this.state.ndexUrl,
-                                     "uuid": this.state.uuid})
-        }
+        body: JSON.stringify({ndexUUID: this.state.uuid})}
     );
 
     const urls = await res.json();
@@ -88,7 +83,6 @@ export class NDExNetworkImportDialog extends Component {
 
   handleChange(event) {
     switch (event.target.id) {
-      case 'ndex-server-input': this.setState({ ndexUrl: event.target.value }); return;
       case 'network-uuid-input': this.setState({ uuid: event.target.value }); return;
     }
   }
@@ -112,18 +106,14 @@ export class NDExNetworkImportDialog extends Component {
 
   render() {
     const { open } = this.props;
-    const { ndexUrl, loading, uuid, error } = this.state;
+    const { loading, uuid, error } = this.state;
     let content = null;
 
 
     content = (
       <form noValidate autoComplete="off">
         <FormControl>
-          <InputLabel htmlFor="component-simple">NDEx Server</InputLabel>
-          <Input id="ndex-server-input" value={ndexUrl} onChange={e => this.handleChange(e)} />
-        </FormControl>
-        <FormControl>
-          <InputLabel htmlFor="component-simple">Network UUID</InputLabel>
+          <InputLabel htmlFor="component-simple">NDEx Network UUID</InputLabel>
           <Input id="network-uuid-input" value={uuid} onChange={e => this.handleChange(e)} />
         </FormControl>
       </form>
