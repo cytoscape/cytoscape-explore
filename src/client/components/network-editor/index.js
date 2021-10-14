@@ -63,8 +63,7 @@ export class NetworkEditor extends Component {
         selector: 'node',
         style: {
           'text-wrap': 'wrap',
-          'text-max-width': 60,
-          'font-size': 8
+          'text-max-width': 60
         }
       },
       {

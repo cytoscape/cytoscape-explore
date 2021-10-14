@@ -452,6 +452,7 @@ export const PROPERTY_TYPE = {
   'line-style': STYLE_TYPE.STRING,
   'text-halign': STYLE_TYPE.STRING,
   'text-valign': STYLE_TYPE.STRING,
+  'font-size': STYLE_TYPE.NUMBER,
 }; 
 
 /**  Supported node style properties  */
@@ -467,6 +468,7 @@ export const NODE_STYLE_PROPERTIES = [
   'color', // label color
   'text-halign',
   'text-valign',
+  'font-size',
 ];
 
 /** An object map of the default node style values */
@@ -481,6 +483,7 @@ export const DEFAULT_NODE_STYLE = {
   'color': styleFactory.color('#111'), // label color
   'text-halign': styleFactory.string('top'),
   'text-valign': styleFactory.string('center'),
+  'font-size': styleFactory.number(10)
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);

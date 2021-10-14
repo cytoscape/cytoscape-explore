@@ -81,34 +81,27 @@ StyleSection.propTypes = {
 
 
 class StylePopoverButton extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
       popoverAnchorEl: null,
-      popoverDataVal: null,
-      popoverStyleVal: null,
+      styleVal: props.styleVal,
     };
   }
 
   render() {
-    const handlePopoverOpen = (event, dataVal, styleVal) => {
-      this.setState({ 
-        popoverAnchorEl: event.currentTarget,
-        popoverDataVal: dataVal,
-        popoverStyleVal: styleVal,
-      });
+    const handlePopoverOpen = (event) => {
+      this.setState({ popoverAnchorEl: event.currentTarget });
     };
     const handlePopoverClose = () => {
-      this.setState({
-        popoverAnchorEl: null,
-        popoverDataVal: null,
-        popoverStyleVal: null,
-      });
+      this.setState({ popoverAnchorEl: null });
+    };
+    const handleChange = (styleVal) => {
+      this.props.handleChange(styleVal);
+      this.setState({ styleVal });
     };
 
-    const { dataVal, styleVal } = this.props;
-
+    const { styleVal } = this.state;
     return (
       // TODO: The onClick handler on the top div is problematic, 
       // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
@@ -116,7 +109,7 @@ class StylePopoverButton extends React.Component {
       <div> 
         <div 
           style={{ padding: '5px', textAlign: 'left' }}
-          onClick={(event) => handlePopoverOpen(event, dataVal, styleVal)} 
+          onClick={handlePopoverOpen}
         >
           { this.props.renderButton(styleVal) }
         </div>
@@ -128,11 +121,7 @@ class StylePopoverButton extends React.Component {
           transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <div style={{ padding: '10px' }}> 
-            { this.props.renderPopover(
-                this.state.popoverStyleVal, // this just tells component in the popover the current value to highlight
-                newStyleVal => this.props.handleChange(newStyleVal, this.state.popoverDataVal)
-              ) 
-            }
+            { this.props.renderPopover(styleVal, handleChange) }
           </div>
         </Popover>
       </div>
@@ -140,7 +129,6 @@ class StylePopoverButton extends React.Component {
   }
 }
 StylePopoverButton.propTypes = {
-  dataVal: PropTypes.any,
   styleVal: PropTypes.any,
   renderButton: PropTypes.func,
   renderPopover: PropTypes.func,
@@ -291,9 +279,6 @@ export class StylePicker extends React.Component {
 
   getMappingState() {
     const style = this.props.getStyle();
-
-    console.log(JSON.stringify(style));
-
     switch(style.mapping) {
       case MAPPING.VALUE:
         return { 
@@ -352,6 +337,7 @@ export class StylePicker extends React.Component {
   }
 
   handleStyleChange(changes) {
+    console.log(JSON.stringify(changes));
     const change = { style: {...this.state.style, ...changes }};
     this.setState(change);
     this.onStyleChanged(change.style);
@@ -613,7 +599,10 @@ ShapeStylePicker.propTypes = {
 
 
 export function SizeStylePicker({ controller, selector, variant, styleProps }) {
-  let [min, max] = (variant == 'solid') ? [10, 50] : [0, 10];
+  const [min, max] = 
+    (variant == 'solid') ? [10, 50] : 
+    (variant == 'text')  ? [10, 30] : 
+    [0, 10];
   return <StylePicker
     valueLabel="Single Size"
     mappingLabel="Size Mapping"
@@ -623,21 +612,21 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
     renderValue={(size, onSelect) => 
       <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
     }
-    renderMapping={(currentSize, setSize) => 
+    renderMapping={(minMax, setSize) =>
       <StylePopoverButton 
-        styleVal={currentSize}
+        styleVal={minMax}
         handleChange={setSize}
         renderButton={(sizeRange) => 
-          <SizeGradient selected={sizeRange} /> 
+          <SizeGradient variant={variant} selected={sizeRange} reversed={minMax[0] > minMax[1]} /> 
         }
-        renderPopover={(gradient, onSelect) => 
-          <SizeGradients variant={variant} min={min} max={max} selected={gradient} onSelect={onSelect} /> 
+        renderPopover={(gradient, onSelect) =>
+          <SizeGradients variant={variant} min={min} max={max} selected={gradient} onSelect={onSelect} />
         }
       />
     }
-    renderDiscrete={(currentSize, setSize) => 
+    renderDiscrete={(minMax, setSize) => 
       <StylePopoverButton 
-        styleVal={currentSize}
+        styleVal={minMax}
         handleChange={setSize}
         renderButton={size => 
           <Button variant='outlined'>{size}</Button>
@@ -671,7 +660,7 @@ SizeStylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   selector: PropTypes.oneOf(['node', 'edge']),
   styleProps: PropTypes.array,
-  variant: PropTypes.oneOf(['solid', 'border', 'line']),
+  variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
 };
 
 

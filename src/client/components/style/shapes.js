@@ -71,7 +71,7 @@ ShapeIcon.propTypes = {
     'none', 'triangle', 'circle', 'square', 'diamond', 'tee', 'triangle-cross',
   ]),
   onClick: PropTypes.func,
-  selected: PropTypes.boolean
+  selected: PropTypes.bool,
 };
 ShapeIcon.defaultProps = {
   type: 'node',

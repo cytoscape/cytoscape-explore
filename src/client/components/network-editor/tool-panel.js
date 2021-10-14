@@ -147,6 +147,14 @@ export class ToolPanel extends Component {
                   styleProps={['color']}
                 />
               </StyleSection>
+              <StyleSection title="Size">
+                <SizeStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['font-size']}
+                  variant='text'
+                />
+              </StyleSection>
               <StyleSection title="Position">
                 <NodeLabelPositionStylePicker
                   controller={controller}
