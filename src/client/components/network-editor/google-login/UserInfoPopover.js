@@ -1,15 +1,38 @@
-import React, { FC, ReactElement } from "react";
-import { Avatar, Button, Grid, Typography } from "@material-ui/core";
-import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import Popover from "@material-ui/core/Popover";
-import { blue } from "@material-ui/core/colors";
+import React from "react";
+import { Popover, Grid, Avatar, Typography } from "@material-ui/core";
+import GoogleLogoutButton from "./GoogleLogoutButton";
+import { makeStyles } from "@material-ui/core/styles";
 
-const UserInfoPopover = (props) => {
+const useStyles = makeStyles((theme) => ({
+  avatar: {
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+  },
+  userInfoPopover: {
+    padding: theme.spacing(2),
+  },
+  item: {
+    padding: 0,
+    marginBottom: theme.spacing(1),
+  },
+}));
 
-	const {onClose, isOpen, anchorEl} = props;
+const UserInfoPopover = ({
+  userInfo,
+  isOpen,
+  anchorEl,
+  onClose,
+  clientId,
+  responseHandler,
+}) => {
+  const classes = useStyles();
+
   return (
     <Popover
       id="account-popper"
+      classes={{
+        paper: classes.userInfoPopover,
+      }}
       onClose={onClose}
       anchorOrigin={{
         vertical: "bottom",
@@ -24,11 +47,24 @@ const UserInfoPopover = (props) => {
       disableRestoreFocus={true}
     >
       <Grid
-        justifyContent={"center"}
-        alignItems={"center"}
         container
+        justifycontent={"center"}
+        alignItems={"center"}
         direction="column"
-      ></Grid>
+      >
+        <Grid item xs={12} className={classes.item}>
+          <Avatar className={classes.avatar} src={userInfo.imageUrl} />
+        </Grid>
+        <Grid item xs={12} className={classes.item}>
+          <Typography variant="subtitle2">{`You are signed in as ${userInfo.name}`}</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <GoogleLogoutButton
+            clientId={clientId}
+            responseHandler={responseHandler}
+          />
+        </Grid>
+      </Grid>
     </Popover>
   );
 };

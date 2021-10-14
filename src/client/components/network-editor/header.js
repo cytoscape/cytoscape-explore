@@ -22,6 +22,7 @@ import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 import uuid from 'uuid';
 import ImportWizard from '../network-import/import-wizard';
+import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -139,11 +140,9 @@ export class Header extends Component {
                   <SearchIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Account">
-              <IconButton edge="start" color="inherit" aria-label="account" aria-haspopup="true" onClick={e => this.handleClick(e, 'account')}>
-                <AccountCircle />
-              </IconButton>
-              </Tooltip>
+              
+              <AccountButton />
+
               <Tooltip title="More">
                 <IconButton edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
                   <MenuIcon />
