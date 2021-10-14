@@ -16,3 +16,4 @@ export const COUCHDB_PASSWORD = process.env.COUCHDB_PASSWORD;
 export const USE_COUCH_AUTH = ('' + process.env.USE_COUCH_AUTH).toLowerCase() === 'true';
 export const BASE_URL = process.env.BASE_URL;
 export const UPLOAD_LIMIT = process.env.UPLOAD_LIMIT;
+export const NDEX_API_URL = process.env.NDEX_API_URL;

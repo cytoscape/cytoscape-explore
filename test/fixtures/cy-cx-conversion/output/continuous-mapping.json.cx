@@ -1,0 +1,283 @@
+[
+  {
+    "CXVersion": "2.0",
+    "hasFragments": false
+  },
+  {
+    "metaData": [
+      {
+        "elementCount": 1,
+        "name": "attributeDeclarations"
+      },
+      {
+        "elementCount": 1,
+        "name": "networkAttributes"
+      },
+      {
+        "elementCount": 8,
+        "name": "nodes"
+      },
+      {
+        "elementCount": 0,
+        "name": "edges"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualProperties"
+      },
+      {
+        "elementCount": 1,
+        "name": "nodeBypasses"
+      },
+      {
+        "elementCount": 0,
+        "name": "edgeBypasses"
+      }
+    ]
+  },
+  {
+    "attributeDeclarations": [
+      {
+        "networkAttributes": {
+          "name": {
+            "d": "string",
+            "v": ""
+          },
+          "description": {
+            "d": "string",
+            "v": ""
+          },
+          "version": {
+            "d": "string",
+            "v": ""
+          },
+          "cytoscapeExploreId": {
+            "d": "string",
+            "v": ""
+          }
+        },
+        "nodes": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        },
+        "edges": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "networkAttributes": [
+      {
+        "name": "cyexplore",
+        "description": "description",
+        "version": "1.0",
+        "cytoscapeExploreId": "cy63ed55be-5324-42d8-ba2f-16c8a7ebf594"
+      }
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": 0,
+        "x": 113.71900738982694,
+        "y": 124.82024815254326,
+        "v": {
+          "attr1": 0.1928849362777716,
+          "attr2": -0.006081190046709928,
+          "attr3": "C",
+          "cytoscapeExploreId": "49943228-8223-412d-bb11-1370b912e574"
+        }
+      },
+      {
+        "id": 1,
+        "x": 88.43318792847883,
+        "y": 105.48625647020447,
+        "v": {
+          "attr1": 0.11486683622907101,
+          "attr2": 0.1864245173670933,
+          "attr3": "A",
+          "cytoscapeExploreId": "4c63e9cd-6a22-4ffc-8128-77e8e044c994"
+        }
+      },
+      {
+        "id": 2,
+        "x": 49.14102922303876,
+        "y": 123.27112830529838,
+        "v": {
+          "attr1": 0.9966428864639394,
+          "attr2": -0.8990573724886688,
+          "attr3": "A",
+          "cytoscapeExploreId": "62d94c83-be45-4b0c-83ca-33b4a4ae42c0"
+        }
+      },
+      {
+        "id": 3,
+        "x": 49.76143172891413,
+        "y": 85.84017711748443,
+        "v": {
+          "attr1": 0.8926463638473991,
+          "attr2": 0.5367898306456453,
+          "attr3": "A",
+          "cytoscapeExploreId": "adaebb7e-bb4e-44ed-aac8-2ce76e345282"
+        }
+      },
+      {
+        "id": 4,
+        "x": 238,
+        "y": 104,
+        "v": {
+          "attr1": 0.49668477042977854,
+          "attr2": -0.9739520368538983,
+          "attr3": "A",
+          "cytoscapeExploreId": "ee2abf56-3174-44a8-92d6-9031c46be918"
+        }
+      },
+      {
+        "id": 5,
+        "x": 112.83568649291004,
+        "y": 77.36134287052106,
+        "v": {
+          "attr1": 0.22087846290189672,
+          "attr2": -0.8450705501480567,
+          "attr3": "B",
+          "cytoscapeExploreId": "f7d1c19f-a8fc-4349-b478-1cd354b16eb9"
+        }
+      },
+      {
+        "id": 6,
+        "x": 151.92104436305831,
+        "y": 109.62227317604025,
+        "v": {
+          "attr1": 0.8251090523957909,
+          "attr2": 0.17543456935878954,
+          "attr3": "B",
+          "cytoscapeExploreId": "fa4a6651-0afa-41d5-a0a4-fa3feb300cb9"
+        }
+      },
+      {
+        "id": 7,
+        "x": 49.14102922303876,
+        "y": 98.76262349023277,
+        "v": {
+          "cytoscapeExploreId": "1d45181c-24a4-457e-bc24-c9dc280ea3b0"
+        }
+      }
+    ]
+  },
+  {
+    "edges": []
+  },
+  {
+    "visualProperties": [
+      {
+        "default": {
+          "network": {
+            "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
+          },
+          "node": {
+            "NODE_BACKGROUND_COLOR": "#888888",
+            "NODE_WIDTH": 30,
+            "NODE_HEIGHT": 30,
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_SHAPE": "ellipse"
+          },
+          "edge": {
+            "EDGE_LINE_COLOR": "#888888",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#888888",
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_TARGET_ARROW_COLOR": "#888888",
+            "EDGE_LINE_STYLE": "solid"
+          }
+        },
+        "nodeMapping": {
+          "NODE_BACKGROUND_COLOR": {
+            "type": "CONTINUOUS",
+            "definition": {
+              "attribute": "attr2",
+              "map": [
+                {
+                  "min": -0.9739520368538983,
+                  "includeMin": true,
+                  "max": 0.5367898306456453,
+                  "includeMax": true,
+                  "minVPValue": "#E6B3B3",
+                  "maxVPValue": "#993333"
+                }
+              ]
+            }
+          },
+          "NODE_WIDTH": {
+            "type": "CONTINUOUS",
+            "definition": {
+              "attribute": "attr2",
+              "map": [
+                {
+                  "min": -0.9739520368538983,
+                  "includeMin": true,
+                  "max": 0.5367898306456453,
+                  "includeMax": true,
+                  "minVPValue": 50,
+                  "maxVPValue": 10
+                }
+              ]
+            }
+          },
+          "NODE_HEIGHT": {
+            "type": "CONTINUOUS",
+            "definition": {
+              "attribute": "attr2",
+              "map": [
+                {
+                  "min": -0.9739520368538983,
+                  "includeMin": true,
+                  "max": 0.5367898306456453,
+                  "includeMax": true,
+                  "minVPValue": 50,
+                  "maxVPValue": 10
+                }
+              ]
+            }
+          }
+        },
+        "edgeMapping": {}
+      }
+    ]
+  },
+  {
+    "nodeBypasses": [
+      {
+        "id": 4,
+        "v": {
+          "NODE_BACKGROUND_COLOR": "#339933"
+        }
+      }
+    ]
+  },
+  {
+    "edgeBypasses": []
+  },
+  {
+    "status": [
+      {
+        "error": "",
+        "success": true
+      }
+    ]
+  }
+]

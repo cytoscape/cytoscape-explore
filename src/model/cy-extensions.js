@@ -6,6 +6,34 @@ import fcose from 'cytoscape-fcose';
 import cola from 'cytoscape-cola';
 import { isObject } from 'lodash';
 
+import { exportCX } from './import-export/cx';
+import { importJSON, exportJSON } from './import-export/json';
+
+const registerCX2Exporter = Cytoscape => {
+
+  function exportCX2(){
+    return exportCX(this);
+  }
+
+  Cytoscape('core', 'exportCX2', exportCX2);
+};
+
+const registerImportJSON = Cytoscape => {
+  function _importJSON(json){
+    return importJSON(this, json);
+  }
+
+  Cytoscape('core', 'importJSON', _importJSON);
+};
+
+const registerExportJSON = Cytoscape => {
+  function _exportJSON(){
+    return exportJSON(this);
+  }
+
+  Cytoscape('core', 'exportJSON', _exportJSON);
+};
+
 const registerVizmapper = (Cytoscape) => {
 
   /**
@@ -54,6 +82,11 @@ export const registerCytoscapeExtensions = () => {
   Cytoscape.use(edgehandles);
   Cytoscape.use(registerVizmapper);
   Cytoscape.use(registerCyDataLocked);
+
+  // import export
+  Cytoscape.use(registerCX2Exporter);
+  Cytoscape.use(registerExportJSON);
+  Cytoscape.use(registerImportJSON);
 
   // Layout extensions
   Cytoscape.use(dagre);

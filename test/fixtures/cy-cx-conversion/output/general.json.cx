@@ -1,0 +1,344 @@
+[
+  {
+    "CXVersion": "2.0",
+    "hasFragments": false
+  },
+  {
+    "metaData": [
+      {
+        "elementCount": 1,
+        "name": "attributeDeclarations"
+      },
+      {
+        "elementCount": 1,
+        "name": "networkAttributes"
+      },
+      {
+        "elementCount": 6,
+        "name": "nodes"
+      },
+      {
+        "elementCount": 3,
+        "name": "edges"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualProperties"
+      },
+      {
+        "elementCount": 5,
+        "name": "nodeBypasses"
+      },
+      {
+        "elementCount": 2,
+        "name": "edgeBypasses"
+      }
+    ]
+  },
+  {
+    "attributeDeclarations": [
+      {
+        "networkAttributes": {
+          "name": {
+            "d": "string",
+            "v": ""
+          },
+          "description": {
+            "d": "string",
+            "v": ""
+          },
+          "version": {
+            "d": "string",
+            "v": ""
+          },
+          "cytoscapeExploreId": {
+            "d": "string",
+            "v": ""
+          }
+        },
+        "nodes": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        },
+        "edges": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "source": {
+            "d": "string"
+          },
+          "target": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "networkAttributes": [
+      {
+        "name": "cyexplore",
+        "description": "description",
+        "version": "1.0",
+        "cytoscapeExploreId": "cy6492f187-a2d8-48bd-bd4d-f6c2429da6c1"
+      }
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": 0,
+        "x": 191.92169834822687,
+        "y": 90.17623767672664,
+        "v": {
+          "attr1": 0.25113407303365376,
+          "attr2": -0.5406318800042764,
+          "attr3": "C",
+          "cytoscapeExploreId": "169bb3bf-2223-4640-98ac-ced7db96e1b5"
+        }
+      },
+      {
+        "id": 1,
+        "x": 254.84621106792676,
+        "y": 256.00003603492155,
+        "v": {
+          "attr1": 0.4734350582940561,
+          "attr2": -0.31334670117783725,
+          "attr3": "A",
+          "cytoscapeExploreId": "7d73be34-dd94-4a6b-a071-c0a010ab16a3"
+        }
+      },
+      {
+        "id": 2,
+        "x": 391.1372795344885,
+        "y": 228.68860629744736,
+        "v": {
+          "attr1": 0.2571662712682563,
+          "attr2": 0.24629838637262846,
+          "attr3": "B",
+          "cytoscapeExploreId": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d"
+        }
+      },
+      {
+        "id": 3,
+        "x": 357.282326661425,
+        "y": 132.52084243190623,
+        "v": {
+          "attr1": 0.3433607555040106,
+          "attr2": 0.24560781137429366,
+          "attr3": "B",
+          "cytoscapeExploreId": "c36994fc-0cd1-464a-b770-4053249640eb"
+        }
+      },
+      {
+        "id": 4,
+        "x": 174.14877164956212,
+        "y": 165.73764960372645,
+        "v": {
+          "attr1": 0.36778350678272065,
+          "attr2": 0.5340217440884518,
+          "attr3": "A",
+          "cytoscapeExploreId": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b"
+        }
+      },
+      {
+        "id": 5,
+        "x": 191.92169834822687,
+        "y": 75.17623767672664,
+        "v": {
+          "cytoscapeExploreId": "e8b68c91-4ba9-4a43-b6f5-70b4f3bf3384"
+        }
+      }
+    ]
+  },
+  {
+    "edges": [
+      {
+        "id": 6,
+        "s": 4,
+        "t": 2,
+        "v": {
+          "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
+          "target": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d",
+          "attr1": 0.44261454014101775,
+          "attr2": -0.8646379469678083,
+          "attr3": "A",
+          "cytoscapeExploreId": "a1584fb4-4e9a-4c20-a698-35d5ca42620e"
+        }
+      },
+      {
+        "id": 7,
+        "s": 0,
+        "t": 1,
+        "v": {
+          "source": "169bb3bf-2223-4640-98ac-ced7db96e1b5",
+          "target": "7d73be34-dd94-4a6b-a071-c0a010ab16a3",
+          "attr1": 0.693204181456772,
+          "attr2": 0.546974783673293,
+          "attr3": "B",
+          "cytoscapeExploreId": "bfd063c1-1739-4883-bd07-68a353772692"
+        }
+      },
+      {
+        "id": 8,
+        "s": 4,
+        "t": 3,
+        "v": {
+          "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
+          "target": "c36994fc-0cd1-464a-b770-4053249640eb",
+          "attr1": 0.6748303775481961,
+          "attr2": 0.9801246596118172,
+          "attr3": "A",
+          "cytoscapeExploreId": "c43814be-9f51-4631-afe7-203be610a422"
+        }
+      }
+    ]
+  },
+  {
+    "visualProperties": [
+      {
+        "default": {
+          "network": {
+            "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
+          },
+          "node": {
+            "NODE_BACKGROUND_COLOR": "rgb(102, 102, 204)",
+            "NODE_WIDTH": 30,
+            "NODE_HEIGHT": 30,
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_SHAPE": "round-rectangle"
+          },
+          "edge": {
+            "EDGE_LINE_COLOR": "rgb(40, 40, 40)",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "rgb(40, 40, 40)",
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_TARGET_ARROW_COLOR": "rgb(40, 40, 40)",
+            "EDGE_LINE_STYLE": "solid"
+          }
+        },
+        "nodeMapping": {
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
+            "definition": {
+              "attribute": "attr3",
+              "selector": "data(attr3)"
+            }
+          },
+          "NODE_BORDER_COLOR": {
+            "type": "DISCRETE",
+            "definition": {
+              "attribute": "attr2",
+              "map": [
+                {
+                  "v": "-0.5406318800042764",
+                  "vp": "#40BF40"
+                }
+              ]
+            }
+          },
+          "NODE_BORDER_WIDTH": {
+            "type": "CONTINUOUS",
+            "definition": {
+              "attribute": "attr1",
+              "map": [
+                {
+                  "min": 0.25113407303365376,
+                  "includeMin": true,
+                  "max": 0.4734350582940561,
+                  "includeMax": true,
+                  "minVPValue": 0,
+                  "maxVPValue": 10
+                }
+              ]
+            }
+          }
+        },
+        "edgeMapping": {}
+      }
+    ]
+  },
+  {
+    "nodeBypasses": [
+      {
+        "id": 3,
+        "v": {
+          "NODE_BACKGROUND_COLOR": "#8CD98C"
+        }
+      },
+      {
+        "id": 1,
+        "v": {
+          "NODE_SHAPE": "octagon",
+          "NODE_BACKGROUND_COLOR": "#E6E6E6"
+        }
+      },
+      {
+        "id": 4,
+        "v": {
+          "NODE_LABEL": "b"
+        }
+      },
+      {
+        "id": 2,
+        "v": {
+          "NODE_WIDTH": 46,
+          "NODE_HEIGHT": 46
+        }
+      },
+      {
+        "id": 0,
+        "v": {
+          "NODE_LABEL": "special"
+        }
+      }
+    ]
+  },
+  {
+    "edgeBypasses": [
+      {
+        "id": 6,
+        "v": {
+          "EDGE_LINE_STYLE": "dotted"
+        }
+      },
+      {
+        "id": 7,
+        "v": {
+          "EDGE_LINE_COLOR": "#6666CC",
+          "EDGE_SOURCE_ARROW_COLOR": "#6666CC",
+          "EDGE_TARGET_ARROW_COLOR": "#6666CC"
+        }
+      }
+    ]
+  },
+  {
+    "status": [
+      {
+        "error": "",
+        "success": true
+      }
+    ]
+  }
+]

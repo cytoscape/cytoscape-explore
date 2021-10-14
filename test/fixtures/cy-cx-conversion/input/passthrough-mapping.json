@@ -1,0 +1,65 @@
+{
+  "data": {
+    "id": "cy1b26b9ba-8a56-4e24-ace6-01f757159390",
+    "_styles": {
+      "node": {
+        "width": {
+          "type": "NUMBER",
+          "mapping": "VALUE",
+          "value": 30,
+          "stringValue": "30"
+        },
+        "height": {
+          "type": "NUMBER",
+          "mapping": "VALUE",
+          "value": 30,
+          "stringValue": "30"
+        },
+        "border-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 136,
+            "g": 136,
+            "b": 136
+          },
+          "stringValue": "rgb(136, 136, 136)"
+        },
+        "label": {
+          "type": "STRING",
+          "mapping": "PASSTHROUGH",
+          "value": {
+            "data": "attr2"
+          },
+          "stringValue": "data(attr2)"
+        }
+      }
+    }
+  },
+  "elements": [
+    {
+      "data": {
+        "attr1": 0.41725193086550627,
+        "attr2": 0.3639414500947198,
+        "attr3": "A",
+        "id": "6b215e30-79a6-482e-b264-5086bfdd0337"
+      },
+      "position": {
+        "x": -39,
+        "y": 41
+      }
+    },
+    {
+      "data": {
+        "attr1": 0.7112086688922461,
+        "attr2": 0.7263962948027549,
+        "attr3": "B",
+        "id": "a65dfbe4-2f4c-40e7-b6f8-7a526b12c09f"
+      },
+      "position": {
+        "x": 96,
+        "y": 97
+      }
+    }
+  ]
+}
