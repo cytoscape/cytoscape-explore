@@ -61,12 +61,7 @@ app.use(express.static(path.join(__dirname, '../..', 'public')));
 
 // proxy requests under /db to the CouchDB server
 app.use('/db', secrets); // apply security before proxy
-app.use('/db', proxy(COUCHDB_URL /*,{
-  proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
-    proxyReqOpts.auth = 'admin:admin';
-    return proxyReqOpts;
-  }}*/
-));
+app.use('/db', proxy(COUCHDB_URL));
 
 app.use('/api', apiRouter);
 app.use('/', indexRouter);
