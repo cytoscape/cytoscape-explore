@@ -83,8 +83,7 @@
       {
         "name": "cyexplore",
         "description": "description",
-        "version": "1.0",
-        "cytoscapeExploreId": "cy1b26b9ba-8a56-4e24-ace6-01f757159390"
+        "version": "1.0"
       }
     ]
   },
@@ -97,8 +96,7 @@
         "v": {
           "attr1": 0.41725193086550627,
           "attr2": 0.3639414500947198,
-          "attr3": "A",
-          "cytoscapeExploreId": "6b215e30-79a6-482e-b264-5086bfdd0337"
+          "attr3": "A"
         }
       },
       {
@@ -108,8 +106,7 @@
         "v": {
           "attr1": 0.7112086688922461,
           "attr2": 0.7263962948027549,
-          "attr3": "B",
-          "cytoscapeExploreId": "a65dfbe4-2f4c-40e7-b6f8-7a526b12c09f"
+          "attr3": "B"
         }
       }
     ]

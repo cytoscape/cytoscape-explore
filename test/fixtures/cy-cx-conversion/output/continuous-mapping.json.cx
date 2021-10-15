@@ -83,8 +83,7 @@
       {
         "name": "cyexplore",
         "description": "description",
-        "version": "1.0",
-        "cytoscapeExploreId": "cy63ed55be-5324-42d8-ba2f-16c8a7ebf594"
+        "version": "1.0"
       }
     ]
   },
@@ -97,8 +96,7 @@
         "v": {
           "attr1": 0.1928849362777716,
           "attr2": -0.006081190046709928,
-          "attr3": "C",
-          "cytoscapeExploreId": "49943228-8223-412d-bb11-1370b912e574"
+          "attr3": "C"
         }
       },
       {
@@ -108,8 +106,7 @@
         "v": {
           "attr1": 0.11486683622907101,
           "attr2": 0.1864245173670933,
-          "attr3": "A",
-          "cytoscapeExploreId": "4c63e9cd-6a22-4ffc-8128-77e8e044c994"
+          "attr3": "A"
         }
       },
       {
@@ -119,8 +116,7 @@
         "v": {
           "attr1": 0.9966428864639394,
           "attr2": -0.8990573724886688,
-          "attr3": "A",
-          "cytoscapeExploreId": "62d94c83-be45-4b0c-83ca-33b4a4ae42c0"
+          "attr3": "A"
         }
       },
       {
@@ -130,8 +126,7 @@
         "v": {
           "attr1": 0.8926463638473991,
           "attr2": 0.5367898306456453,
-          "attr3": "A",
-          "cytoscapeExploreId": "adaebb7e-bb4e-44ed-aac8-2ce76e345282"
+          "attr3": "A"
         }
       },
       {
@@ -141,8 +136,7 @@
         "v": {
           "attr1": 0.49668477042977854,
           "attr2": -0.9739520368538983,
-          "attr3": "A",
-          "cytoscapeExploreId": "ee2abf56-3174-44a8-92d6-9031c46be918"
+          "attr3": "A"
         }
       },
       {
@@ -152,8 +146,7 @@
         "v": {
           "attr1": 0.22087846290189672,
           "attr2": -0.8450705501480567,
-          "attr3": "B",
-          "cytoscapeExploreId": "f7d1c19f-a8fc-4349-b478-1cd354b16eb9"
+          "attr3": "B"
         }
       },
       {
@@ -163,17 +156,14 @@
         "v": {
           "attr1": 0.8251090523957909,
           "attr2": 0.17543456935878954,
-          "attr3": "B",
-          "cytoscapeExploreId": "fa4a6651-0afa-41d5-a0a4-fa3feb300cb9"
+          "attr3": "B"
         }
       },
       {
         "id": 7,
         "x": 49.14102922303876,
         "y": 98.76262349023277,
-        "v": {
-          "cytoscapeExploreId": "1d45181c-24a4-457e-bc24-c9dc280ea3b0"
-        }
+        "v": {}
       }
     ]
   },

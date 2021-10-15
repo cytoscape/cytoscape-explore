@@ -74,12 +74,6 @@
           "cytoscapeExploreId": {
             "d": "string"
           },
-          "source": {
-            "d": "string"
-          },
-          "target": {
-            "d": "string"
-          },
           "attr1": {
             "d": "double"
           },
@@ -98,8 +92,7 @@
       {
         "name": "cyexplore",
         "description": "description",
-        "version": "1.0",
-        "cytoscapeExploreId": "cy6492f187-a2d8-48bd-bd4d-f6c2429da6c1"
+        "version": "1.0"
       }
     ]
   },
@@ -112,8 +105,7 @@
         "v": {
           "attr1": 0.25113407303365376,
           "attr2": -0.5406318800042764,
-          "attr3": "C",
-          "cytoscapeExploreId": "169bb3bf-2223-4640-98ac-ced7db96e1b5"
+          "attr3": "C"
         }
       },
       {
@@ -123,8 +115,7 @@
         "v": {
           "attr1": 0.4734350582940561,
           "attr2": -0.31334670117783725,
-          "attr3": "A",
-          "cytoscapeExploreId": "7d73be34-dd94-4a6b-a071-c0a010ab16a3"
+          "attr3": "A"
         }
       },
       {
@@ -134,8 +125,7 @@
         "v": {
           "attr1": 0.2571662712682563,
           "attr2": 0.24629838637262846,
-          "attr3": "B",
-          "cytoscapeExploreId": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d"
+          "attr3": "B"
         }
       },
       {
@@ -145,8 +135,7 @@
         "v": {
           "attr1": 0.3433607555040106,
           "attr2": 0.24560781137429366,
-          "attr3": "B",
-          "cytoscapeExploreId": "c36994fc-0cd1-464a-b770-4053249640eb"
+          "attr3": "B"
         }
       },
       {
@@ -156,17 +145,14 @@
         "v": {
           "attr1": 0.36778350678272065,
           "attr2": 0.5340217440884518,
-          "attr3": "A",
-          "cytoscapeExploreId": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b"
+          "attr3": "A"
         }
       },
       {
         "id": 5,
         "x": 191.92169834822687,
         "y": 75.17623767672664,
-        "v": {
-          "cytoscapeExploreId": "e8b68c91-4ba9-4a43-b6f5-70b4f3bf3384"
-        }
+        "v": {}
       }
     ]
   },
@@ -177,12 +163,9 @@
         "s": 4,
         "t": 2,
         "v": {
-          "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
-          "target": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d",
           "attr1": 0.44261454014101775,
           "attr2": -0.8646379469678083,
-          "attr3": "A",
-          "cytoscapeExploreId": "a1584fb4-4e9a-4c20-a698-35d5ca42620e"
+          "attr3": "A"
         }
       },
       {
@@ -190,12 +173,9 @@
         "s": 0,
         "t": 1,
         "v": {
-          "source": "169bb3bf-2223-4640-98ac-ced7db96e1b5",
-          "target": "7d73be34-dd94-4a6b-a071-c0a010ab16a3",
           "attr1": 0.693204181456772,
           "attr2": 0.546974783673293,
-          "attr3": "B",
-          "cytoscapeExploreId": "bfd063c1-1739-4883-bd07-68a353772692"
+          "attr3": "B"
         }
       },
       {
@@ -203,12 +183,9 @@
         "s": 4,
         "t": 3,
         "v": {
-          "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
-          "target": "c36994fc-0cd1-464a-b770-4053249640eb",
           "attr1": 0.6748303775481961,
           "attr2": 0.9801246596118172,
-          "attr3": "A",
-          "cytoscapeExploreId": "c43814be-9f51-4631-afe7-203be610a422"
+          "attr3": "A"
         }
       }
     ]

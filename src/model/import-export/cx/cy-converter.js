@@ -114,10 +114,7 @@
      Object.keys(ele.data()).forEach(key => {
        let value = ele.data(key);
 
-       if(key === 'id'){
-         // id is a reserved field in cx2, use a different key name
-         v['cytoscapeExploreId'] = value;
-       } else {
+       if(key !== 'id' && key !== 'source' && key !== 'target') {
          let type = getCXType(value);
 
          // TODO also need to check that the type for each attribute is the same for
@@ -167,8 +164,7 @@
      networkAttributes: [{
        name: cy.data('name') || 'cyexplore',
        description: cy.data('description') || 'description',
-       version: cy.data('version') || '1.0',
-       cytoscapeExploreId: cy.data('id')
+       version: cy.data('version') || '1.0'
      }]
    };
 
