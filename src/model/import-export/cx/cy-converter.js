@@ -217,7 +217,7 @@
      }
    ].forEach(({defaultStyleDict, defaultAspect, cy2cxStyleNameMap}) => {
      Object.entries(defaultStyleDict).forEach(([cyStyleName, styleObj]) => {
-       let { type, value, mapping, stringValue } = styleObj;
+       let { type, value, mapping } = styleObj;
        let cxStyleName = cy2cxStyleNameMap[cyStyleName];
 
        // mappings go in the nodeMapping/edgeMapping object
@@ -249,7 +249,7 @@
 
        switch(mapping){
          case MAPPING.VALUE:
-           defaultAspect[cxStyleName] = type === STYLE_TYPE.NUMBER ? value : stringValue;
+           defaultAspect[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
            break;
          case MAPPING.PASSTHROUGH:
            mappingAspect[cxStyleName] = {

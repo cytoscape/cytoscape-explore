@@ -198,7 +198,7 @@
             "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
           },
           "node": {
-            "NODE_BACKGROUND_COLOR": "rgb(102, 102, 204)",
+            "NODE_BACKGROUND_COLOR": "#6666CC",
             "NODE_WIDTH": 30,
             "NODE_HEIGHT": 30,
             "NODE_BORDER_COLOR": "#888888",
@@ -206,12 +206,12 @@
             "NODE_SHAPE": "round-rectangle"
           },
           "edge": {
-            "EDGE_LINE_COLOR": "rgb(40, 40, 40)",
+            "EDGE_LINE_COLOR": "#282828",
             "EDGE_LINE_WIDTH": 2,
             "EDGE_SOURCE_ARROW_SHAPE": "none",
-            "EDGE_SOURCE_ARROW_COLOR": "rgb(40, 40, 40)",
+            "EDGE_SOURCE_ARROW_COLOR": "#282828",
             "EDGE_TARGET_ARROW_SHAPE": "none",
-            "EDGE_TARGET_ARROW_COLOR": "rgb(40, 40, 40)",
+            "EDGE_TARGET_ARROW_COLOR": "#282828",
             "EDGE_LINE_STYLE": "solid"
           }
         },

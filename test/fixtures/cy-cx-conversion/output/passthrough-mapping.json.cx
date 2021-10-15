@@ -125,7 +125,7 @@
             "NODE_BACKGROUND_COLOR": "#888888",
             "NODE_WIDTH": 30,
             "NODE_HEIGHT": 30,
-            "NODE_BORDER_COLOR": "rgb(136, 136, 136)",
+            "NODE_BORDER_COLOR": "#888888",
             "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "ellipse"
           },
