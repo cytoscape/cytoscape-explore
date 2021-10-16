@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -120,6 +121,29 @@ export class Header extends Component {
     create();
   }
 
+  exportNetworkToNDEx(){
+    const cy = this.controller.cy;
+    const id = cy.data('id');
+
+    let exportNDEx = async () => {
+      let result = await fetch('/api/document/cx-export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id})
+      });
+
+      let body = await result.json();
+      let { ndexNetworkURL } = body;
+      console.log(ndexNetworkURL, body);
+      window.open(`${ndexNetworkURL}`);
+    };
+
+    exportNDEx();
+
+  }
+
   render() {
     const { networkName, anchorEl, menuName, dialogName } = this.state;
     const cy = this.controller.cy;
@@ -134,6 +158,9 @@ export class Header extends Component {
                 { networkName || '-- untitled --'  }
               </Typography>
               <div className="grow" />
+              <Tooltip title="Export to NDEx">
+              <Button variant='outlined' onClick={() => this.exportNetworkToNDEx()}>{'Export to NDEx'}</Button>
+              </Tooltip>
               <Tooltip title="Search">
                 <IconButton edge="start" color="inherit" aria-label="search">
                   <SearchIcon />
