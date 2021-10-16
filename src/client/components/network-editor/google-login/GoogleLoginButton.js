@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import GoogleLogin from "react-google-login";
 import IconButton from "@material-ui/core/IconButton";
 import AccountCircle from "@material-ui/icons/AccountCircle";
@@ -23,5 +24,10 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {} }) => (
     </div>
   </Tooltip>
 );
+
+GoogleLoginButton.propTypes = {
+  clientId: PropTypes.string.isRequired,
+  responseHandler: PropTypes.func.isRequired,
+};
 
 export default GoogleLoginButton;

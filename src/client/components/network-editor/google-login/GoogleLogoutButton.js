@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { GoogleLogout } from "react-google-login";
 import { Button } from "@material-ui/core";
 
@@ -24,6 +25,11 @@ const GoogleLogoutButton = ({
       onFailure={responseHandler}
     ></GoogleLogout>
   );
+};
+
+GoogleLogoutButton.propTypes = {
+  clientId: PropTypes.string.isRequired,
+  responseHandler: PropTypes.func.isRequired,
 };
 
 export default GoogleLogoutButton;
