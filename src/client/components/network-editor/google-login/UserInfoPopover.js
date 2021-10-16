@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import { Popover, Grid, Avatar, Typography } from "@material-ui/core";
 import GoogleLogoutButton from "./GoogleLogoutButton";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,7 +19,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const UserInfoPopover = (props) => {
-  // eslint-disable-next-line react/prop-types
   const { userInfo, isOpen, anchorEl, onClose, clientId, responseHandler } =
     props;
 
@@ -67,12 +66,16 @@ const UserInfoPopover = (props) => {
   );
 };
 
-
 UserInfoPopover.propTypes = {
   userInfo: {
     name: PropTypes.string,
     imageUrl: PropTypes.string,
   },
+  isOpen: PropTypes.bool.isRequired,
+  anchorEl: PropTypes.any,
+  onClose: PropTypes.func,
+  clientId: PropTypes.string.isRequired,
+  responseHandler: PropTypes.func.isRequired,
 };
 
 export default UserInfoPopover;
