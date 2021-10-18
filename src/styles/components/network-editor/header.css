@@ -38,6 +38,10 @@
 
 }
 
+.header-tools > * {
+  display: inline-block !important;
+}
+
 .header-separator {
   width: 1em;
   display: inline-block;

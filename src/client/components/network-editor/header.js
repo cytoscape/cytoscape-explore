@@ -4,30 +4,24 @@ import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuIcon from '@material-ui/icons/MoreHoriz';
+import AccountIcon from '@material-ui/icons/AccountCircle';
 import DebugIcon from '@material-ui/icons/BugReport';
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import DrawEdgeIcon from '@material-ui/icons/CallMade';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import { Close } from '@material-ui/icons';
 import Popover from '@material-ui/core/Popover';
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
-import uuid from 'uuid';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
+import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -208,9 +202,10 @@ export class Header extends Component {
                 <div className="header-separator"></div>
 
                 <Tooltip arrow placement="bottom" title="Account">
-                  <IconButton size="small" edge="start" color="inherit" aria-label="account" aria-haspopup="true" onClick={e => this.handleClick(e, 'account')}>
-                    <AccountCircle />
+                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
+                    <AccountIcon />
                   </IconButton>
+                  {/* TODO fix this (broken layout and empties page) <AccountButton style="display: inline-block" /> */}
                 </Tooltip>
 
                 <div className="header-separator"></div>
