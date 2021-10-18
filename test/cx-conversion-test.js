@@ -1,45 +1,76 @@
 import { expect } from 'chai';
-// import { NDEx } from 'ndex-client';
+import { NDEx } from 'ndex-client';
 import Cytoscape from 'cytoscape';
 import fs from 'fs';
 import path from 'path';
+import PouchDB from 'pouchdb';
+import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
+PouchDB.plugin(PouchDBMemoryAdapter);
 
-// import { NDEX_API_URL } from '../src/server/env';
+
+import CytoscapeSyncher from '../src/model/cytoscape-syncher';
+
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 import { getCXType } from '../src/model/import-export/cx/cy-converter';
 
 describe('CX Conversion', () => {
+    before(() => {
+      registerCytoscapeExtensions();
+    });
+    const NDEX_TEST_API_URL = 'https://dev.ndexbio.org/v2';
+    const NDEX_TEST_USER = 'testtesttest';
+    const NDEX_TEST_PASSWORD = '123123123';
 
-    // const networkIds = [
-    //   '7fc70ab6-9fb1-11ea-aaef-0ac135e8bacf',
-    //   '748395aa-0abd-11ec-b666-0ac135e8bacf',
-    //   'd9fcbe8c-85d5-11eb-9e72-0ac135e8bacf',
-    //   '9a8f5326-aa6e-11ea-aaef-0ac135e8bacf',
-    //   '84e36f91-ecb7-11eb-b666-0ac135e8bacf',
-    //   '78db519f-eb1d-11eb-b666-0ac135e8bacf',
-    //   '3a5206c2-fd4e-11e7-adc1-0ac135e8bacf',
-    //   'ce6f751c-bbbf-11ea-aaef-0ac135e8bacf',
-    //   '7ba07ae4-a4d7-11ea-aaef-0ac135e8bacf',
-    //   'a3413631-1fc9-11ec-9fe4-0ac135e8bacf',
-    //   '01db03fd-6195-11e5-8ac5-06603eb7f303',
-    //   'b6a2b668-8b60-11eb-9e72-0ac135e8bacf',
-    //   'c3929589-ff8c-11eb-b666-0ac135e8bacf',
-    //   'e9435f90-1ec5-11ec-9fe4-0ac135e8bacf'
-    // ];
+    const networkIds = [
+      '4ae2709d-3055-11ec-94bf-525400c25d22',
+      '8baf882a-3056-11ec-94bf-525400c25d22',
+      '8b957078-3056-11ec-94bf-525400c25d22',
+      '8b51d7c5-3056-11ec-94bf-525400c25d22',
+      '8b3faf53-3056-11ec-94bf-525400c25d22',
+      'f9dce77c-3055-11ec-94bf-525400c25d22',
+      'f9ca49da-3055-11ec-94bf-525400c25d22',
+      'f9aeab88-3055-11ec-94bf-525400c25d22',
+      'f99975d6-3055-11ec-94bf-525400c25d22',
+      'f96b39e4-3055-11ec-94bf-525400c25d22',
+      'f950ad02-3055-11ec-94bf-525400c25d22',
+      'f625f9ef-3055-11ec-94bf-525400c25d22',
+    ];
 
-    // it('converts networks from cx to cy.js', async () => {
-    //   const ndex = new NDEx(NDEX_API_URL);
-    //   const rawcx2 = await ndex.getCX2Network(networkIds[0]);
+    it('converts networks from cx to cy.js', async () => {
+      const ndex = new NDEx(NDEX_TEST_API_URL);
+      const expected = [];
+      const actual = [];
 
-    //   console.log(JSON.stringify(rawcx2, null, 2));
-    // });
+      for(let i = 0; i < networkIds.length; i++){
+        const networkId = networkIds[i];
+
+        try {
+          const cx = await ndex.getCX2Network(networkId);
+          const cy = new Cytoscape();
+          cy.data({id: 'test'});
+          const cySyncher = new CytoscapeSyncher(cy, 'test');
+          cy.importCX(cx);
+
+
+          expected.push(cx);
+
+          actual.push(cy.exportCX2());
+
+          cySyncher.destroy();
+          cy.destroy();
+
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      expect(expected[0]).to.deep.equal(actual[0]);
+    }).timeout(100000);
 
     it('converts networks from CE to CX', () => {
       let inputPath = './fixtures/cy-cx-conversion/input/';
       let outputPath = './fixtures/cy-cx-conversion/output/';
       let fixtures = fs.readdirSync(path.resolve(__dirname, inputPath));
-
-      registerCytoscapeExtensions();
 
       fixtures.forEach(file => {
         let input = JSON.parse(fs.readFileSync(path.resolve(__dirname, inputPath, file)));

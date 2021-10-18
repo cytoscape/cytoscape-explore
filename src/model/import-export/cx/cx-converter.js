@@ -62,7 +62,7 @@ export const convertCX = (cx) => {
             );
             cxAttributeDeclarations.forEach((cxAttributeDeclaration) => {
                 if (cxAttributeDeclaration['networkAttributes']) {
-                    console.log('instance of networkAttributes: ', cxAttributeDeclaration['networkAttributes']);
+                    // console.log('instance of networkAttributes: ', cxAttributeDeclaration['networkAttributes'])
                     Object.assign(networkAttributes, cxAttributeDeclaration['networkAttributes']);
                 }
             });

@@ -87,7 +87,7 @@ const convertStyle = (visualPropertyKey, cxValue) => {
   if (STYLE_CONVERTING_TABLE[visualPropertyKey]) {
     return STYLE_CONVERTING_TABLE[visualPropertyKey].mapper.valueCvtr(cxValue);
   } else {
-    console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to styleFactory function.`);
+    // console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to styleFactory function.`);
   }
 };
 
@@ -100,7 +100,7 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
     const vizmapperPropertyValue = convertStyle(visualPropertyKey, visualPropertyValue);
 
     if (!vizmapperPropertyKey) {
-      console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`);
+      // console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`);
     } else {
       if (visualPropertyKey.startsWith('NODE_')) {
         vizmapper.node(vizmapperPropertyKey, vizmapperPropertyValue);
@@ -167,7 +167,7 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
                     vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName,
                         STYLE_CONVERTING_TABLE[vpName].mapper.passthroughMappingFactory(attr));
                 } else {
-                    console.warn(`PassthroughMapping is not supported on  ${vpName}.`);
+                    // console.warn(`PassthroughMapping is not supported on  ${vpName}.`);
                 }
             }
         }
@@ -198,8 +198,8 @@ const applyBypasses = ( selector, cy, bypasses ) => {
 
 /**
  * Import CX into a Cytoscape instance
- * @param {Cytoscape.Core} cy 
- * @param {*} cx 
+ * @param {Cytoscape.Core} cy
+ * @param {*} cx
  */
 export const importCX = (cy, cx) => {
 
@@ -244,7 +244,7 @@ export const importCX = (cy, cx) => {
 
 /**
  * Export a Cytoscape instance to CX format
- * @param {Cytoscape.Core} cy 
+ * @param {Cytoscape.Core} cy
  */
 export const exportCX = (cy) => {
   const cx = convertCY(cy);
