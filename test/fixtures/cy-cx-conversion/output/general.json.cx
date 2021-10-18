@@ -32,6 +32,10 @@
       {
         "elementCount": 2,
         "name": "edgeBypasses"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualEditorProperties"
       }
     ]
   },
@@ -306,6 +310,15 @@
           "EDGE_LINE_COLOR": "#6666CC",
           "EDGE_SOURCE_ARROW_COLOR": "#6666CC",
           "EDGE_TARGET_ARROW_COLOR": "#6666CC"
+        }
+      }
+    ]
+  },
+  {
+    "visualEditorProperties": [
+      {
+        "properties": {
+          "nodeSizeLocked": false
         }
       }
     ]

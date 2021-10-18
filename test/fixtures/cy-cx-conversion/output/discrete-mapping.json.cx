@@ -32,6 +32,10 @@
       {
         "elementCount": 0,
         "name": "edgeBypasses"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualEditorProperties"
       }
     ]
   },
@@ -192,6 +196,15 @@
   },
   {
     "edgeBypasses": []
+  },
+  {
+    "visualEditorProperties": [
+      {
+        "properties": {
+          "nodeSizeLocked": false
+        }
+      }
+    ]
   },
   {
     "status": [

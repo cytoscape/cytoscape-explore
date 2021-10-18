@@ -329,6 +329,16 @@
      }
    });
 
+   const visualEditorPropertiesAspect = {
+     visualEditorProperties: [
+       {
+         properties: {
+           nodeSizeLocked: false
+         }
+       }
+     ]
+   };
+
    const statusAspect = {
      status: [{
        error: '',
@@ -364,6 +374,10 @@
        {
          elementCount: edgeBypassesAspect.edgeBypasses.length,
          name: 'edgeBypasses'
+       },
+       {
+         elementCount: visualEditorPropertiesAspect.visualEditorProperties.length,
+         name: 'visualEditorProperties'
        }
      ]
    };
@@ -378,6 +392,7 @@
      visualPropertiesAspect,
      nodeBypassesAspect,
      edgeBypassesAspect,
+     visualEditorPropertiesAspect,
      statusAspect,
    ];
 
