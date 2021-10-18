@@ -6,7 +6,7 @@ import fcose from 'cytoscape-fcose';
 import cola from 'cytoscape-cola';
 import { isObject } from 'lodash';
 
-import { exportCX } from './import-export/cx';
+import { exportCX, importCX } from './import-export/cx';
 import { importJSON, exportJSON } from './import-export/json';
 
 const registerCX2Exporter = Cytoscape => {
@@ -16,6 +16,14 @@ const registerCX2Exporter = Cytoscape => {
   }
 
   Cytoscape('core', 'exportCX2', exportCX2);
+};
+
+const registerCXImporter = Cytoscape => {
+  function _importCX(cx){
+    return importCX(this, cx);
+  }
+
+  Cytoscape('core', 'importCX', _importCX);
 };
 
 const registerImportJSON = Cytoscape => {
@@ -85,6 +93,7 @@ export const registerCytoscapeExtensions = () => {
 
   // import export
   Cytoscape.use(registerCX2Exporter);
+  Cytoscape.use(registerCXImporter);
   Cytoscape.use(registerExportJSON);
   Cytoscape.use(registerImportJSON);
 
