@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { NDEx } from 'ndex-client';
+// import { NDEx } from 'ndex-client';
 import Cytoscape from 'cytoscape';
 import fs from 'fs';
 import path from 'path';
@@ -8,7 +8,7 @@ import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 PouchDB.plugin(PouchDBMemoryAdapter);
 
 
-import CytoscapeSyncher from '../src/model/cytoscape-syncher';
+// import CytoscapeSyncher from '../src/model/cytoscape-syncher';
 
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 import { getCXType } from '../src/model/import-export/cx/cy-converter';
@@ -17,55 +17,57 @@ describe('CX Conversion', () => {
     before(() => {
       registerCytoscapeExtensions();
     });
-    const NDEX_TEST_API_URL = 'https://dev.ndexbio.org/v2';
-    const NDEX_TEST_USER = 'testtesttest';
-    const NDEX_TEST_PASSWORD = '123123123';
+    // const NDEX_TEST_API_URL = 'https://dev.ndexbio.org/v2';
+    // const NDEX_TEST_USER = 'testtesttest';
+    // const NDEX_TEST_PASSWORD = '123123123';
 
-    const networkIds = [
-      '4ae2709d-3055-11ec-94bf-525400c25d22',
-      '8baf882a-3056-11ec-94bf-525400c25d22',
-      '8b957078-3056-11ec-94bf-525400c25d22',
-      '8b51d7c5-3056-11ec-94bf-525400c25d22',
-      '8b3faf53-3056-11ec-94bf-525400c25d22',
-      'f9dce77c-3055-11ec-94bf-525400c25d22',
-      'f9ca49da-3055-11ec-94bf-525400c25d22',
-      'f9aeab88-3055-11ec-94bf-525400c25d22',
-      'f99975d6-3055-11ec-94bf-525400c25d22',
-      'f96b39e4-3055-11ec-94bf-525400c25d22',
-      'f950ad02-3055-11ec-94bf-525400c25d22',
-      'f625f9ef-3055-11ec-94bf-525400c25d22',
-    ];
+    // const networkIds = [
+    //   '4ae2709d-3055-11ec-94bf-525400c25d22',
+    //   '8baf882a-3056-11ec-94bf-525400c25d22',
+    //   '8b957078-3056-11ec-94bf-525400c25d22',
+    //   '8b51d7c5-3056-11ec-94bf-525400c25d22',
+    //   '8b3faf53-3056-11ec-94bf-525400c25d22',
+    //   'f9dce77c-3055-11ec-94bf-525400c25d22',
+    //   'f9ca49da-3055-11ec-94bf-525400c25d22',
+    //   'f9aeab88-3055-11ec-94bf-525400c25d22',
+    //   'f99975d6-3055-11ec-94bf-525400c25d22',
+    //   'f96b39e4-3055-11ec-94bf-525400c25d22',
+    //   'f950ad02-3055-11ec-94bf-525400c25d22',
+    //   'f625f9ef-3055-11ec-94bf-525400c25d22',
+    // ];
 
-    it('converts networks from cx to cy.js', async () => {
-      const ndex = new NDEx(NDEX_TEST_API_URL);
-      const expected = [];
-      const actual = [];
+    // basic test to import a network to CE from CX, and then
+    // export it again as CX2.
+    // it('converts networks from cx to cy.js', async () => {
+    //   const ndex = new NDEx(NDEX_TEST_API_URL);
+    //   const expected = [];
+    //   const actual = [];
 
-      for(let i = 0; i < networkIds.length; i++){
-        const networkId = networkIds[i];
+    //   for(let i = 0; i < networkIds.length; i++){
+    //     const networkId = networkIds[i];
 
-        try {
-          const cx = await ndex.getCX2Network(networkId);
-          const cy = new Cytoscape();
-          cy.data({id: 'test'});
-          const cySyncher = new CytoscapeSyncher(cy, 'test');
-          cy.importCX(cx);
+    //     try {
+    //       const cx = await ndex.getCX2Network(networkId);
+    //       const cy = new Cytoscape();
+    //       cy.data({id: 'test'});
+    //       const cySyncher = new CytoscapeSyncher(cy, 'test');
+    //       cy.importCX(cx);
 
 
-          expected.push(cx);
+    //       expected.push(cx);
 
-          actual.push(cy.exportCX2());
+    //       actual.push(cy.exportCX2());
 
-          cySyncher.destroy();
-          cy.destroy();
+    //       cySyncher.destroy();
+    //       cy.destroy();
 
-        } catch (err) {
-          console.log(err);
-        }
-      }
+    //     } catch (err) {
+    //       console.log(err);
+    //     }
+    //   }
 
-      expect(expected[0]).to.deep.equal(actual[0]);
-    }).timeout(100000);
+    //   expect(expected[0]).to.deep.equal(actual[0]);
+    // }).timeout(100000);
 
     it('converts networks from CE to CX', () => {
       let inputPath = './fixtures/cy-cx-conversion/input/';
