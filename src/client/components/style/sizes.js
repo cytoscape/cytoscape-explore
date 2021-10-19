@@ -3,6 +3,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Slider } from '@material-ui/core';
+import { FormControl, Select } from "@material-ui/core";
 
 export function SizeSlider(props) {
   const debouncedOnChange = _.throttle(value => props.onSelect(value), 150, { leading: true });
@@ -119,4 +120,36 @@ SizeGradients.defaultProps = {
   max: 40,
   steps: 5,
   variant: 'solid',
+};
+
+
+const aspects = [
+  { label:'1:1',  multiplier: 1 },
+  { label:'4:3',  multiplier: 1/(4/3) },
+  { label:'3:2',  multiplier: 1/(3/2) },
+  { label:'16:9', multiplier: 1/(16/9) }
+];
+
+export function AspectRatioPicker(props) {
+  // square, 16:9, 4:3, 3:2
+  return (
+    <FormControl style={{ width: '100%' }} size="small" variant="outlined">
+      <Select
+        native
+        labelId="aspect-select-label"
+        onChange={event => props.onChange(event.target.value)}
+        value={props.multiplier}
+      >
+        { aspects.map((aspect, index) => 
+          <option key={index} aria-label={aspect.label} value={aspect.multiplier}>{aspect.label}</option>
+        )}
+      </Select>
+    </FormControl>
+  );
+}
+AspectRatioPicker.propTypes = {
+  multiplier: PropTypes.any,
+  onChange: PropTypes.func,
+};
+AspectRatioPicker.defaultProps = {
 };

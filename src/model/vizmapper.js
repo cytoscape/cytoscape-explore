@@ -243,6 +243,18 @@ export class VizMapper {
     }
   }
 
+
+  _getStyleStruct(data, ele, property) {
+    const selector = ele.isNode() ? 'node' : 'edge';
+    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+    const id = ele.id();
+    const style = _.get(data, ['_styles', selector, property]);
+    const bypass = _.get(data, ['_bypasses', id, property]);
+    const def = _.get(DEF_STYLE, [property]);
+    const styleStruct = bypass || style || def;
+    return styleStruct;
+  }
+
   /**
    * Get the computed style of an element in the Cytoscape stylesheet format
    * @param {Cytoscape.Collection} ele The element to calculate style for
@@ -251,21 +263,23 @@ export class VizMapper {
    */
   calculate(ele, property){
     const data = this.cy.data();
-    const selector = ele.isNode() ? 'node' : 'edge';
-    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
-    const id = ele.id();
-    const style = _.get(data, ['_styles', selector, property]);
-    const bypass = _.get(data, ['_bypasses', id, property]);
-    const def = _.get(DEF_STYLE, [property]);
-    const styleStruct = bypass || style || def;
+    const styleStruct = this._getStyleStruct(data, ele, property);
 
     log(`Getting style for ${ele.id()} and ${property} with struct`, styleStruct);
 
-    let flatVal = getFlatStyleForEle(ele, styleStruct);
+    let flatVal;
+    if(styleStruct.mapping === MAPPING.DEPENDANT) {
+      const sourceStyleStruct = this._getStyleStruct(data, ele, styleStruct.value.property);
+      flatVal = getFlatStyleForEle(ele, styleStruct, sourceStyleStruct);
+    } else {
+      flatVal = getFlatStyleForEle(ele, styleStruct);
+    }
 
     // TODO This is temporary, need better support for default styles 
     // if a data value falls outside the range of a mapping.
     if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal)) {
+      const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+      const def = _.get(DEF_STYLE, [property]);
       if(def.mapping === MAPPING.VALUE) {
         flatVal = def.stringValue;
       } else if(def.mapping === MAPPING.PASSTHROUGH && STYLE_TYPE.STRING) {

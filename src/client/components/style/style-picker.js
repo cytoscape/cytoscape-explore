@@ -9,7 +9,7 @@ import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
 import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
-import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
+import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../style/sizes';
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
 
 
@@ -662,6 +662,133 @@ SizeStylePicker.propTypes = {
   styleProps: PropTypes.array,
   variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
 };
+
+
+export class NodeSizeStylePicker extends React.Component {
+  constructor(props) {
+    super(props);
+    // TODO need to initialize with the current style
+    // TODO need to support bypassing
+    // controller.getStyle(selector, 'width')
+    const heightStyle = props.controller.getStyle('node', 'height');
+    if(heightStyle.mapping !== MAPPING.DEPENDANT) {
+      this.state = {
+        error: true,
+      };
+    } else {
+      this.state = {
+        multiplier: heightStyle.value.multiplier
+      };
+    }
+    this.handleMultiplier = this.handleMultiplier.bind(this);
+  }
+
+  handleMultiplier(multiplier) {
+    const { controller } = this.props;
+    controller.setNumberDependantMapping('node', 'height', 'width', multiplier);
+    this.setState({ multiplier });
+    console.log("handleMultiplier: " + multiplier);
+  }
+
+  render() {
+    if(this.state.error) {
+      return <div>Error</div>;  // TODO, how to handle the case that there are separate mappings????
+    }
+    const { controller } = this.props;
+    const [min, max] =  [10, 50];
+    const selector = 'node';
+    return <StylePicker
+      valueLabel="Single Size"
+      mappingLabel="Size Mapping"
+      discreteLabel="Sized per Data Value"
+      controller={this.props.controller}
+      selector={selector}
+      renderValue={(size, onSelect) =>
+        <div>
+          <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} />
+          <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} />
+        </div>
+      }
+      renderMapping={(minMax, setSize) =>
+        <div>
+          <StylePopoverButton 
+            styleVal={minMax}
+            handleChange={setSize}
+            renderButton={(sizeRange) => 
+              <SizeGradient variant='solid' selected={sizeRange} reversed={minMax && (minMax[0] > minMax[1])} /> 
+            }
+            renderPopover={(gradient, onSelect) =>
+              <SizeGradients variant='solid' min={min} max={max} selected={gradient} onSelect={onSelect} />
+            }
+          />
+          <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} />
+        </div>
+      }
+      renderDiscrete={(minMax, setSize) => 
+        <div>
+          <StylePopoverButton 
+            styleVal={minMax}
+            handleChange={setSize}
+            renderButton={size => 
+              <Button variant='outlined'>{size}</Button>
+            }
+            renderPopover={(size, onSelect) => 
+              <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
+            }
+          />
+          {/* <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} /> */}
+        </div>
+      }
+      getStyle={() => 
+        controller.getStyle(selector, 'width')
+      }
+      getBypassStyle={() =>
+        controller.getBypassStyle(selector, 'width')
+      }
+      getDiscreteDefault={() =>
+        controller.getDiscreteDefault(selector, 'width')
+      }
+      onValueSet={size =>
+        controller.setNumber(selector, 'width', size)
+      }
+      onMappingSet={(attribute, sizeRange) =>
+        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange)
+      }
+      onDiscreteSet={(attribute, valueMap) =>
+        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap)
+      }
+    />;
+  }
+}
+NodeSizeStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+};
+
+
+// export function AspectStylePicker({ controller, selector, styleProp }) {
+//   return <StylePicker 
+//     controller={controller}
+//     selector={selector}
+//     renderValue={(multiplier, onChange) =>
+//       <AspectRatioPicker multiplier={multiplier} onChange={onChange} />
+//     }
+//     getStyle={() => 
+//       controller.getStyle(selector, styleProp)
+//     }
+//     getBypassStyle={() =>
+//       controller.getBypassStyle(selector, styleProp)
+//     }
+//     onValueSet={multipler => 
+//       // controller.setString(selector, styleProp, text)
+//       console.log("set the height multiplier: " + multipler)
+//     }
+//   />;
+// }
+// AspectStylePicker.propTypes = {
+//   controller: PropTypes.instanceOf(NetworkEditorController),
+//   selector: PropTypes.oneOf(['node', 'edge']),
+//   styleProp: PropTypes.string
+// };
 
 
 export function TextStylePicker({ controller, selector, styleProp }) {

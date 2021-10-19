@@ -471,6 +471,21 @@ export class NetworkEditorController {
     this.bus.emit('setNumberDiscreteMapping', selector, property, attribute, valueMap);
   }
 
+
+  /**
+   * Set the numeric value of all elements to a discrete mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
+   * @param {String} dependantProperty a style property that the property is depedant on.
+   * @param {Number} multiplier multiplier to be use in the mapping.
+   */
+   setNumberDependantMapping(selector, property, dependantProperty, multiplier) {
+    const style = styleFactory.dependantNumber(dependantProperty, multiplier);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setNumberDependantMapping', selector, property, dependantProperty, multiplier);
+  }
+
+
   /**
    * Set a string propetry of all elements to single value.
    * @param {String} selector 'node' or 'edge'
