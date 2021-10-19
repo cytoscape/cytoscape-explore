@@ -23,6 +23,7 @@ import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
+import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -166,11 +167,9 @@ export class Header extends Component {
                   <SearchIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Account">
-              <IconButton edge="start" color="inherit" aria-label="account" aria-haspopup="true" onClick={e => this.handleClick(e, 'account')}>
-                <AccountCircle />
-              </IconButton>
-              </Tooltip>
+
+              <AccountButton />
+
               <Tooltip title="More">
                 <IconButton edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
                   <MenuIcon />
@@ -195,8 +194,6 @@ export class Header extends Component {
                     <MenuItem disabled={cy.nodes().length === 0} onClick={() => this.showDialog('layout', 'main')}>Layout</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
-                    <Divider />
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                   </MenuList>
                 )}
