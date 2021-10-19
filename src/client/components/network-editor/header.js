@@ -27,7 +27,7 @@ import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog'
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
-// import AccountButton from './google-login/AccountButton';
+ import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -227,14 +227,7 @@ export class Header extends Component {
                   </IconButton>
                 </Tooltip>
 
-                <div className="header-separator"></div>
-
-                <Tooltip arrow placement="bottom" title="Account">
-                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
-                    <AccountIcon />
-                  </IconButton>
-                  {/* TODO fix this (broken layout and empties page) <AccountButton style="display: inline-block" /> */}
-                </Tooltip>
+              <AccountButton />
 
                 <div className="header-separator"></div>
 
@@ -263,6 +256,7 @@ export class Header extends Component {
                   <MenuList>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
