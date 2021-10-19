@@ -27,7 +27,6 @@ import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog'
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
-// import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -263,6 +262,8 @@ export class Header extends Component {
                   <MenuList>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
