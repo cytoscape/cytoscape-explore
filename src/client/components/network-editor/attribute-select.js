@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, InputLabel, Select } from "@material-ui/core";
+import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from './controller';
 
 export class AttributeSelect extends React.Component {
@@ -12,18 +12,17 @@ export class AttributeSelect extends React.Component {
   render() {
     const attributes = this.props.controller.networkAnalyser.getAttributes(this.props.selector);
     return (
-      <FormControl style={{minWidth: 150}} variant="outlined">
-        <InputLabel id="attribute-select-label">{this.props.label}</InputLabel>
+      <FormControl style={{ width: '100%' }} size="small" variant="outlined">
         <Select
           native
           labelId="attribute-select-label"
           value={this.props.selectedAttribute || ''}
           onChange={event => this.props.onChange(event.target.value)}
         >
-        <option key='' aria-label='None' value='' />
-        {attributes.map(a => 
-          <option key={a} value={a}>{a}</option>
-        )}
+          <option key='' aria-label='None' value='--none--' />
+          {attributes.map(a => 
+            <option key={a} value={a}>{a}</option>
+          )}
         </Select>
       </FormControl>
     );

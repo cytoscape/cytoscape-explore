@@ -2,9 +2,17 @@
 @import "./tool-panel.css";
 @import "./style-panel.css";
 @import "./header.css";
+@import "./layout-panel.css";
 
 .network-editor {
   display: flex;
   flex-flow: column;
+  height: 100%;
+  width: 100%;
+}
+
+.network-editor-content {
+  display: flex;
+  flex-direction: row;
   height: 100%;
 }

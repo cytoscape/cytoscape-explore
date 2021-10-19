@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, IconButton } from '@material-ui/core';
 import { NetworkEditorController } from '../network-editor/controller';
+import UndoIcon from '@material-ui/icons/Undo';
+import RedoIcon from '@material-ui/icons/Redo';
 
 export class UndoButton extends Component  {
 
@@ -37,19 +39,18 @@ export class UndoButton extends Component  {
     return(
       <Tooltip 
         arrow 
-        placement="right" 
+        placement="bottom" 
         title={this.getButtonTooltip()}
       >
-        <span>
-          <IconButton 
-            size="small" 
+        <IconButton 
+            size="small"
+            edge="start"
             color="inherit" 
             disabled={this.state.disabled}
             onClick={() => this.run()}
           >
-            <i className="material-icons">{this.props.icon}</i>
-          </IconButton>
-        </span>
+            { this.props.type === 'undo' ? <UndoIcon /> : <RedoIcon /> }
+        </IconButton>
       </Tooltip>
     );
   }

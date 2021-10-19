@@ -63,8 +63,7 @@ export class NetworkEditor extends Component {
         selector: 'node',
         style: {
           'text-wrap': 'wrap',
-          'text-max-width': 60,
-          'font-size': 8
+          'text-max-width': 60
         }
       },
       {
@@ -185,12 +184,13 @@ export class NetworkEditor extends Component {
         <CssBaseline />
         <div className="network-editor">
           <Header controller={controller} />
-          <div className="cy">
-            <div id="cy" />
-            <NetworkBackground controller={controller} />
+          <div className="network-editor-content">
+            <div className="cy">
+              <div id="cy" />
+              <NetworkBackground controller={controller} />
+            </div>
+            <ToolPanel controller={controller} />
           </div>
-          <ToolPanel controller={controller} />
-          <StylePanel controller={controller} />
         </div>
       </ThemeProvider>
     );

@@ -32,8 +32,8 @@ SizeSlider.propTypes = {
 };
 
 
-export function SizeGradients(props) {
-  const { min, max, steps } = props;
+export function SizeGradient(props) {
+  const { min, max, steps, reversed, variant } = props;
 
   const sizeSteps = (stepMin, stepMax) => {
     const step = (stepMax - stepMin) / (steps - 1);
@@ -44,65 +44,75 @@ export function SizeGradients(props) {
     return sizes;
   };
 
-  let circles, reversed;
+  let elements;
 
-  if(props.variant === 'border') {
-    const sizes = sizeSteps(2, 10);
-    circles = sizes.map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-${size}`}/>
+  if(variant === 'border') {
+    elements = sizeSteps(2, 10).map(size => (
+      <div className="size-swatch-border" style={{ 'border-width':size }} key={size} />
     ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={`size-swatch-r-${size}`}/>
+  } else if(variant === 'line') {
+    elements = sizeSteps(2, 10).map(size => (
+      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={size} />
     ));
-  } else if(props.variant === 'line') {
-    const sizes = sizeSteps(2, 10);
-    circles = sizes.map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-${size}`}/>
+  } else if(variant === 'solid') {
+    elements = sizeSteps(20, 40).map(size => (
+      <div className="size-swatch-solid" style={{ width:size, height:size }} key={size} />
     ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={`size-swatch-r-${size}`}/>
-    ));
-  } else { // 'solid'
-    const sizes = sizeSteps(20, 40);
-    circles = sizes.map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-${size}`}/>
-    ));
-    reversed = sizes.reverse().map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={`size-swatch-r-${size}`}/>
-    ));
+  } else if(variant === 'text') {
+    elements = [
+      <div key={1} style={{padding:'5px', fontSize:'x-small'}}>T</div>,
+      <div key={2} style={{padding:'5px', fontSize:'small'}}>T</div>,
+      <div key={3} style={{padding:'5px', fontSize:'medium'}}>T</div>,
+      <div key={4} style={{padding:'5px', fontSize:'large'}}>T</div>,
+      <div key={5} style={{padding:'5px', fontSize:'x-large'}}>T</div>,
+    ];
   }
 
   return (
     <div>
       <div className={classNames({ 
           'size-swatches': true, 
-          'size-swatches-selected': _.isMatch(props.selected, [min, max])
+          'size-swatches-selected': _.isMatch(props.selected, reversed ? [max,min] : [min,max])
         })}
-        onClick = {() => props.onSelect([min, max])}
+        onClick = {() => props.onSelect(reversed ? [max,min] : [min,max])}
         >
-        {circles}
-      </div>
-      <div className={classNames({ 
-          'size-swatches': true, 
-          'size-swatches-selected': _.isMatch(props.selected, [max, min])
-        })}
-        onClick = {() => props.onSelect([max, min])}
-        >
-        {reversed}
+        { reversed ? elements.reverse() : elements }
       </div>
     </div>
   );
 }
+SizeGradient.propTypes = {
+  reversed: PropTypes.bool,
+  onSelect: PropTypes.func,
+  selected: PropTypes.any,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  steps: PropTypes.number,
+  variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
+};
+SizeGradient.defaultProps = {
+  onSelect: () => null,
+  min: 20,
+  max: 40,
+  steps: 5,
+  variant: 'solid',
+};
 
+
+export function SizeGradients(props) {
+  return <div>
+    <SizeGradient {...props} />
+    <SizeGradient reversed={true} {...props} />
+  </div>;
+}
 SizeGradients.propTypes = {
   onSelect: PropTypes.func,
   selected: PropTypes.any,
   min: PropTypes.number,
   max: PropTypes.number,
   steps: PropTypes.number,
-  variant: PropTypes.oneOf(['solid', 'border', 'line']),
+  variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
 };
-
 SizeGradients.defaultProps = {
   onSelect: () => null,
   min: 20,
