@@ -2,20 +2,25 @@ import React, { Component } from 'react';
 import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
-import { UndoButton } from '../undo/undo-button';
 import Tooltip from '@material-ui/core/Tooltip';
-import { IconButton, Divider } from '@material-ui/core';
+import { IconButton, Divider, Box } from '@material-ui/core';
+import { StyleSection, StylePanel } from '../style/style-picker'; 
+import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker, NodeLabelPositionStylePicker } from '../style/style-picker';
+import { LayoutPanel } from '../layout/layout-panel';
+
+
 
 export class ToolPanel extends Component {
   constructor(props){
     super(props);
-
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
+    this.state = {
+      toolRender: () => <div></div>
+    };
   }
 
   componentDidMount(){
     const dirty = () => this.setState({ dirty: Date.now() });
-
     this.busProxy.on('toggleDrawMode', dirty);
   }
 
@@ -25,50 +30,209 @@ export class ToolPanel extends Component {
 
   render(){
     const { controller } = this.props;
+    const { toolRender, tool } = this.state;
 
-    return (
-      <div className="tool-panel">
-        <Tooltip arrow placement="right" title="Add node">
-          <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
-            <i className="material-icons">add_circle</i>
+    const ToolButton = ({ icon, title, tool, onClick = (() => {}), render = (() => <div></div>) }) => {
+        const color = this.state.tool === tool ? 'primary' : 'inherit';
+        const buttonOnClick = () => { onClick(); this.setState({ tool, toolRender: render }); };
+        
+        return <Tooltip arrow placement="left" title={title}>
+          <IconButton size="small" color={color} onClick={buttonOnClick}>
+            <i className="material-icons">{icon}</i>
           </IconButton>
-        </Tooltip>
-        <Tooltip arrow placement="right" title="Draw edge">
-          {/* <button 
-            onClick={() => controller.toggleDrawMode()}
-            className={classNames({
-              'tool-panel-button': true,
-              'plain-button': true,
-              'button-toggle': true,
-              'button-toggle-on': controller.drawModeEnabled
-            })}>
-            <i className="material-icons icon-rot-330">arrow_forward</i>
-          </button> */}
-          <IconButton size="small" 
-            onClick={() => controller.toggleDrawMode()}
-            color="inherit" style={{
-              backgroundColor: controller.drawModeEnabled ? '#bbb' : 'transparent',
-              // 'color': controller.drawModeEnabled ? '#fff' : 'inherit'
-            }}
-          >
-            <i className="material-icons icon-rot-330">call_made</i>
-          </IconButton>
-        </Tooltip>
-        <Tooltip arrow placement="right" title="Delete selected">
-          <IconButton size="small" color="inherit" onClick={() => controller.deletedSelectedElements()}>
-            <i className="material-icons">delete_forever</i>
-          </IconButton>
-        </Tooltip>
-        <Divider style={{height: '1px', marginTop: '0.25em', marginBottom: '0.25em'}} flexItem />
-        <Tooltip arrow placement="right" title="Fit Network">
-          <IconButton size="small" color="inherit" onClick={() => controller.cy.fit()}>
-            <i className="material-icons">fit_screen</i>
-          </IconButton>
-        </Tooltip>
-        <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
-        <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
-      </div>
-    );
+        </Tooltip>;
+    };
+
+
+    return (<div className={"tool-panel " + (tool ? "tool-panel-has-tool" : "tool-panel-no-tool")}>
+      <Box className="tool-panel-content" bgcolor="background.paper">
+        { toolRender() }
+      </Box>
+
+      <Box className="tool-panel-buttons" bgcolor="background.paper" color="secondary.main">
+
+        <ToolButton 
+          title="Layout" 
+          tool="layout" 
+          icon="share" // bubble_chart"  "scatter_plot"  "grain"
+          render={() => <LayoutPanel controller={controller} />}>
+        </ToolButton>
+        
+        <Divider />
+
+        <ToolButton 
+          title="Node Body" 
+          icon="lens"
+          tool="node_body"
+          render={() => 
+            <StylePanel 
+              title="Node Body"
+              selector="node"
+              controller={controller}>
+              <StyleSection title="Color">
+                <ColorStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['background-color']}
+                />
+              </StyleSection>
+              <StyleSection title="Shape">
+                <ShapeStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProp='shape'
+                  variant='node'
+                />
+              </StyleSection>
+              <StyleSection title="Size">
+                <SizeStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['width', 'height']}
+                  variant='solid'
+                />
+              </StyleSection>
+            </StylePanel>
+          }
+        />
+
+        <ToolButton 
+          title="Node Border" 
+          icon="trip_origin"
+          tool="node_border"
+          render={() => 
+            <StylePanel 
+              title="Node Border"
+              selector="node"
+              controller={controller}>
+              <StyleSection title="Color">
+                <ColorStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['border-color']}
+                />
+              </StyleSection>
+              <StyleSection title="Width">
+                <SizeStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['border-width']}
+                  variant='border'
+                />
+              </StyleSection>
+            </StylePanel>
+          }
+        />
+
+        <ToolButton 
+          title="Node Label" 
+          icon="do_not_disturb_on"
+          tool="node_label"
+          render={() => 
+            <StylePanel 
+              title="Node Label"
+              selector="node"
+              controller={controller}>
+              <StyleSection title="Text">
+                <TextStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProp='label'
+                />
+              </StyleSection>
+              <StyleSection title="Color">
+                <ColorStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['color']}
+                />
+              </StyleSection>
+              <StyleSection title="Size">
+                <SizeStylePicker
+                  controller={controller}
+                  selector='node'
+                  styleProps={['font-size']}
+                  variant='text'
+                />
+              </StyleSection>
+              <StyleSection title="Position">
+                <NodeLabelPositionStylePicker
+                  controller={controller}
+                />
+              </StyleSection>
+            </StylePanel>
+          }
+        />
+
+        <Divider />
+
+        <ToolButton 
+          title="Edge" 
+          icon="remove"
+          tool="edge"
+          render={() => 
+            <StylePanel 
+              title="Edge"
+              selector="edge"
+              controller={controller}>
+              <StyleSection title="Color">
+                <ColorStylePicker
+                  controller={controller}
+                  selector='edge'
+                  styleProps={['line-color', 'source-arrow-color', 'target-arrow-color']}
+                />
+              </StyleSection>
+              <StyleSection title="Width">
+                <SizeStylePicker
+                  controller={controller}
+                  selector='edge'
+                  styleProps={['width']}
+                  variant='line'
+                />
+              </StyleSection>
+              <StyleSection title="Line Style">
+                <ShapeStylePicker
+                  controller={controller}
+                  selector='edge'
+                  styleProp='line-style'
+                  variant='line'
+                />
+              </StyleSection>
+            </StylePanel>
+          }
+        />
+
+        <ToolButton 
+          title="Edge Arrows" 
+          icon="arrow_back"
+          tool="edge_arrows"
+          render={() =>
+            <StylePanel 
+              title="Edge Arrows"
+              selector="edge"
+              controller={controller}>
+              <StyleSection title="Source Arrow">
+                <ShapeStylePicker
+                  controller={controller}
+                  selector='edge'
+                  styleProp='source-arrow-shape'
+                  variant='arrow'
+                />
+              </StyleSection>
+              <StyleSection title="Target Arrow">
+                <ShapeStylePicker
+                  controller={controller}
+                  selector='edge'
+                  styleProp='target-arrow-shape'
+                  variant='arrow'
+                />
+              </StyleSection>
+            </StylePanel>
+          }
+        />
+
+      </Box>
+    </div>);
   }
 }
 

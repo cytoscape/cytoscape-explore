@@ -10,9 +10,10 @@ import { DashedLineIcon, DottedLineIcon, SolidLineIcon } from '../svg-icons';
 
 const nodeIconProps = {
   viewBox: '0 0 32 32',
-  style: { width: 'auto', fontSize: 24, margin: 0 },
+  style: { fontSize: 24, margin: 0, color: 'grey' },  // TODO why does the color have to be set here??? Doesn't seem right.
   p: 0,
   m: 0,
+  
 };
 
 /*
@@ -50,13 +51,15 @@ const allShapes = {
 export function ShapeIcon({ type, shape, onClick }) {
   const shapes = allShapes[type];
   const shapeObj = shapes.filter(obj => obj.name === shape)[0];
-
   return (
-    <Tooltip title={shapeObj.label}>
-      <IconButton size="small" color="inherit" onClick={() => onClick(shapeObj.name)}>
-        {shapeObj.icon}
+    <div>
+      <IconButton 
+        size="small" 
+        color="primary" 
+        onClick={() => onClick(shapeObj.name)}>
+        {shapeObj ? shapeObj.icon : "none"}
       </IconButton>
-    </Tooltip>
+    </div>
   );
 }
 
@@ -68,11 +71,13 @@ ShapeIcon.propTypes = {
     'none', 'triangle', 'circle', 'square', 'diamond', 'tee', 'triangle-cross',
   ]),
   onClick: PropTypes.func,
+  selected: PropTypes.bool,
 };
 ShapeIcon.defaultProps = {
   type: 'node',
   shape: 'ellipse',
-  onClick: () => null
+  onClick: () => null,
+  selected: false
 };
 
 const StyledToggleButtonGroup = withStyles((theme) => ({
@@ -91,6 +96,7 @@ const StyledToggleButtonGroup = withStyles((theme) => ({
 
 export function ShapeIconGroup({ type, selected, onSelect }) {
   const shapes = allShapes[type];
+  console.log("selected shape: " + selected);
 
   return (
     <StyledToggleButtonGroup

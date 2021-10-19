@@ -4,26 +4,30 @@ import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuIcon from '@material-ui/icons/Menu';
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import { Close } from '@material-ui/icons';
+// import AccountCircle from '@material-ui/icons/AccountCircle';
+// import MenuIcon from '@material-ui/icons/Menu';
+// import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+// import { Close } from '@material-ui/icons';
+import AccountIcon from '@material-ui/icons/AccountCircle';
+import DebugIcon from '@material-ui/icons/BugReport';
+import FitScreenIcon from '@material-ui/icons/Fullscreen';
+import AddNodeIcon from '@material-ui/icons/AddCircle';
+import DeleteIcon from '@material-ui/icons/DeleteForever';
+import DrawEdgeIcon from '@material-ui/icons/CallMade';
 import Popover from '@material-ui/core/Popover';
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import LayoutPanel from '../layout/layout-panel';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
-import AccountButton from './google-login/AccountButton';
+import { UndoButton } from '../undo/undo-button';
+// import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -89,7 +93,9 @@ export class Header extends Component {
 
   componentDidMount() {
     const onSetNetwork = (cy) => this.setState({ networkName: cy.data('name') });
+    const dirty = () => this.setState({ dirty: Date.now() });
 
+    this.busProxy.on('toggleDrawMode', dirty);
     this.busProxy.on('setNetwork', onSetNetwork);
   }
 
@@ -142,40 +148,104 @@ export class Header extends Component {
     };
 
     exportNDEx();
+  }
 
+
+  async loadGAL() {
+    const { cy } = this.controller;
+
+    const res = await fetch('/sample-data/gal.json');
+    const netJson = await res.json();
+
+    cy.elements().remove();
+
+    cy.add(netJson);
+
+    cy.layout({ name: 'grid' }).run();
   }
 
   render() {
     const { networkName, anchorEl, menuName, dialogName } = this.state;
     const cy = this.controller.cy;
+    const controller = this.controller;
 
     return (
       <>
         <div className="header">
-          <AppBar position="relative" color='default' style={{borderBottom: '1px solid #a5a5a5',}}>
+          <AppBar position="relative" color='default'>
             <Toolbar variant="dense">
               <AppLogoIcon {...logoIconProps} />
-              <Typography variant="h6" style={{marginLeft: '0.5em', marginRightt: '0.5em',}}>
-                { networkName || '-- untitled --'  }
-              </Typography>
+              <div className="header-title-area">
+                <div className="header-title-text">{ networkName || 'Untitled network'  }</div>
+                <div className="header-title-save-status">Edits saved</div>
+              </div>
+
               <div className="grow" />
-              <Tooltip title="Export to NDEx">
-              <Button variant='outlined' onClick={() => this.exportNetworkToNDEx()}>{'Export to NDEx'}</Button>
-              </Tooltip>
-              <Tooltip title="Search">
-                <IconButton edge="start" color="inherit" aria-label="search">
-                  <SearchIcon />
-                </IconButton>
-              </Tooltip>
+              <Box className="header-tools" color="secondary.main">
+                <Tooltip arrow placement="bottom" title="Add Node">
+                  <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
+                    <AddNodeIcon />
+                  </IconButton>
+                </Tooltip>
 
-              <AccountButton />
+                <Tooltip arrow placement="bottom" title="Draw Edge">
+                  <IconButton size="small" edge="start" className="tool-panel-button"
+                    onClick={() => controller.toggleDrawMode()}
+                    color={controller.drawModeEnabled ? 'primary' : 'inherit'}
+                  >
+                    <DrawEdgeIcon />
+                  </IconButton>
+                </Tooltip>
 
-              <Tooltip title="More">
-                <IconButton edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
-                  <MenuIcon />
-                </IconButton>
-              </Tooltip>
+                <div className="header-separator"></div>
+
+                <Tooltip arrow placement="bottom" title="Delete Selected">
+                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.deletedSelectedElements()}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <div className="header-separator"></div>
+
+                <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
+
+                <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
+
+                <div className="header-separator"></div>
+
+                <Tooltip arrow placement="bottom" title="Fit Network">
+                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.cy.fit()}>
+                    <FitScreenIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <div className="header-separator"></div>
+
+                <Tooltip arrow placement="bottom" title="Search">
+                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
+                    <SearchIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <div className="header-separator"></div>
+
+                <Tooltip arrow placement="bottom" title="Account">
+                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
+                    <AccountIcon />
+                  </IconButton>
+                  {/* TODO fix this (broken layout and empties page) <AccountButton style="display: inline-block" /> */}
+                </Tooltip>
+
+                <div className="header-separator"></div>
+
+                <Tooltip arrow placement="bottom" title="Debug">
+                  <IconButton size="small" edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
+                    <DebugIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Toolbar>
+
             {anchorEl && (
               <Popover
                 id="menu-popover"
@@ -191,40 +261,11 @@ export class Header extends Component {
                 )}
                 {menuName === 'main' && !dialogName && (
                   <MenuList>
-                    <MenuItem disabled={cy.nodes().length === 0} onClick={() => this.showDialog('layout', 'main')}>Layout</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
+                    <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
-                )}
-                {dialogName === 'layout' && (
-                  <div>
-                    <Box display="flex" justifyContent="center" alignItems="center">
-                      <IconButton
-                        size="small"
-                        color="inherit"
-                        aria-label="go back"
-                        onClick={() => this.goBackToMenu('main')}
-                      >
-                        <NavigateBeforeIcon />
-                      </IconButton>
-                      <Box display="flex" justifyContent="center" mx="auto" fontWeight="bold">
-                        Layout
-                      </Box>
-                      <IconButton
-                        size="small"
-                        color="inherit"
-                        aria-label="close"
-                        onClick={() => this.handleClose()}
-                      >
-                        <Close />
-                      </IconButton>
-                    </Box>
-                    <Divider />
-                    <Box display="flex" justifyContent="center" alignItems="center">
-                      <LayoutPanel controller={this.controller} />
-                    </Box>
-                  </div>
                 )}
               </Popover>
             )}
@@ -261,7 +302,7 @@ export class Header extends Component {
 
 const logoIconProps = {
   viewBox: '0 0 64 64',
-  style: { width: 'auto', fontSize: 38, margin: 0, },
+  style: { width: 'auto', fontSize: 28, margin: 0, },
   p: 0,
   m: 0,
 };

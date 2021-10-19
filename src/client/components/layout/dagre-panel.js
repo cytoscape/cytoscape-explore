@@ -46,7 +46,7 @@ export class DagrePanel extends Component {
 
     return (
       <form className={classes.container} noValidate autoComplete="off">
-        <Tooltip title="The separation between adjacent nodes in the same layer">
+        <Tooltip arrow title="The separation between adjacent nodes in the same layer">
           <FormControl component="fieldset">
             <FormLabel component="legend" className={classes.label}>Node Separation</FormLabel>
             <Slider
@@ -59,7 +59,7 @@ export class DagrePanel extends Component {
             />
           </FormControl>
         </Tooltip>
-        <Tooltip title="The separation between each layer in the layout">
+        <Tooltip arrow title="The separation between each layer in the layout">
           <FormControl component="fieldset">
             <FormLabel component="legend" className={classes.label}>Layer Separation</FormLabel>
             <Slider
@@ -73,7 +73,7 @@ export class DagrePanel extends Component {
           </FormControl>
         </Tooltip>
         <FormControl component="fieldset">
-          <Tooltip title="The direction of the layers">
+          <Tooltip arrow title="The direction of the layers">
             <FormLabel component="legend" className={classes.label}>Direction</FormLabel>
           </Tooltip>
           <ToggleButtonGroup
@@ -85,7 +85,7 @@ export class DagrePanel extends Component {
             onChange={(e, v) => this.handleChange(e, "rankDir", v)}
           >
             {directions.map((el) => (
-              <Tooltip key={`tooltip-${el.value}`} title={el.label}>
+              <Tooltip arrow key={`tooltip-${el.value}`} title={el.label}>
                 <ToggleButton key={`btn-${el.value}`} value={el.value} selected={rankDir === el.value}>{el.icon}</ToggleButton>
               </Tooltip>
             ))}

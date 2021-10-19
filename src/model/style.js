@@ -445,6 +445,7 @@ export const PROPERTY_TYPE = {
   'height': STYLE_TYPE.NUMBER,
   'line-color': STYLE_TYPE.COLOR,
   'label': STYLE_TYPE.STRING,
+  'color': STYLE_TYPE.COLOR, // node label color
   'border-color': STYLE_TYPE.COLOR,
   'border-width': STYLE_TYPE.NUMBER,
   'shape': STYLE_TYPE.STRING,
@@ -453,6 +454,9 @@ export const PROPERTY_TYPE = {
   'target-arrow-shape': STYLE_TYPE.STRING,
   'target-arrow-color': STYLE_TYPE.COLOR,
   'line-style': STYLE_TYPE.STRING,
+  'text-halign': STYLE_TYPE.STRING,
+  'text-valign': STYLE_TYPE.STRING,
+  'font-size': STYLE_TYPE.NUMBER,
 };
 
 /**  Supported node style properties  */
@@ -465,6 +469,10 @@ export const NODE_STYLE_PROPERTIES = [
   'border-color',
   'border-width',
   'shape',
+  'color', // label color
+  'text-halign',
+  'text-valign',
+  'font-size',
 ];
 
 /** An object map of the default node style values */
@@ -476,6 +484,10 @@ export const DEFAULT_NODE_STYLE = {
   'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
   'shape': styleFactory.string('ellipse'),
+  'color': styleFactory.color('#111'), // label color
+  'text-halign': styleFactory.string('top'),
+  'text-valign': styleFactory.string('center'),
+  'font-size': styleFactory.number(10)
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);

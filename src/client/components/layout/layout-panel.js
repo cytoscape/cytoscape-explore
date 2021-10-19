@@ -9,8 +9,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
+import Button from '@material-ui/core/Button';
 import Tab from '@material-ui/core/Tab';
 import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
+import Tooltip from '@material-ui/core/Tooltip';
 
 export class LayoutPanel extends Component {
 
@@ -74,26 +76,36 @@ export class LayoutPanel extends Component {
     const classes = useStyles();
 
     return (
-      <div className={classes.root}>
-        <AppBar position="relative" color="default">
+      <div className="layout-panel">
+        <div className="tool-panel-heading">Layout</div>
+
+        <div position="relative" color="default">
           <Tabs
             value={value}
             onChange={(e, v) => this.handleChange(v)}
-            variant="scrollable"
-            scrollButtons="on"
             indicatorColor="primary"
             textColor="primary"
           >
             <Tab key={0} style={{ display: 'none' }} {...a11yProps(0)} />
             {layouts.map((el, i) => (
-              <Tab key={i + 1} label={el.label} icon={el.icon} {...a11yProps(i + 1)} />
+              <Tooltip arrow key={i + 1} placement="bottom" title={el.label}>
+                <Tab icon={el.icon} {...a11yProps(i + 1)} />
+              </Tooltip>
             ))}
           </Tabs>
-        </AppBar>
+        </div>
         <TabPanel value={value} index={0} style={{ display: 'none' }} />
         {layouts.map((el, i) => (
           <TabPanel key={i + 1} value={value} index={i + 1}>
-            {el.optionsPanel}
+            <div className="tool-panel-section">
+              {el.optionsPanel}
+            </div>
+
+            <div className="tool-panel-section">
+              <Tooltip arrow title="Reapply the layout, even if you've dragged nodes around.">
+                <Button variant="contained" className="layout-panel-reapply" onClick={() => this.handleChange(value)}>Reapply Layout</Button>
+              </Tooltip>
+            </div>
           </TabPanel>
         ))}
       </div>
