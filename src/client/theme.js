@@ -1,9 +1,9 @@
-import { createMuiTheme }  from '@material-ui/core/styles';
+import { createTheme }  from '@material-ui/core/styles';
 
-import { ThemeOptions } from '@material-ui/core/styles/createMuiTheme';
+import { ThemeOptions } from '@material-ui/core/styles/createTheme';
 
 // Ref. : https://bareynol.github.io/mui-theme-creator
-// 
+//
 
 /** @type ThemeOptions */
 const themeOptions = {
@@ -49,7 +49,7 @@ const themeOptions = {
   },
 };
 
-const theme = createMuiTheme(themeOptions);
+const theme = createTheme(themeOptions);
 
 // const theme = createMuiTheme({
 //   palette: {
