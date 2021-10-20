@@ -11,6 +11,8 @@ import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../st
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../style/sizes';
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
+import LockIcon from '@material-ui/icons/Lock';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 
 
@@ -63,11 +65,14 @@ StylePanel.propTypes = {
 };
 
 
-export function StyleSection({ title, children }) {
+export function StyleSection({ title, children, extra }) {
   return (
     <div>
       <hr/>
-      <b>{title || "style section"}</b>
+      <div style={{display:'flex'}}>
+        <div><b>{title || "style section"}</b></div>
+        <div style={{marginLeft:'auto'}}>{extra}</div>
+      </div>
       <div style={{ padding: '5px', paddingBottom: '15px'} }>
         {children}
       </div>
@@ -76,7 +81,8 @@ export function StyleSection({ title, children }) {
 }
 StyleSection.propTypes = {
   title: PropTypes.string,
-  children: PropTypes.any
+  children: PropTypes.any,
+  extra: PropTypes.any
 };
 
 
@@ -662,6 +668,82 @@ SizeStylePicker.propTypes = {
   styleProps: PropTypes.array,
   variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
 };
+SizeStylePicker.defaultProps = {
+  variant: 'solid'
+};
+
+
+
+export class NodeSizeStyleSection extends React.Component {
+  constructor(props) {
+    super(props);
+    const heightStyle = props.controller.getStyle('node', 'height');
+    this.state = {
+      locked: heightStyle && heightStyle.mapping === MAPPING.DEPENDANT
+    };
+  }
+
+  toggleLocked() {
+    const locked = !this.state.locked;
+    const { controller } = this.props;
+    if(locked) {
+      controller.setNumberDependantMapping('node', 'height', 'width', 1); // TODO cache the multiplier so it doesn't reset
+    } else {
+      const widthStyle = controller.getStyle('node', 'width');
+      controller.vizmapper.set('node', 'height', widthStyle);
+    }
+    this.setState({ locked });
+  }
+
+  render() {
+    return this.state.locked
+      ? this.renderLocked()
+      : this.renderUnlocked();
+  }
+
+  renderLockButton() {
+    const { locked } = this.state;
+    const tooltip = locked ? "Unlock Width/Height" : "Lock Width/Height";
+    return <Tooltip title={tooltip}>
+      <span onClick={() => this.toggleLocked()}>
+        { locked
+          ? <LockIcon fontSize='small' />
+          : <LockOpenIcon fontSize='small'/>
+        }
+      </span>
+    </Tooltip>;
+  }
+
+  renderLocked() {
+    return (
+      <StyleSection title="Size" extra={this.renderLockButton()}>
+        <NodeSizeStylePicker controller={this.props.controller} />
+      </StyleSection>
+    );
+  }
+
+  renderUnlocked() {
+    return <div>
+      <StyleSection title="Width" extra={this.renderLockButton()}>
+        <SizeStylePicker
+          controller={this.props.controller}
+          selector='node'
+          styleProps={['width']}
+        />
+      </StyleSection>
+      <StyleSection title="Height" extra={this.renderLockButton()}>
+        <SizeStylePicker
+          controller={this.props.controller}
+          selector='node'
+          styleProps={['height']}
+        />
+      </StyleSection>
+    </div>;
+  }
+}
+NodeSizeStyleSection.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+};
 
 
 export class NodeSizeStylePicker extends React.Component {
@@ -763,32 +845,6 @@ export class NodeSizeStylePicker extends React.Component {
 NodeSizeStylePicker.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
 };
-
-
-// export function AspectStylePicker({ controller, selector, styleProp }) {
-//   return <StylePicker 
-//     controller={controller}
-//     selector={selector}
-//     renderValue={(multiplier, onChange) =>
-//       <AspectRatioPicker multiplier={multiplier} onChange={onChange} />
-//     }
-//     getStyle={() => 
-//       controller.getStyle(selector, styleProp)
-//     }
-//     getBypassStyle={() =>
-//       controller.getBypassStyle(selector, styleProp)
-//     }
-//     onValueSet={multipler => 
-//       // controller.setString(selector, styleProp, text)
-//       console.log("set the height multiplier: " + multipler)
-//     }
-//   />;
-// }
-// AspectStylePicker.propTypes = {
-//   controller: PropTypes.instanceOf(NetworkEditorController),
-//   selector: PropTypes.oneOf(['node', 'edge']),
-//   styleProp: PropTypes.string
-// };
 
 
 export function TextStylePicker({ controller, selector, styleProp }) {

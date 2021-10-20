@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { IconButton, Divider, Box } from '@material-ui/core';
 import { StyleSection, StylePanel } from '../style/style-picker'; 
 import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker } from '../style/style-picker';
-import { NodeSizeStylePicker, NodeLabelPositionStylePicker } from '../style/style-picker';
+import { NodeSizeStyleSection, NodeLabelPositionStylePicker } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
 
 
@@ -85,11 +85,9 @@ export class ToolPanel extends Component {
                   variant='node'
                 />
               </StyleSection>
-              <StyleSection title="Size">
-                <NodeSizeStylePicker
-                  controller={controller}
-                />
-              </StyleSection>
+              <NodeSizeStyleSection
+                controller={controller}
+              />
             </StylePanel>
           }
         />
