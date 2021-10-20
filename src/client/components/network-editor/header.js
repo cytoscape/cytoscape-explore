@@ -201,12 +201,7 @@ export class Header extends Component {
 
                 <div className="header-separator"></div>
 
-                <Tooltip arrow placement="bottom" title="Account">
-                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
-                    <AccountIcon />
-                  </IconButton>
-                  {/* TODO fix this (broken layout and empties page) <AccountButton style="display: inline-block" /> */}
-                </Tooltip>
+                <AccountButton />
 
                 <div className="header-separator"></div>
 
