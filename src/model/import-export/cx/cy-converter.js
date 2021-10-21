@@ -11,7 +11,8 @@
    'height': 'NODE_HEIGHT',
    'width': 'NODE_WIDTH',
    'background-color': 'NODE_BACKGROUND_COLOR',
-
+   'color': 'NODE_LABEL_COLOR',
+   'font-size': 'NODE_LABEL_FONT_SIZE'
  };
 
 
@@ -22,6 +23,7 @@
    'target-arrow-shape': 'EDGE_TARGET_ARROW_SHAPE',
    'source-arrow-color': 'EDGE_SOURCE_ARROW_COLOR',
    'source-arrow-shape': 'EDGE_SOURCE_ARROW_SHAPE',
+   'color': 'EDGE_LABEL_COLOR',
    'width': 'EDGE_LINE_WIDTH',
    'line-color': 'EDGE_LINE_COLOR'
  };
@@ -219,9 +221,10 @@
      Object.entries(defaultStyleDict).forEach(([cyStyleName, styleObj]) => {
        let { type, value, mapping } = styleObj;
        let cxStyleName = cy2cxStyleNameMap[cyStyleName];
+       let unsupportedProperties = ['label', 'text-valign', 'text-halign'];
 
        // mappings go in the nodeMapping/edgeMapping object
-       if(cyStyleName === 'label' || mapping !== MAPPING.VALUE){
+       if(unsupportedProperties.includes(cyStyleName) || mapping !== MAPPING.VALUE){
          return;
        }
        defaultAspect[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
@@ -246,6 +249,11 @@
        let { type, value, mapping, stringValue } = styleObj;
        let cxStyleName = cy2cxStyleNameMap[cyStyleName];
        let { data, defaultValue, styleValues, dataValues } = value;
+       let unsupportedProperties = ['text-valign', 'text-halign'];
+
+       if(unsupportedProperties.includes(cyStyleName)){
+         return;
+       }
 
        switch(mapping){
          case MAPPING.VALUE:
@@ -313,9 +321,11 @@
        id: cxId,
        v: {}
      };
+     let unsupportedProperties = ['text-valign', 'text-halign'];
+
      Object.entries(bypassObj).forEach(([styleName, styleObj]) => {
        let { type, mapping, value } = styleObj;
-       if (mapping !== MAPPING.VALUE) {
+       if (mapping !== MAPPING.VALUE || unsupportedProperties.includes(styleName)){
          return;
        }
        let cxStyleName = isNode ? cy2cxNodeVisualProp[styleName] : cy2cxEdgeVisualProp[styleName];
