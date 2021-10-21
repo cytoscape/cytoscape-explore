@@ -1,0 +1,184 @@
+[
+  {
+    "CXVersion": "2.0",
+    "hasFragments": false
+  },
+  {
+    "metaData": [
+      {
+        "elementCount": 1,
+        "name": "attributeDeclarations"
+      },
+      {
+        "elementCount": 1,
+        "name": "networkAttributes"
+      },
+      {
+        "elementCount": 2,
+        "name": "nodes"
+      },
+      {
+        "elementCount": 0,
+        "name": "edges"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualProperties"
+      },
+      {
+        "elementCount": 0,
+        "name": "nodeBypasses"
+      },
+      {
+        "elementCount": 0,
+        "name": "edgeBypasses"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualEditorProperties"
+      }
+    ]
+  },
+  {
+    "attributeDeclarations": [
+      {
+        "networkAttributes": {
+          "name": {
+            "d": "string",
+            "v": ""
+          },
+          "description": {
+            "d": "string",
+            "v": ""
+          },
+          "version": {
+            "d": "string",
+            "v": ""
+          },
+          "cytoscapeExploreId": {
+            "d": "string",
+            "v": ""
+          }
+        },
+        "nodes": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        },
+        "edges": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "networkAttributes": [
+      {
+        "name": "cyexplore",
+        "description": "description",
+        "version": "1.0"
+      }
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": 0,
+        "x": -39,
+        "y": 41,
+        "v": {
+          "attr1": 0.41725193086550627,
+          "attr2": 0.3639414500947198,
+          "attr3": "A"
+        }
+      },
+      {
+        "id": 1,
+        "x": 96,
+        "y": 97,
+        "v": {
+          "attr1": 0.7112086688922461,
+          "attr2": 0.7263962948027549,
+          "attr3": "B"
+        }
+      }
+    ]
+  },
+  {
+    "edges": []
+  },
+  {
+    "visualProperties": [
+      {
+        "default": {
+          "network": {
+            "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
+          },
+          "node": {
+            "NODE_BACKGROUND_COLOR": "#888888",
+            "NODE_WIDTH": 30,
+            "NODE_HEIGHT": 30,
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_SHAPE": "ellipse",
+            "NODE_LABEL_COLOR": "#111111",
+            "NODE_LABEL_FONT_SIZE": 10
+          },
+          "edge": {
+            "EDGE_LINE_COLOR": "#888888",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#888888",
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_TARGET_ARROW_COLOR": "#888888",
+            "EDGE_LINE_STYLE": "solid"
+          }
+        },
+        "nodeMapping": {
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
+            "definition": {
+              "attribute": "attr2",
+              "selector": "data(attr2)"
+            }
+          }
+        },
+        "edgeMapping": {}
+      }
+    ]
+  },
+  {
+    "nodeBypasses": []
+  },
+  {
+    "edgeBypasses": []
+  },
+  {
+    "visualEditorProperties": [
+      {
+        "properties": {
+          "nodeSizeLocked": false
+        }
+      }
+    ]
+  },
+  {
+    "status": [
+      {
+        "error": "",
+        "success": true
+      }
+    ]
+  }
+]

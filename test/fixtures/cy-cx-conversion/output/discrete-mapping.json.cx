@@ -1,0 +1,219 @@
+[
+  {
+    "CXVersion": "2.0",
+    "hasFragments": false
+  },
+  {
+    "metaData": [
+      {
+        "elementCount": 1,
+        "name": "attributeDeclarations"
+      },
+      {
+        "elementCount": 1,
+        "name": "networkAttributes"
+      },
+      {
+        "elementCount": 3,
+        "name": "nodes"
+      },
+      {
+        "elementCount": 1,
+        "name": "edges"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualProperties"
+      },
+      {
+        "elementCount": 0,
+        "name": "nodeBypasses"
+      },
+      {
+        "elementCount": 0,
+        "name": "edgeBypasses"
+      },
+      {
+        "elementCount": 1,
+        "name": "visualEditorProperties"
+      }
+    ]
+  },
+  {
+    "attributeDeclarations": [
+      {
+        "networkAttributes": {
+          "name": {
+            "d": "string",
+            "v": ""
+          },
+          "description": {
+            "d": "string",
+            "v": ""
+          },
+          "version": {
+            "d": "string",
+            "v": ""
+          },
+          "cytoscapeExploreId": {
+            "d": "string",
+            "v": ""
+          }
+        },
+        "nodes": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        },
+        "edges": {
+          "cytoscapeExploreId": {
+            "d": "string"
+          },
+          "attr1": {
+            "d": "double"
+          },
+          "attr2": {
+            "d": "double"
+          },
+          "attr3": {
+            "d": "string"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "networkAttributes": [
+      {
+        "name": "cyexplore",
+        "description": "description",
+        "version": "1.0"
+      }
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": 0,
+        "x": 325,
+        "y": 214,
+        "v": {
+          "attr1": 0.549050621469114,
+          "attr2": 0.39114291220761777,
+          "attr3": "C"
+        }
+      },
+      {
+        "id": 1,
+        "x": 378,
+        "y": 281,
+        "v": {
+          "attr1": 0.47900415303471244,
+          "attr2": -0.18569525692129574,
+          "attr3": "A"
+        }
+      },
+      {
+        "id": 2,
+        "x": 325,
+        "y": 198.5,
+        "v": {}
+      }
+    ]
+  },
+  {
+    "edges": [
+      {
+        "id": 3,
+        "s": 0,
+        "t": 1,
+        "v": {
+          "attr1": 0.3917538561685947,
+          "attr2": -0.7841243090649521,
+          "attr3": "C"
+        }
+      }
+    ]
+  },
+  {
+    "visualProperties": [
+      {
+        "default": {
+          "network": {
+            "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
+          },
+          "node": {
+            "NODE_BACKGROUND_COLOR": "#888888",
+            "NODE_WIDTH": 30,
+            "NODE_HEIGHT": 30,
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_SHAPE": "ellipse",
+            "NODE_LABEL_COLOR": "#111111",
+            "NODE_LABEL_FONT_SIZE": 10
+          },
+          "edge": {
+            "EDGE_LINE_COLOR": "#888888",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#888888",
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_TARGET_ARROW_COLOR": "#888888",
+            "EDGE_LINE_STYLE": "solid"
+          }
+        },
+        "nodeMapping": {
+          "NODE_SHAPE": {
+            "type": "DISCRETE",
+            "definition": {
+              "attribute": "attr3",
+              "map": [
+                {
+                  "v": "A",
+                  "vp": "hexagon"
+                },
+                {
+                  "v": "C",
+                  "vp": "triangle"
+                }
+              ]
+            }
+          }
+        },
+        "edgeMapping": {}
+      }
+    ]
+  },
+  {
+    "nodeBypasses": []
+  },
+  {
+    "edgeBypasses": []
+  },
+  {
+    "visualEditorProperties": [
+      {
+        "properties": {
+          "nodeSizeLocked": false
+        }
+      }
+    ]
+  },
+  {
+    "status": [
+      {
+        "error": "",
+        "success": true
+      }
+    ]
+  }
+]

@@ -5,8 +5,13 @@ import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
+// import Button from '@material-ui/core/Button';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
+// import AccountCircle from '@material-ui/icons/AccountCircle';
+// import MenuIcon from '@material-ui/icons/Menu';
+// import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+// import { Close } from '@material-ui/icons';
 import AccountIcon from '@material-ui/icons/AccountCircle';
 import DebugIcon from '@material-ui/icons/BugReport';
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
@@ -19,9 +24,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
+import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
-import AccountButton from './google-login/AccountButton';
 
 
 /**
@@ -122,6 +127,29 @@ export class Header extends Component {
     create();
   }
 
+  exportNetworkToNDEx(){
+    const cy = this.controller.cy;
+    const id = cy.data('id');
+
+    let exportNDEx = async () => {
+      let result = await fetch('/api/document/cx-export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id})
+      });
+
+      let body = await result.json();
+      let { ndexNetworkURL } = body;
+      console.log(ndexNetworkURL, body);
+      window.open(`${ndexNetworkURL}`);
+    };
+
+    exportNDEx();
+  }
+
+
   async loadGAL() {
     const { cy } = this.controller;
 
@@ -150,9 +178,8 @@ export class Header extends Component {
                 <div className="header-title-text">{ networkName || 'Untitled network'  }</div>
                 <div className="header-title-save-status">Edits saved</div>
               </div>
-              
+
               <div className="grow" />
-              
               <Box className="header-tools" color="secondary.main">
                 <Tooltip arrow placement="bottom" title="Add Node">
                   <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
@@ -235,6 +262,8 @@ export class Header extends Component {
                   <MenuList>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
@@ -258,6 +287,14 @@ export class Header extends Component {
             open={true}
             onClose={() => this.hideDialog()}
           />
+        )}
+        {dialogName === 'ndex-network-import' && (
+            <NDExNetworkImportDialog
+                id="ndex-network-import"
+                controller={this.controller}
+                open={true}
+                onClose={() => this.hideDialog()}
+            />
         )}
       </>
     );
