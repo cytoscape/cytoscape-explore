@@ -27,6 +27,7 @@ import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog'
 import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
+import AccountButton from './google-login/AccountButton';
 
 
 /**
