@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 const DEV_SERVER_ID =
   "802839698598-mrrd3iq3jl06n6c2fo1pmmc8uugt9ukq.apps.googleusercontent.com";
 
-const AccountButton = () => {
+const AccountButton = ({controller}) => {
   const classes = useStyles();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -34,11 +34,15 @@ const AccountButton = () => {
   const responseHandler = (response) => {
     console.info("Success obtaining user info:", response);
     const userInfo = response["profileObj"];
+    console.assert(response.tokenId === window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token);
+    controller.ndexClient.setAuthToken(response.tokenId);
     setUserInfo(userInfo);
   };
 
   const logoutResponseHandler = (response) => {
     console.info("Logout Success:", response);
+    controller.ndexClient._authType = null;
+    controller.ndexClient._authToken = null;
     setUserInfo(null);
     setAnchorEl(null);
   };

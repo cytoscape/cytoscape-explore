@@ -130,24 +130,28 @@ export class Header extends Component {
 
   exportNetworkToNDEx(){
     const cy = this.controller.cy;
+    const ndexClient = this.controller.ndexClient;
     const id = cy.data('id');
 
-    let exportNDEx = async () => {
-      let result = await fetch('/api/document/cx-export', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({id})
-      });
+    if(ndexClient.authenticationType != null && ndexClient._authToken != null){
+      let exportNDEx = async () => {
+        let result = await fetch('/api/document/cx-export', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id,
+            authToken: ndexClient._authToken
+          })
+        });
 
-      let body = await result.json();
-      let { ndexNetworkURL } = body;
-      console.log(ndexNetworkURL, body);
-      window.open(`${ndexNetworkURL}`);
-    };
-
-    exportNDEx();
+        let body = await result.json();
+        let { ndexNetworkURL } = body;
+        window.open(`${ndexNetworkURL}`);
+      };
+      exportNDEx();
+    }
   }
 
 
@@ -229,7 +233,7 @@ export class Header extends Component {
 
                 <div className="header-separator"></div>
 
-                <AccountButton />
+                <AccountButton controller={this.controller}/>
 
                 <div className="header-separator"></div>
 
