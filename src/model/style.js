@@ -529,6 +529,12 @@ export const DEFAULT_NODE_STYLE = {
   'font-size': styleFactory.number(10)
 };
 
+
+export const DEFAULT_NODE_MAPPING_STYLE_VALUES = {
+  // Note this corresponds to the red gradient from the ColorGradients component.
+  'background-color': [styleFactory.color('#E6B3B3').value, styleFactory.color('#993333').value],
+};
+
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
 
 export const nodeStylePropertyExists = property => {
@@ -558,6 +564,11 @@ export const DEFAULT_EDGE_STYLE = {
   'target-arrow-color': styleFactory.color('#888'),
   'line-style': styleFactory.string('solid'),
   'opacity': styleFactory.number(1)
+};
+
+
+export const DEFAULT_EDGE_MAPPING_STYLE_VALUES = {
+  'line-color': [styleFactory.color('#E6B3B3').value, styleFactory.color('#993333').value],
 };
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);

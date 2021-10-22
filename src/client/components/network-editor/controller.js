@@ -1,12 +1,12 @@
 import EventEmitter from 'eventemitter3';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
+import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct, DEFAULT_NODE_MAPPING_STYLE_VALUES } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
 import { UndoSupport } from '../undo/undo';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
-import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
+import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, PROPERTY_TYPE, STYLE_TYPE } from '../../../model/style';
 import { DEFAULT_PADDING } from '../layout/defaults';
 
 /**
@@ -358,6 +358,14 @@ export class NetworkEditorController {
       return DEFAULT_NODE_STYLE[property].value;
     else if(selector === 'edge')
       return DEFAULT_EDGE_STYLE[property].value;
+  }
+
+  getMappingDefault(selector, property) {
+    if(selector === 'node') {
+      return DEFAULT_NODE_MAPPING_STYLE_VALUES[property];
+    } else if(selector === 'edge') {
+      return null;
+    }
   }
 
   /**
