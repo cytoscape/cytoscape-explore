@@ -31,6 +31,10 @@ const assertDataRangeOrder = (arr) => {
   }
 };
 
+export const rgbObjToHex = ({r, g, b}) => {
+  return Color({r, g, b}).hex().toString();
+};
+
 /**
  * @typedef {String} STYLE_TYPE
  **/
@@ -61,11 +65,11 @@ const dataPoints = (eleData, vals, styles) => { // assume vals is sorted
   if(eleData >= vals[0]) {
     for(let i = 0; i < vals.length -1; i++) {
       if(eleData <= vals[i+1]) {
-        return { 
-          d1: vals[i], 
-          d2: vals[i+1], 
-          s1: styles[i], 
-          s2: styles[i+1] 
+        return {
+          d1: vals[i],
+          d2: vals[i+1],
+          s1: styles[i],
+          s2: styles[i+1]
         };
       }
     }
@@ -73,8 +77,8 @@ const dataPoints = (eleData, vals, styles) => { // assume vals is sorted
 };
 
 /**
- * Get the flat style value calculated for the 
- * @param {Cytoscape.Collection} ele 
+ * Get the flat style value calculated for the
+ * @param {Cytoscape.Collection} ele
  * @param {StyleStruct} styleStruct The style struct to calculate
  * @returns {(String|Number)} A computed style value (string or number) that can be used directly as a Cytoscape style property value
  */
@@ -279,7 +283,7 @@ export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStru
 
 /**
  * The `styleFactory` creates style property values that can be used to set style.
- *  
+ *
  * `cySyncher.setStyle('node', 'width', styleFactory.number(20))`
  */
 export const styleFactory = {
@@ -320,7 +324,7 @@ export const styleFactory = {
       stringValue: '???'
     };
   },
-  
+
   /**
    * Create a discrete mapping for number.
    * @property {String} data The data attribute that's mapped
@@ -423,9 +427,9 @@ export const styleFactory = {
       mapping: MAPPING.VALUE,
       value: { r, g, b },
       stringValue: `rgb(${r}, ${g}, ${b})`
-    }; 
+    };
   },
-  
+
   /**
    * Create a discrete mapping for color.
    * @property {String} data The data attribute that's mapped
@@ -560,7 +564,7 @@ const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
 
 /**
  * Get whether the style property is supported for nodes or edges
- * @param {String} property 
+ * @param {String} property
  */
 export const edgeStylePropertyExists = property => {
   return EDGE_STYLE_PROPERTIES_SET.has(property);

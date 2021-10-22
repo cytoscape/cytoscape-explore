@@ -7,7 +7,7 @@ import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
-import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients, TransparancyGradient, TransparancyGradients, OpacitySlider } from '../style/colors';
+import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients, OpacitySlider, OpacityGradient, OpacityGradients } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../style/sizes';
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
@@ -687,10 +687,10 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
         styleVal={value}
         handleChange={setValue}
         renderButton={(value) => 
-          <TransparancyGradient value={value} />
+          <OpacityGradient value={value} />
         }
         renderPopover={(value, onSelect) =>
-          <TransparancyGradients value={value} onSelect={onSelect} />
+          <OpacityGradients value={value} onSelect={onSelect} />
         }
       />
     }

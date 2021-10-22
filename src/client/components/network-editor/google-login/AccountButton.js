@@ -6,6 +6,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import UserInfoPopover from "./UserInfoPopover";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "inline-block",
+  },
   avatar: {
     width: theme.spacing(3),
     height: theme.spacing(3),
@@ -79,9 +82,16 @@ const AccountButton = () => {
   const isOpen = Boolean(anchorEl);
 
   return (
-    <>
-      <Tooltip title={`You are signed in as ${userInfo.name}`}>
-        <IconButton aria-label="signed-in" onClick={(e) => handleClick(e)}>
+    <div className={classes.root}>
+      <Tooltip arrow placement="bottom" title={`You are signed in as ${userInfo.name}`}>
+        <IconButton
+          size="small"
+          edge="end"
+          color="inherit"
+          aria-haspopup="true"
+          aria-label="signed-in"
+          onClick={(e) => handleClick(e)}
+        >
           {getIcon(userInfo)}
         </IconButton>
       </Tooltip>
@@ -93,7 +103,7 @@ const AccountButton = () => {
         clientId={DEV_SERVER_ID}
         responseHandler={logoutResponseHandler}
       />
-    </>
+    </div>
   );
 };
 

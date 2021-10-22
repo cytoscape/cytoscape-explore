@@ -1,0 +1,304 @@
+{
+  "data": {
+    "id": "cy6492f187-a2d8-48bd-bd4d-f6c2429da6c1",
+    "_styles": {
+      "node": {
+        "background-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 102,
+            "g": 102,
+            "b": 204
+          },
+          "stringValue": "rgb(102, 102, 204)"
+        },
+        "label": {
+          "type": "STRING",
+          "mapping": "PASSTHROUGH",
+          "value": {
+            "data": "attr3"
+          },
+          "stringValue": "data(attr3)"
+        },
+        "shape": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "round-rectangle",
+          "stringValue": "round-rectangle"
+        },
+        "border-color": {
+          "type": "COLOR",
+          "mapping": "DISCRETE",
+          "value": {
+            "data": "attr2",
+            "defaultValue": {
+              "r": 136,
+              "g": 136,
+              "b": 136
+            },
+            "styleValues": {
+              "-0.5406318800042764": {
+                "r": 64,
+                "g": 191,
+                "b": 64
+              }
+            }
+          },
+          "stringValue": "???"
+        },
+        "border-width": {
+          "type": "NUMBER",
+          "mapping": "LINEAR",
+          "value": {
+            "data": "attr1",
+            "dataValues": [
+              0.25113407303365376,
+              0.4734350582940561
+            ],
+            "styleValues": [
+              0,
+              10
+            ]
+          },
+          "stringValue": "???"
+        }
+      },
+      "edge": {
+        "line-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 40,
+            "g": 40,
+            "b": 40
+          },
+          "stringValue": "rgb(40, 40, 40)"
+        },
+        "source-arrow-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 40,
+            "g": 40,
+            "b": 40
+          },
+          "stringValue": "rgb(40, 40, 40)"
+        },
+        "target-arrow-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 40,
+            "g": 40,
+            "b": 40
+          },
+          "stringValue": "rgb(40, 40, 40)"
+        }
+      }
+    },
+    "_bypasses": {
+      "c36994fc-0cd1-464a-b770-4053249640eb": {
+        "background-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 140,
+            "g": 217,
+            "b": 140
+          },
+          "stringValue": "rgb(140, 217, 140)"
+        }
+      },
+      "a1584fb4-4e9a-4c20-a698-35d5ca42620e": {
+        "line-style": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "dotted",
+          "stringValue": "dotted"
+        }
+      },
+      "7d73be34-dd94-4a6b-a071-c0a010ab16a3": {
+        "shape": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "octagon",
+          "stringValue": "octagon"
+        },
+        "background-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 230,
+            "g": 230,
+            "b": 230
+          },
+          "stringValue": "rgb(230, 230, 230)"
+        }
+      },
+      "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b": {
+        "label": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "b",
+          "stringValue": "b"
+        }
+      },
+      "8baeb647-18f3-46aa-a5d1-6d59e6a1534d": {
+        "width": {
+          "type": "NUMBER",
+          "mapping": "VALUE",
+          "value": 46,
+          "stringValue": "46"
+        },
+        "height": {
+          "type": "NUMBER",
+          "mapping": "VALUE",
+          "value": 46,
+          "stringValue": "46"
+        }
+      },
+      "bfd063c1-1739-4883-bd07-68a353772692": {
+        "line-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 102,
+            "g": 102,
+            "b": 204
+          },
+          "stringValue": "rgb(102, 102, 204)"
+        },
+        "source-arrow-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 102,
+            "g": 102,
+            "b": 204
+          },
+          "stringValue": "rgb(102, 102, 204)"
+        },
+        "target-arrow-color": {
+          "type": "COLOR",
+          "mapping": "VALUE",
+          "value": {
+            "r": 102,
+            "g": 102,
+            "b": 204
+          },
+          "stringValue": "rgb(102, 102, 204)"
+        }
+      },
+      "169bb3bf-2223-4640-98ac-ced7db96e1b5": {
+        "label": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "special",
+          "stringValue": "special"
+        }
+      }
+    }
+  },
+  "elements": [
+    {
+      "data": {
+        "attr1": 0.25113407303365376,
+        "attr2": -0.5406318800042764,
+        "attr3": "C",
+        "id": "169bb3bf-2223-4640-98ac-ced7db96e1b5"
+      },
+      "position": {
+        "x": 191.92169834822687,
+        "y": 90.17623767672664
+      }
+    },
+    {
+      "data": {
+        "attr1": 0.4734350582940561,
+        "attr2": -0.31334670117783725,
+        "attr3": "A",
+        "id": "7d73be34-dd94-4a6b-a071-c0a010ab16a3"
+      },
+      "position": {
+        "x": 254.84621106792676,
+        "y": 256.00003603492155
+      }
+    },
+    {
+      "data": {
+        "attr1": 0.2571662712682563,
+        "attr2": 0.24629838637262846,
+        "attr3": "B",
+        "id": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d"
+      },
+      "position": {
+        "x": 391.1372795344885,
+        "y": 228.68860629744736
+      }
+    },
+    {
+      "data": {
+        "attr1": 0.3433607555040106,
+        "attr2": 0.24560781137429366,
+        "attr3": "B",
+        "id": "c36994fc-0cd1-464a-b770-4053249640eb"
+      },
+      "position": {
+        "x": 357.282326661425,
+        "y": 132.52084243190623
+      }
+    },
+    {
+      "data": {
+        "attr1": 0.36778350678272065,
+        "attr2": 0.5340217440884518,
+        "attr3": "A",
+        "id": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b"
+      },
+      "position": {
+        "x": 174.14877164956212,
+        "y": 165.73764960372645
+      }
+    },
+    {
+      "data": {
+        "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
+        "target": "8baeb647-18f3-46aa-a5d1-6d59e6a1534d",
+        "attr1": 0.44261454014101775,
+        "attr2": -0.8646379469678083,
+        "attr3": "A",
+        "id": "a1584fb4-4e9a-4c20-a698-35d5ca42620e"
+      }
+    },
+    {
+      "data": {
+        "source": "169bb3bf-2223-4640-98ac-ced7db96e1b5",
+        "target": "7d73be34-dd94-4a6b-a071-c0a010ab16a3",
+        "attr1": 0.693204181456772,
+        "attr2": 0.546974783673293,
+        "attr3": "B",
+        "id": "bfd063c1-1739-4883-bd07-68a353772692"
+      }
+    },
+    {
+      "data": {
+        "source": "fe8b00c4-5b8e-4fd8-a038-ccaa6ceab54b",
+        "target": "c36994fc-0cd1-464a-b770-4053249640eb",
+        "attr1": 0.6748303775481961,
+        "attr2": 0.9801246596118172,
+        "attr3": "A",
+        "id": "c43814be-9f51-4631-afe7-203be610a422"
+      }
+    },
+    {
+      "data": {
+        "id": "e8b68c91-4ba9-4a43-b6f5-70b4f3bf3384"
+      },
+      "position": {
+        "x": 191.92169834822687,
+        "y": 75.17623767672664
+      }
+    }
+  ]
+}

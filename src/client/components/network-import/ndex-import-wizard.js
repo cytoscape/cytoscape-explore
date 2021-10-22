@@ -15,7 +15,11 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { NDEx } from 'ndex-client';
+
 import { NetworkEditorController } from '../network-editor/controller';
+import { NDEX_API_URL } from '../../env';
+
 
 
 function delay(ms) {
@@ -51,19 +55,11 @@ export class NDExImportSubWizard extends React.Component {
       return;
 
     this.setState({ loading: true });
-    
+
+    const ndexClient = new NDEx(NDEX_API_URL);
+
     delay(700)
-    .then(() => fetch("http://public.ndexbio.org/v2/search/network?start=0&size=10",
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        method: "POST",
-        body: JSON.stringify({searchString})
-      }
-    ))
-    .then(res => res.json())
+    .then(() => ndexClient.searchNetworks(searchString))
     .then(data => this.setState({ data, error: null, loading: false }))
     .then(() => this.updateButtons({ ...this.state, loading: false }))
     .catch(error => this.setState({ data: null, error, loading: false }));
@@ -90,9 +86,20 @@ export class NDExImportSubWizard extends React.Component {
     }
   }
 
-  handleFinish() {
+  async handleFinish() {
     // TODO actually import the network !!!
-    this.props.wizardCallbacks.closeWizard();
+    const res = await fetch( `/api/document/cx-import`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ndexUUID: this.state.selectedId })
+        }
+    );
+
+    const urls = await res.json();
+
+    location.replace(urls.url);
   }
 
   handleContinue() {
@@ -188,17 +195,17 @@ export class NDExImportSubWizard extends React.Component {
           inputProps={{ 'aria-label': 'search google maps' }}
           onChange={(evt) => searchString = evt.target.value}
         />
-        <IconButton 
-          style={{padding: 10}} 
+        <IconButton
+          style={{padding: 10}}
           aria-label="search"
           onClick={runSearch}
         >
           <SearchIcon />
         </IconButton>
         <Divider style={{height: 28, margin: 4}} orientation="vertical" />
-        <IconButton 
-          color="primary" 
-          tyle={{padding: 10}} 
+        <IconButton
+          color="primary"
+          tyle={{padding: 10}}
           aria-label="directions"
         >
           <PersonOutlineIcon />

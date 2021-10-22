@@ -2,7 +2,9 @@ import Express from 'express';
 import uuid from 'uuid';
 import Cytoscape from 'cytoscape';
 import CytoscapeSyncher from '../../../model/cytoscape-syncher';
-import { BASE_URL } from '../../env';
+import ndexClient from 'ndex-client';
+
+import { BASE_URL, NDEX_API_URL, NDEX_TEST_USER, NDEX_TEST_PASSWORD } from '../../env';
 import { importCX, exportCX } from '../../../model/import-export/cx';
 import { importJSON, exportJSON } from '../../../model/import-export/json';
 
@@ -11,13 +13,47 @@ const http = Express.Router();
 const makeNetworkId = () => 'cy' + uuid();
 
 /**
+ * Post (create) a new network from CX1 JSON
+ * The way this function differs from postNetwork
+ * is that the cySyncher is created before the `importBody` function
+ * is called.  This is because the importCX function depends on the
+ * cy.vizmapper() being available which depends on the CytoscapeSyncher
+ * being initialized.
+ *
+**/
+ const postCX2Network = async (importBody, req, res, next) => {
+  try {
+    const body = req.body;
+    const id = makeNetworkId();
+    const cy = new Cytoscape();
+    const secret = uuid();
+    const publicUrl = `${BASE_URL}/document/${id}`;
+    const privateUrl = `${publicUrl}/${secret}`;
+
+    cy.data({ id });
+    const cySyncher = new CytoscapeSyncher(cy, secret);
+    importBody(cy, body);
+
+    await cySyncher.create();
+
+    cySyncher.destroy();
+    cy.destroy();
+
+    res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
+  } catch(err) {
+    next(err);
+  }
+};
+
+
+/**
  * Post (create) a new network
  * @param {Function} importBody A function that takes (cy, body) and converts the body to cy
  * @param {Express.Request} req The HTTP request
  * @param {Express.Response} res The HTTP response
  * @param {Express.NextFunction} next The Express next(err) function
  */
-const postNetwork = async (importBody, req, res, next) => {
+ const postNetwork = async (importBody, req, res, next) => {
   try {
     const body = req.body;
     const id = makeNetworkId();
@@ -37,6 +73,48 @@ const postNetwork = async (importBody, req, res, next) => {
     cy.destroy();
 
     res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
+  } catch(err) {
+    next(err);
+  }
+};
+
+const exportNetworkToNDEx = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    const cy = new Cytoscape();
+
+    cy.data({ id });
+
+    const cySyncher = new CytoscapeSyncher(cy);
+
+    await cySyncher.load();
+
+    const cx2 = exportCX(cy);
+
+    cySyncher.destroy();
+    cy.destroy();
+
+    const ndex0 = new ndexClient.NDEx(NDEX_API_URL);
+    ndex0.setBasicAuth(NDEX_TEST_USER, NDEX_TEST_PASSWORD);
+    const ndexUrl = new URL(NDEX_API_URL).origin;
+    const { uuid } = await ndex0.createNetworkFromRawCX2(cx2, true);
+    const ndexNetworkURL = new URL(`viewer/networks/${uuid}`, ndexUrl).href;
+    res.send({ndexNetworkURL});
+  } catch (err) {
+    next(err);
+  }
+};
+
+const importNDExNetworkById = async (req, res, next) => {
+  try {
+    const { ndexUUID } = req.body;
+
+    const ndex0 = new ndexClient.NDEx(NDEX_API_URL);
+    const rawcx2 = await ndex0.getCX2Network(ndexUUID);
+    req.body = rawcx2;
+
+    let response = await postCX2Network(importCX, req, res, next);
+    res.send(response);
   } catch(err) {
     next(err);
   }
@@ -100,17 +178,21 @@ http.get('/json/:id', async function(req, res, next){
 });
 
 /**
- * Create a new network document from CX format
+ * Import a CX network from NDEx by NDEx UUID
  */
-http.post('/json', async function(req, res, next) {
-  await postNetwork(importCX, req, res, next);
+http.post('/cx-import', async function(req, res, next) {
+  await importNDExNetworkById(req, res, next);
 });
 
+
 /**
- * Get a network document in CX format
+ * Export a Cytoscape Explore network to NDEx by Cytoscape Explore UUID
  */
-http.get('/json/:id', async function(req, res, next){
-  await getNetwork(exportCX, req, res, next);
+http.post('/cx-export', async function(req, res, next){
+  // await getNetwork(exportCX, req, res, next);
+  // get cytoscape explore id
+  // send back ndex id
+  await exportNetworkToNDEx(req, res, next);
 });
 
 export default http;
