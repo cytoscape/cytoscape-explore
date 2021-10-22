@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Color from 'color';
 import PropTypes from 'prop-types';
 import { mapColor } from '../../../model/style';
+import { Slider } from '@material-ui/core';
 
 
 // TODO improve defaults
@@ -45,7 +46,6 @@ export function ColorSwatch(props) {
     </div>
   );
 }
-
 ColorSwatch.propTypes = {
   onClick: PropTypes.func,
   selected: PropTypes.any,
@@ -217,4 +217,57 @@ ColorGradients.propTypes = {
 ColorGradients.defaultProps = {
   onSelect: () => null,
   divergent: true,
+};
+
+
+export function OpacitySlider(props) {
+  const debouncedOnChange = _.throttle(value => props.onSelect(value), 300, { leading: true });
+  return <Slider 
+    min={0} 
+    max={100} 
+    defaultValue={(props.defaultValue || 1) * 100}
+    valueLabelDisplay='auto'
+    onChange={(event,value) => debouncedOnChange(value / 100)}
+  />;
+}
+OpacitySlider.propTypes = {
+  defaultValue: PropTypes.number,
+  onSelect: PropTypes.func
+};
+
+
+export function OpacityGradient(props) {
+  if(!props.value) {
+    return <div>None</div>;
+  }
+  const reversed = props.value && props.value[0] > props.value[1];
+  let colors = [{r:0, g:0, b:0}, {r:100, g:100, b:100}];
+  if(reversed)
+    colors = colors.reverse();
+
+  return <ColorGradient 
+    value={colors} 
+    onSelect={() => props.onSelect(props.value)} 
+  />;
+}
+OpacityGradient.propTypes = {
+  onSelect: PropTypes.func,
+  value: PropTypes.array,
+  selected: PropTypes.bool
+};
+OpacityGradient.defaultProps = {
+  onSelect: () => null,
+  selected: false
+};
+
+
+export function OpacityGradients({ value, onSelect }) {
+  return <div>
+    <OpacityGradient onSelect={onSelect} value={[0,1]} selected={_.isEqual(value, [0,1])} />
+    <OpacityGradient onSelect={onSelect} value={[1,0]} selected={_.isEqual(value, [1,0])} />
+  </div>;
+}
+OpacityGradients.propTypes = {
+  onSelect: PropTypes.func,
+  value: PropTypes.array,
 };

@@ -7,7 +7,7 @@ import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
-import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
+import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients, TransparancyGradient, TransparancyGradients, OpacitySlider } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
 import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../style/sizes';
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
@@ -343,7 +343,6 @@ export class StylePicker extends React.Component {
   }
 
   handleStyleChange(changes) {
-    console.log(JSON.stringify(changes));
     const change = { style: {...this.state.style, ...changes }};
     this.setState(change);
     this.onStyleChanged(change.style);
@@ -623,7 +622,7 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
         styleVal={minMax}
         handleChange={setSize}
         renderButton={(sizeRange) => 
-          <SizeGradient variant={variant} selected={sizeRange} reversed={minMax[0] > minMax[1]} /> 
+          <SizeGradient variant={variant} selected={sizeRange} reversed={minMax && minMax[0] > minMax[1]} /> 
         }
         renderPopover={(gradient, onSelect) =>
           <SizeGradients variant={variant} min={min} max={max} selected={gradient} onSelect={onSelect} />
@@ -670,6 +669,67 @@ SizeStylePicker.propTypes = {
 };
 SizeStylePicker.defaultProps = {
   variant: 'solid'
+};
+
+
+export function OpacityStylePicker({ controller, selector, styleProp }) {
+  return <StylePicker
+    valueLabel="Single Transparancy"
+    mappingLabel="Transparancy Mapping"
+    discreteLabel="Transparancy per Data Value"
+    controller={controller}
+    selector={selector}
+    renderValue={(value, onSelect) => 
+      <OpacitySlider value={value} onSelect={onSelect} />
+    }
+    renderMapping={(value, setValue) =>
+      <StylePopoverButton 
+        styleVal={value}
+        handleChange={setValue}
+        renderButton={(value) => 
+          <TransparancyGradient value={value} />
+        }
+        renderPopover={(value, onSelect) =>
+          <TransparancyGradients value={value} onSelect={onSelect} />
+        }
+      />
+    }
+    renderDiscrete={(value, setValue) => 
+      <StylePopoverButton 
+        styleVal={value}
+        handleChange={setValue}
+        renderButton={value => 
+          <Button variant='outlined'>{Math.round(value * 100)}</Button>
+        }
+        renderPopover={(value, onSelect) => 
+          <OpacitySlider value={value} onSelect={onSelect} />
+        }
+      />
+    }
+    getStyle={() => 
+      controller.getStyle(selector, styleProp)
+    }
+    getBypassStyle={() =>
+      controller.getBypassStyle(selector, styleProp)
+    }
+    getDiscreteDefault={() =>
+      controller.getDiscreteDefault(selector, styleProp)
+    }
+    onValueSet={value =>
+      controller.setNumber(selector, styleProp, value)
+    }
+    onMappingSet={(attribute, value) =>
+      controller.setNumberLinearMapping(selector, styleProp, attribute, value)
+    }
+    onDiscreteSet={(attribute, valueMap) =>
+      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap)
+    }
+  />;
+}
+OpacityStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  selector: PropTypes.oneOf(['node', 'edge']),
+  styleProp: PropTypes.string,
 };
 
 
@@ -769,7 +829,6 @@ export class NodeSizeStylePicker extends React.Component {
     const { controller } = this.props;
     controller.setNumberDependantMapping('node', 'height', 'width', multiplier);
     this.setState({ multiplier });
-    console.log("handleMultiplier: " + multiplier);
   }
 
   render() {

@@ -491,6 +491,7 @@ export const PROPERTY_TYPE = {
   'text-halign': STYLE_TYPE.STRING,
   'text-valign': STYLE_TYPE.STRING,
   'font-size': STYLE_TYPE.NUMBER,
+  'opacity': STYLE_TYPE.NUMBER,
 }; 
 
 /**  Supported node style properties  */
@@ -540,6 +541,7 @@ export const EDGE_STYLE_PROPERTIES = [
   'target-arrow-shape',
   'target-arrow-color',
   'line-style',
+  'opacity',
 ];
 
 /** An object map of the default edge style values */
@@ -551,6 +553,7 @@ export const DEFAULT_EDGE_STYLE = {
   'target-arrow-shape': styleFactory.string('none'),
   'target-arrow-color': styleFactory.color('#888'),
   'line-style': styleFactory.string('solid'),
+  'opacity': styleFactory.number(1)
 };
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
