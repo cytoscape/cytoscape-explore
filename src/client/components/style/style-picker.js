@@ -503,6 +503,7 @@ function DefaultStylePicker(props) {
   const { controller, selector, styleProp } = props;
   return <StylePicker
     {...props}
+    key={`${selector}_${styleProp}`}
     getStyle={() => 
       controller.getStyle(selector, styleProp)
     }
@@ -932,6 +933,7 @@ export function NodeLabelPositionStylePicker({ controller }) {
   return <StylePicker 
     controller={controller}
     selector={selector}
+    key={`${selector}_position`}
     valueLabel='Position'
     discreteLabel='Position per Data Value'
     renderValue={(value, setValue) => 
