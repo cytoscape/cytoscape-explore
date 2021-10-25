@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { IconButton, Tooltip } from "@material-ui/core";
-import GoogleLoginButton from "./GoogleLoginButton";
 import Avatar from "@material-ui/core/Avatar";
 import { makeStyles } from "@material-ui/core/styles";
+import PropTypes from 'prop-types';
+
 import UserInfoPopover from "./UserInfoPopover";
+import GoogleLoginButton from "./GoogleLoginButton";
+
+import { NetworkEditorController } from '../controller';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,9 +79,10 @@ const AccountButton = ({controller}) => {
   };
 
   // Default: not logged in
-  if (userInfo === null) {
+  if (userInfo == null) {
     return (
       <GoogleLoginButton
+        controller={controller}
         clientId={DEV_SERVER_ID}
         responseHandler={responseHandler}
       />
@@ -110,5 +116,10 @@ const AccountButton = ({controller}) => {
     </div>
   );
 };
+
+AccountButton.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController)
+};
+
 
 export default AccountButton;
