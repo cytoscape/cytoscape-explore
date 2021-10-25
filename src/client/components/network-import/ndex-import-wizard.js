@@ -182,14 +182,17 @@ export class NDExImportSubWizard extends React.Component {
 
   renderSearchBox() {
     let searchString = "";
-    const runSearch = () => {
+    const runSearch = (event) => {
+      event.preventDefault();
       this.setState({ loading: true });
       this.updateButtons( { ...this.state, loading: true });
       this.fetchSearchResults(searchString);
     };
+
     return (
-      <Paper component="form" style={{padding: '2px 4px', display: 'flex', alignItems: 'center', width: '100%'}}>
+      <Paper component="form" onSubmit={runSearch} style={{padding: '2px 4px', display: 'flex', alignItems: 'center', width: '100%'}}>
         <InputBase
+          autoFocus={true}
           style={{marginLeft: '5px', flex: 1 }}
           placeholder="Search NDEx"
           inputProps={{ 'aria-label': 'search google maps' }}
