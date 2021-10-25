@@ -354,9 +354,11 @@ export class NetworkEditorController {
    * @return {Any} the discrete default mapping value
    */
   getDiscreteDefault(selector, property) {
+    if(property === 'label')
+      return '';
     if(selector === 'node')
       return DEFAULT_NODE_STYLE[property].value;
-    else if(selector === 'edge')
+    if(selector === 'edge')
       return DEFAULT_EDGE_STYLE[property].value;
   }
 
