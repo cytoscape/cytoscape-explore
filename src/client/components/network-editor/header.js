@@ -17,6 +17,7 @@ import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
+import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
@@ -119,33 +120,6 @@ export class Header extends Component {
 
     create();
   }
-
-  exportNetworkToNDEx(){
-    const cy = this.controller.cy;
-    const ndexClient = this.controller.ndexClient;
-    const id = cy.data('id');
-
-    if(ndexClient.authenticationType != null && ndexClient._authToken != null){
-      let exportNDEx = async () => {
-        let result = await fetch('/api/document/cx-export', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            id,
-            authToken: ndexClient._authToken
-          })
-        });
-
-        let body = await result.json();
-        let { ndexNetworkURL } = body;
-        window.open(`${ndexNetworkURL}`);
-      };
-      exportNDEx();
-    }
-  }
-
 
   async loadGAL() {
     const { cy } = this.controller;
@@ -269,6 +243,14 @@ export class Header extends Component {
             open={true}
             onClose={() => this.hideDialog()}
           />
+        )}
+        {dialogName === 'ndex-network-export' && (
+            <NDExNetworkExportDialog
+                id="ndex-network-export"
+                controller={this.controller}
+                open={true}
+                onClose={() => this.hideDialog()}
+            />
         )}
       </>
     );

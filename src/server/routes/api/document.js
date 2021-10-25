@@ -80,7 +80,7 @@ const makeNetworkId = () => 'cy' + uuid();
 
 const exportNetworkToNDEx = async (req, res, next) => {
   try {
-    const { id, authToken } = req.body;
+    const { id, authToken, makePublic } = req.body;
     const cy = new Cytoscape();
 
     cy.data({ id });
@@ -97,7 +97,7 @@ const exportNetworkToNDEx = async (req, res, next) => {
     const ndex0 = new ndexClient.NDEx(NDEX_API_URL);
     ndex0.setAuthToken(authToken);
     const ndexUrl = new URL(NDEX_API_URL).origin;
-    const { uuid } = await ndex0.createNetworkFromRawCX2(cx2, true);
+    const { uuid } = await ndex0.createNetworkFromRawCX2(cx2, makePublic);
     const ndexNetworkURL = new URL(`viewer/networks/${uuid}`, ndexUrl).href;
     res.send({ndexNetworkURL});
   } catch (err) {
