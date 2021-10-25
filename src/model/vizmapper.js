@@ -284,6 +284,9 @@ export class VizMapper {
         flatVal = def.stringValue;
       } else if(def.mapping === MAPPING.PASSTHROUGH && STYLE_TYPE.STRING) {
         flatVal = '';
+      } else if(def.mapping === MAPPING.DEPENDANT) {
+        const def2 = _.get(DEF_STYLE, [def.value.property]);
+        flatVal = def2.stringValue;
       }
     }
 

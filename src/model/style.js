@@ -125,8 +125,10 @@ export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStru
     }
   } else if(MAPPING.DEPENDANT === mapping) {
     const sourceVal = getFlatStyleForEle(ele, sourceForDependantStyleStruct);
-    const { multiplier } = styleStruct.value;
-    return sourceVal * multiplier;
+    if(sourceVal) {
+      const { multiplier } = styleStruct.value;
+      return sourceVal * multiplier;
+    }
   }
 };
 
