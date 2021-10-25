@@ -49,15 +49,15 @@ export function SizeGradient(props) {
 
   if(variant === 'border') {
     elements = sizeSteps(2, 10).map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={size} />
+      <div className="size-swatch-border" style={{ borderWidth: size }} key={size} />
     ));
   } else if(variant === 'line') {
     elements = sizeSteps(2, 10).map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={size} />
+      <div className="size-swatch-line" style={{ borderLeftWidth: size }} key={size} />
     ));
   } else if(variant === 'solid') {
     elements = sizeSteps(20, 40).map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={size} />
+      <div className="size-swatch-solid" style={{ width: size, height: size }} key={size} />
     ));
   } else if(variant === 'text') {
     elements = [

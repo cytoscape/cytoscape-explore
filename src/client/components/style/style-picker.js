@@ -323,6 +323,8 @@ export class StylePicker extends React.Component {
   handleStyleChange(changes) {
     const newStyle = {...this.state.style, ...changes };
     
+    console.log("newStyle: " + JSON.stringify(newStyle));
+
     switch(newStyle.mapping) {
       case MAPPING.VALUE:
         if(newStyle.scalarValue === undefined) {
@@ -625,8 +627,8 @@ ShapeStylePicker.propTypes = {
 export function SizeStylePicker({ controller, selector, variant, styleProps }) {
   const [min, max] = 
     (variant == 'solid') ? [10, 50] : 
-    (variant == 'text')  ? [10, 30] : 
-    [0, 10];
+    (variant == 'text')  ? [4, 30] : 
+    [1, 10];
   return <DefaultStylePicker
     controller={controller}
     selector={selector}

@@ -529,10 +529,15 @@ export const DEFAULT_NODE_STYLE = {
   'font-size': styleFactory.number(10)
 };
 
-
+// Note, these mapping defaults are hard-coded for now. This is temporary. They correspond to mappings from the UI components. 
 export const DEFAULT_NODE_MAPPING_STYLE_VALUES = {
-  // Note this corresponds to the red gradient from the ColorGradients component.
-  'background-color': [styleFactory.color('#E6B3B3').value, styleFactory.color('#993333').value],
+  'background-color': [{"r":230,"g":179,"b":179}, {"r":153,"g":51,"b":51}], // This is the red gradient from the ColorGradients component.
+  'width': [10, 50],
+  'height': [10, 50],
+  'border-color': [{"r":179,"g":179,"b":230}, {"r":51,"g":51,"b":153}], // This is the blue gradient from the ColorGradients component.
+  'border-width': [0, 10],
+  'color': [{"r":179,"g":179,"b":230}, {"r":51,"g":51,"b":153}],
+  'font-size': [4, 30],
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
@@ -568,7 +573,9 @@ export const DEFAULT_EDGE_STYLE = {
 
 
 export const DEFAULT_EDGE_MAPPING_STYLE_VALUES = {
-  'line-color': [styleFactory.color('#E6B3B3').value, styleFactory.color('#993333').value],
+  'line-color': [{"r":230,"g":179,"b":179}, {"r":153,"g":51,"b":51}],
+  'opacity': [0, 1],
+  'width': [1, 10]
 };
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
