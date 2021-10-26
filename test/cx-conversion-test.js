@@ -75,11 +75,17 @@ describe('CX Conversion', () => {
       let fixtures = fs.readdirSync(path.resolve(__dirname, inputPath));
 
       fixtures.forEach(file => {
-        let input = JSON.parse(fs.readFileSync(path.resolve(__dirname, inputPath, file)));
-        let expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, outputPath, `${file}.cx`)));
+        let fileInputPath = path.resolve(__dirname, inputPath, file);
+        let fileOutputPath = path.resolve(__dirname, outputPath, `${file}.cx`);
+
+        let input = JSON.parse(fs.readFileSync(fileInputPath));
+        let expected = JSON.parse(fs.readFileSync(fileOutputPath));
+
         let cy = new Cytoscape();
         cy.importJSON(input);
         let output = cy.exportCX2();
+
+        // fs.writeFileSync(fileOutputPath, JSON.stringify(output, null, 2));
         expect(output).to.deep.equal(expected);
       });
     });

@@ -128,12 +128,12 @@
           "node": {
             "NODE_BACKGROUND_COLOR": "#888888",
             "NODE_WIDTH": 30,
-            "NODE_HEIGHT": 30,
             "NODE_BORDER_COLOR": "#888888",
             "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "ellipse",
             "NODE_LABEL_COLOR": "#111111",
-            "NODE_LABEL_FONT_SIZE": 10
+            "NODE_LABEL_FONT_SIZE": 10,
+            "NODE_HEIGHT": 30
           },
           "edge": {
             "EDGE_LINE_COLOR": "#888888",
