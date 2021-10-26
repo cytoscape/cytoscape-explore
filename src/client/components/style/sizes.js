@@ -124,11 +124,11 @@ SizeGradients.defaultProps = {
 
 
 const aspects = [
-  { label:'9:16', multiplier: (16/9),   style: { height:'24px', width:'13px' }},
-  { label:'3:4',  multiplier: (4/3),    style: { height:'24px', width:'18px' }},
-  { label:'1:1',  multiplier: 1,        style: { height:'24px', width:'24px' }},
-  { label:'4:3',  multiplier: 1/(4/3),  style: { height:'18px', width:'24px' }},
   { label:'16:9', multiplier: 1/(16/9), style: { height:'13px', width:'24px' }},
+  { label:'4:3',  multiplier: 1/(4/3),  style: { height:'18px', width:'24px' }},
+  { label:'1:1',  multiplier: 1,        style: { height:'24px', width:'24px' }},
+  { label:'3:4',  multiplier: (4/3),    style: { height:'24px', width:'18px' }},
+  { label:'9:16', multiplier: (16/9),   style: { height:'24px', width:'13px' }},
 ];
 
 export function AspectRatioPicker(props) {
