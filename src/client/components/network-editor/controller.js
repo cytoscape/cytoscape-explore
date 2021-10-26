@@ -512,7 +512,6 @@ export class NetworkEditorController {
     this.bus.emit('setStringDiscreteMapping', selector, property, attribute, valueMap);
   }
 
-
   /**
    * Returns the min, max and center values to use for a linear or diverging mapping.
    * @private

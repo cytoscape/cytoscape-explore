@@ -1,0 +1,93 @@
+.import-dialog .MuiDialog-paper {
+  overflow: hidden;
+}
+
+.excel-import .MuiDropzoneArea-root {
+  min-height: 120px;
+}
+
+.excel-import .MuiDropzoneArea-text {
+  margin-top: 10px;
+}
+
+.MuiDialogContent-root .MuiTypography-h5 {
+  font-size: 1rem;
+}
+
+.import-preview {
+  width: 100%;
+  margin-top: 10px;
+  padding-bottom: 120px;
+}
+
+.import-preview .MuiTableContainer-root {
+  height: 120px;
+}
+
+.import-preview .MuiTableContainer-root th {
+  font-weight: bold;
+}
+
+#cy-import-preview {
+  width: 60%;
+  min-height: 100px;
+  pointer-events: none;
+}
+
+.preview-cy-popper {
+  z-index: 9999;
+}
+
+.preview-cy-popper-node {
+  padding-bottom: 0.25em;
+}
+
+.preview-cy-popper-data {
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.preview-cy-popper-node .popper-content {
+  border-radius: 6px;
+  color: #e9e9e9;
+  background-color: #3a393a;
+  font-size: 0.9em;
+  font-weight: bold;
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.preview-cy-popper-data .popper-content {
+  border-radius: 6px;
+  background-color: #3a393a;
+  color: #e9e9e9;
+  font-size: 0.9em;
+  font-weight: bold;
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.preview-cy-popper .arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #3a393a;
+  border-bottom: 8px solid transparent;
+}
+
+.preview-cy-popper .arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid #3a393a;
+}
+
+.popper-content .MuiTableContainer-root {
+  max-width: 480px;
+}

@@ -3,6 +3,7 @@
 @import "./style-panel.css";
 @import "./header.css";
 @import "./layout-panel.css";
+@import "./import-wizard.css";
 
 .network-editor {
   display: flex;

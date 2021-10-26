@@ -155,6 +155,7 @@ export class NetworkAnalyser {
             [ type,              { set: first ? COMMON : new Set(ele) } ]  // override previous entry for the type
           ])
         };
+        newInfo.range = new Range(newInfo);
         if(type == ATTR_TYPE.NUMBER) {
           this._expandRange(newInfo.types.get(ATTR_TYPE.NUMBER), data[attr]);
         }
