@@ -221,6 +221,12 @@ MappingAndAttributeSelector.defaultProps = {
 };
 
 
+const BYPASS_TYPE = {
+  MIXED: 'MIXED',
+  ALL_SAME: 'ALL_SAME',
+  ALL_UNSET: 'ALL_UNSET',
+};
+
 export class StylePicker extends React.Component { 
 
   constructor(props) {
@@ -262,23 +268,21 @@ export class StylePicker extends React.Component {
       style: {},
     };
 
+    // see vizmapper.js method bypass()
     const bypassStyle = this.props.getBypassStyle();
     
-    // If all the selected elements have the same value.
-    if(bypassStyle.length == 1) {
-      const scalarValue = bypassStyle[0].styleVal;
-      if(scalarValue == 'unset') {
-        state.bypassType = 'all-unset';
-      } else {
-        // add this so that renderValue() will work.
-        state.style = { 
-          mapping: MAPPING.VALUE,
-          scalarValue,
-        };
-        state.bypassType = 'all-same';
-      }
+    // If all the selected elements have the same value
+    // TODO Make 'mixed', 'all-unset' and 'all-same' into an enum
+    if(bypassStyle === 'mixed') {
+      state.bypassType = BYPASS_TYPE.MIXED;
+    } else if(bypassStyle == undefined) {
+      state.bypassType = BYPASS_TYPE.ALL_UNSET;
     } else {
-      state.bypassType = 'mixed';
+      state.style = { 
+        mapping: MAPPING.VALUE,
+        scalarValue: bypassStyle.value,
+      };
+      state.bypassType = BYPASS_TYPE.ALL_SAME;
     }
     return state;
   }
@@ -456,18 +460,18 @@ export class StylePicker extends React.Component {
     };
 
     const { bypassType } = this.state;
-    if(bypassType == 'mixed') {
+    if(bypassType == BYPASS_TYPE.MIXED) {
       return <div>
         The selected elements have different bypass values.
         <br />
         <BypassButton variant='remove' />
       </div>;
-    } else if(bypassType == 'all-same') {
+    } else if(bypassType == BYPASS_TYPE.ALL_SAME) {
       return <div>
         { this.renderValue() }
         <BypassButton variant='remove' />
       </div>;
-    } else if(bypassType == 'all-unset') {
+    } else if(bypassType == BYPASS_TYPE.ALL_UNSET) {
       return <BypassButton variant='add' />; 
     }
   }
@@ -984,17 +988,21 @@ export function NodeLabelPositionStylePicker({ controller }) {
       }
     }}
     getBypassStyle={() => {
-      const h = controller.getBypassStyle(selector, 'text-halign');
-      const v = controller.getBypassStyle(selector, 'text-valign');
+      const hStyle = controller.getBypassStyle(selector, 'text-halign');
+      const vStyle = controller.getBypassStyle(selector, 'text-valign');
+      if(hStyle == undefined || vStyle == undefined)
+        return undefined;
+      if(hStyle == 'mixed' || vStyle == 'mixed')
+        return 'mixed';
       return {
         type: 'STRING',
         mapping: MAPPING.VALUE,
-        value: stylePropsToLabelPos(h.value, v.value)
+        value: stylePropsToLabelPos(hStyle.value, vStyle.value)
       };
     }}
     onValueSet={pos => {
-      controller.setString(selector, 'text-halign', pos.halign);
-      controller.setString(selector, 'text-valign', pos.valign);
+      controller.setString(selector, 'text-halign', pos && pos.halign);
+      controller.setString(selector, 'text-valign', pos && pos.valign);
     }}
     onDiscreteSet={(attribute, valueMap) => {
       const halignMap = {};

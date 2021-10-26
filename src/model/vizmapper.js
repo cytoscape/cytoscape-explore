@@ -223,24 +223,43 @@ export class VizMapper {
       assertPropertyIsSupported(property);
       // assertIsSingleEle(ele);
 
+      // The below code creates a map of each style val to the elements
+      // that have that value. With "unset" used as a special key for 
+      // elements that don't have a bypass.
+      // const _bypasses = this.cy.data('_bypasses') || {};
+      // // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
+      // const ret = [];
+      // const ids = eles.slice(0,5).map(ele => ele.id());
+      // ids.forEach(id => {
+      //   const v = _.get(_bypasses, [id, property, 'value']);
+      //   const styleVal = v == null || v == undefined ? 'unset' : v;
+      //   const existing = ret.find(e => e.styleVal == styleVal);
+      //   if(existing) {
+      //     existing.ids.push(id);
+      //   } else {
+      //     ret.push({ styleVal, ids:[id] });
+      //   }
+      // });
+      // ret.sort((s1, s2) => s1.ids.length - s2.ids.length);
+      // return ret;
+
+      // If no elements are bypassed then undefined is returned.
+      // If all elements have the same bypass style then the style object is returned.
+      // If the elements do not all have the same bypass style, or some are bypassed and others are not, then 'mixed' is returned.
       const _bypasses = this.cy.data('_bypasses') || {};
+      const getBypassForId = id => _.get(_bypasses, [id, property]);
 
-      // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
-      const ret = [];
+      return eles.map(ele => ele.id()).reduce((bypassStyle, id) => {
+        if(bypassStyle == 'mixed')
+          return 'mixed';
 
-      const ids = eles.slice(0,5).map(ele => ele.id());
-      ids.forEach(id => {
-        const v = _.get(_bypasses, [id, property, 'value']);
-        const styleVal = v == null || v == undefined ? 'unset' : v;
-        const existing = ret.find(e => e.styleVal == styleVal);
-        if(existing) {
-          existing.ids.push(id);
+        const eleBypass = getBypassForId(id);
+        if(bypassStyle == undefined || _.isEqual(bypassStyle, eleBypass)) {
+          return eleBypass;
         } else {
-          ret.push({ styleVal, ids:[id] });
+          return 'mixed';
         }
-      });
-      ret.sort((s1, s2) => s1.ids.length - s2.ids.length);
-      return ret;
+      }, undefined);
     }
   }
 
