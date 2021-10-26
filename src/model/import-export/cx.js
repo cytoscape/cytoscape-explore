@@ -351,14 +351,26 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
         if (jsvpName) {
             const attr = mapping.definition.attribute;
             if (mapping.type === "DISCRETE") {
-                const valueMap = {};
+                const valueMap = {};  // this mapping holds the boxed value. Need to unbox it when creating the style.
                 mapping.definition.map.forEach(function (mappingEntry) {
-                    const newValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(mappingEntry.vp).value;
-                    valueMap[mappingEntry.v] = newValue;
+                    const boxedValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(mappingEntry.vp);
+                    valueMap[mappingEntry.v] = boxedValue;
                 });
-                const defaultValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]).value;
-                const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultValue, valueMap);
-                vizmapper.set(selector, jsvpName, style);
+                const defaultBoxedValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]);
+                if ( jsvpName instanceof Array) {
+                    jsvpName.forEach((jsVpNameElmt) => {
+                        const workerValueMap = {};
+                        Object.keys(valueMap).forEach(function(key){ workerValueMap[key] = valueMap[key][jsVpNameElmt].value; });
+                        const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultBoxedValue[jsVpNameElmt].value,
+                            workerValueMap);
+                        vizmapper.set(selector, jsVpNameElmt, style);
+                    });
+                } else {
+                    Object.keys(valueMap).forEach(function(key){ valueMap[key] = valueMap[key].value; });
+                    const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultBoxedValue.value,
+                        valueMap);
+                    vizmapper.set(selector, jsvpName, style);
+                }
             } else if (mapping.type === 'CONTINUOUS') {
                 if ( STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory) {
                     let newList = mapping.definition.map.reduce(_continuousMappingCvtr, {
