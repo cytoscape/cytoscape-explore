@@ -230,7 +230,8 @@ export class VizMapper {
 
       const ids = eles.slice(0,5).map(ele => ele.id());
       ids.forEach(id => {
-        const styleVal = _.get(_bypasses, [id, property, 'value']) || 'unset';
+        const v = _.get(_bypasses, [id, property, 'value']);
+        const styleVal = v == null || v == undefined ? 'unset' : v;
         const existing = ret.find(e => e.styleVal == styleVal);
         if(existing) {
           existing.ids.push(id);
