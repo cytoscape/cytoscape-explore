@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Slider } from '@material-ui/core';
+import { IconButton, Slider, Tooltip } from '@material-ui/core';
 import { FormControl, Select } from "@material-ui/core";
 
 export function SizeSlider(props) {
@@ -124,28 +124,40 @@ SizeGradients.defaultProps = {
 
 
 const aspects = [
-  { label:'1:1',  multiplier: 1 },
-  { label:'4:3',  multiplier: 1/(4/3) },
-  { label:'3:2',  multiplier: 1/(3/2) },
-  { label:'16:9', multiplier: 1/(16/9) }
+  { label:'9:16', multiplier: (16/9),   style: { height:'24px', width:'13px' }},
+  { label:'3:4',  multiplier: (4/3),    style: { height:'24px', width:'18px' }},
+  { label:'1:1',  multiplier: 1,        style: { height:'24px', width:'24px' }},
+  { label:'4:3',  multiplier: 1/(4/3),  style: { height:'18px', width:'24px' }},
+  { label:'16:9', multiplier: 1/(16/9), style: { height:'13px', width:'24px' }},
 ];
 
 export function AspectRatioPicker(props) {
-  // square, 16:9, 4:3, 3:2
-  return (
-    <FormControl style={{ width: '100%' }} size="small" variant="outlined">
-      <Select
-        native
-        labelId="aspect-select-label"
-        onChange={event => props.onChange(event.target.value)}
-        value={props.multiplier}
-      >
-        { aspects.map((aspect, index) => 
-          <option key={index} aria-label={aspect.label} value={aspect.multiplier}>{aspect.label}</option>
-        )}
-      </Select>
-    </FormControl>
-  );
+  return <div>
+    <div>
+      Orientation
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      { aspects.map((aspect, index) => {
+        const { multiplier, label } = aspect;
+        const selected = props.multiplier == multiplier;
+        const style = { 
+          ...aspect.style,
+          backgroundColor: selected ? '#147acd' : '#777'
+        };
+        const orientation = multiplier == 1 ? "Square" : multiplier < 1 ? "Landscape" : "Portrait";
+        const tooltip = `${orientation} (${label})`;
+        return (
+          <Tooltip key={index} title={tooltip}>
+            <IconButton key={index} aria-label={label} 
+              onClick={() => props.onChange(multiplier)}
+            > 
+              <div style={style}/>
+            </IconButton>
+          </Tooltip>
+        );
+      })}
+    </div>
+  </div>;
 }
 AspectRatioPicker.propTypes = {
   multiplier: PropTypes.any,
