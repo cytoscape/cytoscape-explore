@@ -3,7 +3,7 @@ import { convertCY } from './cx/cy-converter.js';
 import { styleFactory } from '../../model/style';
 
 
-/* order of keys: anchor_v, anchor_h, label_v, label_h */
+/* order of keys:  anchor_v, anchor_h, label_v, label_h */
 const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
     'center': {
          'center': {
@@ -122,8 +122,8 @@ const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
             },
             'top': {
                 'center':{ 'text-halign': 'center', 'text-valign': 'bottom' },
-                'left': { 'text-halign': 'left', 'text-valign': 'bottom' },
-                'right': { 'text-halign': 'right', 'text-valign': 'bottom' }
+                'left': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'left', 'text-valign': 'bottom' }
             },
             'bottom': {
                 'center': { 'text-halign': 'center', 'text-valign': 'center' },
@@ -195,7 +195,10 @@ const stringMapper = {
 
 const labelLocationMapper = {
     valueCvtr: ((value) => {
-       return CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[value.VERTICAL_ANCHOR][value.HORIZONTAL_ANCHOR][value.VERTICAL_ALIGN][value.HORIZONTAL_ALIGN];
+       const v = CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[value.VERTICAL_ANCHOR][value.HORIZONTAL_ANCHOR][value.VERTICAL_ALIGN][value.HORIZONTAL_ALIGN];
+       v['text-halign'] = styleFactory.string(v['text-halign']);
+       v['text-valign'] = styleFactory.string(v['text-valign']);
+       return v;
     }),
     //jsValueType: styleFactory.string,
     discreteMappingFactory: styleFactory.discreteString,
@@ -244,7 +247,7 @@ const STYLE_CONVERTING_TABLE = {
       },
 
   'NODE_LABEL_POSITION':
-      { jsVPName :  ['text-halign','text-halign'],
+      { jsVPName :  ['text-halign','text-valign'],
             mapper: labelLocationMapper
       },
 
