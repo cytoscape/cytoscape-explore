@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import {
-  Checkbox,
   DialogTitle,
   DialogContent,
   Dialog,
   DialogActions,
   TextField,
-  FormControlLabel,
+  InputLabel,
+  Select,
+  MenuItem,
   Button,
 
 } from '@material-ui/core';
@@ -96,8 +97,16 @@ export class NDExExportDialog extends Component {
             onChange={(evt) => { this.props.controller.cy.data('name', evt.target.value); this.dirty();}}
             value={this.props.controller.cy.data('name')}
           />
-          <FormControlLabel control={<Checkbox defaultChecked />} label="Public Network" />
-        </DialogContent>
+          <InputLabel id="network-visibility-select">Visibility</InputLabel>
+          <Select
+            labelId="network-visibility-select"
+            value={this.state.exportPublicNetwork}
+            onChange={e => this.setState({exportPublicNetwork: e.target.value})}
+          >
+            <MenuItem value={true}>Public</MenuItem>
+            <MenuItem value={false}>Private</MenuItem>
+          </Select>
+          </DialogContent>
         <DialogActions>
           <Button
               variant="contained"
