@@ -9,7 +9,6 @@ import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, DEFAULT_NODE_MAPPING_STYLE_VALUES, DEFAULT_EDGE_MAPPING_STYLE_VALUES } from '../../../model/style';
-import { styleFactory } from '../../../model/style';
 import { DEFAULT_PADDING } from '../layout/defaults';
 import { NDEX_API_URL } from '../../env';
 /**
