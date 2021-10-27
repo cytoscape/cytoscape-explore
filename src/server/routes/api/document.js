@@ -4,7 +4,7 @@ import Cytoscape from 'cytoscape';
 import CytoscapeSyncher from '../../../model/cytoscape-syncher';
 import ndexClient from 'ndex-client';
 
-import { BASE_URL, NDEX_API_URL, NDEX_TEST_USER, NDEX_TEST_PASSWORD } from '../../env';
+import { BASE_URL, NDEX_API_URL } from '../../env';
 import { importCX, exportCX } from '../../../model/import-export/cx';
 import { importJSON, exportJSON } from '../../../model/import-export/json';
 
@@ -80,7 +80,7 @@ const makeNetworkId = () => 'cy' + uuid();
 
 const exportNetworkToNDEx = async (req, res, next) => {
   try {
-    const { id } = req.body;
+    const { id, authToken } = req.body;
     const cy = new Cytoscape();
 
     cy.data({ id });
@@ -95,7 +95,7 @@ const exportNetworkToNDEx = async (req, res, next) => {
     cy.destroy();
 
     const ndex0 = new ndexClient.NDEx(NDEX_API_URL);
-    ndex0.setBasicAuth(NDEX_TEST_USER, NDEX_TEST_PASSWORD);
+    ndex0.setAuthToken(authToken);
     const ndexUrl = new URL(NDEX_API_URL).origin;
     const { uuid } = await ndex0.createNetworkFromRawCX2(cx2, true);
     const ndexNetworkURL = new URL(`viewer/networks/${uuid}`, ndexUrl).href;
