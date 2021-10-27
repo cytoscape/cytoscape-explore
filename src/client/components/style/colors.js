@@ -225,13 +225,13 @@ export function OpacitySlider(props) {
   return <Slider 
     min={0} 
     max={100} 
-    defaultValue={(props.defaultValue || 1) * 100}
+    defaultValue={(props.value || 1) * 100}
     valueLabelDisplay='auto'
     onChange={(event,value) => debouncedOnChange(value / 100)}
   />;
 }
 OpacitySlider.propTypes = {
-  defaultValue: PropTypes.number,
+  value: PropTypes.number,
   onSelect: PropTypes.func
 };
 
