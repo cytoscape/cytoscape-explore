@@ -225,7 +225,7 @@ export function OpacitySlider(props) {
   return <Slider 
     min={0} 
     max={100} 
-    defaultValue={(props.value || 1) * 100}
+    defaultValue={Math.round((props.value || 0) * 100)}
     valueLabelDisplay='auto'
     onChange={(event,value) => debouncedOnChange(value / 100)}
   />;

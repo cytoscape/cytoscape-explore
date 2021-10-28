@@ -69,7 +69,7 @@ export class NetworkEditor extends Component {
       {
         selector: '.unselected',
         style: {
-          'opacity': 0.333
+          'opacity': ele => 0.333 * this.cy.vizmapper().calculate(ele, 'opacity')
         }
       },
       {

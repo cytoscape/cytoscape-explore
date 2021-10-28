@@ -528,7 +528,8 @@ export const DEFAULT_NODE_STYLE = {
   'color': styleFactory.color('#111'), // label color
   'text-halign': styleFactory.string('center'),
   'text-valign': styleFactory.string('top'),
-  'font-size': styleFactory.number(10)
+  'font-size': styleFactory.number(10),
+  'opacity': styleFactory.number(1), // This is required to support selection, even if we don't expose it in the UI
 };
 
 // Note, these mapping defaults are hard-coded for now. This is temporary. They correspond to mappings from the UI components. 
@@ -570,7 +571,7 @@ export const DEFAULT_EDGE_STYLE = {
   'target-arrow-shape': styleFactory.string('none'),
   'target-arrow-color': styleFactory.color('#888'),
   'line-style': styleFactory.string('solid'),
-  'opacity': styleFactory.number(1)
+  'opacity': styleFactory.number(1),
 };
 
 
