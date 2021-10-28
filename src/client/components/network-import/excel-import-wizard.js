@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOMServer from 'react-dom/server';
+import ReactDOM from 'react-dom';
 import { NetworkEditorController } from '../network-editor/controller';
+import theme from '../../theme';
+import { ThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Cytoscape from 'cytoscape';
 import _ from 'underscore';
 import * as XLSX from "xlsx";
@@ -286,13 +289,13 @@ class ExcelImportSubWizard extends React.Component {
         {
           selector: 'node',
           style: {
-            'background-color': '#66c',
+            'background-color': '#0571b0',
             'label': 'data(id)',
             'font-size': '12px',
             'text-halign': 'center',
             'text-valign': 'center',
             'text-outline-width': 2,
-            'text-outline-color': '#66c',
+            'text-outline-color': '#0571b0',
             'color': '#fff',
             'overlay-opacity': 0,
           }
@@ -300,7 +303,7 @@ class ExcelImportSubWizard extends React.Component {
         {
           selector: 'edge',
           style: {
-            'line-color': '#339',
+            'line-color': '#a6cadf',
             'width': '6px',
             'overlay-opacity': 0,
           }
@@ -345,17 +348,22 @@ class ExcelImportSubWizard extends React.Component {
         const div = document.createElement('div');
         div.classList.add('preview-cy-popper');
         div.classList.add('preview-cy-popper-node');
-        div.innerHTML = ReactDOMServer.renderToStaticMarkup(
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-          >
-            <div className="popper-content">{attr}</div>
-            <div className="arrow-down" />
-          </Grid>
-        );
         document.body.appendChild(div);
+        
+        const comp = (
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Grid
+              container
+              direction="column"
+              alignItems="center"
+            >
+              <div className="popper-content">{attr}</div>
+              <div className="arrow-down" />
+            </Grid>
+          </ThemeProvider>
+        );
+        ReactDOM.render(comp, div);
 
         return div;
       },
@@ -396,116 +404,121 @@ class ExcelImportSubWizard extends React.Component {
         const div = document.createElement('div');
         div.classList.add('preview-cy-popper');
         div.classList.add('preview-cy-popper-data');
-        div.innerHTML = ReactDOMServer.renderToStaticMarkup(
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-          >
-            <div className="arrow-up" />
-            <div className="popper-content">
-              <TableContainer component={Paper}>
-                <Table size="small" stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      {keys && keys.map((k) => (
-                        <TableCell key={k}>{k}</TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      {keys && keys.map((k) => (
-                          <TableCell key={k} style={{textAlign: 'center'}}>
-                            {chartKeys.includes(k) ?
-                              <canvas
-                                id={`chart-${k.replaceAll(' ', '_')}`}
-                                style={{width: '128px', height: '64px'}}
-                              />
-                            :
-                              <>{ data[k] + '' }</>
-                            }
-                          </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          </Grid>
-        );
         document.body.appendChild(div);
 
-        // Create charts for numeric attributes
-        for (const k of chartKeys) {
-          // Get the column data
-          const colData = [];
+        const comp = (
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Grid container direction="column" alignItems="center">
+              <div className="arrow-up" />
+              <div className="popper-content">
+                <TableContainer component={Paper}>
+                  <Table size="small" stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        {keys && keys.map((k) => (
+                          <TableCell key={k}>{k}</TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        {keys && keys.map((k) => (
+                            <TableCell key={k} style={{textAlign: 'center'}}>
+                              {chartKeys.includes(k) ?
+                                <canvas
+                                  id={`chart-${k.replaceAll(' ', '_')}`}
+                                  style={{width: '128px', height: '64px'}}
+                                />
+                              :
+                                <>{ data[k] + '' }</>
+                              }
+                            </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            </Grid>
+          </ThemeProvider>
+        );
 
-          for (const row of allData)
-            colData.push(row[k]);
-
-          // Normal distribution - sort values
-          colData.sort((a, b) => a - b);
-          const m = mean(colData);
-          const sd = std(colData); // The standard deviation
-          const dist = gaussian(m, sd);
-
-          const lowerBound = colData[0];
-          const upperBound = colData[colData.length - 1];
-          const min = lowerBound - 2 * sd;
-          const max = upperBound + 2 * sd;
-          const unit = (max - min) / 100;
-          
-          const xSeries = _.range(min, max, unit);
-          const ySeries = [];
-          const chartData = [];
-          
-          for (const x of xSeries) {
-            const y = dist.pdf(x);
-            ySeries.push(y);
-            chartData.push({ x: x, y: y });
-          }
-
-          // We need the labels!
-          const labels = xSeries.map((i) => String(i));
-
-          // Customize options -- show the current value as a chart annotation
-          // (see: https://www.chartjs.org/chartjs-plugin-annotation/guide/types/line.html)
-          const myVal = data[k]; // This element's value
-
-          const options = { ...chartOptions };
-          const myValueLine = options.plugins.annotation.annotations.myValueLine;
-          myValueLine['xMin'] = myVal;
-          myValueLine['xMax'] = myVal;
-          myValueLine['yMin'] = Math.min(ySeries);
-          myValueLine['yMax'] = Math.max(ySeries);
-          myValueLine.label['content'] = myVal;
-
-          // Create the chart
-          const ctx = document.getElementById(`chart-${k.replaceAll(' ', '_')}`).getContext('2d');
-          new Chart(ctx, {
-              data: {
-                labels: labels,
-                datasets: [
-                  {
-                    type: 'line',
-                    label: 'All Values of ' + k,
-                    data: chartData,
-                    borderWidth: 1,
-                    borderColor: '#8c96c6',
-                    fill: true,
-                    backgroundColor: '#e0ecf4',
-                    tension: 0.3,
-                  },
-                ]
-              },
-              options: options,
-          });
-        }
+        ReactDOM.render(comp, div, () => {
+          for (const k of chartKeys)
+            this.createPopperChart(k, data, allData);
+        });
 
         return div;
       },
     });
+  }
+
+  /** Create charts for numeric attributes. */ 
+  createPopperChart(k, elementData, allData) {
+      // Get the column data
+      const colData = [];
+
+      for (const row of allData)
+        colData.push(row[k]);
+
+      // Normal distribution - sort values
+      colData.sort((a, b) => a - b);
+      const m = mean(colData);
+      const sd = std(colData); // The standard deviation
+      const dist = gaussian(m, sd);
+
+      const lowerBound = colData[0];
+      const upperBound = colData[colData.length - 1];
+      const min = lowerBound - 2 * sd;
+      const max = upperBound + 2 * sd;
+      const unit = (max - min) / 100;
+      
+      const xSeries = _.range(min, max, unit);
+      const ySeries = [];
+      const chartData = [];
+      
+      for (const x of xSeries) {
+        const y = dist.pdf(x);
+        ySeries.push(y);
+        chartData.push({ x: x, y: y });
+      }
+
+      // We need the labels!
+      const labels = xSeries.map((i) => String(i));
+
+      // Customize options -- show the current value as a chart annotation
+      // (see: https://www.chartjs.org/chartjs-plugin-annotation/guide/types/line.html)
+      const myVal = elementData[k]; // This element's value
+
+      const options = { ...chartOptions };
+      const myValueLine = options.plugins.annotation.annotations.myValueLine;
+      myValueLine['xMin'] = myVal;
+      myValueLine['xMax'] = myVal;
+      myValueLine['yMin'] = Math.min(ySeries);
+      myValueLine['yMax'] = Math.max(ySeries);
+      myValueLine.label['content'] = myVal;
+
+      // Create the chart
+      const ctx = document.getElementById(`chart-${k.replaceAll(' ', '_')}`).getContext('2d');
+      new Chart(ctx, {
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                type: 'line',
+                label: 'All Values of ' + k,
+                data: chartData,
+                borderWidth: 1,
+                borderColor: theme.palette.text.primary,
+                fill: true,
+                backgroundColor: theme.palette.divider,
+                tension: 0.3,
+              },
+            ]
+          },
+          options: options,
+      });
   }
 
   removePoppers() {
@@ -659,14 +672,14 @@ const chartOptions = {
         myValueLine: {
           type: 'line',
           borderWidth: 2,
-          borderColor: 'rgba(0, 0, 0, 0.87)',
+          borderColor: theme.palette.text.primary,
           borderDash: [2, 2],
           label: {
             enabled: true,
             position: 'end',
             yAdjust: 18,
             yPadding: 0,
-            color: 'rgba(0, 0, 0, 0.87)',
+            color: theme.palette.text.primary,
             backgroundColor: 'rgba(255, 255, 255, 0.0)',
             // font: {
             //   weight: 'plain',
