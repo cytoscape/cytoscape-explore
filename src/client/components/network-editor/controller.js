@@ -8,7 +8,7 @@ import { UndoSupport } from '../undo/undo';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
-import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
+import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, DEFAULT_NODE_MAPPING_STYLE_VALUES, DEFAULT_EDGE_MAPPING_STYLE_VALUES } from '../../../model/style';
 import { DEFAULT_PADDING } from '../layout/defaults';
 import { NDEX_API_URL } from '../../env';
 /**
@@ -361,10 +361,26 @@ export class NetworkEditorController {
    * @return {Any} the discrete default mapping value
    */
   getDiscreteDefault(selector, property) {
+    if(property === 'label')
+      return '';
     if(selector === 'node')
       return DEFAULT_NODE_STYLE[property].value;
-    else if(selector === 'edge')
+    if(selector === 'edge')
       return DEFAULT_EDGE_STYLE[property].value;
+  }
+
+  /**
+   * Return the default mapping range.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
+   * @return {Any} the discrete default mapping value
+   */
+  getMappingDefault(selector, property) {
+    if(selector === 'node') {
+      return DEFAULT_NODE_MAPPING_STYLE_VALUES[property];
+    } else if(selector === 'edge') {
+      return DEFAULT_EDGE_MAPPING_STYLE_VALUES[property];
+    }
   }
 
   /**
@@ -477,6 +493,21 @@ export class NetworkEditorController {
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setNumberDiscreteMapping', selector, property, attribute, valueMap);
   }
+
+
+  /**
+   * Set the numeric value of all elements to a discrete mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
+   * @param {String} dependantProperty a style property that the property is depedant on.
+   * @param {Number} multiplier multiplier to be use in the mapping.
+   */
+   setNumberDependantMapping(selector, property, dependantProperty, multiplier) {
+    const style = styleFactory.dependantNumber(dependantProperty, multiplier);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setNumberDependantMapping', selector, property, dependantProperty, multiplier);
+  }
+
 
   /**
    * Set a string propetry of all elements to single value.

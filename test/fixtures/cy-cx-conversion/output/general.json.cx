@@ -204,7 +204,6 @@
           "node": {
             "NODE_BACKGROUND_COLOR": "#6666CC",
             "NODE_WIDTH": 30,
-            "NODE_HEIGHT": 30,
             "NODE_BORDER_COLOR": "#888888",
             "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "round-rectangle",

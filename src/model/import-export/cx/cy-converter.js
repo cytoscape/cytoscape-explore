@@ -2,6 +2,7 @@
  import { rgbObjToHex, MAPPING, STYLE_TYPE, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../style';
  import _ from 'lodash';
 
+ // current CX node properties supported
  const cy2cxNodeVisualProp = {
    // cy.js to cx
    'shape': 'NODE_SHAPE',
@@ -16,6 +17,7 @@
  };
 
 
+ // current CX edge properties supported
  const cy2cxEdgeVisualProp = {
    // cy.js to cx
    'line-style': 'EDGE_LINE_STYLE',
@@ -195,6 +197,16 @@
    const styleSnapshot = _.cloneDeep(cy.data('_styles') || {});
    const bypassSnapshot = _.cloneDeep(cy.data('_bypasses') || {});
 
+   const validDefaultNodeStyles = _.cloneDeep(DEFAULT_NODE_STYLE);
+   const validDefaultEdgeStyles = _.cloneDeep(DEFAULT_EDGE_STYLE);
+
+   Object.keys(validDefaultNodeStyles)
+   .filter(key => cy2cxNodeVisualProp[key] == null)
+   .forEach(key => delete validDefaultNodeStyles[key]);
+
+   Object.keys(validDefaultEdgeStyles)
+   .filter(key => cy2cxEdgeVisualProp[key] == null)
+   .forEach(key => delete validDefaultEdgeStyles[key]);
 
    // 1. populate defaults with the default styles from style.js
    // 2. iterate over each entry in the style snapshot
@@ -208,12 +220,12 @@
    // 1. populate style defaults
    [
      {
-       defaultStyleDict: DEFAULT_NODE_STYLE,
+       defaultStyleDict: validDefaultNodeStyles,
        defaultAspect: visualPropertiesAspect.visualProperties[0].default.node,
        cy2cxStyleNameMap: cy2cxNodeVisualProp
      },
      {
-       defaultStyleDict: DEFAULT_EDGE_STYLE,
+       defaultStyleDict: validDefaultEdgeStyles,
        defaultAspect: visualPropertiesAspect.visualProperties[0].default.edge,
        cy2cxStyleNameMap: cy2cxEdgeVisualProp
      }
@@ -221,10 +233,9 @@
      Object.entries(defaultStyleDict).forEach(([cyStyleName, styleObj]) => {
        let { type, value, mapping } = styleObj;
        let cxStyleName = cy2cxStyleNameMap[cyStyleName];
-       let unsupportedProperties = ['label', 'text-valign', 'text-halign'];
 
        // mappings go in the nodeMapping/edgeMapping object
-       if(unsupportedProperties.includes(cyStyleName) || mapping !== MAPPING.VALUE){
+       if(cyStyleName === 'label' || mapping !== MAPPING.VALUE){
          return;
        }
        defaultAspect[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
@@ -249,11 +260,6 @@
        let { type, value, mapping, stringValue } = styleObj;
        let cxStyleName = cy2cxStyleNameMap[cyStyleName];
        let { data, defaultValue, styleValues, dataValues } = value;
-       let unsupportedProperties = ['text-valign', 'text-halign'];
-
-       if(unsupportedProperties.includes(cyStyleName)){
-         return;
-       }
 
        switch(mapping){
          case MAPPING.VALUE:
@@ -321,11 +327,10 @@
        id: cxId,
        v: {}
      };
-     let unsupportedProperties = ['text-valign', 'text-halign'];
 
      Object.entries(bypassObj).forEach(([styleName, styleObj]) => {
        let { type, mapping, value } = styleObj;
-       if (mapping !== MAPPING.VALUE || unsupportedProperties.includes(styleName)){
+       if (mapping !== MAPPING.VALUE){
          return;
        }
        let cxStyleName = isNode ? cy2cxNodeVisualProp[styleName] : cy2cxEdgeVisualProp[styleName];

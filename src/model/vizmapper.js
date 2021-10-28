@@ -223,24 +223,56 @@ export class VizMapper {
       assertPropertyIsSupported(property);
       // assertIsSingleEle(ele);
 
+      // The below code creates a map of each style val to the elements
+      // that have that value. With "unset" used as a special key for 
+      // elements that don't have a bypass.
+      // const _bypasses = this.cy.data('_bypasses') || {};
+      // // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
+      // const ret = [];
+      // const ids = eles.slice(0,5).map(ele => ele.id());
+      // ids.forEach(id => {
+      //   const v = _.get(_bypasses, [id, property, 'value']);
+      //   const styleVal = v == null || v == undefined ? 'unset' : v;
+      //   const existing = ret.find(e => e.styleVal == styleVal);
+      //   if(existing) {
+      //     existing.ids.push(id);
+      //   } else {
+      //     ret.push({ styleVal, ids:[id] });
+      //   }
+      // });
+      // ret.sort((s1, s2) => s1.ids.length - s2.ids.length);
+      // return ret;
+
+      // If no elements are bypassed then undefined is returned.
+      // If all elements have the same bypass style then the style object is returned.
+      // If the elements do not all have the same bypass style, or some are bypassed and others are not, then 'mixed' is returned.
       const _bypasses = this.cy.data('_bypasses') || {};
+      const getBypassForId = id => _.get(_bypasses, [id, property]);
 
-      // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
-      const ret = [];
+      return eles.map(ele => ele.id()).reduce((bypassStyle, id) => {
+        if(bypassStyle == 'mixed')
+          return 'mixed';
 
-      const ids = eles.slice(0,5).map(ele => ele.id());
-      ids.forEach(id => {
-        const styleVal = _.get(_bypasses, [id, property, 'value']) || 'unset';
-        const existing = ret.find(e => e.styleVal == styleVal);
-        if(existing) {
-          existing.ids.push(id);
+        const eleBypass = getBypassForId(id);
+        if(bypassStyle == undefined || _.isEqual(bypassStyle, eleBypass)) {
+          return eleBypass;
         } else {
-          ret.push({ styleVal, ids:[id] });
+          return 'mixed';
         }
-      });
-      ret.sort((s1, s2) => s1.ids.length - s2.ids.length);
-      return ret;
+      }, undefined);
     }
+  }
+
+
+  _getStyleStruct(data, ele, property) {
+    const selector = ele.isNode() ? 'node' : 'edge';
+    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+    const id = ele.id();
+    const style = _.get(data, ['_styles', selector, property]);
+    const bypass = _.get(data, ['_bypasses', id, property]);
+    const def = _.get(DEF_STYLE, [property]);
+    const styleStruct = bypass || style || def;
+    return styleStruct;
   }
 
   /**
@@ -251,25 +283,30 @@ export class VizMapper {
    */
   calculate(ele, property){
     const data = this.cy.data();
-    const selector = ele.isNode() ? 'node' : 'edge';
-    const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
-    const id = ele.id();
-    const style = _.get(data, ['_styles', selector, property]);
-    const bypass = _.get(data, ['_bypasses', id, property]);
-    const def = _.get(DEF_STYLE, [property]);
-    const styleStruct = bypass || style || def;
+    const styleStruct = this._getStyleStruct(data, ele, property);
 
     log(`Getting style for ${ele.id()} and ${property} with struct`, styleStruct);
 
-    let flatVal = getFlatStyleForEle(ele, styleStruct);
+    let flatVal;
+    if(styleStruct.mapping === MAPPING.DEPENDANT) {
+      const sourceStyleStruct = this._getStyleStruct(data, ele, styleStruct.value.property);
+      flatVal = getFlatStyleForEle(ele, styleStruct, sourceStyleStruct);
+    } else {
+      flatVal = getFlatStyleForEle(ele, styleStruct);
+    }
 
     // TODO This is temporary, need better support for default styles 
     // if a data value falls outside the range of a mapping.
     if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal)) {
+      const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
+      const def = _.get(DEF_STYLE, [property]);
       if(def.mapping === MAPPING.VALUE) {
         flatVal = def.stringValue;
       } else if(def.mapping === MAPPING.PASSTHROUGH && STYLE_TYPE.STRING) {
         flatVal = '';
+      } else if(def.mapping === MAPPING.DEPENDANT) {
+        const def2 = _.get(DEF_STYLE, [def.value.property]);
+        flatVal = def2.stringValue;
       }
     }
 
