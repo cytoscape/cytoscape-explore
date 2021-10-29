@@ -2,26 +2,211 @@ import { convertCX } from './cx/cx-converter.js';
 import { convertCY } from './cx/cy-converter.js';
 import { styleFactory } from '../../model/style';
 
+
+/* order of keys:  anchor_v, anchor_h, label_v, label_h */
+const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
+    'center': {
+         'center': {
+             'center': {
+                 'center': { 'text-halign': 'center', 'text-valign': 'center' },  //  1
+                 'left':   { 'text-halign': 'right', 'text-valign': 'center' },
+                 'right': { 'text-halign': 'left', 'text-valign': 'center' }
+             },
+             'top':  {
+                 'center':  { 'text-halign': 'center', 'text-valign': 'center' },
+                 'left': { 'text-halign': 'right', 'text-valign': 'center' },
+                 'right': { 'text-halign': 'left', 'text-valign': 'center' }
+             },
+             'bottom': {
+                 'center': { 'text-halign': 'center', 'text-valign': 'center' },
+                 'left': { 'text-halign': 'right', 'text-valign': 'center' },
+                 'right': { 'text-halign': 'left', 'text-valign': 'center' },
+             }
+         },
+        'left': {
+             'center':{
+                 'center':{ 'text-halign': 'left', 'text-valign': 'center' },
+                 'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                 'right': { 'text-halign': 'left', 'text-valign': 'center' }
+             },
+             'top':{
+                 'center': { 'text-halign': 'left', 'text-valign': 'center' },
+                 'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                 'right': { 'text-halign': 'left', 'text-valign': 'center' }
+             },
+             'bottom': {
+                'center': { 'text-halign': 'left', 'text-valign': 'center' },
+                'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                'right': { 'text-halign': 'left', 'text-valign': 'center' }
+             }
+        },
+        'right': {
+            'center': {
+                'center': { 'text-halign': 'right', 'text-valign': 'center' },
+                'left': { 'text-halign': 'right', 'text-valign': 'center' } ,
+                'right': { 'text-halign': 'center', 'text-valign': 'center' }
+            },
+            'top':   {
+                'center': { 'text-halign': 'right', 'text-valign': 'center' },
+                'left':  { 'text-halign': 'right', 'text-valign': 'center' },
+                'right': { 'text-halign': 'center', 'text-valign': 'center' }
+            },
+            'bottom': {
+                'center': { 'text-halign': 'right', 'text-valign': 'center' },
+                'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                'right': { 'text-halign': 'left', 'text-valign': 'top' }
+            }
+         }
+    },
+    'top': {
+        'center': {
+            'center': {
+                'center':{ 'text-halign': 'center', 'text-valign': 'top' },
+                'left': { 'text-halign': 'right', 'text-valign': 'top' },
+                'right':{ 'text-halign': 'left', 'text-valign': 'top' }
+                },
+            'top':   {
+                'center': { 'text-halign': 'center', 'text-valign': 'center' },
+                'left': { 'text-halign': 'left', 'text-valign': 'top' },
+                'right': { 'text-halign': 'right', 'text-valign': 'top' }
+                },
+            'bottom': {
+                'center': { 'text-halign': 'center', 'text-valign': 'top' },
+                'left': { 'text-halign': 'left', 'text-valign': 'top' },
+                'right': { 'text-halign': 'right', 'text-valign': 'top' }
+                }
+        },
+        'left': {
+            'center': {
+                'center': { 'text-halign': 'left', 'text-valign': 'top' },
+                'left':{ 'text-halign': 'center', 'text-valign': 'top' },
+                'right': { 'text-halign': 'left', 'text-valign': 'top' }
+            },
+            'top': {
+                'center': { 'text-halign': 'left', 'text-valign': 'center' },
+                'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                'right': { 'text-halign': 'left', 'text-valign': 'center' }
+            },
+            'bottom': {
+                'center': { 'text-halign': 'left', 'text-valign': 'top' },
+                'left': { 'text-halign': 'center', 'text-valign': 'top' },
+                'right': { 'text-halign': 'left', 'text-valign': 'top' }
+            }
+        },
+        'right': {
+            'center': {
+                'center': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'center', 'text-valign': 'bottom' }
+
+            },
+            'top': {
+                'center':  { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'center', 'text-valign': 'bottom' }
+
+            },
+            'bottom': {
+                'center': { 'text-halign': 'right', 'text-valign': 'center' },
+                'left': { 'text-halign': 'right', 'text-valign': 'center' },
+                'right': { 'text-halign': 'center', 'text-valign': 'center' }
+            }
+        }
+    },
+    'bottom': {
+        'center': {
+            'center': {
+                'center': { 'text-halign': 'center', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'right':{ 'text-halign': 'left', 'text-valign': 'bottom' }
+            },
+            'top': {
+                'center':{ 'text-halign': 'center', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'left', 'text-valign': 'bottom' }
+            },
+            'bottom': {
+                'center': { 'text-halign': 'center', 'text-valign': 'center' },
+                'left': { 'text-halign': 'left', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'right', 'text-valign': 'bottom' }
+            }
+        },
+        'left': {
+            'center': {
+                'center': { 'text-halign': 'left', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'left', 'text-valign': 'bottom' },
+                'right':  { 'text-halign': 'center', 'text-valign': 'bottom' }
+            },
+            'top': {
+                'center':{ 'text-halign': 'left', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'center', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'left', 'text-valign': 'bottom' }
+            },
+            'bottom': {
+                'center': { 'text-halign': 'left', 'text-valign': 'center' },
+                'left': { 'text-halign': 'center', 'text-valign': 'center' },
+                'right': { 'text-halign': 'left', 'text-valign': 'center' }
+
+            }
+        },
+        'right': {
+            'center': {
+                'center': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'center', 'text-valign': 'bottom' },
+                'right': { 'text-halign': 'right', 'text-valign': 'bottom' }
+},
+            'top': {
+                'center': { 'text-halign': 'right', 'text-valign': 'bottom' },
+                'left': { 'text-halign': 'right', 'text-valign': 'center' },
+                'right': { 'text-halign': 'center', 'text-valign': 'center' }
+
+            },
+            'bottom': {
+                'center': { 'text-halign': 'right', 'text-valign': 'center' },
+                'left': { 'text-halign': 'right', 'text-valign': 'center' },
+                'right': { 'text-halign': 'center', 'text-valign': 'center' }
+            }
+        }
+    }
+
+
+};
+
 const colorMapper = {
   valueCvtr: ((value) => styleFactory.color(value)),
-  jsValueType: styleFactory.color,
+  //jsValueType: styleFactory.color,
   discreteMappingFactory: styleFactory.discreteColor,
   cotinuousMappingFactory: styleFactory.linearColor
 };
 
 const numberMapper = {
   valueCvtr: ((value) => styleFactory.number(value)),
-  jsValueType: styleFactory.number,
+  //jsValueType: styleFactory.number,
   discreteMappingFactory: styleFactory.discreteNumber,
   cotinuousMappingFactory: styleFactory.linearNumber
 };
 
 const stringMapper = {
   valueCvtr: ((value) => styleFactory.string(value)),
-  jsValueType: styleFactory.string,
+  //jsValueType: styleFactory.string,
   discreteMappingFactory: styleFactory.discreteString,
   passthroughMappingFactory: styleFactory.stringPassthrough
 };
+
+const labelLocationMapper = {
+    valueCvtr: ((value) => {
+       const v = CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[value.VERTICAL_ANCHOR][value.HORIZONTAL_ANCHOR][value.VERTICAL_ALIGN][value.HORIZONTAL_ALIGN];
+       v['text-halign'] = styleFactory.string(v['text-halign']);
+       v['text-valign'] = styleFactory.string(v['text-valign']);
+       return v;
+    }),
+    //jsValueType: styleFactory.string,
+    discreteMappingFactory: styleFactory.discreteString,
+    passthroughMappingFactory: styleFactory.stringPassthrough
+};
+
+/* converting horizontal alignment from cytoscape desktop to JS */
+
 
 const STYLE_CONVERTING_TABLE = {
   'NODE_BACKGROUND_COLOR':
@@ -52,8 +237,22 @@ const STYLE_CONVERTING_TABLE = {
       { jsVPName :  'shape',
         mapper: stringMapper
       },
+  'NODE_LABEL_COLOR':
+      { jsVPName:  'color',
+        mapper: colorMapper
+      },
+  'NODE_LABEL_FONT_SIZE':
+      { jsVPName :  'font-size',
+        mapper: numberMapper
+      },
 
-  'EDGE_WIDTH':
+  'NODE_LABEL_POSITION':
+      { jsVPName :  ['text-halign','text-valign'],
+            mapper: labelLocationMapper
+      },
+
+
+    'EDGE_WIDTH':
       { jsVPName :  'width',
         mapper: numberMapper
       },
@@ -84,8 +283,9 @@ const STYLE_CONVERTING_TABLE = {
 };
 
 const convertStyle = (visualPropertyKey, cxValue) => {
-  if (STYLE_CONVERTING_TABLE[visualPropertyKey]) {
-    return STYLE_CONVERTING_TABLE[visualPropertyKey].mapper.valueCvtr(cxValue);
+  const converter = STYLE_CONVERTING_TABLE[visualPropertyKey];
+  if (converter) {
+      return converter.mapper.valueCvtr(cxValue);
   } else {
     // console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to styleFactory function.`);
   }
@@ -103,9 +303,17 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
       // console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`);
     } else {
       if (visualPropertyKey.startsWith('NODE_')) {
-        vizmapper.node(vizmapperPropertyKey, vizmapperPropertyValue);
+        if ( vizmapperPropertyKey instanceof Array) {
+            vizmapperPropertyKey.forEach((e) => vizmapper.node(e, vizmapperPropertyValue[e]));
+        }  else {
+            vizmapper.node(vizmapperPropertyKey, vizmapperPropertyValue);
+        }
       } else if (visualPropertyKey.startsWith('EDGE_')) {
-        vizmapper.edge(vizmapperPropertyKey, vizmapperPropertyValue);
+          if ( vizmapperPropertyKey instanceof Array) {
+              vizmapperPropertyKey.forEach((e) => vizmapper.edge(e, vizmapperPropertyValue[e]));
+          }  else {
+              vizmapper.edge(vizmapperPropertyKey, vizmapperPropertyValue);
+          }
       } else {
         throw new Error(`Visual Property ${visualPropertyKey} cannot be resolved to vizmapper function. Must be NODE_ or EDGE_`);
       }
@@ -143,14 +351,26 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
         if (jsvpName) {
             const attr = mapping.definition.attribute;
             if (mapping.type === "DISCRETE") {
-                const valueMap = {};
+                const valueMap = {};  // this mapping holds the boxed value. Need to unbox it when creating the style.
                 mapping.definition.map.forEach(function (mappingEntry) {
-                    const newValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(mappingEntry.vp).value;
-                    valueMap[mappingEntry.v] = newValue;
+                    const boxedValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(mappingEntry.vp);
+                    valueMap[mappingEntry.v] = boxedValue;
                 });
-                const defaultValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]).value;
-                const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultValue, valueMap);
-                vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
+                const defaultBoxedValue = STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(defaultTable[vpName]);
+                if ( jsvpName instanceof Array) {
+                    jsvpName.forEach((jsVpNameElmt) => {
+                        const workerValueMap = {};
+                        Object.keys(valueMap).forEach(function(key){ workerValueMap[key] = valueMap[key][jsVpNameElmt].value; });
+                        const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultBoxedValue[jsVpNameElmt].value,
+                            workerValueMap);
+                        vizmapper.set(selector, jsVpNameElmt, style);
+                    });
+                } else {
+                    Object.keys(valueMap).forEach(function(key){ valueMap[key] = valueMap[key].value; });
+                    const style = STYLE_CONVERTING_TABLE[vpName].mapper.discreteMappingFactory(attr, defaultBoxedValue.value,
+                        valueMap);
+                    vizmapper.set(selector, jsvpName, style);
+                }
             } else if (mapping.type === 'CONTINUOUS') {
                 if ( STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory) {
                     let newList = mapping.definition.map.reduce(_continuousMappingCvtr, {
@@ -184,8 +404,11 @@ const applyBypasses = ( selector, cy, bypasses ) => {
             for (const [vpName, vpValue] of Object.entries(elmt.v)) {
                 if ( STYLE_CONVERTING_TABLE[vpName]) {
                     const jsVPName = STYLE_CONVERTING_TABLE[vpName].jsVPName;
-                    vizmapper.bypass(selected, jsVPName,
-                        STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(vpValue));
+                    const value =  STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(vpValue);
+                    if ( jsVPName instanceof Array) {
+                        jsVPName.forEach((e) => vizmapper.bypass(selected, e, value[e]));
+                    } else
+                        vizmapper.bypass(selected, jsVPName, value);
                 }
             }
         } else

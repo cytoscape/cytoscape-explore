@@ -99,7 +99,7 @@ export class NDExImportSubWizard extends React.Component {
 
     const urls = await res.json();
 
-    location.replace(urls.url);
+    location.replace('/document/' + urls.id + '/'+ urls.secret);
   }
 
   handleContinue() {

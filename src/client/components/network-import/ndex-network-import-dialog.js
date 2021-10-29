@@ -50,7 +50,7 @@ export class NDExNetworkImportDialog extends Component {
     const urls = await res.json();
    // const newURL = urls.publicUrl;
 
-    location.replace(urls.url);
+    location.replace('/document/' + urls.id + '/'+ urls.secret);
 
  /*   const ndex0 = new ndexClient.NDEx(NDEX_URL + '/v2');
 
