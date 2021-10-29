@@ -1,0 +1,276 @@
+import _ from 'lodash';
+import {
+  rgbObjToHex,
+  MAPPING,
+  STYLE_TYPE,
+  NODE_SELECTOR,
+  EDGE_SELECTOR,
+  DEFAULT_NODE_STYLE,
+  DEFAULT_EDGE_STYLE
+} from '../../style';
+
+export const supportedCXVisualProperties = {
+  NODE_SHAPE: {
+    cyJsName: 'shape',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_BORDER_WIDTH: {
+    cyJsName: 'border-width',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_BORDER_COLOR: {
+    cyJsName: 'border-color',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_LABEL: {
+    cyJsName: 'label',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_HEIGHT: {
+    cyJsName: 'height',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_WIDTH: {
+    cyJsName: 'width',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_BACKGROUND_COLOR: {
+    cyJsName: 'background-color',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_LABEL_POSITION: {
+    nestedCXVPs: {
+      HORIZONTAL_ANCHOR: {
+        cyJsName: 'text-halign',
+        group: 'node',
+        isNestedCXVP: false
+      },
+      VERTICAL_ANCHOR: {
+        cyJsName: 'text-halign',
+        group: 'node',
+        isNestedCXVP: false
+      },
+      VERTICAL_ALIGN: {
+        cyJsName: null,
+        group: 'node',
+        isNestedCXVP: false
+      },
+      HORIZONTAL_ALIGN: {
+        cyJsName: null,
+        group: 'node',
+        isNestedCXVP: false
+      }
+    },
+    group: 'node',
+    isNestedCXVP: true
+  },
+  NODE_LABEL_COLOR: {
+    cyJsName: 'color',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  NODE_LABEL_FONT_SIZE: {
+    cyJsName: 'font-size',
+    group: 'node',
+    isNestedCXVP: false
+  },
+  EDGE_LINE_STYLE: {
+    cyJsName: 'line-style',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_TARGET_ARROW_COLOR: {
+    cyJsName: 'target-arrow-color',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_TARGET_ARROW_SHAPE: {
+    cyJsName: 'target-arrow-shape',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_SOURCE_ARROW_COLOR: {
+    cyJsName: 'source-arrow-color',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_SOURCE_ARROW_SHAPE: {
+    cyJsName: 'source-arrow-shape',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_LINE_WIDTH: {
+    cyJsName: 'width',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+  EDGE_LINE_COLOR: {
+    cyJsName: 'line-color',
+    group: 'edge',
+    isNestedCXVP: false
+  },
+};
+
+export const getCXValue = ({type, value}) => type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
+
+export const valueMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
+  const { group, cxVPName, isNested, nestedCXVPs, cyJsName} = cxVPInfo;
+  const { type, value, mapping } = styleSnapShot[group][cyJsName];
+  console.assert(mapping === MAPPING.VALUE);
+
+  visualPropertiesAspect.visualProperties[0].default[group][cxVPName] = getCXValue({type, value});
+
+  return visualPropertiesAspect;
+};
+
+export const dependantMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
+  const { group, cxVPName, isNested, nestedCXVPs, cyJsName } = cxVPInfo;
+  const { value, mapping } = styleSnapShot[group][cyJsName];
+  const { property, multiplier } = value;
+  const dependantStyleObj = styleSnapShot[group][property];
+
+  console.assert(mapping === MAPPING.DEPENDANT);
+  console.log(dependantStyleObj);
+  visualPropertiesAspect.visualProperties[0].default[group][cxVPName] = getCXValue(dependantStyleObj) * multiplier;
+
+  return visualPropertiesAspect;
+};
+
+export const passthroughMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
+  const { group, cxVPName, isNested, nestedCXVPs, cyJsName} = cxVPInfo;
+  const { value, mapping, stringValue } = styleSnapShot[group][cyJsName];
+  const { data } = value;
+  const isNode = group === 'node';
+
+  console.assert(mapping === MAPPING.PASSTHROUGH);
+
+  visualPropertiesAspect.visualProperties[0][isNode ? 'nodeMapping' : 'edgeMapping'][cxVPName] = {
+    type: mapping,
+    definition: {
+      attribute: data,
+      selector: stringValue
+    }
+  };
+
+  return visualPropertiesAspect;
+};
+
+export const discreteMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
+  const { group, cxVPName, isNested, nestedCXVPs, cyJsName} = cxVPInfo;
+  const { type, value, mapping } = styleSnapShot[group][cyJsName];
+  const { data, defaultValue, styleValues } = value;
+  const isNode = group === 'node';
+  console.log(cxVPInfo, type, value, mapping);
+
+  console.assert(mapping === MAPPING.DISCRETE);
+  visualPropertiesAspect.visualProperties[0].default[group][cxVPName] = getCXValue({type, value: defaultValue});
+  visualPropertiesAspect.visualProperties[0][isNode ? 'nodeMapping' : 'edgeMapping'][cxVPName] = {
+    type: mapping,
+    definition: {
+      attribute: data,
+      map: Object.entries(styleValues).map(([attrClass, attrStyleValue]) => {
+        return {
+          v: attrClass,
+          vp: getCXValue({ type, value: attrStyleValue })
+        };
+      })
+    }
+  };
+
+  return visualPropertiesAspect;
+};
+
+export const linearMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
+  const { group, cxVPName, isNested, nestedCXVPs, cyJsName} = cxVPInfo;
+  const { type, value, mapping } = styleSnapShot[group][cyJsName];
+  const { data, dataValues, styleValues } = value;
+  const isNode = group === 'node';
+
+  console.assert(mapping === MAPPING.LINEAR);
+
+  const minVPValue = getCXValue({type, value: styleValues[0]});
+  const maxVPValue = getCXValue({type, value: styleValues[1]});
+
+  visualPropertiesAspect.visualProperties[0][isNode ? 'nodeMapping' : 'edgeMapping'][cxVPName] = {
+    type: 'CONTINUOUS',
+    definition: {
+      attribute: data,
+      map: [{
+        min: dataValues[0],
+        includeMin: true,
+        max: dataValues[1],
+        includeMax: true,
+        minVPValue,
+        maxVPValue
+      }]
+    }
+  };
+
+  return visualPropertiesAspect;
+};
+
+export const converterMap = {
+  [MAPPING.VALUE]: valueMapperConverter,
+  [MAPPING.DEPENDANT]: dependantMapperConverter,
+  [MAPPING.PASSTHROUGH]: passthroughMapperConverter,
+  [MAPPING.DISCRETE]: discreteMapperConverter,
+  [MAPPING.LINEAR]: linearMapperConverter
+};
+
+export const getVisualPropertiesAspect = (cy) => {
+  const styleSnapShot = {
+    [NODE_SELECTOR]: _.cloneDeep(DEFAULT_NODE_STYLE),
+    [EDGE_SELECTOR]: _.cloneDeep(DEFAULT_EDGE_STYLE)
+  };
+  const _styles = _.cloneDeep(cy.data('_styles'));
+  Object.assign(styleSnapShot[NODE_SELECTOR], _styles[NODE_SELECTOR]);
+  Object.assign(styleSnapShot[EDGE_SELECTOR], _styles[EDGE_SELECTOR]);
+
+  const visualPropertiesAspect = {
+    visualProperties: [
+      {
+        default: {
+          network: {
+            NETWORK_BACKGROUND_COLOR: "#FFFFFF"
+          },
+          node: {},
+          edge: {}
+        },
+        nodeMapping: {},
+        edgeMapping: {}
+      }
+    ]
+  };
+
+  Object.entries(supportedCXVisualProperties).forEach(([cxVPName, cxVPInfo]) => {
+    const {group, cyJsName, isNestedCXVP, nestedCXVPs} = cxVPInfo;
+    const styleObj = styleSnapShot[group][cyJsName];
+
+    if(!isNestedCXVP){
+      const { mapping } = styleObj;
+
+      converterMap[mapping]({cxVPName, ...cxVPInfo}, styleSnapShot, visualPropertiesAspect);
+    } else {
+
+    }
+  });
+
+  return visualPropertiesAspect;
+};
+
+const getNodeBypassesAspect = () => {
+
+  return { nodeBypasses: [] };
+};
+
+const getEdgeBypassesAspect = () => {
+
+  return { edgeBypasses: [] };
+};

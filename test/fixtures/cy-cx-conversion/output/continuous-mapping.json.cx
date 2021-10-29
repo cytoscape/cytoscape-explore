@@ -182,26 +182,31 @@
             "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
           },
           "node": {
-            "NODE_BACKGROUND_COLOR": "#888888",
-            "NODE_WIDTH": 30,
-            "NODE_BORDER_COLOR": "#888888",
-            "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "ellipse",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_BORDER_COLOR": "#888888",
             "NODE_LABEL_COLOR": "#111111",
             "NODE_LABEL_FONT_SIZE": 10
           },
           "edge": {
-            "EDGE_LINE_COLOR": "#888888",
-            "EDGE_LINE_WIDTH": 2,
-            "EDGE_SOURCE_ARROW_SHAPE": "none",
-            "EDGE_SOURCE_ARROW_COLOR": "#888888",
-            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_LINE_STYLE": "solid",
             "EDGE_TARGET_ARROW_COLOR": "#888888",
-            "EDGE_LINE_STYLE": "solid"
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#888888",
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_LINE_COLOR": "#888888"
           }
         },
         "nodeMapping": {
-          "NODE_BACKGROUND_COLOR": {
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
+            "definition": {
+              "attribute": "name",
+              "selector": "data(name)"
+            }
+          },
+          "NODE_HEIGHT": {
             "type": "CONTINUOUS",
             "definition": {
               "attribute": "attr2",
@@ -211,8 +216,8 @@
                   "includeMin": true,
                   "max": 0.5367898306456453,
                   "includeMax": true,
-                  "minVPValue": "#E6B3B3",
-                  "maxVPValue": "#993333"
+                  "minVPValue": 50,
+                  "maxVPValue": 10
                 }
               ]
             }
@@ -233,7 +238,7 @@
               ]
             }
           },
-          "NODE_HEIGHT": {
+          "NODE_BACKGROUND_COLOR": {
             "type": "CONTINUOUS",
             "definition": {
               "attribute": "attr2",
@@ -243,8 +248,8 @@
                   "includeMin": true,
                   "max": 0.5367898306456453,
                   "includeMax": true,
-                  "minVPValue": 50,
-                  "maxVPValue": 10
+                  "minVPValue": "#E6B3B3",
+                  "maxVPValue": "#993333"
                 }
               ]
             }

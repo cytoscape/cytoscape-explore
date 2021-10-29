@@ -1,6 +1,9 @@
 import Color from 'color';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 
+export const NODE_SELECTOR = 'node';
+export const EDGE_SELECTOR = 'edge';
+
 /**
  * @typedef {String} MAPPING
  **/
@@ -498,7 +501,7 @@ export const PROPERTY_TYPE = {
   'text-valign': STYLE_TYPE.STRING,
   'font-size': STYLE_TYPE.NUMBER,
   'opacity': STYLE_TYPE.NUMBER,
-}; 
+};
 
 /**  Supported node style properties  */
 // Note: make sure to add new properties to DEFAULT_NODE_STYLE */
@@ -532,7 +535,7 @@ export const DEFAULT_NODE_STYLE = {
   'opacity': styleFactory.number(1), // This is required to support selection, even if we don't expose it in the UI
 };
 
-// Note, these mapping defaults are hard-coded for now. This is temporary. They correspond to mappings from the UI components. 
+// Note, these mapping defaults are hard-coded for now. This is temporary. They correspond to mappings from the UI components.
 export const DEFAULT_NODE_MAPPING_STYLE_VALUES = {
   'background-color': [{"r":230,"g":179,"b":179}, {"r":153,"g":51,"b":51}], // This is the red gradient from the ColorGradients component.
   'width': [10, 50],
@@ -599,7 +602,7 @@ export const edgeStylePropertyExists = property => {
 export const stylePropertyExists = (property, selector) => {
   if( !selector ){
     return nodeStylePropertyExists(property) || edgeStylePropertyExists(property);
-  } else if( selector === 'node' ){
+  } else if( selector === NODE_SELECTOR ){
     return nodeStylePropertyExists(property);
   } else {
     return edgeStylePropertyExists(property);

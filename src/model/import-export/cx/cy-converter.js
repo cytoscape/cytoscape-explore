@@ -2,118 +2,37 @@
  import { rgbObjToHex, MAPPING, STYLE_TYPE, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../style';
  import _ from 'lodash';
 
+ import { getVisualPropertiesAspect } from './cx-export-new';
 
- const cxStyleConverter = ({type, value, cxVPName, cxParentVPName}) => {
-  return type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
- };
 
- const cxStyleMutationReducer = (curStyle, nextStyle) => nextStyle;
 
- const cxStyleOverrideReducer = (curStyle, nextStyle) => Object.assign({}, curStyle, nextStyle);
+// get stylesnapshot
+// for every key in default object
+//   populate the snapshot if the key is not found in the snapshot
+//
 
- const CE_2_CX_STYLE_CONVERTING_TABLE = {
-   node: {
-    'shape': {
-      cxVPName: 'NODE_SHAPE',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'border-width': {
-      cxVPName: 'NODE_BORDER_WIDTH',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'border-color': {
-      cxVPName: 'NODE_BORDER_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'label': {
-      cxVPName: 'NODE_LABEL',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'height': {
-      cxVPName: 'NODE_HEIGHT',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'width': {
-      cxVPName: 'NODE_WIDTH',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'background-color': {
-      cxVPName: 'NODE_BACKGROUND_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'text-halign': {
-      cxVPName: 'HORIZONTAL_ALIGN',
-      cxParentVPName: 'NODE_LABEL_POSITION',
-      converter: cxStyleConverter,
-      reducer: cxStyleOverrideReducer
-    },
-    'text-valign': {
-      cxVPName: 'VERTICAL_ALIGN',
-      cxParentVPName: 'NODE_LABEL_POSITION',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'color': {
-      cxVPName: 'NODE_LABEL_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'font-size': {
-      cxVPName: 'NODE_LABEL_FONT_SIZE',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-   },
-   edge: {
-    'line-style': {
-      cxVPName: 'EDGE_LINE_STYLE',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'target-arrow-color': {
-      cxVPName: 'EDGE_TARGET_ARROW_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'target-arrow-shape': {
-      cxVPName: 'EDGE_TARGET_ARROW_SHAPE',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'source-arrow-color': {
-      cxVPName: 'EDGE_SOURCE_ARROW_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'source-arrow-shape': {
-      cxVPName: 'EDGE_SOURCE_ARROW_SHAPE',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'color': {
-      cxVPName: 'EDGE_LABEL_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'width': {
-      cxVPName: 'EDGE_LINE_WIDTH',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-    'line-color': {
-      cxVPName: 'EDGE_LINE_COLOR',
-      converter: cxStyleConverter,
-      reducer: cxStyleMutationReducer
-    },
-   }
- };
+// mapping handlers
+//  make 4 mapping function handlers each with a different type handler
+  // - dependant
+  // - value
+  // - passthrough
+  // - linear
+//  e.g. nested cx name prop logic or simple value logic
+
+// create a table of VP names to CE style names
+// each CX VP has some default values
+ // for each supported VP name, extract CX from corresponding CE default styles
+ // for each supported VP name, extract CX from corresponding CE style snapshot
+ // for each supported VP name, extrat CX from corresponding CE bypass snapshot
+
+// Each supported cx visual property needs:
+// - cxVPName
+  //  - cyJsStyleName
+  //  - group (node/edge)
+  //  - default value
+  //  - cx name
+  //  - isnested
+  //  - cx child names
 
  const cy2cxNodeVisualProp = {
    // cy.js to cx
@@ -294,54 +213,13 @@
  };
 
  export const cxVisualPropertiesAspects = cy => {
-  const visualPropertiesAspect = {
-    visualProperties: [
-      {
-        default: {
-          network: {
-            NETWORK_BACKGROUND_COLOR: "#FFFFFF"
-          },
-          node: {},
-          edge: {}
-        },
-        nodeMapping: {},
-        edgeMapping: {}
-      }
-    ]
-  };
+  const visualPropertiesAspect = getVisualPropertiesAspect(cy);
 
   const nodeBypassesAspect = { nodeBypasses: [] };
   const edgeBypassesAspect = { edgeBypasses: [] };
 
   const styleSnapshot = _.cloneDeep(cy.data('_styles') || {});
   const bypassSnapshot = _.cloneDeep(cy.data('_bypasses') || {});
-
-
-  const defaultVisualProperties = [
-    ...Object.entries(DEFAULT_NODE_STYLE).map(([cyjsVPName, cyjsVPValue]) => {
-     return {
-       group: 'node',
-       cyjsVPName,
-       cyjsVPValue
-     };
-    }),
-    ...Object.entries(DEFAULT_EDGE_STYLE).map(([cyjsVPName, cyjsVPValue]) => {
-     return {
-       group: 'edge',
-       cyjsVPName,
-       cyjsVPValue
-     };
-    })
-  ];
-
-  // defaultVisualProperties.forEach(({group, cyjsVPName, cyjsVPValue}) => {
-  //  let { type, value, mapping } = cyjsVPValue;
-  //  let {cxVPName, cxParentVPName, converter } = CE_2_CX_STYLE_CONVERTING_TABLE[group][cyjsVPName];
-
-  //  // mappings go in the nodeMapping/edgeMapping object
-  //  if(cyjsVPName === 'label' || mapping !== MAPPING.VALUE){
-  //    return;
-  //  }
 
    const validDefaultNodeStyles = _.cloneDeep(DEFAULT_NODE_STYLE);
    const validDefaultEdgeStyles = _.cloneDeep(DEFAULT_EDGE_STYLE);
@@ -354,133 +232,6 @@
    .filter(key => cy2cxEdgeVisualProp[key] == null)
    .forEach(key => delete validDefaultEdgeStyles[key]);
 
-     //  visualPropertiesAspect.visualProperties[0].default[group] = converter(Object.assign({}, cyjsVPValue, cxVPName, cxParentVPName));
-  // });
-
-
-   // 1. populate defaults with the default styles from style.js
-   // 2. iterate over each entry in the style snapshot
-   //      if the mapping type is value, update the visualProperties.default object
-   //      if the mapping is linear/passthrough/discrete
-           //  handle the mappings (TODO)
-             // case linear
-             // case discrete
-             // case passthrough
-   // 3. iterate over the bypasses and update the bypass aspects for nodes and edges
-   // 1. populate style defaults
-   [
-     {
-       defaultStyleDict: validDefaultNodeStyles,
-       defaultAspect: visualPropertiesAspect.visualProperties[0].default.node,
-       cy2cxStyleNameMap: cy2cxNodeVisualProp
-     },
-     {
-       defaultStyleDict: validDefaultEdgeStyles,
-       defaultAspect: visualPropertiesAspect.visualProperties[0].default.edge,
-       cy2cxStyleNameMap: cy2cxEdgeVisualProp
-     }
-   ].forEach(({defaultStyleDict, defaultAspect, cy2cxStyleNameMap}) => {
-     Object.entries(defaultStyleDict).forEach(([cyStyleName, styleObj]) => {
-       let { type, value, mapping } = styleObj;
-       let cxStyleName = cy2cxStyleNameMap[cyStyleName];
-
-       // mappings go in the nodeMapping/edgeMapping object
-       if(cyStyleName === 'label' || mapping !== MAPPING.VALUE){
-         return;
-       }
-       defaultAspect[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
-     });
-   });
-
-   [
-     {
-       styleSnapshot: styleSnapshot.node || {},
-       defaultAspect: visualPropertiesAspect.visualProperties[0].default.node,
-       mappingAspect: visualPropertiesAspect.visualProperties[0].nodeMapping,
-       cy2cxStyleNameMap: cy2cxNodeVisualProp
-     },
-     {
-       styleSnapshot: styleSnapshot.edge || {},
-       defaultAspect: visualPropertiesAspect.visualProperties[0].default.edge,
-       mappingAspect: visualPropertiesAspect.visualProperties[0].edgeMapping,
-       cy2cxStyleNameMap: cy2cxEdgeVisualProp
-     }
-   ].forEach(({styleSnapshot, defaultAspect, mappingAspect, cy2cxStyleNameMap}) => {
-     Object.entries(styleSnapshot || {}).forEach(([cyStyleName, styleObj]) => {
-       let { type, value, mapping, stringValue } = styleObj;
-       let cxStyleName = cy2cxStyleNameMap[cyStyleName];
-       let { data, defaultValue, styleValues, dataValues } = value;
-
-       switch(mapping){
-         case MAPPING.VALUE:
-           defaultAspect[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
-           break;
-         case MAPPING.PASSTHROUGH:
-           mappingAspect[cxStyleName] = {
-             type: mapping,
-             definition: {
-               attribute: data,
-               selector: stringValue
-             }
-           };
-           break;
-         case MAPPING.DISCRETE: {
-          if(cyStyleName === 'text-valign' || cyStyleName === 'text-halign'){
-            defaultAspect[cxStyleName] = cxStyleConverter({type, value: defaultValue});
-            mappingAspect[cxStyleName] = {
-               type: mapping,
-               definition: {
-                 attribute: data,
-                 map: Object.entries(styleValues).map(([attrClass, attrStyleValue]) => {
-                   return {
-                     v: attrClass,
-                     vp: cxStyleConverter({ type, value: attrStyleValue })
-                   };
-                 })
-               }
-             };
-          } else {
-            defaultAspect[cxStyleName] = cxStyleConverter({type, value: defaultValue});
-            mappingAspect[cxStyleName] = {
-               type: mapping,
-               definition: {
-                 attribute: data,
-                 map: Object.entries(styleValues).map(([attrClass, attrStyleValue]) => {
-                   return {
-                     v: attrClass,
-                     vp: cxStyleConverter({ type, value: attrStyleValue })
-                   };
-                 })
-               }
-             };
-          }
-           break;
-         }
-         case MAPPING.LINEAR: {
-           let minVPValue = type === STYLE_TYPE.COLOR ? rgbObjToHex(styleValues[0]) : styleValues[0];
-           let maxVPValue = type === STYLE_TYPE.COLOR ? rgbObjToHex(styleValues[1]) : styleValues[1];
-
-           mappingAspect[cxStyleName] = {
-             type: 'CONTINUOUS',
-             definition: {
-               attribute: data,
-               map: [{
-                 min: dataValues[0],
-                 includeMin: true,
-                 max: dataValues[1],
-                 includeMax: true,
-                 minVPValue,
-                 maxVPValue
-               }]
-             }
-           };
-           break;
-         }
-         default:
-           break;
-       }
-     });
-   });
 
    // 3. bypass handling
    Object.entries(bypassSnapshot).forEach(([cytoscapeExploreId, bypassObj]) => {

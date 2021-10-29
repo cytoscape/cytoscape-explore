@@ -1,14 +1,22 @@
 import { CytoscapeSyncher } from './cytoscape-syncher'; // eslint-disable-line
-import { MAPPING, STYLE_TYPE, NODE_STYLE_PROPERTIES, EDGE_STYLE_PROPERTIES, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, stylePropertyExists, getFlatStyleForEle, PROPERTY_TYPE } from './style';
+import {
+  MAPPING,
+  NODE_SELECTOR,
+  EDGE_SELECTOR,
+  STYLE_TYPE,
+  NODE_STYLE_PROPERTIES,
+  EDGE_STYLE_PROPERTIES,
+  DEFAULT_NODE_STYLE,
+  DEFAULT_EDGE_STYLE,
+  stylePropertyExists,
+  getFlatStyleForEle,
+  PROPERTY_TYPE } from './style';
 import _ from 'lodash';
 import { EventEmitterProxy } from './event-emitter-proxy';
 
 /**
  * @typedef {import('./style').StyleStruct} StyleStruct
  */
-
-const NODE_SELECTOR = 'node';
-const EDGE_SELECTOR = 'edge';
 
 const log = process.env.LOG_VIZMAPPER === 'true' ? console.log : _.noop;
 
@@ -75,7 +83,7 @@ const assertIsSingleEle = ele => {
 export class VizMapper {
   /**
    * Create a new VizMapper
-   * @param {Cytoscape.Core} cy The Cytoscape instance to style 
+   * @param {Cytoscape.Core} cy The Cytoscape instance to style
    * @param {CytoscapeSyncher} cySyncher The syncher to coordinate saved style with
    */
   constructor(cy, cySyncher){
@@ -98,7 +106,7 @@ export class VizMapper {
   reset(){
     this.cySyncher.resetStyle();
   }
-  
+
   // For use by the undo stack
   getStyleSnapshot() {
     const _styles = this.cy.data('_styles') || {};
@@ -224,7 +232,7 @@ export class VizMapper {
       // assertIsSingleEle(ele);
 
       // The below code creates a map of each style val to the elements
-      // that have that value. With "unset" used as a special key for 
+      // that have that value. With "unset" used as a special key for
       // elements that don't have a bypass.
       // const _bypasses = this.cy.data('_bypasses') || {};
       // // [{value:{r:1,g:1,b:1}, ids:['id1', 'id2']}];
@@ -295,7 +303,7 @@ export class VizMapper {
       flatVal = getFlatStyleForEle(ele, styleStruct);
     }
 
-    // TODO This is temporary, need better support for default styles 
+    // TODO This is temporary, need better support for default styles
     // if a data value falls outside the range of a mapping.
     if(flatVal === undefined || flatVal === null || Number.isNaN(flatVal)) {
       const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
