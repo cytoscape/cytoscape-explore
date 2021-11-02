@@ -26,7 +26,8 @@ export class NDExNetworkImportDialog extends Component {
     this.onClose = props.onClose;
 
     this.state = {
-      uuid: "135fe4e5-9896-11eb-81d5-525400c25d22",
+
+     uuid: "135fe4e5-9896-11eb-81d5-525400c25d22",
       error: null,
       loading: true,
     };
@@ -39,7 +40,7 @@ export class NDExNetworkImportDialog extends Component {
   async handleOk() {
     this.setState({ loading: true });
 
-    const res = await fetch( '/api/document/cx-import', {
+    const res = await fetch( '/ce/api/document/cx-import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ export class NDExNetworkImportDialog extends Component {
     const urls = await res.json();
    // const newURL = urls.publicUrl;
 
-    location.replace('/document/' + urls.id + '/'+ urls.secret);
+    location.replace('/ce/document/' + urls.id + '/'+ urls.secret);
 
  /*   const ndex0 = new ndexClient.NDEx(NDEX_URL + '/v2');
 

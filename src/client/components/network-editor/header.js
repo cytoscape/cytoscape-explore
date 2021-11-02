@@ -135,7 +135,7 @@ export class Header extends Component {
 
     if(ndexClient.authenticationType != null && ndexClient._authToken != null){
       let exportNDEx = async () => {
-        let result = await fetch('/api/document/cx-export', {
+        let result = await fetch('/ce/api/document/cx-export', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

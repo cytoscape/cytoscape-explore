@@ -82,7 +82,7 @@ export class CytoscapeSyncher {
       if (isServer()) {
         remoteUrl = `${pouchOrigin}/${this.dbName}`; // server gets unrestricted access
       } else {
-        remoteUrl = `${pouchOrigin}/db/${this.dbName}`; // /db applied security
+        remoteUrl = `${pouchOrigin}/ce/db/${this.dbName}`; // /db applied security
       }
       
       this.remoteDb = new PouchDB(remoteUrl, remotePouchOptions);
