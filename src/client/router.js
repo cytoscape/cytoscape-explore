@@ -4,7 +4,7 @@ import NetworkEditor from './components/network-editor';
 import PageNotFound from './components/page-not-found';
 
 export const Router = () => (
-  <BrowserRouter>
+  <BrowserRouter basename={'/ce'}>
     <Switch>
       <Route path='/' exact>
         <Redirect to='/document/demo' />
