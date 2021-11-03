@@ -54,16 +54,9 @@
           "version": {
             "d": "string",
             "v": ""
-          },
-          "cytoscapeExploreId": {
-            "d": "string",
-            "v": ""
           }
         },
         "nodes": {
-          "cytoscapeExploreId": {
-            "d": "string"
-          },
           "attr1": {
             "d": "double"
           },
@@ -74,11 +67,7 @@
             "d": "string"
           }
         },
-        "edges": {
-          "cytoscapeExploreId": {
-            "d": "string"
-          }
-        }
+        "edges": {}
       }
     ]
   },
@@ -126,23 +115,32 @@
             "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
           },
           "node": {
-            "NODE_BACKGROUND_COLOR": "#888888",
-            "NODE_WIDTH": 30,
-            "NODE_BORDER_COLOR": "#888888",
-            "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "ellipse",
+            "NODE_BORDER_WIDTH": 1,
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_HEIGHT": 30,
+            "NODE_WIDTH": 30,
+            "NODE_BACKGROUND_COLOR": "#888888",
+            "NODE_LABEL_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "JUSTIFCATION": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0,
+              "VERTICAL_ALIGN": "center",
+              "VERTICAL_ANCHOR": "top"
+            },
             "NODE_LABEL_COLOR": "#111111",
-            "NODE_LABEL_FONT_SIZE": 10,
-            "NODE_HEIGHT": 30
+            "NODE_LABEL_FONT_SIZE": 10
           },
           "edge": {
-            "EDGE_LINE_COLOR": "#888888",
-            "EDGE_LINE_WIDTH": 2,
-            "EDGE_SOURCE_ARROW_SHAPE": "none",
-            "EDGE_SOURCE_ARROW_COLOR": "#888888",
-            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_LINE_STYLE": "solid",
             "EDGE_TARGET_ARROW_COLOR": "#888888",
-            "EDGE_LINE_STYLE": "solid"
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#888888",
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_LINE_COLOR": "#888888"
           }
         },
         "nodeMapping": {

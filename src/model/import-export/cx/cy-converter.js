@@ -1,66 +1,5 @@
 
- import { rgbObjToHex, MAPPING, STYLE_TYPE, DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../style';
- import _ from 'lodash';
-
- import { getVisualPropertiesAspect } from './cx-export-new';
-
-
-
-// get stylesnapshot
-// for every key in default object
-//   populate the snapshot if the key is not found in the snapshot
-//
-
-// mapping handlers
-//  make 4 mapping function handlers each with a different type handler
-  // - dependant
-  // - value
-  // - passthrough
-  // - linear
-//  e.g. nested cx name prop logic or simple value logic
-
-// create a table of VP names to CE style names
-// each CX VP has some default values
- // for each supported VP name, extract CX from corresponding CE default styles
- // for each supported VP name, extract CX from corresponding CE style snapshot
- // for each supported VP name, extrat CX from corresponding CE bypass snapshot
-
-// Each supported cx visual property needs:
-// - cxVPName
-  //  - cyJsStyleName
-  //  - group (node/edge)
-  //  - default value
-  //  - cx name
-  //  - isnested
-  //  - cx child names
-
- const cy2cxNodeVisualProp = {
-   // cy.js to cx
-   'shape': 'NODE_SHAPE',
-   'border-width': 'NODE_BORDER_WIDTH',
-   'border-color': 'NODE_BORDER_COLOR',
-   'label': 'NODE_LABEL',
-   'height': 'NODE_HEIGHT',
-   'width': 'NODE_WIDTH',
-   'background-color': 'NODE_BACKGROUND_COLOR',
-   'color': 'NODE_LABEL_COLOR',
-   'font-size': 'NODE_LABEL_FONT_SIZE'
- };
-
-
- // current CX edge properties supported
- const cy2cxEdgeVisualProp = {
-   // cy.js to cx
-   'line-style': 'EDGE_LINE_STYLE',
-   'target-arrow-color': 'EDGE_TARGET_ARROW_COLOR',
-   'target-arrow-shape': 'EDGE_TARGET_ARROW_SHAPE',
-   'source-arrow-color': 'EDGE_SOURCE_ARROW_COLOR',
-   'source-arrow-shape': 'EDGE_SOURCE_ARROW_SHAPE',
-   'color': 'EDGE_LABEL_COLOR',
-   'width': 'EDGE_LINE_WIDTH',
-   'line-color': 'EDGE_LINE_COLOR'
- };
-
+ import { getVisualPropertiesAspect, getBypassesAspect } from './cx-export-visual-properties';
 
  /**
   * Get the CX2 datatype of a value
@@ -125,15 +64,13 @@
 
  export const cxDataAspects = (cy) => {
   const nodeAttributes = {
-    cytoscapeExploreId: {
-      d: 'string'
-    }
   };
 
   const edgeAttributes = {
-    cytoscapeExploreId: {
-      d: 'string'
-    }
+  };
+
+  const cxIdMap = {
+
   };
 
   const cxNodes = [];
@@ -142,7 +79,7 @@
   cy.elements().forEach((ele, index) => {
     let v = {};
     let isNode = ele.isNode();
-    ele.scratch('_exportCX2Id', index);
+    cxIdMap[ele.id()] = index;
 
     Object.keys(ele.data()).forEach(key => {
       let value = ele.data(key);
@@ -173,8 +110,8 @@
     } else {
       cxEdges.push({
         id: index,
-        s: ele.source().scratch('_exportCX2Id'),
-        t: ele.target().scratch('_exportCX2Id'),
+        s: cxIdMap[ele.source().id()],
+        t: cxIdMap[ele.target().id()],
         v
       });
     }
@@ -186,7 +123,6 @@
         name: { d: 'string', v: ''},
         description: { d: 'string', v: ''},
         version: { d: 'string', v: ''},
-        cytoscapeExploreId: { d: 'string', v: ''}
       },
       nodes: nodeAttributes,
       edges: edgeAttributes
@@ -205,6 +141,7 @@
   const edgesAspect = { edges: cxEdges };
 
   return {
+    cxIdMap,
     nodesAspect,
     edgesAspect,
     attributeDeclarationsAspect,
@@ -212,57 +149,15 @@
   };
  };
 
- export const cxVisualPropertiesAspects = cy => {
+ export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
   const visualPropertiesAspect = getVisualPropertiesAspect(cy);
 
-  const nodeBypassesAspect = { nodeBypasses: [] };
-  const edgeBypassesAspect = { edgeBypasses: [] };
-
-  const styleSnapshot = _.cloneDeep(cy.data('_styles') || {});
-  const bypassSnapshot = _.cloneDeep(cy.data('_bypasses') || {});
-
-   const validDefaultNodeStyles = _.cloneDeep(DEFAULT_NODE_STYLE);
-   const validDefaultEdgeStyles = _.cloneDeep(DEFAULT_EDGE_STYLE);
-
-   Object.keys(validDefaultNodeStyles)
-   .filter(key => cy2cxNodeVisualProp[key] == null)
-   .forEach(key => delete validDefaultNodeStyles[key]);
-
-   Object.keys(validDefaultEdgeStyles)
-   .filter(key => cy2cxEdgeVisualProp[key] == null)
-   .forEach(key => delete validDefaultEdgeStyles[key]);
-
-
-   // 3. bypass handling
-   Object.entries(bypassSnapshot).forEach(([cytoscapeExploreId, bypassObj]) => {
-     let ele = cy.getElementById(cytoscapeExploreId);
-     let cxId = ele.scratch('_exportCX2Id');
-     let isNode = ele.isNode();
-     let cxBypass = {
-       id: cxId,
-       v: {}
-     };
-
-     Object.entries(bypassObj).forEach(([styleName, styleObj]) => {
-       let { type, mapping, value } = styleObj;
-       if (mapping !== MAPPING.VALUE){
-         return;
-       }
-       let cxStyleName = isNode ? cy2cxNodeVisualProp[styleName] : cy2cxEdgeVisualProp[styleName];
-       cxBypass.v[cxStyleName] = type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
-     });
-
-     if(isNode){
-       nodeBypassesAspect.nodeBypasses.push(cxBypass);
-     } else {
-       edgeBypassesAspect.edgeBypasses.push(cxBypass);
-     }
-   });
+  const { nodeBypasses, edgeBypasses } = getBypassesAspect(cy, cxIdMap);
 
    return {
     visualPropertiesAspect,
-    nodeBypassesAspect,
-    edgeBypassesAspect
+    nodeBypassesAspect: { nodeBypasses },
+    edgeBypassesAspect: { edgeBypasses }
    };
  };
 
@@ -273,6 +168,7 @@
  export const convertCY = (cy) => {
 
   const {
+    cxIdMap,
     nodesAspect,
     edgesAspect,
     attributeDeclarationsAspect,
@@ -283,7 +179,7 @@
     visualPropertiesAspect,
     nodeBypassesAspect,
     edgeBypassesAspect
-  } = cxVisualPropertiesAspects(cy);
+  } = cxVisualPropertiesAspects(cy, cxIdMap);
 
   const visualEditorPropertiesAspect = {
     visualEditorProperties: [
