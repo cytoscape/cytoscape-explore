@@ -78,7 +78,7 @@ export const supportedCXVisualProperties = {
       const defaultLabelPosition = {
         HORIZONTAL_ALIGN: 'center',
         HORIZONTAL_ANCHOR: 'center',
-        JUSTIFCATION: 'center',
+        JUSTIFICATION: 'center',
         MARGIN_X: 0.0,
         MARGIN_Y: 0.0,
         VERTICAL_ALIGN: 'center',
@@ -164,7 +164,7 @@ export const supportedCXVisualProperties = {
       const defaultLabelPosition = {
         HORIZONTAL_ALIGN: 'center',
         HORIZONTAL_ANCHOR: 'center',
-        JUSTIFCATION: 'center',
+        JUSTIFICATION: 'center',
         MARGIN_X: 0.0,
         MARGIN_Y: 0.0,
         VERTICAL_ALIGN: 'center',
