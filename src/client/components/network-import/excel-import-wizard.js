@@ -11,6 +11,7 @@ import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
 import * as gaussian from 'gaussian';
 import { Chart } from 'react-chartjs-2';
+import { createPopper } from '@popperjs/core';
 import { DropzoneArea } from 'material-ui-dropzone';
 import { Grid, Paper, IconButton } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
@@ -24,6 +25,8 @@ const STEPS = [
     label: "Enter Your Node Table",
   },
 ];
+
+let cyPoppers = [];
 
 class ExcelImportSubWizard extends React.Component {
 
@@ -56,7 +59,23 @@ class ExcelImportSubWizard extends React.Component {
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
     
+    // Update poppers when scrolling the dialog content
+    const dialog = document.querySelector('.import-dialog .MuiDialogContent-root');
+    dialog.addEventListener('scroll', this.handleScroll);
+    
     this.updateButtons(this.state);
+  }
+
+  componentWillUnmount() {
+    const dialog = document.querySelector('.import-dialog .MuiDialogContent-root');
+    dialog.removeEventListener('scroll', this.handleScroll);
+    
+    this.removePoppers();
+  }
+
+  handleScroll() {
+    for (const p of cyPoppers)
+      p.update();
   }
 
   componentDidUpdate() {
@@ -97,10 +116,6 @@ class ExcelImportSubWizard extends React.Component {
           this.showCyPreview(elements, data, node1IdAttr, node2IdAttr);
       }
     }
-  }
-
-  componentWillUnmount() {
-    this.removePoppers();
   }
 
   updateButtons(state) {
@@ -155,7 +170,7 @@ class ExcelImportSubWizard extends React.Component {
   handleNodeFileDelete() {
     this.setState({ nodeFile: null, nodeData: null });
     this.updateButtons({ ...this.state, nodeFile: null, nodeData: null});
-}
+  }
 
   readFile(file, handleData) {
     const reader = new FileReader();
@@ -190,10 +205,9 @@ class ExcelImportSubWizard extends React.Component {
         console.log(e); // TODO Show error to user
       }
 
+      // TODO: quick style
       let edgeColorAttr;
       let nodeColorAttr;
-
-      // TODO: quick style
 
       if (edgeColorAttr)
         this.controller.setColorLinearMapping("edge", "line-color", edgeColorAttr, ['#9ebcda', '#8856a7']);
@@ -291,11 +305,9 @@ class ExcelImportSubWizard extends React.Component {
           style: {
             'background-color': '#0571b0',
             'label': 'data(id)',
-            'font-size': '12px',
+            'font-size': '10px',
             'text-halign': 'center',
-            'text-valign': 'center',
-            'text-outline-width': 2,
-            'text-outline-color': '#0571b0',
+            'text-valign': 'top',
             'color': '#fff',
             'overlay-opacity': 0,
           }
@@ -320,19 +332,19 @@ class ExcelImportSubWizard extends React.Component {
         container: document.getElementById('cy-import-preview'),
         elements: elements,
         style: style,
-        layout: { name: 'grid' },
+        layout: { name: 'grid', padding: 0 },
       });
 
       // Create a popper on the first (or single) node
       if (node1IdAttr) {
-        this.createNodePopper(this.cy, this.cy.nodes()[0], node1IdAttr);
+        // this.createNodePopper(this.cy, this.cy.nodes()[0], node1IdAttr);
 
         if (!node2IdAttr) // Create a "data" popper on the node
           this.createDataPopper(this.cy, this.cy.nodes()[0], data);
       }
-      // // Create a popper on the second node
-      if (node2IdAttr)
-        this.createNodePopper(this.cy, this.cy.nodes()[1], node2IdAttr);
+      // Create a popper on the second node
+      // if (node2IdAttr)
+      //   this.createNodePopper(this.cy, this.cy.nodes()[1], node2IdAttr);
       // Create a "data" popper on the edge
       if (this.cy.edges().length > 0)
         this.createDataPopper(this.cy, this.cy.edges()[0], data);
@@ -343,12 +355,14 @@ class ExcelImportSubWizard extends React.Component {
     if (!node)
       return;
 
-    node.popper({
+    const popper = node.popper({
       content: () => {
         const div = document.createElement('div');
         div.classList.add('preview-cy-popper');
         div.classList.add('preview-cy-popper-node');
-        document.body.appendChild(div);
+        
+        const parent = document.getElementById('cy-import-preview');
+        parent.appendChild(div);
         
         const comp = (
           <ThemeProvider theme={theme}>
@@ -371,14 +385,16 @@ class ExcelImportSubWizard extends React.Component {
         placement: 'top',
         modifiers: [
           {
-            name: 'offset',
-            options: {
-              offset: [0, 200],
-            },
+            name: 'flip',
+            enabled: false,
+          },
+          {
+            name: 'hide',
           },
         ],
       },
     });
+    cyPoppers.push(popper);
   }
 
   createDataPopper(cy, el, allData) {
@@ -399,59 +415,73 @@ class ExcelImportSubWizard extends React.Component {
     if (keys.length === 0)
       return;
 
-    el.popper({
-      content: () => {
-        const div = document.createElement('div');
-        div.classList.add('preview-cy-popper');
-        div.classList.add('preview-cy-popper-data');
-        document.body.appendChild(div);
+    const comp = (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Grid container direction="column" alignItems="center">
+          <div className="arrow-up" />
+          <div className="popper-content">
+            <TableContainer component={Paper}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    {keys && keys.map((k) => (
+                      <TableCell key={k}>{k}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    {keys && keys.map((k) => (
+                        <TableCell key={k} style={{textAlign: 'center'}}>
+                          {chartKeys.includes(k) ?
+                            <canvas
+                              id={`chart-${k.replaceAll(' ', '_')}`}
+                              style={{width: '128px', height: '64px'}}
+                            />
+                          :
+                            <>{ data[k] + '' }</>
+                          }
+                        </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        </Grid>
+      </ThemeProvider>
+    );
+    
+    const div = document.createElement('div');
+    div.classList.add('preview-cy-popper');
+    div.classList.add('preview-cy-popper-data');
 
-        const comp = (
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Grid container direction="column" alignItems="center">
-              <div className="arrow-up" />
-              <div className="popper-content">
-                <TableContainer component={Paper}>
-                  <Table size="small" stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        {keys && keys.map((k) => (
-                          <TableCell key={k}>{k}</TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        {keys && keys.map((k) => (
-                            <TableCell key={k} style={{textAlign: 'center'}}>
-                              {chartKeys.includes(k) ?
-                                <canvas
-                                  id={`chart-${k.replaceAll(' ', '_')}`}
-                                  style={{width: '128px', height: '64px'}}
-                                />
-                              :
-                                <>{ data[k] + '' }</>
-                              }
-                            </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </div>
-            </Grid>
-          </ThemeProvider>
-        );
+    const parent = document.getElementById('cy-import-preview');
+    parent.appendChild(div);
 
-        ReactDOM.render(comp, div, () => {
-          for (const k of chartKeys)
-            this.createPopperChart(k, data, allData);
-        });
-
-        return div;
-      },
+    ReactDOM.render(comp, div, () => {
+      for (const k of chartKeys)
+        this.createPopperChart(k, data, allData);
     });
+
+    const popper = createPopper(parent, div, {
+      placement: 'bottom',
+      strategy: 'absolute',
+      modifiers: [
+        {
+          name: 'offset',
+          options: {
+            offset: [0, (el.group() === 'edges' ? -16 : -8)],
+          },
+        },
+        {
+          name: 'flip',
+          enabled: false,
+        },
+      ],
+    });
+    cyPoppers.push(popper);
   }
 
   /** Create charts for numeric attributes. */ 
@@ -522,6 +552,7 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   removePoppers() {
+    cyPoppers = [];
     const poppers = document.getElementsByClassName('preview-cy-popper');
     
      while (poppers.length > 0) {
@@ -609,7 +640,7 @@ class ExcelImportSubWizard extends React.Component {
               direction="column"
               alignItems="center"
             >
-              <h4 style={{width: '100%', textAlign: 'left', marginTop: '5px', marginBottom: '40px', padding: '0 15px'}}>
+              <h4 style={{width: '100%', textAlign: 'left', marginTop: '5px', padding: '0 15px'}}>
                 PREVIEW &#8212; Your First {group}:
               </h4>
               <div id="cy-import-preview" />

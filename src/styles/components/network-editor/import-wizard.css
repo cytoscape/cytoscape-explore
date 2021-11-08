@@ -17,7 +17,7 @@
 .import-preview {
   width: 100%;
   margin-top: 10px;
-  padding-bottom: 128px;
+  padding-bottom: 144px;
 }
 
 .import-preview .MuiTableContainer-root {
@@ -29,8 +29,8 @@
 }
 
 #cy-import-preview {
-  width: 60%;
-  min-height: 100px;
+  width: 75%;
+  height: 75px;
   pointer-events: none;
 }
 
