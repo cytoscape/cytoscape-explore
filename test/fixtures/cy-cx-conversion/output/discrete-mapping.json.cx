@@ -145,13 +145,14 @@
             "NODE_SHAPE": "ellipse",
             "NODE_BORDER_WIDTH": 1,
             "NODE_BORDER_COLOR": "#888888",
+            "NODE_LABEL": "",
             "NODE_HEIGHT": 30,
             "NODE_WIDTH": 30,
             "NODE_BACKGROUND_COLOR": "#888888",
             "NODE_LABEL_POSITION": {
               "HORIZONTAL_ALIGN": "center",
               "HORIZONTAL_ANCHOR": "center",
-              "JUSTIFCATION": "center",
+              "JUSTIFICATION": "center",
               "MARGIN_X": 0,
               "MARGIN_Y": 0,
               "VERTICAL_ALIGN": "center",
@@ -185,13 +186,6 @@
                   "vp": "triangle"
                 }
               ]
-            }
-          },
-          "NODE_LABEL": {
-            "type": "PASSTHROUGH",
-            "definition": {
-              "attribute": "name",
-              "selector": "data(name)"
             }
           }
         },

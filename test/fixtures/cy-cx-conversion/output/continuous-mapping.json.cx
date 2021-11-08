@@ -174,10 +174,11 @@
             "NODE_SHAPE": "ellipse",
             "NODE_BORDER_WIDTH": 1,
             "NODE_BORDER_COLOR": "#888888",
+            "NODE_LABEL": "",
             "NODE_LABEL_POSITION": {
               "HORIZONTAL_ALIGN": "center",
               "HORIZONTAL_ANCHOR": "center",
-              "JUSTIFCATION": "center",
+              "JUSTIFICATION": "center",
               "MARGIN_X": 0,
               "MARGIN_Y": 0,
               "VERTICAL_ALIGN": "center",
@@ -197,13 +198,6 @@
           }
         },
         "nodeMapping": {
-          "NODE_LABEL": {
-            "type": "PASSTHROUGH",
-            "definition": {
-              "attribute": "name",
-              "selector": "data(name)"
-            }
-          },
           "NODE_HEIGHT": {
             "type": "CONTINUOUS",
             "definition": {

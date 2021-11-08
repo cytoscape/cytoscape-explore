@@ -200,7 +200,7 @@
             "NODE_LABEL_POSITION": {
               "HORIZONTAL_ALIGN": "center",
               "HORIZONTAL_ANCHOR": "center",
-              "JUSTIFCATION": "center",
+              "JUSTIFICATION": "center",
               "MARGIN_X": 0,
               "MARGIN_Y": 0,
               "VERTICAL_ALIGN": "center",

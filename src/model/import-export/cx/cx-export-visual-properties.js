@@ -6,7 +6,8 @@ import {
   NODE_SELECTOR,
   EDGE_SELECTOR,
   DEFAULT_NODE_STYLE,
-  DEFAULT_EDGE_STYLE
+  DEFAULT_EDGE_STYLE,
+  styleFactory
 } from '../../style';
 
 
@@ -354,7 +355,7 @@ export const baseCXBypassConverter = (cxVPInfo, bypassObj) => {
 
 export const getVisualPropertiesAspect = (cy) => {
   const styleSnapShot = {
-    [NODE_SELECTOR]: _.cloneDeep(DEFAULT_NODE_STYLE),
+    [NODE_SELECTOR]: Object.assign(_.cloneDeep(DEFAULT_NODE_STYLE), { label: styleFactory.string('')}),
     [EDGE_SELECTOR]: _.cloneDeep(DEFAULT_EDGE_STYLE)
   };
   const _styles = _.cloneDeep(cy.data('_styles')) || { [NODE_SELECTOR]: {}, [EDGE_SELECTOR]: {}};
@@ -379,7 +380,6 @@ export const getVisualPropertiesAspect = (cy) => {
 
   Object.entries(supportedCXVisualProperties).forEach(([cxVPName, cxVPInfo]) => {
     const { converter } = cxVPInfo;
-
     // some properties require special conversion functions e.g. nested properties
     // most properties can just use the base conversion function
     if (converter != null){
