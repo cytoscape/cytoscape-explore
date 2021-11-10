@@ -14,7 +14,7 @@
         "name": "networkAttributes"
       },
       {
-        "elementCount": 8,
+        "elementCount": 6,
         "name": "nodes"
       },
       {
@@ -84,79 +84,63 @@
     "nodes": [
       {
         "id": 0,
-        "x": 113.71900738982694,
-        "y": 124.82024815254326,
+        "x": 105.00795906765208,
+        "y": 264.09835133598637,
         "v": {
-          "attr1": 0.1928849362777716,
-          "attr2": -0.006081190046709928,
+          "attr1": 0.4200672403731871,
+          "attr2": 0.3222293131445766,
           "attr3": "C"
         }
       },
       {
         "id": 1,
-        "x": 88.43318792847883,
-        "y": 105.48625647020447,
+        "x": 212.05343945423536,
+        "y": 157.04718590108016,
         "v": {
-          "attr1": 0.11486683622907101,
-          "attr2": 0.1864245173670933,
-          "attr3": "A"
+          "attr1": 0.35529479243795814,
+          "attr2": 0.49136968003280845,
+          "attr3": "B"
         }
       },
       {
         "id": 2,
-        "x": 49.14102922303876,
-        "y": 123.27112830529838,
+        "x": 100.01193860147812,
+        "y": 156.03922683342807,
         "v": {
-          "attr1": 0.9966428864639394,
-          "attr2": -0.8990573724886688,
+          "attr1": 0.5213051597523573,
+          "attr2": -0.43317134750821173,
           "attr3": "A"
         }
       },
       {
         "id": 3,
-        "x": 49.76143172891413,
-        "y": 85.84017711748443,
+        "x": 338.1495167708926,
+        "y": 209.07049459920407,
         "v": {
-          "attr1": 0.8926463638473991,
-          "attr2": 0.5367898306456453,
+          "attr1": 0.7963041882706137,
+          "attr2": -0.14159870630306282,
           "attr3": "A"
         }
       },
       {
         "id": 4,
-        "x": 238,
-        "y": 104,
+        "x": 212.05173393973848,
+        "y": 267.0955088118249,
         "v": {
-          "attr1": 0.49668477042977854,
-          "attr2": -0.9739520368538983,
-          "attr3": "A"
+          "attr1": 0.8101005105352563,
+          "attr2": -0.7193936384089037,
+          "attr3": "D"
         }
       },
       {
         "id": 5,
-        "x": 112.83568649291004,
-        "y": 77.36134287052106,
+        "x": 146.01478112563956,
+        "y": 211.07447413303015,
         "v": {
-          "attr1": 0.22087846290189672,
-          "attr2": -0.8450705501480567,
-          "attr3": "B"
+          "attr1": 0.507517942272609,
+          "attr2": -0.6887171421929401,
+          "attr3": "E"
         }
-      },
-      {
-        "id": 6,
-        "x": 151.92104436305831,
-        "y": 109.62227317604025,
-        "v": {
-          "attr1": 0.8251090523957909,
-          "attr2": 0.17543456935878954,
-          "attr3": "B"
-        }
-      },
-      {
-        "id": 7,
-        "x": 49.14102922303876,
-        "y": 98.76262349023277,
-        "v": {}
       }
     ]
   },
@@ -174,7 +158,9 @@
             "NODE_SHAPE": "ellipse",
             "NODE_BORDER_WIDTH": 1,
             "NODE_BORDER_COLOR": "#888888",
-            "NODE_LABEL": "",
+            "NODE_HEIGHT": 30,
+            "NODE_WIDTH": 30,
+            "NODE_BACKGROUND_COLOR": "#888888",
             "NODE_LABEL_POSITION": {
               "HORIZONTAL_ALIGN": "center",
               "HORIZONTAL_ANCHOR": "center",
@@ -198,50 +184,65 @@
           }
         },
         "nodeMapping": {
-          "NODE_HEIGHT": {
-            "type": "CONTINUOUS",
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
             "definition": {
-              "attribute": "attr2",
-              "map": [
-                {
-                  "min": -0.9739520368538983,
-                  "includeMin": true,
-                  "max": 0.5367898306456453,
-                  "includeMax": true,
-                  "minVPValue": 50,
-                  "maxVPValue": 10
-                }
-              ]
+              "attribute": "attr3",
+              "selector": "data(attr3)"
             }
           },
-          "NODE_WIDTH": {
-            "type": "CONTINUOUS",
+          "NODE_LABEL_POSITION": {
+            "type": "DISCRETE",
             "definition": {
-              "attribute": "attr2",
+              "attribute": "attr3",
               "map": [
                 {
-                  "min": -0.9739520368538983,
-                  "includeMin": true,
-                  "max": 0.5367898306456453,
-                  "includeMax": true,
-                  "minVPValue": 50,
-                  "maxVPValue": 10
-                }
-              ]
-            }
-          },
-          "NODE_BACKGROUND_COLOR": {
-            "type": "CONTINUOUS",
-            "definition": {
-              "attribute": "attr2",
-              "map": [
+                  "v": "B",
+                  "vp": {
+                    "HORIZONTAL_ALIGN": "center",
+                    "HORIZONTAL_ANCHOR": "right",
+                    "JUSTIFICATION": "center",
+                    "MARGIN_X": 0,
+                    "MARGIN_Y": 0,
+                    "VERTICAL_ALIGN": "center",
+                    "VERTICAL_ANCHOR": "center"
+                  }
+                },
                 {
-                  "min": -0.9739520368538983,
-                  "includeMin": true,
-                  "max": 0.5367898306456453,
-                  "includeMax": true,
-                  "minVPValue": "#E6B3B3",
-                  "maxVPValue": "#993333"
+                  "v": "C",
+                  "vp": {
+                    "HORIZONTAL_ALIGN": "center",
+                    "HORIZONTAL_ANCHOR": "center",
+                    "JUSTIFICATION": "center",
+                    "MARGIN_X": 0,
+                    "MARGIN_Y": 0,
+                    "VERTICAL_ALIGN": "center",
+                    "VERTICAL_ANCHOR": "bottom"
+                  }
+                },
+                {
+                  "v": "D",
+                  "vp": {
+                    "HORIZONTAL_ALIGN": "center",
+                    "HORIZONTAL_ANCHOR": "left",
+                    "JUSTIFICATION": "center",
+                    "MARGIN_X": 0,
+                    "MARGIN_Y": 0,
+                    "VERTICAL_ALIGN": "center",
+                    "VERTICAL_ANCHOR": "center"
+                  }
+                },
+                {
+                  "v": "E",
+                  "vp": {
+                    "HORIZONTAL_ALIGN": "center",
+                    "HORIZONTAL_ANCHOR": "center",
+                    "JUSTIFICATION": "center",
+                    "MARGIN_X": 0,
+                    "MARGIN_Y": 0,
+                    "VERTICAL_ALIGN": "center",
+                    "VERTICAL_ANCHOR": "center"
+                  }
                 }
               ]
             }
@@ -254,9 +255,17 @@
   {
     "nodeBypasses": [
       {
-        "id": 4,
+        "id": 3,
         "v": {
-          "NODE_BACKGROUND_COLOR": "#339933"
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "HORIZONTAL_ANCHOR": "center",
+            "JUSTIFICATION": "center",
+            "MARGIN_X": 0,
+            "MARGIN_Y": 0,
+            "VERTICAL_ALIGN": "center",
+            "VERTICAL_ANCHOR": "center"
+          }
         }
       }
     ]

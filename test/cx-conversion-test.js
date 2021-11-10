@@ -12,6 +12,8 @@ PouchDB.plugin(PouchDBMemoryAdapter);
 
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 import { getCXType } from '../src/model/import-export/cx/cy-converter';
+import { getCXValue } from '../src/model/import-export/cx/cx-export-visual-properties';
+import { STYLE_TYPE } from '../src/model/style';
 
 describe('CX Conversion', () => {
     before(() => {
@@ -68,6 +70,40 @@ describe('CX Conversion', () => {
 
     //   expect(expected[0]).to.deep.equal(actual[0]);
     // }).timeout(100000);
+
+    it('converts CE style values to CX style values', () => {
+      let tests = [
+          {
+            input: {
+              type: STYLE_TYPE.NUMBER,
+              value: 1
+            },
+            output: 1
+          },
+          {
+            input: {
+              type: STYLE_TYPE.STRING,
+              value: '1'
+            },
+            output: '1'
+          },
+          {
+            input: {
+              type: STYLE_TYPE.COLOR,
+              value: {
+                r: 100,
+                g: 100,
+                b: 100
+              },
+            },
+            output: '#646464'
+          }
+      ];
+
+      tests.forEach(({input, output}) => {
+        expect(getCXValue(input)).to.equal(output);
+      });
+    });
 
     it('converts networks from CE to CX', () => {
       let inputPath = './fixtures/cy-cx-conversion/input/';
