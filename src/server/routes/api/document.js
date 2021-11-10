@@ -178,12 +178,25 @@ http.get('/json/:id', async function(req, res, next){
 });
 
 /**
+ * Create a new network from CX
+ */
+ http.post('/cx', async function(req, res, next) {
+  await postCX2Network(importCX, req, res, next);
+});
+
+/**
+ * Get a network document in CX format
+ */
+http.get('/cx/:id', async function(req, res, next){
+  await getNetwork(exportCX, req, res, next);
+});
+
+/**
  * Import a CX network from NDEx by NDEx UUID
  */
 http.post('/cx-import', async function(req, res, next) {
   await importNDExNetworkById(req, res, next);
 });
-
 
 /**
  * Export a Cytoscape Explore network to NDEx by Cytoscape Explore UUID
