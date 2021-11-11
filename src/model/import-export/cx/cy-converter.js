@@ -1,68 +1,13 @@
 
- import { getVisualPropertiesAspect, getBypassesAspect } from './cx-export-visual-properties';
+import { getVisualPropertiesAspect, getBypassesAspect } from './cx-export-visual-properties';
+import { getCXType } from './cx-util';
 
- /**
-  * Get the CX2 datatype of a value
-  * Returns null if type is not supported
-  * Supported types:
-  *    // string
-       // long
-       // integer
-       // double
-       // boolean
-       // list_of_string
-       // list_of_long
-       // list_of_integer
-       // list_of_double
-       // list_of_boolean
-  * @param {*} value
-  */
- export const getCXType = (value) => {
-   let type = typeof value;
-
-   if(type === 'string' || type === 'boolean'){
-     return type;
-   }
-
-   if(type === 'number'){
-     if(Number.isInteger(value)){
-       if(value > -2147483648 && value < 2147483647){
-         return 'integer';
-       } else {
-         return 'long';
-       }
-
-     } else {
-       return 'double';
-     }
-   }
-
-   if(Array.isArray(value) && value.length > 0){
-     let firstValueType = getCXType(value[0]);
-
-     if( firstValueType == null || Array.isArray(value[0])){
-       return null;
-     }
-     // need to also make sure that each value in the array is of the same type
-     for(let i = 1; i < value.length; i++){
-       let curValueType = getCXType(value[i]);
-       if(curValueType !== firstValueType){
-         return null;
-       }
-     }
-
-     return `list_of_${firstValueType}`;
-   }
-
-   return null;
- };
-
- export const cx2Descriptor = () => ({
+export const cx2Descriptor = () => ({
     CXVersion: "2.0",
     hasFragments: false
- });
+});
 
- export const cxDataAspects = (cy) => {
+export const cxDataAspects = (cy) => {
   const nodeAttributes = {
   };
 
@@ -147,9 +92,9 @@
     attributeDeclarationsAspect,
     networkAttributesAspect
   };
- };
+};
 
- export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
+export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
   const visualPropertiesAspect = getVisualPropertiesAspect(cy);
 
   const { nodeBypasses, edgeBypasses } = getBypassesAspect(cy, cxIdMap);
@@ -159,13 +104,13 @@
     nodeBypassesAspect: { nodeBypasses },
     edgeBypassesAspect: { edgeBypasses }
    };
- };
+};
 
  /**
   * Export a Cytoscape instance to CX2 format
   * @param {Cytoscape.Core} cy
   */
- export const convertCY = (cy) => {
+export const convertCY = (cy) => {
 
   const {
     cxIdMap,
@@ -249,4 +194,4 @@
   ];
 
   return cx2Output;
- };
+};

@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import {
-  rgbObjToHex,
   MAPPING,
-  STYLE_TYPE,
   NODE_SELECTOR,
   EDGE_SELECTOR,
   DEFAULT_NODE_STYLE,
   DEFAULT_EDGE_STYLE,
   styleFactory
 } from '../../style';
+
+import { getCXValue } from './cx-util';
 
 
 export const supportedCXVisualProperties = {
@@ -229,8 +229,6 @@ export const supportedCXVisualProperties = {
     isNestedCXVP: false
   },
 };
-
-export const getCXValue = ({type, value}) => type === STYLE_TYPE.COLOR ? rgbObjToHex(value) : value;
 
 export const valueMapperConverter = (cxVPInfo, styleSnapShot, visualPropertiesAspect) => {
   const { group, cxVPName, isNested, nestedCXVPs, cyJsName} = cxVPInfo;

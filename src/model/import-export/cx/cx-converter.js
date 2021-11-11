@@ -1,15 +1,23 @@
 
-import { updateAttributeDeclarations as updateAttributeDeclarations, updateInferredTypes, renameAttributesByAlias, addDefaultValues, createAttributeDeclarations } from './cx-util.js';
-import { SAVED_ASPECTS, CX_DATA_KEY } from './converter-constants';
-import { isAspectKeyInArray } from './converter-utils';
+import {
+    updateAttributeDeclarations,
+    updateInferredTypes,
+    renameAttributesByAlias,
+    addDefaultValues,
+    createAttributeDeclarations,
+    SAVED_ASPECTS,
+    CX_DATA_KEY
+} from './cx-util.js';
 
-export const cxNodeToJsNode = () => {
-
-};
-
-export const cxEdgeToJsEdge = () => {
-
-};
+export const isAspectKeyInArray = (aspect, aspectKeyArray) => {
+    let output = false;
+    aspectKeyArray.forEach( aspectKey => {
+        if (aspect[aspectKey]) {
+            output = true;
+        }
+    });
+    return output;
+  };
 
 export const createData = (v, attributeAliasMap, attributeDefaultValueMap) => {
 
