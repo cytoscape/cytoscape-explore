@@ -222,13 +222,13 @@ ColorGradients.defaultProps = {
 
 export function OpacitySlider(props) {
   const debouncedOnChange = _.throttle(value => props.onSelect(value), 300, { leading: true });
-  return <Slider 
+  return <div className="opacity-slider"><Slider 
     min={0} 
     max={100} 
     defaultValue={Math.round((props.value || 0) * 100)}
     valueLabelDisplay='auto'
     onChange={(event,value) => debouncedOnChange(value / 100)}
-  />;
+  /></div>;
 }
 OpacitySlider.propTypes = {
   value: PropTypes.number,
