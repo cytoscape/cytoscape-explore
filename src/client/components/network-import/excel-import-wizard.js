@@ -5,13 +5,11 @@ import { NetworkEditorController } from '../network-editor/controller';
 import theme from '../../theme';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Cytoscape from 'cytoscape';
 import _ from 'underscore';
 import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
 import * as gaussian from 'gaussian';
 import { Chart } from 'react-chartjs-2';
-import { createPopper } from '@popperjs/core';
 import { DropzoneArea } from 'material-ui-dropzone';
 import { Grid, Paper, IconButton } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
@@ -26,7 +24,11 @@ const STEPS = [
   },
 ];
 
-let cyPoppers = [];
+const NODE_COLOR = "#0571B0";
+const EDGE_COLOR = "#A6CADF";
+const LABEL_COLOR = theme.palette.text.primary;
+
+let charts = [];
 
 class ExcelImportSubWizard extends React.Component {
 
@@ -45,6 +47,11 @@ class ExcelImportSubWizard extends React.Component {
       edgeData: null,
       nodeData: null,
       networkName: null,
+      node1IdAttr: null,
+      node2IdAttr: null,
+      nodeIdAttr: null,
+      edgePreviewData: null,
+      nodePreviewData: null,
       error: null,
     };
 
@@ -59,61 +66,29 @@ class ExcelImportSubWizard extends React.Component {
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
     
-    // Update poppers when scrolling the dialog content
-    const dialog = document.querySelector('.import-dialog .MuiDialogContent-root');
-    dialog.addEventListener('scroll', this.handleScroll);
-    
     this.updateButtons(this.state);
   }
 
   componentWillUnmount() {
-    const dialog = document.querySelector('.import-dialog .MuiDialogContent-root');
-    dialog.removeEventListener('scroll', this.handleScroll);
-    
-    this.removePoppers();
-  }
-
-  handleScroll() {
-    for (const p of cyPoppers)
-      p.update();
+    this.destroyCharts();
   }
 
   componentDidUpdate() {
-    const { step, edgeData, nodeData } = this.state;
+    const { step, edgeData, nodeData, edgePreviewData, nodePreviewData } = this.state;
 
-    // Create preview
+    // Recreate preview charts
     if (step === 1 || step === 2) {
-      const data = step === 1 ? edgeData : nodeData;
-      const firstRow = data && data.length > 0 ? data[0] : null;
+      const previewData = step === 1 ? edgePreviewData : nodePreviewData;
+      const allData = step === 1 ? edgeData : nodeData;
+      
+      if (previewData) {
+        const obj = previewData && previewData.length > 0 ? previewData[previewData.length - 1] : null;
+        const data = obj.data;
+        const keys = Object.keys(data);
+        const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
 
-      if (firstRow) {
-        const elements = step === 1 ? this.createCyElements([firstRow])/* EDGE Preview */ : [];
-        const keys = Object.keys(firstRow);
-        let node1IdAttr, node2IdAttr;
-
-        if (keys.length > 0) {
-          node1IdAttr = keys[0];
-
-          if (step === 1) {/* EDGE Preview */
-            if (keys.length > 1)
-              node2IdAttr = keys[1];
-          } else if (step === 2) {/* NODE Preview */
-            node1IdAttr = keys[0];
-            var id = firstRow[node1IdAttr]; // Node id is always the first column
-
-            if (id) {
-              const n = { group: 'nodes', data: { id: id } };
-              keys.forEach((k, idx) => {
-                if (idx > 0)
-                  n.data[k] = firstRow[k];
-              });
-              elements.push(n);
-            }
-          }
-        }
-
-        if (elements && elements.length > 0)
-          this.showCyPreview(elements, data, node1IdAttr, node2IdAttr);
+        for (const k of chartKeys)
+            this.createPreviewChart(k, data, allData);
       }
     }
   }
@@ -145,7 +120,24 @@ class ExcelImportSubWizard extends React.Component {
       const fileName = f.name;
 
       this.readFile(f, (json) => {
-        this.setState({ edgeFile: f, networkName: fileName, edgeData: json });
+        // EDGE Preview data
+        const firstRow = json && json.length > 0 ? json[0] : null;
+        const edgePreviewData = this.createCyElements([firstRow]);
+
+        let node1IdAttr, node2IdAttr;
+  
+        if (firstRow) {
+          const keys = Object.keys(firstRow);
+  
+          if (keys.length > 0) {
+            node1IdAttr = keys[0];
+  
+            if (keys.length > 1)
+              node2IdAttr = keys[1];
+          }
+        }
+
+        this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData });
         this.updateButtons({ ...this.state, json });
       });
     }
@@ -156,19 +148,42 @@ class ExcelImportSubWizard extends React.Component {
 
     if (f) {
       this.readFile(f, (json) => {
-        this.setState({ nodeFile: f, nodeData: json });
+        // NODE Preview data
+        const firstRow = json && json.length > 0 ? json[0] : null;
+        let nodeIdAttr;
+        let nodePreviewData = [];
+
+        if (firstRow) {
+          const keys = Object.keys(firstRow);
+          
+          if (keys.length > 0) {
+            nodeIdAttr = keys[0]; // Node id is always the first column
+            var id = firstRow[nodeIdAttr]; 
+
+            if (id) {
+              const n = { group: 'nodes', data: { id: id } };
+              keys.forEach((k, idx) => {
+                if (idx > 0)
+                  n.data[k] = firstRow[k];
+              });
+              nodePreviewData.push(n);
+            }
+          }
+        }
+
+        this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData });
         this.updateButtons({ ...this.state, json });
       });
     }
   }
 
   handleEdgeFileDelete() {
-      this.setState({ edgeFile: null, edgeData: null });
+      this.setState({ edgeFile: null, edgeData: null, node1IdAttr: null, node2IdAttr: null, edgePreviewData: null });
       this.updateButtons({ ...this.state, edgeFile: null, edgeData: null });
   }
 
   handleNodeFileDelete() {
-    this.setState({ nodeFile: null, nodeData: null });
+    this.setState({ nodeFile: null, nodeData: null, nodeIdAttr: null, nodePreviewData: null });
     this.updateButtons({ ...this.state, nodeFile: null, nodeData: null});
   }
 
@@ -234,7 +249,7 @@ class ExcelImportSubWizard extends React.Component {
           const keys = Object.keys(row);
 
           if (keys.length > 1) {
-            // TODO Use first and second columns as source/target? Or the column names?
+            // Using first/second columns as source/target
             var source = row[keys[0]];
             var target = row[keys[1]];
 
@@ -294,198 +309,8 @@ class ExcelImportSubWizard extends React.Component {
     return elements;
   }
 
-  showCyPreview(elements, data, node1IdAttr, node2IdAttr) {
-    if (elements && elements.length > 0) {
-      if (this.cy)
-        this.cy.destroy();
-
-      const style = [
-        {
-          selector: 'node',
-          style: {
-            'background-color': '#0571b0',
-            'label': 'data(id)',
-            'font-size': '10px',
-            'text-halign': 'center',
-            'text-valign': 'top',
-            'color': '#fff',
-            'overlay-opacity': 0,
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'line-color': '#a6cadf',
-            'width': '6px',
-            'overlay-opacity': 0,
-          }
-        },
-        {
-          selector: 'core',
-          style: {
-            'active-bg-opacity': 0,
-          }
-        },
-      ];
-
-      this.cy = Cytoscape({
-        container: document.getElementById('cy-import-preview'),
-        elements: elements,
-        style: style,
-        layout: { name: 'grid', padding: 0 },
-      });
-
-      // Create a popper on the first (or single) node
-      if (node1IdAttr) {
-        // this.createNodePopper(this.cy, this.cy.nodes()[0], node1IdAttr);
-
-        if (!node2IdAttr) // Create a "data" popper on the node
-          this.createDataPopper(this.cy, this.cy.nodes()[0], data);
-      }
-      // Create a popper on the second node
-      // if (node2IdAttr)
-      //   this.createNodePopper(this.cy, this.cy.nodes()[1], node2IdAttr);
-      // Create a "data" popper on the edge
-      if (this.cy.edges().length > 0)
-        this.createDataPopper(this.cy, this.cy.edges()[0], data);
-    }
-  }
-
-  createNodePopper(cy, node, attr) {
-    if (!node)
-      return;
-
-    const popper = node.popper({
-      content: () => {
-        const div = document.createElement('div');
-        div.classList.add('preview-cy-popper');
-        div.classList.add('preview-cy-popper-node');
-        
-        const parent = document.getElementById('cy-import-preview');
-        parent.appendChild(div);
-        
-        const comp = (
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Grid
-              container
-              direction="column"
-              alignItems="center"
-            >
-              <div className="popper-content">{attr}</div>
-              <div className="arrow-down" />
-            </Grid>
-          </ThemeProvider>
-        );
-        ReactDOM.render(comp, div);
-
-        return div;
-      },
-      popper: {
-        placement: 'top',
-        modifiers: [
-          {
-            name: 'flip',
-            enabled: false,
-          },
-          {
-            name: 'hide',
-          },
-        ],
-      },
-    });
-    cyPoppers.push(popper);
-  }
-
-  createDataPopper(cy, el, allData) {
-    const data = el.data();
-    const dataKeys = Object.keys(data);
-    const keys = [];
-    const chartKeys = [];
-    
-    for (const k of dataKeys) {
-      if (k != "id" && k != "source" && k != "target") {
-        keys.push(k);
-
-        if (typeof(data[k]) === 'number')
-          chartKeys.push(k);
-      }
-    }
-
-    if (keys.length === 0)
-      return;
-
-    const comp = (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Grid container direction="column" alignItems="center">
-          <div className="arrow-up" />
-          <div className="popper-content">
-            <TableContainer component={Paper}>
-              <Table size="small" stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    {keys && keys.map((k) => (
-                      <TableCell key={k}>{k}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    {keys && keys.map((k) => (
-                        <TableCell key={k} style={{textAlign: 'center'}}>
-                          {chartKeys.includes(k) ?
-                            <canvas
-                              id={`chart-${k.replaceAll(' ', '_')}`}
-                              style={{width: '128px', height: '64px'}}
-                            />
-                          :
-                            <>{ data[k] + '' }</>
-                          }
-                        </TableCell>
-                    ))}
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
-        </Grid>
-      </ThemeProvider>
-    );
-    
-    const div = document.createElement('div');
-    div.classList.add('preview-cy-popper');
-    div.classList.add('preview-cy-popper-data');
-
-    const parent = document.getElementById('cy-import-preview');
-    parent.appendChild(div);
-
-    ReactDOM.render(comp, div, () => {
-      for (const k of chartKeys)
-        this.createPopperChart(k, data, allData);
-    });
-
-    const popper = createPopper(parent, div, {
-      placement: 'bottom',
-      strategy: 'absolute',
-      modifiers: [
-        {
-          name: 'offset',
-          options: {
-            offset: [0, (el.group() === 'edges' ? -16 : -8)],
-          },
-        },
-        {
-          name: 'flip',
-          enabled: false,
-        },
-      ],
-    });
-    cyPoppers.push(popper);
-  }
-
   /** Create charts for numeric attributes. */ 
-  createPopperChart(k, elementData, allData) {
+  createPreviewChart(k, elementData, allData) {
       // Get the column data
       const colData = [];
 
@@ -531,7 +356,7 @@ class ExcelImportSubWizard extends React.Component {
 
       // Create the chart
       const ctx = document.getElementById(`chart-${k.replaceAll(' ', '_')}`).getContext('2d');
-      new Chart(ctx, {
+      const chart = new Chart(ctx, {
           data: {
             labels: labels,
             datasets: [
@@ -549,15 +374,14 @@ class ExcelImportSubWizard extends React.Component {
           },
           options: options,
       });
+      charts.push(chart);
   }
 
-  removePoppers() {
-    cyPoppers = [];
-    const poppers = document.getElementsByClassName('preview-cy-popper');
+  destroyCharts() {
+    for (const c of charts)
+      c.destroy();
     
-     while (poppers.length > 0) {
-      poppers[0].parentNode.removeChild(poppers[0]);
-    }
+      charts = [];
   }
 
   updateStep(nextStep) {
@@ -582,33 +406,55 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   render() {
-    this.removePoppers();
+    this.destroyCharts();
 
     return (
-      <>
-        <div>
-          { this.renderContent() }
-        </div>
-      </>
+      <div>
+        { this.renderContent() }
+      </div>
     );
   }
 
   renderContent() {
     const { step } = this.state;
 
-    if (step === 1) {
+    if (step === 1)
       return this.renderTableUpload(this.state.edgeFile, this.handleEdgeFileChange, this.handleEdgeFileDelete);
-    } else if (step === 2) {
+    else if (step === 2)
       return this.renderTableUpload(this.state.nodeFile, this.handleNodeFileChange, this.handleNodeFileDelete);
-    }
   }
   
   renderTableUpload(initialFile, onChange, onDelete) {
     const { step, edgeData, nodeData } = this.state;
+    const { node1IdAttr, node2IdAttr, nodeIdAttr } = this.state;
+    const { edgePreviewData, nodePreviewData } = this.state;
 
     const group = step === 1 ? "Edge" : "Node";
     const data = step === 1 ? edgeData : nodeData;
     const rowCount = data ? data.length : 0;
+
+    const isEdge = step === 1 && edgePreviewData && edgePreviewData.length === 3;
+    const isLoop = step === 1 && edgePreviewData && edgePreviewData.length === 2;
+    const isNode = step === 2 && nodePreviewData && nodePreviewData.length === 1;
+
+    let previewImg, previewData;
+
+    if (isEdge) {
+      // Regular edge preview (2 nodes)
+      previewImg = this.edgePreviewImg();
+      previewData = edgePreviewData[2];
+    } else if (isLoop) {
+      // 'Loop' edge preview (1 node)
+      previewImg = this.loopPreviewImg();
+      previewData = edgePreviewData[1];
+    } else if (isNode) {
+      // Ndge preview (1 node)
+      previewImg = this.nodePreviewImg();
+      previewData = nodePreviewData[0];
+    }
+
+    let keys = previewData ? Object.keys(previewData.data) : [];
+    keys = keys.filter(k => this.isPreviewKey(k));
 
     return (
       <div className={`excel-import ${group}-import`}>
@@ -633,7 +479,7 @@ class ExcelImportSubWizard extends React.Component {
             </footer>
           </>
         )}
-        {data && (
+        {data && previewImg && (
           <Paper variant="outlined" className="import-preview">
             <Grid
               container
@@ -643,14 +489,168 @@ class ExcelImportSubWizard extends React.Component {
               <h4 style={{width: '100%', textAlign: 'left', marginTop: '5px', padding: '0 15px'}}>
                 PREVIEW &#8212; Your First {group}:
               </h4>
-              <div id="cy-import-preview" />
+              {isLoop && keys.length > 0 && (
+                <Grid 
+                  container
+                  className="preview-popper-data"
+                  style={{ marginBottom: -6 }}
+                  direction="column" 
+                  alignItems="center"
+                >
+                  <div className="popper-content">
+                    { this.renderDataTable(previewData, keys) }
+                  </div>
+                  <div className="arrow-down" style={{ marginLeft: -28 }}/>
+                </Grid>
+              )}
+              {isEdge && (
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="flex-end"
+                >
+                  <Grid item xs>
+                    { this.renderNodeIdAttrLabel(node1IdAttr, "down", { style: { marginLeft: 22, marginBottom: -2 }}) }
+                  </Grid>
+                  <Grid item xs>
+                    { this.renderNodeIdAttrLabel(node2IdAttr, "down", { style: { marginLeft: -22, marginBottom: -2 }}) }
+                  </Grid>
+                </Grid>
+              )}
+              {isNode && (
+                this.renderNodeIdAttrLabel(nodeIdAttr, "down", { style: { marginBottom: -2 }})
+              )}
+              <div id="import-preview-image">
+                { previewImg }
+              </div>
+              {isLoop && (
+                this.renderNodeIdAttrLabel(node1IdAttr + " | " + node2IdAttr, "up", { style: { marginTop: -4 }})
+              )}
+              {(isEdge || isNode) && keys.length > 0 && (
+                <Grid 
+                  container
+                  className="preview-popper-data"
+                  style={{ marginTop: (isEdge? -20 : -10) }}
+                  direction="column" 
+                  alignItems="center"
+                >
+                  <div className="arrow-up" />
+                  <div className="popper-content">
+                    { this.renderDataTable(previewData, keys) }
+                  </div>
+                </Grid>
+              )}
             </Grid>
           </Paper>
         )}
       </div>
     );
   }
+
+  renderNodeIdAttrLabel(nodeIdAttr, arrowDirection, props) {
+    return (
+      <Grid
+        className="preview-popper-node"
+        container
+        direction="column"
+        alignItems="center"
+        {...props}
+      >
+        {arrowDirection === "up" && (
+          <div className="arrow-up" />
+        )}
+        <div className="popper-content">{ nodeIdAttr }</div>
+        {arrowDirection === "down" && (
+          <div className="arrow-down" />
+        )}
+      </Grid>
+    );
+  }
+
+  renderDataTable(obj, keys) {
+    const data = obj.data;
+    const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
+
+    return (
+      <TableContainer component={Paper}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              {keys && keys.map((k) => (
+                <TableCell key={k}>{k}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {keys && keys.map((k) => (
+                  <TableCell key={k} style={{textAlign: 'center'}}>
+                    {chartKeys.includes(k) ?
+                      <canvas
+                        id={`chart-${k.replaceAll(' ', '_')}`}
+                        style={{width: '128px', height: '64px'}}
+                      />
+                    :
+                      <>{ data[k] + '' }</>
+                    }
+                  </TableCell>
+              ))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  }
+
+  isPreviewKey(k) {
+    return k && k != "id" && k != "source" && k != "target";
+  }
+
+  isPreviewChartKey(k, data) {
+    return this.isPreviewKey(k) && data && typeof(data[k]) === 'number';
+  }
   
+  edgePreviewImg() {
+    const { edgePreviewData } = this.state;
+    const node1Label = edgePreviewData[0].data.id;
+    const node2Label = edgePreviewData[1].data.id;
+
+    return (
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="512" height="64" viewBox="0, 0, 512, 64">
+        <path id="preview-edge" d="M140.5,40.5 L372.5,40.5" fillOpacity="0" strokeWidth="8" strokeLinecap="round" stroke={EDGE_COLOR} />
+        <path id="preview-node-2" d="M372,64 C358.745,64 348,53.255 348,40 C348,26.745 358.745,16 372,16 C385.255,16 396,26.745 396,40 C396,53.255 385.255,64 372,64 z" fill={NODE_COLOR} />
+        <path id="preview-node-1" d="M140,64 C126.745,64 116,53.255 116,40 C116,26.745 126.745,16 140,16 C153.255,16 164,26.745 164,40 C164,53.255 153.255,64 140,64 z" fill={NODE_COLOR} />
+        <text id="preview-node-label-2" x="372" y="10" textAnchor="middle" fontFamily="Helvetica" fontSize="14" fill={LABEL_COLOR}>{ node2Label }</text>
+        <text id="preview-node-label-1" x="140" y="10" textAnchor="middle" fontFamily="Helvetica" fontSize="14" fill={LABEL_COLOR}>{ node1Label }</text>
+      </svg>
+    );
+  }
+
+  loopPreviewImg() {
+    const { edgePreviewData } = this.state;
+    const node1Label = edgePreviewData[0].data.id;
+
+    return (
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="512" height="108" viewBox="0, 0, 512, 108">
+        <path id="preview-edge" d="M256.249,65.842 C257.136,32.68 256.484,4.5 240.484,4.5 C228.484,4.5 200.249,29.842 194.249,45.842 C182.477,77.233 256.249,67.842 256.249,67.842" fillOpacity="0" strokeWidth="8" strokeLinecap="round" stroke={EDGE_COLOR} />
+        <path id="preview-node-1" d="M256,92 C242.745,92 232,81.255 232,68 C232,54.745 242.745,44 256,44 C269.255,44 280,54.745 280,68 C280,81.255 269.255,92 256,92 z" fill={NODE_COLOR} />
+        <text id="preview-node-label-1" x="256" y="108" textAnchor="middle" fontFamily="Helvetica" fontSize="14" fill={LABEL_COLOR}>{ node1Label }</text>
+      </svg>
+    );
+  }
+
+  nodePreviewImg() {
+    const { nodePreviewData } = this.state;
+    const nodeLabel = nodePreviewData[0].data.id;
+
+    return (
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="512" height="64" viewBox="0, 0, 512, 64">
+        <path id="preview-node" d="M256,64 C242.745,64 232,53.255 232,40 C232,26.745 242.745,16 256,16 C269.255,16 280,26.745 280,40 C280,53.255 269.255,64 256,64 z" fill={NODE_COLOR} />
+        <text id="preview-node-label" x="256" y="10" textAnchor="middle" fontFamily="Helvetica" fontSize="14" fill={LABEL_COLOR}>{ nodeLabel }</text>
+      </svg>
+    );
+  }
 }
 
 const chartOptions = {

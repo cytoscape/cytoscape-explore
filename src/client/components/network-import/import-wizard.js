@@ -180,6 +180,7 @@ export class ImportWizard extends React.Component {
         disableEscapeKeyDown
         fullWidth
         maxWidth='sm'
+        scroll='paper'
         open={this.state.open}
       >
         <DialogTitle
