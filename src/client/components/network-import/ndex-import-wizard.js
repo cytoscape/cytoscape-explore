@@ -19,6 +19,7 @@ import { NDEx } from 'ndex-client';
 
 import { NetworkEditorController } from '../network-editor/controller';
 import { NDEX_API_URL } from '../../env';
+import { fetchWrap } from '../../util';
 
 
 
@@ -88,7 +89,7 @@ export class NDExImportSubWizard extends React.Component {
 
   async handleFinish() {
     // TODO actually import the network !!!
-    const res = await fetch( `/api/document/cx-import`, {
+    const res = await fetchWrap( `api/document/cx-import`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ export class NDExImportSubWizard extends React.Component {
 
     const urls = await res.json();
 
-    location.replace('/document/' + urls.id + '/'+ urls.secret);
+    location.replace(`${location.pathname}/${urls.id}/${urls.secret}`);
   }
 
   handleContinue() {

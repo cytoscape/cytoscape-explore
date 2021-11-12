@@ -57,12 +57,13 @@ export class CytoscapeSyncher {
     this.emitter = new EventEmitter();
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
+    // todo how to adapt this to use SERVER SUB PATH?
     const pouchOrigin = isClient() ? location.origin : COUCHDB_URL;
-    
+
     const remotePouchOptions = {
       fetch: (url, opts) => {
         opts.headers.set('X-Secret', this.secret);
-  
+
         return PouchDB.fetch(url, opts);
       }
     };
@@ -76,15 +77,16 @@ export class CytoscapeSyncher {
 
     if (this.editable() || isServer()) {
       this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
-      
+
       let remoteUrl;
 
+      // todo how to adapt this to use SERVER SUB PATH?
       if (isServer()) {
         remoteUrl = `${pouchOrigin}/${this.dbName}`; // server gets unrestricted access
       } else {
         remoteUrl = `${pouchOrigin}/ce/db/${this.dbName}`; // /db applied security
       }
-      
+
       this.remoteDb = new PouchDB(remoteUrl, remotePouchOptions);
     }
 

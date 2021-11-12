@@ -1,23 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
 import { Input } from '@material-ui/core';
 import { InputLabel } from '@material-ui/core';
-
-
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
-
-
 import FormControl from '@material-ui/core/FormControl';
-
 import Button from '@material-ui/core/Button';
-
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 
+import { NetworkEditorController } from '../network-editor/controller';
+import { fetchWrap } from '../../util';
 export class NDExNetworkImportDialog extends Component {
 
   constructor(props) {
@@ -40,7 +35,7 @@ export class NDExNetworkImportDialog extends Component {
   async handleOk() {
     this.setState({ loading: true });
 
-    const res = await fetch( '/ce/api/document/cx-import', {
+    const res = await fetchWrap( 'api/document/cx-import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +46,7 @@ export class NDExNetworkImportDialog extends Component {
     const urls = await res.json();
    // const newURL = urls.publicUrl;
 
-    location.replace('/ce/document/' + urls.id + '/'+ urls.secret);
+    location.replace(`${location.pathname}/${urls.id}/${urls.secret}`);
 
  /*   const ndex0 = new ndexClient.NDEx(NDEX_URL + '/v2');
 

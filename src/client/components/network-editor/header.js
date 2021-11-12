@@ -29,6 +29,8 @@ import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
 
+import { fetchWrap } from '../../util';
+
 
 /**
  * The network editor's header or app bar.
@@ -106,7 +108,7 @@ export class Header extends Component {
   // temp: should be somewhere else, e.g. in network management page
   createNewNetwork(){
     let create = async () => {
-      let res = await fetch('/api/document', {
+      let res = await fetchWrap('api/document', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -135,7 +137,7 @@ export class Header extends Component {
 
     if(ndexClient.authenticationType != null && ndexClient._authToken != null){
       let exportNDEx = async () => {
-        let result = await fetch('/ce/api/document/cx-export', {
+        let result = await fetchWrap('api/document/cx-export', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -158,7 +160,7 @@ export class Header extends Component {
   async loadGAL() {
     const { cy } = this.controller;
 
-    const res = await fetch('/sample-data/gal.json');
+    const res = await fetchWrap('sample-data/gal.json');
     const netJson = await res.json();
 
     cy.elements().remove();

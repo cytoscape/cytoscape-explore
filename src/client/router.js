@@ -2,9 +2,10 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import NetworkEditor from './components/network-editor';
 import PageNotFound from './components/page-not-found';
+import { SERVER_SUB_PATH } from './env';
 
 export const Router = () => (
-  <BrowserRouter basename={'/ce'}>
+  <BrowserRouter basename={SERVER_SUB_PATH}>
     <Switch>
       <Route path='/' exact>
         <Redirect to='/document/demo' />
