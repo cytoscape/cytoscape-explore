@@ -6,7 +6,8 @@ import {
     addDefaultValues,
     createAttributeDeclarations,
     SAVED_ASPECTS,
-    CX_DATA_KEY
+    CX_DATA_KEY,
+    IS_CX_ELE
 } from './cx-util.js';
 
 export const isAspectKeyInArray = (aspect, aspectKeyArray) => {
@@ -127,6 +128,7 @@ export const convertCX = (cx) => {
                 const element = {};
                 element['data'] = createData(cxNode['v'], nodeAttributeDeclarations.aliasMap, nodeAttributeDeclarations.defaultValueMap);
                 element['data']['id'] = cxNode.id.toString();
+                element['data'][IS_CX_ELE] = true;
                 element['position'] = {
                     x: cxNode['x'],
                     y: cxNode['y']
@@ -138,6 +140,7 @@ export const convertCX = (cx) => {
             cxEdges.forEach((cxEdge) => {
                 const element = {};
                 element['data'] = createData(cxEdge['v'], edgeAttributeDeclarations.aliasMap, edgeAttributeDeclarations.defaultValueMap);
+                element['data'][IS_CX_ELE] = true;
                 element['data']['id'] = "e" + cxEdge.id.toString();
                 element['data']['source'] = cxEdge['s'];
                 element['data']['target'] = cxEdge['t'];
