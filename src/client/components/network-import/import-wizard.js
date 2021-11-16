@@ -169,10 +169,17 @@ export class ImportWizard extends React.Component {
 
   render() {
     const { steps, step, loading } = this.state;
-    let title = steps && step ? steps[step - 1].label : null;
+    
+    let optional = false;
+    let title;
 
-    if (steps && steps.length > 1)
-      title = step + '/' + steps.length + " \u2014 " + title;
+    if (steps && step && steps.length > 0) {
+      optional = steps[step - 1].optional === true;
+      title = steps[step - 1].label;
+    
+      if (steps.length > 1)
+        title = step + ' of ' + steps.length + (title ? " \u2014 " + title : '');
+    }
 
     return (
       <Dialog
@@ -202,8 +209,8 @@ export class ImportWizard extends React.Component {
             { loading &&
               <LinearProgress />
             }
-            { steps && step &&
-              <h3>{ title }</h3>
+            { title &&
+              <h3>{ title }{ optional ? <sup style={{fontWeight: 'normal', paddingLeft: 10}}>(optional)</sup> : '' }</h3>
             }
             { this.renderPage() }
           </>

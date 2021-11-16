@@ -18,6 +18,7 @@ const STEPS = [
   },
   {
     label: "Enter Your Node Table",
+    optional: true,
   },
 ];
 
@@ -78,14 +79,31 @@ class ExcelImportSubWizard extends React.Component {
       const previewData = step === 1 ? edgePreviewData : nodePreviewData;
       const allData = step === 1 ? edgeData : nodeData;
       
-      if (previewData) {
-        const obj = previewData && previewData.length > 0 ? previewData[previewData.length - 1] : null;
+      if (previewData && previewData.length > 0) {
+        const obj = previewData[previewData.length - 1];
         const data = obj.data;
         const keys = Object.keys(data);
         const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
 
-        for (const k of chartKeys)
-            this.createPreviewChart(k, data, allData);
+        for (const k of chartKeys) {
+          // Get the column data
+          const colData = [];
+
+          for (const row of allData) {
+            if (typeof row[k] === 'number')
+              colData.push(row[k]);
+          }
+
+          // Normal distribution - sort values
+          colData.sort((a, b) => a - b);
+          const m = mean(colData);
+          const sd = std(colData); // The standard deviation
+
+          if (sd > 0) {
+            const val = data[k]; // This element's value
+            this.createPreviewChart(k, val, colData, m, sd);
+          }
+        }
       }
     }
   }
@@ -250,11 +268,11 @@ class ExcelImportSubWizard extends React.Component {
             var source = row[keys[0]];
             var target = row[keys[1]];
 
-            if (!source || !target)
+            if (source == null || target == null)
               continue;
 
-            nodes[source] = { group: 'nodes', data: { id: source, name: source } };
-            nodes[target] = { group: 'nodes', data: { id: target, name: target } };
+            nodes[source] = { group: 'nodes', data: { id: source } };
+            nodes[target] = { group: 'nodes', data: { id: target } };
 
             const edgeId = source + '-' + target;
             const edgeAtrrs = { group: 'edges', data: { id: edgeId, source: source, target: target } };
@@ -306,22 +324,14 @@ class ExcelImportSubWizard extends React.Component {
     return elements;
   }
 
-  /** Create charts for numeric attributes. */ 
-  createPreviewChart(k, elementData, allData) {
-      // Get the column data
-      const colData = [];
+  /**
+   * Create charts for numeric attributes.
+   */ 
+  createPreviewChart(k, val, data, mean, sd) {
+      const dist = sd > 0 ? gaussian(mean, sd) : 0;
 
-      for (const row of allData)
-        colData.push(row[k]);
-
-      // Normal distribution - sort values
-      colData.sort((a, b) => a - b);
-      const m = mean(colData);
-      const sd = std(colData); // The standard deviation
-      const dist = gaussian(m, sd);
-
-      const lowerBound = colData[0];
-      const upperBound = colData[colData.length - 1];
+      const lowerBound = data[0];
+      const upperBound = data[data.length - 1];
       const min = lowerBound - 2 * sd;
       const max = upperBound + 2 * sd;
       const unit = (max - min) / 100;
@@ -341,15 +351,13 @@ class ExcelImportSubWizard extends React.Component {
 
       // Customize options -- show the current value as a chart annotation
       // (see: https://www.chartjs.org/chartjs-plugin-annotation/guide/types/line.html)
-      const myVal = elementData[k]; // This element's value
-
       const options = { ...chartOptions };
       const myValueLine = options.plugins.annotation.annotations.myValueLine;
-      myValueLine['xMin'] = myVal;
-      myValueLine['xMax'] = myVal;
+      myValueLine['xMin'] = val;
+      myValueLine['xMax'] = val;
       myValueLine['yMin'] = Math.min(ySeries);
       myValueLine['yMax'] = Math.max(ySeries);
-      myValueLine.label['content'] = myVal;
+      myValueLine.label['content'] = val;
 
       // Create the chart
       const ctx = document.getElementById(`chart-${k.replaceAll(' ', '_')}`).getContext('2d');
