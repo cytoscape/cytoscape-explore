@@ -11,8 +11,7 @@ PouchDB.plugin(PouchDBMemoryAdapter);
 // import CytoscapeSyncher from '../src/model/cytoscape-syncher';
 
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
-import { getCXType } from '../src/model/import-export/cx/cy-converter';
-import { getCXValue } from '../src/model/import-export/cx/cx-export-visual-properties';
+import { getCXType, getCXValue } from '../src/model/import-export/cx/cx-util';
 import { STYLE_TYPE } from '../src/model/style';
 
 describe('CX Conversion', () => {

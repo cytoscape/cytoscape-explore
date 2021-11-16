@@ -7,7 +7,7 @@ export const SAVED_ASPECTS = [
     'cyHiddenAttributes',
     'cyTableColumn'
 ];
-// The key to get the CX data in the cy.js model
+// The key to get the CX data at the top level cy.js model
 export const CX_DATA_KEY = '_cx2-data';
 
 // A flag that represents if an element is an imported CX element
@@ -17,11 +17,11 @@ export const IS_CX_ELE = '_is-cx-element';
 export const CX_TO_JS = 'CX_TO_JS';
 export const JS_TO_CX = 'JS_TO_CX';
 
-export const isCXId = cyEle => cyEle.data(IS_CX_ELE);
+export const hasCXId = cyEle => cyEle.data(IS_CX_ELE);
 
-export const parseCXId = (idStr) => {
+export const exportCXEdgeID = (idStr) => parseInt(idStr.slice(1));
 
-};
+export const exportCXNodeID = (idStr) => parseInt(idStr);
 
  /**
   * Get the CX2 datatype of a CE data value
