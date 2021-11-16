@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
+import classNames from 'classnames';
 
 
 export class LabelInput extends React.Component {
@@ -56,7 +57,14 @@ export function stylePropsToLabelPos(h, v) {
 
 export function PositionButton({ value, selected, onClick }) {
   return (
-    <div className={'label-position-widget-button ' +  'label-position-widget-button-' + value.label + ' '  + (selected ? 'label-position-widget-selected-true' : 'label-position-widget-selected-false')} onClick={() => onClick(value)}>
+    <div 
+      className={classNames({ 
+        'label-position-widget-button': true, 
+        [`label-position-widget-button-${value.label}`]: true,
+        [`label-position-widget-selected-${selected}`]: true
+      })} 
+      onClick={() => onClick(value)}
+    >
       {value.label[0] + value.label.substr(1).toLowerCase()}
     </div>
   );
