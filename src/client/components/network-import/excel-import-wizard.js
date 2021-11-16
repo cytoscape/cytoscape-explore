@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import { NetworkEditorController } from '../network-editor/controller';
 import theme from '../../theme';
-import { ThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import _ from 'underscore';
 import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
@@ -490,18 +487,7 @@ class ExcelImportSubWizard extends React.Component {
                 PREVIEW &#8212; Your First {group}:
               </h4>
               {isLoop && keys.length > 0 && (
-                <Grid 
-                  container
-                  className="preview-popper-data"
-                  style={{ marginBottom: -6 }}
-                  direction="column" 
-                  alignItems="center"
-                >
-                  <div className="popper-content">
-                    { this.renderDataTable(previewData, keys) }
-                  </div>
-                  <div className="arrow-down" style={{ marginLeft: -28 }}/>
-                </Grid>
+                this.renderDataTable(previewData, keys, "down", { marginBottom: -6 }, { marginLeft: -28 })
               )}
               {isEdge && (
                 <Grid
@@ -511,35 +497,24 @@ class ExcelImportSubWizard extends React.Component {
                   alignItems="flex-end"
                 >
                   <Grid item xs>
-                    { this.renderNodeIdAttrLabel(node1IdAttr, "down", { style: { marginLeft: 22, marginBottom: -2 }}) }
+                    { this.renderNodeIdAttrLabel(node1IdAttr, "down", { marginLeft: 22, marginBottom: -2 }) }
                   </Grid>
                   <Grid item xs>
-                    { this.renderNodeIdAttrLabel(node2IdAttr, "down", { style: { marginLeft: -22, marginBottom: -2 }}) }
+                    { this.renderNodeIdAttrLabel(node2IdAttr, "down", { marginLeft: -22, marginBottom: -2 }) }
                   </Grid>
                 </Grid>
               )}
               {isNode && (
-                this.renderNodeIdAttrLabel(nodeIdAttr, "down", { style: { marginBottom: -2 }})
+                this.renderNodeIdAttrLabel(nodeIdAttr, "down", { marginBottom: -2 })
               )}
               <div id="import-preview-image">
                 { previewImg }
               </div>
               {isLoop && (
-                this.renderNodeIdAttrLabel(node1IdAttr + " | " + node2IdAttr, "up", { style: { marginTop: -4 }})
+                this.renderNodeIdAttrLabel(node1IdAttr + " | " + node2IdAttr, "up", { marginTop: -4 })
               )}
               {(isEdge || isNode) && keys.length > 0 && (
-                <Grid 
-                  container
-                  className="preview-popper-data"
-                  style={{ marginTop: (isEdge? -20 : -10) }}
-                  direction="column" 
-                  alignItems="center"
-                >
-                  <div className="arrow-up" />
-                  <div className="popper-content">
-                    { this.renderDataTable(previewData, keys) }
-                  </div>
-                </Grid>
+                this.renderDataTable(previewData, keys, "up", { marginTop: (isEdge? -20 : -10) })
               )}
             </Grid>
           </Paper>
@@ -548,14 +523,14 @@ class ExcelImportSubWizard extends React.Component {
     );
   }
 
-  renderNodeIdAttrLabel(nodeIdAttr, arrowDirection, props) {
+  renderNodeIdAttrLabel(nodeIdAttr, arrowDirection, gridStyle) {
     return (
       <Grid
         className="preview-popper-node"
         container
         direction="column"
         alignItems="center"
-        {...props}
+        style={gridStyle}
       >
         {arrowDirection === "up" && (
           <div className="arrow-up" />
@@ -568,38 +543,54 @@ class ExcelImportSubWizard extends React.Component {
     );
   }
 
-  renderDataTable(obj, keys) {
+  renderDataTable(obj, keys, arrowDirection, gridStyle, arrowStyle) {
     const data = obj.data;
     const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
 
     return (
-      <TableContainer component={Paper}>
-        <Table size="small" stickyHeader>
-          <TableHead>
-            <TableRow>
-              {keys && keys.map((k) => (
-                <TableCell key={k}>{k}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              {keys && keys.map((k) => (
-                  <TableCell key={k} style={{textAlign: 'center'}}>
-                    {chartKeys.includes(k) ?
-                      <canvas
-                        id={`chart-${k.replaceAll(' ', '_')}`}
-                        style={{width: '128px', height: '64px'}}
-                      />
-                    :
-                      <>{ data[k] + '' }</>
-                    }
-                  </TableCell>
-              ))}
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Grid 
+        container
+        className="preview-popper-data"
+        direction="column" 
+        alignItems="center"
+        style={gridStyle}
+      >
+        {arrowDirection === "up" && (
+          <div className="arrow-up" style={arrowStyle} />
+        )}
+        <div className="popper-content">
+          <TableContainer component={Paper}>
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {keys && keys.map((k) => (
+                    <TableCell key={k}>{k}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  {keys && keys.map((k) => (
+                      <TableCell key={k} style={{textAlign: 'center'}}>
+                        {chartKeys.includes(k) ?
+                          <canvas
+                            id={`chart-${k.replaceAll(' ', '_')}`}
+                            style={{width: '128px', height: '64px'}}
+                          />
+                        :
+                          <>{ data[k] + '' }</>
+                        }
+                      </TableCell>
+                  ))}
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        {arrowDirection === "down" && (
+          <div className="arrow-down" style={arrowStyle} />
+        )}
+      </Grid>
     );
   }
 

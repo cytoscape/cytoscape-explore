@@ -19,14 +19,6 @@
   margin-top: 10px;
 }
 
-.import-preview .MuiTableContainer-root {
-  height: 120px;
-}
-
-.import-preview .MuiTableContainer-root th {
-  font-weight: bold;
-}
-
 .preview-popper-node {
   padding-bottom: 0.25em;
 }

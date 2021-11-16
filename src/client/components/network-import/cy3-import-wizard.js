@@ -291,20 +291,16 @@ export class Cy3ImportSubWizard extends React.Component {
 }
 
 function useStyles() {
-  return makeStyles((theme) => ({
+  return makeStyles(() => ({
     root: {
       display: 'flex',
       flexWrap: 'wrap',
       justifyContent: 'space-around',
       overflow: 'hidden',
-      // backgroundColor: theme.palette.background.paper,
     },
     imageList: {
       width: 250,
       height: 120,
-    },
-    icon: {
-      color: '#ffffff',
     },
   }));
 }
