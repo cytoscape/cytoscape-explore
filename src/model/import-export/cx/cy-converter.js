@@ -113,7 +113,10 @@ export const cxDataAspects = (cy) => {
   });
 
   const attributeDeclarationsAspect = {
-    attributeDeclarations: [{
+    // attributeDeclarations must be wrapped in a array because
+    // it is converted to an object if it is imported from CX
+    // this is the only aspect that currently has this behaviour
+    attributeDeclarations: [_.get(cxData, 'saved-aspects.1.attributeDeclarations', {
       networkAttributes: {
         name: { d: 'string', v: ''},
         description: { d: 'string', v: ''},
@@ -121,15 +124,15 @@ export const cxDataAspects = (cy) => {
       },
       nodes: nodeAttributes,
       edges: edgeAttributes
-    }]
+    })]
   };
 
   const networkAttributesAspect = {
-    networkAttributes: [{
+    networkAttributes: _.get(cxData, 'saved-aspects.2.networkAttributes', [{
       name: cy.data('name') || 'cyexplore',
       description: cy.data('description') || 'description',
       version: cy.data('version') || '1.0'
-    }]
+    }])
   };
 
   const nodesAspect = { nodes: cxNodes };
@@ -161,7 +164,7 @@ export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
   * @param {Cytoscape.Core} cy
   */
 export const convertCY = (cy) => {
-
+  const cxData = cy.data(CX_DATA_KEY);
   const {
     cxIdMap,
     nodesAspect,
@@ -177,13 +180,21 @@ export const convertCY = (cy) => {
   } = cxVisualPropertiesAspects(cy, cxIdMap);
 
   const visualEditorPropertiesAspect = {
-    visualEditorProperties: [
+    visualEditorProperties: _.get(cxData, 'saved-aspects.3.visualEditorProperties', [
       {
         properties: {
           nodeSizeLocked: false
         }
       }
-    ]
+    ])
+  };
+
+  const cyTableColumnAspect = {
+    cyTableColumn: _.get(cxData, 'saved-aspects.4.cyTableColumn', [])
+  };
+
+  const cyHiddenAttributesAspect = {
+    cyHiddenAttributes: _.get(cxData, 'saved-aspects.5.cyHiddenAttributes', [])
   };
 
   const statusAspect = {
@@ -223,8 +234,12 @@ export const convertCY = (cy) => {
         name: 'edgeBypasses'
       },
       {
-        elementCount: visualEditorPropertiesAspect.visualEditorProperties.length,
-        name: 'visualEditorProperties'
+        elementCount: cyTableColumnAspect.cyTableColumn.length,
+        name: 'cyTableColumn'
+      },
+      {
+        elementCount: cyHiddenAttributesAspect.cyHiddenAttributes.length,
+        name: 'cyHiddenAttributes'
       }
     ]
   };
@@ -240,6 +255,8 @@ export const convertCY = (cy) => {
     nodeBypassesAspect,
     edgeBypassesAspect,
     visualEditorPropertiesAspect,
+    cyTableColumnAspect,
+    cyHiddenAttributesAspect,
     statusAspect,
   ];
 

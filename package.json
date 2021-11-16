@@ -38,6 +38,7 @@
     "test": "run-s test:mocha test:bundle lint"
   },
   "dependencies": {
+    "@js4cytoscape/ndex-client": "https://gitpkg.now.sh/cytoscape/js4cytoscape/packages/ndex-client?develop",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
@@ -63,7 +64,6 @@
     "http-proxy-middleware": "^0.19.1",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
-    "ndex-client": "git+https://github.com/ndexbio/ndex-js-client.git#develop",
     "node-fetch": "^2.6.1",
     "pouchdb": "^7.2.1",
     "pouchdb-adapter-memory": "^7.2.1",
