@@ -42,8 +42,8 @@ export class StylePanel extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="style-picker-heading">
+      <div className="style-panel">
+        <div className="tool-panel-heading">
           { this.props.title || "Style Panel" }
         </div>
         { this.state.numSelected > 0 
@@ -67,13 +67,12 @@ StylePanel.propTypes = {
 
 export function StyleSection({ title, children, extra }) {
   return (
-    <div>
-      <hr/>
-      <div style={{display:'flex'}}>
-        <div><b>{title || "style section"}</b></div>
-        <div style={{marginLeft:'auto'}}>{extra}</div>
+    <div className="tool-panel-section">
+      <div className="tool-panel-section-title">
+        <div className="tool-panel-label">{title || "Style Section"}</div>
+        <div className="tool-panel-extra">{extra}</div>
       </div>
-      <div style={{ padding: '5px', paddingBottom: '15px'} }>
+      <div>
         {children}
       </div>
     </div>
@@ -113,11 +112,8 @@ class StylePopoverButton extends React.Component {
       // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
       // Should probably get a reference to the discrete icon, or pass the onClick handler down to the icon.
       <div> 
-        <div 
-          style={{ padding: '5px', textAlign: 'left' }}
-          onClick={handlePopoverOpen}
-        >
-          { this.props.renderButton(styleVal) }
+        <div>
+          <span onClick={handlePopoverOpen}>{ this.props.renderButton(styleVal) }</span>
         </div>
         <Popover 
           open={Boolean(this.state.popoverAnchorEl)}
@@ -600,16 +596,18 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     valueLabel={valueLabel}
     discreteLabel={discreteLabel}
     renderValue={(currentShape, setShape) => 
-      <StylePopoverButton 
-        styleVal={currentShape}
-        handleChange={setShape}
-        renderButton={(shape) => 
-          <ShapeIcon type={variant} shape={shape} />
-        }
-        renderPopover={(shape, onSelect) => 
-          <ShapeIconGroup type={variant} selected={shape} onSelect={onSelect} />
-        }
-      />
+      <div className="shape-swatches">
+        <StylePopoverButton 
+          styleVal={currentShape}
+          handleChange={setShape}
+          renderButton={(shape) => 
+            <ShapeIcon type={variant} shape={shape} />
+          }
+          renderPopover={(shape, onSelect) => 
+            <div className="shape-swatches-popover-content"><ShapeIconGroup type={variant} selected={shape} onSelect={onSelect} /></div>
+          }
+        />
+      </div>
     }
     onValueSet={shape => 
       controller.setString(selector, styleProp, shape)
@@ -632,6 +630,7 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
   const [min, max] = 
     (variant == 'solid') ? [10, 50] : 
     (variant == 'text')  ? [4, 30] : 
+    (variant == "border") ? [0, 10] :
     [1, 10];
   return <DefaultStylePicker
     controller={controller}
@@ -691,9 +690,9 @@ SizeStylePicker.defaultProps = {
 
 export function OpacityStylePicker({ controller, selector, styleProp }) {
   return <DefaultStylePicker
-    valueLabel="Single Transparancy"
-    mappingLabel="Transparancy Mapping"
-    discreteLabel="Transparancy per Data Value"
+    valueLabel="Single Opacity"
+    mappingLabel="Opacity Mapping"
+    discreteLabel="Opacity per Data Value"
     controller={controller}
     selector={selector}
     styleProp={styleProp}
@@ -943,9 +942,7 @@ export function NodeLabelPositionStylePicker({ controller }) {
     valueLabel='Position'
     discreteLabel='Position per Data Value'
     renderValue={(value, setValue) => 
-      <div style={{marginTop:'10px'}}>
-        <LabelPosition value={value} onSelect={setValue} />
-      </div>
+      <LabelPosition value={value} onSelect={setValue} />
     }
     renderDiscrete={(value, setValue) => 
       <StylePopoverButton 

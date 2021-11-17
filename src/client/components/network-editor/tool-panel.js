@@ -46,8 +46,10 @@ export class ToolPanel extends Component {
 
 
     return (<div className={"tool-panel " + (tool ? "tool-panel-has-tool" : "tool-panel-no-tool")}>
-      <Box className="tool-panel-content" bgcolor="background.paper">
-        { toolRender() }
+      <Box className="tool-panel-content">
+        <div className="tool-panel-wrapper" bgcolor="background.paper">
+          { toolRender() }
+        </div>
       </Box>
 
       <Box className="tool-panel-buttons" bgcolor="background.paper" color="secondary.main">
@@ -55,7 +57,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Layout" 
           tool="layout" 
-          icon="share" // bubble_chart"  "scatter_plot"  "grain"
+          icon="bolt" // bubble_chart"  "scatter_plot"  "grain"
           render={() => <LayoutPanel controller={controller} />}>
         </ToolButton>
         
@@ -122,7 +124,7 @@ export class ToolPanel extends Component {
 
         <ToolButton 
           title="Node Label" 
-          icon="do_not_disturb_on"
+          icon="text_format"
           tool="node_label"
           render={() => 
             <StylePanel 
@@ -178,7 +180,7 @@ export class ToolPanel extends Component {
                   styleProps={['line-color', 'source-arrow-color', 'target-arrow-color']}
                 />
               </StyleSection>
-              <StyleSection title="Transparancy">
+              <StyleSection title="Opacity">
                 <OpacityStylePicker
                   controller={controller}
                   selector='edge'
@@ -207,7 +209,7 @@ export class ToolPanel extends Component {
 
         <ToolButton 
           title="Edge Arrows" 
-          icon="arrow_back"
+          icon="arrow_forward"
           tool="edge_arrows"
           render={() =>
             <StylePanel 

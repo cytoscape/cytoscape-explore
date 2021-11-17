@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
+import classNames from 'classnames';
 
 
 export class LabelInput extends React.Component {
@@ -55,12 +56,16 @@ export function stylePropsToLabelPos(h, v) {
 
 
 export function PositionButton({ value, selected, onClick }) {
-  const style = { cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' };
-  if(selected)
-    style.color = '#757ce8';
   return (
-    <div onClick={() => onClick(value)} style={style}>
-      <b>{value.label}</b>
+    <div 
+      className={classNames({ 
+        'label-position-widget-button': true, 
+        [`label-position-widget-button-${value.label}`]: true,
+        [`label-position-widget-selected-${selected}`]: true
+      })} 
+      onClick={() => onClick(value)}
+    >
+      {value.label[0] + value.label.substr(1).toLowerCase()}
     </div>
   );
 }
@@ -93,25 +98,12 @@ export class LabelPosition extends React.Component {
       <PositionButton value={pos} onClick={onSelect} selected={this.state.value == pos} />;
     
     return (
-      <div style={{
-          display:'grid',
-          gridTemplateColumns:'auto auto auto',
-          gridGap:'10px',
-      }}>
+      <div className="label-position-widget">
         <div/>
         <PosButton pos={LABEL_POS.TOP} />
         <div/>  
         <PosButton pos={LABEL_POS.LEFT} />
-        <div style={{
-          borderRadius:'15px', 
-          border:'2px solid #888', 
-          padding:'10px', 
-          width:'120px', 
-          height:'60px',
-          display:'flex', 
-          alignItems:'center', 
-          justifyContent:'center'
-        }}>
+        <div className="label-position-widget-node">
           <PosButton pos={LABEL_POS.CENTER} />
         </div>
         <PosButton pos={LABEL_POS.RIGHT} />

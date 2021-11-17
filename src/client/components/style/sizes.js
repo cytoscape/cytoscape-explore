@@ -7,9 +7,9 @@ import { FormControl, Select } from "@material-ui/core";
 
 export function SizeSlider(props) {
   const debouncedOnChange = _.throttle(value => props.onSelect(value), 150, { leading: true });
-  const min = props.min || 1;
-  const max = props.max || 100;
-  const def = props.defaultValue || (max / 2.0);
+  const min = _.defaultTo(props.min, 1);
+  const max = _.defaultTo(props.max, 100);
+  const def = _.defaultTo(props.defaultValue, (max / 2.0));
   const marks = [ { value: min, label: min }, { value: max, label: max } ];
   return (
     <div className="size-slider">
@@ -17,7 +17,7 @@ export function SizeSlider(props) {
         min={min} 
         max={max} 
         defaultValue={def}
-        marks={marks}
+        // marks={marks}
         valueLabelDisplay='auto'
         onChange={(event,value) => debouncedOnChange(value)}
       />
@@ -133,7 +133,7 @@ const aspects = [
 
 export function AspectRatioPicker(props) {
   return <div>
-    <div>
+    <div className="tool-panel-section-secondary-title">
       Orientation
     </div>
     <div style={{ display: 'flex', justifyContent: 'center' }}>

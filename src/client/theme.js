@@ -44,8 +44,13 @@ const themeOptions = {
       color: 'transparent',
     },
     MuiSlider: {
-      color: 'secondary'
-    }
+      color: 'secondary',
+    },
+    props: {
+      MuiButtonBase: {
+        disableRipple: true // no more ripple, on the whole application
+      }
+    },
   },
 };
 

@@ -28,6 +28,7 @@ import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialo
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
+import { DEFAULT_PADDING } from '../layout/defaults';
 
 
 /**
@@ -218,7 +219,7 @@ export class Header extends Component {
                 <div className="header-separator"></div>
 
                 <Tooltip arrow placement="bottom" title="Fit Network">
-                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.cy.fit()}>
+                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.cy.fit(DEFAULT_PADDING)}>
                     <FitScreenIcon />
                   </IconButton>
                 </Tooltip>

@@ -1,6 +1,9 @@
 .cy {
-  position: relative;
-  flex: 1 1 auto;
+  position: absolute;
+  left: 0;
+  right: 300px;
+  top: 0;
+  bottom: 0;
 }
 
 #cy {
