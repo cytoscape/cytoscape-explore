@@ -12,9 +12,44 @@ PouchDB.plugin(PouchDBMemoryAdapter);
 
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 import { getCXType, getCXValue } from '../src/model/import-export/cx/cx-util';
+import { labelLocationMapper } from '../src/model/import-export/cx';
 import { STYLE_TYPE } from '../src/model/style';
 
-describe('CX Conversion', () => {
+describe('Importing CX networks to CE', () => {
+  it('converts nodel label position CX values to CE', () => {
+    const input = {
+      HORIZONTAL_ALIGN: 'center',
+      VERTICAL_ALIGN: 'top',
+      HORIZONTAL_ANCHOR: 'center',
+      VERTICAL_ANCHOR: 'bottom',
+      MARGIN_X: -34.98,
+      MARGIN_Y: -25.65,
+      JUSTIFICATION: 'center'
+    };
+
+    const output = {
+        "text-halign": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "center",
+          "stringValue": "center"
+        },
+        "text-valign": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "bottom",
+          "stringValue": "bottom"
+        }
+    }
+
+    expect(labelLocationMapper.valueCvtr(input)).to.deep.equal(output);
+    // sanity check an issue where the labelLocationMapper would produce
+    // the wrong result after calling it once (mutation related issue)
+    expect(labelLocationMapper.valueCvtr(input)).to.deep.equal(output);
+  })
+});
+
+describe('Exporting CE networks to CX', () => {
     before(() => {
       registerCytoscapeExtensions();
     });
@@ -69,7 +104,6 @@ describe('CX Conversion', () => {
 
     //   expect(expected[0]).to.deep.equal(actual[0]);
     // }).timeout(100000);
-
     it('converts CE style values to CX style values', () => {
       let tests = [
           {
@@ -125,7 +159,7 @@ describe('CX Conversion', () => {
       });
     });
 
-    it('produces a cx type string for supported values', () => {
+    it('produces a CX type string for supported values', () => {
       let tests = [
         {
           input: 'blah',

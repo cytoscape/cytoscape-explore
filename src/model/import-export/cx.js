@@ -1,10 +1,11 @@
+import _ from 'lodash';
 import { convertCX } from './cx/cx-converter.js';
 import { convertCY } from './cx/cy-converter.js';
 import { styleFactory } from '../../model/style';
 
 
 /* order of keys:  anchor_v, anchor_h, label_v, label_h */
-const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
+export const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
     'center': {
          'center': {
              'center': {
@@ -193,9 +194,11 @@ const stringMapper = {
   passthroughMappingFactory: styleFactory.stringPassthrough
 };
 
-const labelLocationMapper = {
+// export labelLocationMapper because 
+// it has more complex functionality that needs to be tested
+export const labelLocationMapper = {
     valueCvtr: ((value) => {
-       const v = CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[value.VERTICAL_ANCHOR][value.HORIZONTAL_ANCHOR][value.VERTICAL_ALIGN][value.HORIZONTAL_ALIGN];
+       const v = _.cloneDeep(CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[value.VERTICAL_ANCHOR][value.HORIZONTAL_ANCHOR][value.VERTICAL_ALIGN][value.HORIZONTAL_ALIGN]);
        v['text-halign'] = styleFactory.string(v['text-halign']);
        v['text-valign'] = styleFactory.string(v['text-valign']);
        return v;
