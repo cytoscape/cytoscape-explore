@@ -8,7 +8,7 @@ import { mean, std } from 'mathjs';
 import * as gaussian from 'gaussian';
 import { Chart } from 'react-chartjs-2';
 import { DropzoneArea } from 'material-ui-dropzone';
-import { Grid, Paper, IconButton } from '@material-ui/core';
+import { Grid, Paper, IconButton, Tooltip } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 
@@ -290,9 +290,10 @@ class ExcelImportSubWizard extends React.Component {
         }
       }
       // Then, process the optional node attributes
-      if (nodeData) {
+      if (nodeData && nodeData.length > 0) {
         for (const row of nodeData) {
           const keys = Object.keys(row);
+          console.log(keys);
 
           if (keys.length > 1) {
             var id = row[keys[0]]; // Node id is always the first column
@@ -463,26 +464,31 @@ class ExcelImportSubWizard extends React.Component {
 
     return (
       <div className={`excel-import ${group}-import`}>
-        <DropzoneArea
-          acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
-          filesLimit={1}
-          initialFiles={initialFile ? [initialFile] : []}
-          onChange={files => onChange(files, onChange)}
-          showPreviews={false}
-          showPreviewsInDropzone={false}
-        />
+        {!initialFile && (
+          <DropzoneArea
+            acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
+            filesLimit={1}
+            initialFiles={initialFile ? [initialFile] : []}
+            onChange={files => onChange(files, onChange)}
+            showPreviews={false}
+            showPreviewsInDropzone={false}
+          />
+        )}
         {initialFile && (
-          <>
-            <footer style={{textAlign: 'right'}}>
+          <div style={{marginTop: 24, marginBottom: 24, marginLeft: -20, textAlign: 'center'}}>
+            <Tooltip title="Remove file and try again">
               <IconButton
+                variant="outlined"
+                color="primary"
                 size="small"
                 onClick={() => onDelete()}
               >
                 <HighlightOffIcon />
               </IconButton>
-              <b>{initialFile.name}</b> ({rowCount} row{rowCount > 1 ? "s" : ""})
-            </footer>
-          </>
+            </Tooltip>
+            <b>{initialFile.name}</b>
+            <footer style={{marginLeft: 8}}>({rowCount} row{rowCount > 1 ? "s" : ""})</footer>
+          </div>
         )}
         {data && previewImg && (
           <Paper variant="outlined" className="import-preview">
@@ -492,7 +498,7 @@ class ExcelImportSubWizard extends React.Component {
               alignItems="center"
             >
               <h4 style={{width: '100%', textAlign: 'left', marginTop: '5px', padding: '0 15px'}}>
-                PREVIEW &#8212; Your First {group}:
+                PREVIEW &#8212; {group} from the First Row:
               </h4>
               {isLoop && keys.length > 0 && (
                 this.renderDataTable(previewData, keys, "down", { marginBottom: -6 }, { marginLeft: -28 })
