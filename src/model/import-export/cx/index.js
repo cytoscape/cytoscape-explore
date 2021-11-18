@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { convertCX } from './cx/cx-converter.js';
-import { convertCY } from './cx/cy-converter.js';
-import { styleFactory } from '../../model/style';
+import { convertCX } from './cx-converter.js';
+import { convertCY } from './cy-converter.js';
+import { styleFactory } from '../../style';
 
 
 /* order of keys:  anchor_v, anchor_h, label_v, label_h */

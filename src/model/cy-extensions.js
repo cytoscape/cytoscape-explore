@@ -23,7 +23,7 @@ const registerCXImporter = Cytoscape => {
     return importCX(this, cx);
   }
 
-  Cytoscape('core', 'importCX', _importCX);
+  Cytoscape('core', 'importCX2', _importCX);
 };
 
 const registerImportJSON = Cytoscape => {
