@@ -213,8 +213,8 @@ class ExcelImportSubWizard extends React.Component {
       /* Get first worksheet */
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
-      /* Convert array of arrays */
-      const data = XLSX.utils.sheet_to_row_object_array(ws);
+      /* Convert sheet to json */
+      const data = XLSX.utils.sheet_to_json(ws, { header: 0, defval: "" });
 
       /* Update state */
       if (handleData)
@@ -271,8 +271,8 @@ class ExcelImportSubWizard extends React.Component {
             if (source == null || target == null)
               continue;
 
-            nodes[source] = { group: 'nodes', data: { id: source } };
-            nodes[target] = { group: 'nodes', data: { id: target } };
+            nodes[source] = { group: 'nodes', data: { id: source, name: source } };
+            nodes[target] = { group: 'nodes', data: { id: target, name: target } };  
 
             const edgeId = source + '-' + target;
             const edgeAtrrs = { group: 'edges', data: { id: edgeId, source: source, target: target } };
