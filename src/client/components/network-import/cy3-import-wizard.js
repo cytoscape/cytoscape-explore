@@ -17,6 +17,10 @@ const STEPS = [
   },
 ];
 
+const IMG_WIDTH = 275;
+const IMG_HEIGHT = 180;
+const IMG_GAP = 2;
+
 export class Cy3ImportSubWizard extends React.Component {
 
   constructor(props) {
@@ -248,20 +252,33 @@ export class Cy3ImportSubWizard extends React.Component {
       this.updateButtons({ ...this.state, selectedSUID });
     };
 
+    // The first image will fill the entire width of the component,
+    // if the list has an odd number of images (otherwise it would show an empty rectangle)
+    const odd = data && data.length % 2 !== 0;
+
     return (
       <div className={classes.root}>
-        <ImageList rowHeight={180} className={classes.imageList} style={{backgroundColor: 'rgba(0, 0, 0, 0.87)'}}>
-        { data && data.map(net => (
+        { data &&
+          <header style={{textAlign: 'right'}}>
+            The current Cytoscape session has {data.length} network{data.length !== 1 ? 's' : ''}.
+          </header>
+        }
+        <ImageList rowHeight={IMG_HEIGHT} gap={IMG_GAP} className={classes.imageList}>
+        { data && data.map((net, idx) => (
           <ImageListItem 
             button='true'
-            key={net.SUID} 
+            key={net.SUID}
+            cols={odd && idx === 0 ? 2 : 1}
             selected={selectedSUID === net.SUID}
             onClick={() => {
               if (!loading)
                 handleNetworkSelect(net.SUID);
             }}
           >
-            <img src={this.getNetworkImageUrl(net.SUID, 250, 180)} alt={net.name} />
+            <img
+              src={this.getNetworkImageUrl(net.SUID, (odd && idx === 0 ? IMG_GAP + 2 * IMG_WIDTH : IMG_WIDTH), IMG_HEIGHT)}
+              alt={net.name}
+            />
             <ImageListItemBar
               title={
                 <Tooltip title={net.name} key={net.SUID} placement="top" enterDelay={500}>
@@ -279,11 +296,6 @@ export class Cy3ImportSubWizard extends React.Component {
           </ImageListItem>
         ))}
         </ImageList>
-        { data &&
-          <footer style={{textAlign: 'right'}}>
-            The current Cytoscape session has {data.length} network{data.length !== 1 ? 's' : ''}.
-          </footer>
-        }
       </div>
     );
   }
