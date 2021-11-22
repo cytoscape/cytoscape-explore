@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PopoverButton } from '../network-editor/popover-button';
+import { BasicMenu, PopoverButton } from '../network-editor/popover-button';
 import { Button, Tooltip } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
@@ -18,7 +18,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem'; 
 import ListItemText from '@material-ui/core/ListItemText'; 
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemButton from '@material-ui/core/ListItemSecondaryAction';
 
 
 export class StylePanel extends React.Component {
@@ -373,6 +372,11 @@ export class StylePicker extends React.Component {
   }
 
   renderDiscrete() {
+    // Add the "other" option
+    // Make the (+) dissapear when the list is complete
+    // Pre-populate the mapping if there are only <=3 entries
+    // Fix the popover
+
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
     const discreteDefault = this.props.getDiscreteDefault();
 
@@ -385,59 +389,56 @@ export class StylePicker extends React.Component {
       this.handleStyleChange({ discreteValue });
     };
 
-    const DenseList = props => {
-      // This style causes this List to scroll
-      return <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:200}}>
-        { props.children }
-      </List>;
+    const toText = (dataVal) => {
+      let text = String(dataVal);
+      if(text.length > 10)
+        return [ text.slice(0, 9) + "...", true ];
+      return [ text, false ];
     };
 
     const DataValListItemText = ({ dataVal }) => {
-      let text = String(dataVal);
-      if(text.length > 10) {
-        text = text.slice(0, 9) + "...";
-        return <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>;
-      }
-      return <ListItemText primary={text} />;
-    };
-
-    const DataValuePopoverList = ({ onSelect }) => {
-      return <List style={{width:'300px'}}>
-        { dataVals.map(dataVal =>
-            <ListItem key={dataVal}>
-              <ListItemButton onClick={() => onSelect(dataVal)}>
-                <DataValListItemText dataVal={dataVal} />
-              </ListItemButton>
-            </ListItem>
-        )}
-      </List>;
+      const [ text, abbreviated ] = toText(dataVal);
+      return abbreviated
+        ? <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>
+        : <ListItemText primary={text} />;
     };
 
     const discreetMappings = this.state.style.discreteValue || {};
+    const menuItemValues = dataVals.filter(dataVal => !(dataVal in discreetMappings));
+
     return <div>
-      <DenseList>
+      <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:200}}>
         { Object.entries(discreetMappings).map(([dataVal, styleVal]) =>
             <ListItem key={dataVal}>
               <Tooltip title='Remove Mapping'>
-                <CloseIcon onClick={() => handleStyleValChange(dataVal, undefined)} />
+                <CloseIcon 
+                  style={{cursor:'pointer'}}
+                  onClick={() => handleStyleValChange(dataVal, undefined)} 
+                />
               </Tooltip>
               &nbsp;
               <DataValListItemText dataVal={dataVal} />
               <ListItemSecondaryAction>
                 { this.props.renderDiscrete
                   ? this.props.renderDiscrete(styleVal, newVal => handleStyleValChange(dataVal, newVal))
-                  : this.props.renderValue(styleVal, newVal => handleStyleValChange(dataVal, newVal))
+                  : this.props.renderValue(   styleVal, newVal => handleStyleValChange(dataVal, newVal))
                 }
               </ListItemSecondaryAction>
             </ListItem>
         )}
-      </DenseList>
-      <PopoverButton 
-        closeOnSelect
-        renderButton={() => <Button size='small' variant='text'>(+) Add Data Value</Button>}
-        renderPopover={(value, handleChange) => <DataValuePopoverList onSelect={handleChange} />}
-        handleChange={dataVal => handleStyleValChange(dataVal, discreteDefault)} // 
-      />
+      </List>
+      { menuItemValues.length <= 0 ? null :
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <BasicMenu
+            buttonText="(+) Add Data Value"
+            items={menuItemValues.map(dataVal => (
+              { label: toText(dataVal)[0], 
+                onClick: () => handleStyleValChange(dataVal, discreteDefault) 
+              }
+            ))}
+          /> 
+        </div>
+      }
     </div>;
   }
 
