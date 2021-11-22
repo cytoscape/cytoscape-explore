@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { PopoverButton } from '../network-editor/popover-button';
-import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Tooltip } from "@material-ui/core";
+import { Button, Tooltip } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
@@ -13,7 +13,12 @@ import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../s
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
 import LockIcon from '@material-ui/icons/Lock';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
-
+import CloseIcon from '@material-ui/icons/Close';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem'; 
+import ListItemText from '@material-ui/core/ListItemText'; 
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemButton from '@material-ui/core/ListItemSecondaryAction';
 
 
 export class StylePanel extends React.Component {
@@ -370,42 +375,70 @@ export class StylePicker extends React.Component {
   renderDiscrete() {
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
     const discreteDefault = this.props.getDiscreteDefault();
-    return (
-      <List 
-        // This style causes this List to scroll
-        style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 200 }} 
-        dense={true}
-      >
-        {dataVals.map(dataVal => {
-          const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
-          let dataValText = String(dataVal);
-          let abbreviated = false;
-          if(dataValText.length > 10) {
-            dataValText = dataValText.slice(0, 9) + "...";
-            abbreviated = true;
-          }
-          const handleChange = (newStyleVal) => {
-            const discreteValue = { ...this.state.style.discreteValue };
-            discreteValue[dataVal] = newStyleVal;
-            this.handleStyleChange({ discreteValue });
-          };
-          return (
+
+    const handleStyleValChange = (dataVal, newStyleVal) => {
+      const discreteValue = { ...this.state.style.discreteValue };
+      if(newStyleVal === undefined)
+        delete discreteValue[dataVal];
+      else
+        discreteValue[dataVal] = newStyleVal;
+      this.handleStyleChange({ discreteValue });
+    };
+
+    const DenseList = props => {
+      // This style causes this List to scroll
+      return <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:200}}>
+        { props.children }
+      </List>;
+    };
+
+    const DataValListItemText = ({ dataVal }) => {
+      let text = String(dataVal);
+      if(text.length > 10) {
+        text = text.slice(0, 9) + "...";
+        return <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>;
+      }
+      return <ListItemText primary={text} />;
+    };
+
+    const DataValuePopoverList = ({ onSelect }) => {
+      return <List style={{width:'300px'}}>
+        { dataVals.map(dataVal =>
             <ListItem key={dataVal}>
-              { abbreviated
-                ? <Tooltip title={dataVal}><ListItemText primary={dataValText}/></Tooltip>
-                : <ListItemText primary={dataValText} />
-              }
+              <ListItemButton onClick={() => onSelect(dataVal)}>
+                <DataValListItemText dataVal={dataVal} />
+              </ListItemButton>
+            </ListItem>
+        )}
+      </List>;
+    };
+
+    const discreetMappings = this.state.style.discreteValue || {};
+    return <div>
+      <DenseList>
+        { Object.entries(discreetMappings).map(([dataVal, styleVal]) =>
+            <ListItem key={dataVal}>
+              <Tooltip title='Remove Mapping'>
+                <CloseIcon onClick={() => handleStyleValChange(dataVal, undefined)} />
+              </Tooltip>
+              &nbsp;
+              <DataValListItemText dataVal={dataVal} />
               <ListItemSecondaryAction>
                 { this.props.renderDiscrete
-                  ? this.props.renderDiscrete(styleVal, handleChange)
-                  : this.props.renderValue(styleVal, handleChange)
+                  ? this.props.renderDiscrete(styleVal, newVal => handleStyleValChange(dataVal, newVal))
+                  : this.props.renderValue(styleVal, newVal => handleStyleValChange(dataVal, newVal))
                 }
               </ListItemSecondaryAction>
             </ListItem>
-          );})
-        }
-        </List>
-    );
+        )}
+      </DenseList>
+      <PopoverButton 
+        closeOnSelect
+        renderButton={() => <Button size='small' variant='text'>(+) Add Data Value</Button>}
+        renderPopover={(value, handleChange) => <DataValuePopoverList onSelect={handleChange} />}
+        handleChange={dataVal => handleStyleValChange(dataVal, discreteDefault)} // 
+      />
+    </div>;
   }
 
   renderBypass() {

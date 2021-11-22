@@ -23,9 +23,9 @@ export class PopoverButton extends React.Component {
     const handleChange = (value) => {
       this.props.handleChange(value);
       this.setState({ value });
-      if(this.props.closeOnSelect) {
-        handlePopoverClose();
-      }
+      // if(this.props.closeOnSelect) {
+      //   handlePopoverClose();
+      // }
     };
 
     const { value } = this.state;
