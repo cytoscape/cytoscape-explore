@@ -34,8 +34,12 @@
         "name": "edgeBypasses"
       },
       {
-        "elementCount": 1,
-        "name": "visualEditorProperties"
+        "elementCount": 0,
+        "name": "cyTableColumn"
+      },
+      {
+        "elementCount": 0,
+        "name": "cyHiddenAttributes"
       }
     ]
   },
@@ -281,6 +285,12 @@
         }
       }
     ]
+  },
+  {
+    "cyTableColumn": []
+  },
+  {
+    "cyHiddenAttributes": []
   },
   {
     "status": [

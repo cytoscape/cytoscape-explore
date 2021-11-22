@@ -1,0 +1,2048 @@
+[
+  {
+    "CXVersion": "2.0",
+    "hasFragments": false
+  },
+  {
+    "metaData": [
+      {
+        "name": "networkAttributes",
+        "elementCount": 1
+      },
+      {
+        "name": "visualProperties",
+        "elementCount": 1
+      },
+      {
+        "name": "visualEditorProperties",
+        "elementCount": 1
+      },
+      {
+        "name": "nodeBypasses",
+        "elementCount": 5
+      },
+      {
+        "name": "attributeDeclarations",
+        "elementCount": 1
+      },
+      {
+        "name": "cyTableColumn",
+        "elementCount": 67
+      },
+      {
+        "name": "edges",
+        "elementCount": 25
+      },
+      {
+        "name": "cyHiddenAttributes",
+        "elementCount": 3
+      },
+      {
+        "name": "nodes",
+        "elementCount": 15
+      }
+    ]
+  },
+  {
+    "attributeDeclarations": [
+      {
+        "nodes": {
+          "ph_min_down_ipvalue": {
+            "d": "double"
+          },
+          "ab_sig_down": {
+            "d": "integer"
+          },
+          "ab_ipvalue": {
+            "d": "double"
+          },
+          "ab_detected": {
+            "d": "integer"
+          },
+          "ub_max_ilog2fc": {
+            "d": "double"
+          },
+          "ub_sig_down": {
+            "d": "integer"
+          },
+          "ph_min_ilog2fc": {
+            "d": "double"
+          },
+          "type": {
+            "d": "string"
+          },
+          "represents": {
+            "a": "r",
+            "d": "string"
+          },
+          "ph_min_up_ipvalue": {
+            "d": "double"
+          },
+          "ub_all_down_ptm": {
+            "d": "string"
+          },
+          "ub_min_up_ipvalue": {
+            "d": "double"
+          },
+          "alias": {
+            "d": "list_of_string"
+          },
+          "ub_min_ilog2fc": {
+            "d": "double"
+          },
+          "ph_sig_up": {
+            "d": "integer"
+          },
+          "ab_sig_up": {
+            "d": "integer"
+          },
+          "mouse_gene": {
+            "d": "string"
+          },
+          "ub_sig_up": {
+            "d": "integer"
+          },
+          "ub_min_down_ipvalue": {
+            "d": "double"
+          },
+          "ph_all_down_ptm": {
+            "d": "string"
+          },
+          "ab_ilog2fc": {
+            "d": "double"
+          },
+          "ph_detected": {
+            "d": "integer"
+          },
+          "diffusion_output_heat": {
+            "d": "double"
+          },
+          "ub_all_up_ptm": {
+            "d": "string"
+          },
+          "Column 1": {
+            "d": "string"
+          },
+          "ph_all_up_ptm": {
+            "d": "string"
+          },
+          "diffusion_input": {
+            "d": "double"
+          },
+          "ub_detected": {
+            "d": "integer"
+          },
+          "name": {
+            "a": "n",
+            "d": "string"
+          },
+          "diffusion_output_rank": {
+            "d": "integer"
+          },
+          "ph_sig_down": {
+            "d": "integer"
+          },
+          "ph_max_ilog2fc": {
+            "d": "double"
+          }
+        },
+        "networkAttributes": {
+          "reference": {
+            "d": "string"
+          },
+          "disease": {
+            "d": "string"
+          },
+          "organism": {
+            "d": "string"
+          },
+          "author": {
+            "d": "string"
+          },
+          "name": {
+            "d": "string"
+          },
+          "description": {
+            "d": "string"
+          },
+          "tissue": {
+            "d": "string"
+          },
+          "version": {
+            "d": "string"
+          }
+        },
+        "edges": {
+          "homology": {
+            "d": "double"
+          },
+          "coexpression_transferred": {
+            "d": "double"
+          },
+          "cooccurence": {
+            "d": "double"
+          },
+          "experiments": {
+            "d": "double"
+          },
+          "textmining_transferred": {
+            "d": "double"
+          },
+          "combined_score": {
+            "d": "double"
+          },
+          "fusion": {
+            "d": "double"
+          },
+          "experiments_transferred": {
+            "d": "double"
+          },
+          "database": {
+            "d": "double"
+          },
+          "interaction": {
+            "a": "i",
+            "d": "string"
+          },
+          "name": {
+            "d": "string"
+          },
+          "neighborhood": {
+            "d": "double"
+          },
+          "neighborhood_transferred": {
+            "d": "double"
+          },
+          "coexpression": {
+            "d": "double"
+          },
+          "database_transferred": {
+            "d": "double"
+          },
+          "textmining": {
+            "d": "double"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "networkAttributes": [
+      {
+        "disease": "Mtb",
+        "organism": "mouse",
+        "author": "dexter pratt",
+        "description": "Aggrephagy<div>red - abundance down</div><div>light red - abundance up</div><div>green - phospho down</div><div>yellow - phospho up</div><div>blue - ub down</div><div>light blue - ub up</div><br/><div>C2906712_STRING HC Budzik Significant Diffuse 1000<br/></div>",
+        "tissue": "macrophage",
+        "version": "1.0",
+        "reference": "Budzik, Jonathan M., Danielle L. Swaney, David Jimenez-Morales, Jeffrey R. Johnson, Nicholas E. Garelis, Teresa Repasy, Allison W. Roberts, et al. 2020.�<div>Dynamic Post-Translational Modification Profiling of Mycobacterium Tuberculosis-Infected Primary Macrophages.<div>eLife 9 (January). https://doi.org/10.7554/eLife.51461.</div></div>",
+        "name": "TEST label position"
+      }
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": 2243,
+        "x": -60.7638989740718,
+        "y": -129.585818538453,
+        "v": {
+          "n": "ULK2",
+          "r": "uniprot:Q8IYT8",
+          "ph_min_down_ipvalue": 0.0361196,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -5.5284269193305,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.676503035668597,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:9706",
+            "ensembl:ENSP00000378914"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Ulk2",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q9QY01_S780;Q9QY01_S781Q9QY01_S772;Q9QY01_S780",
+          "ab_ilog2fc": 0,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.325756684215,
+          "Column 1": "Q9QY01",
+          "ph_all_up_ptm": "Q9QY01_S451;Q9QY01_S453",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 522,
+          "ph_sig_down": 1,
+          "ph_max_ilog2fc": 0.281317201708335
+        }
+      },
+      {
+        "id": 2245,
+        "x": 49.11617415239812,
+        "y": -55.33319702237294,
+        "v": {
+          "n": "SQSTM1",
+          "r": "uniprot:Q13501",
+          "ph_min_down_ipvalue": 0.309642824202278,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 0.000133019260094264,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 7.21986633167087,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -1.65681903006868,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.0277600704979404,
+          "ub_min_up_ipvalue": 0.0000340635973230974,
+          "alias": [
+            "ncbigene:8878",
+            "ensembl:ENSP00000374455"
+          ],
+          "ub_min_ilog2fc": 7.21986633167087,
+          "ph_sig_up": 1,
+          "ab_sig_up": 1,
+          "mouse_gene": "Sqstm1",
+          "ub_sig_up": 3,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q64337_S334Q64337_S320",
+          "ab_ilog2fc": 1.3847533583559,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.264303804135,
+          "ub_all_up_ptm": "Q64337_K157Q64337_K13Q64337_K437",
+          "Column 1": "Q64337",
+          "ph_all_up_ptm": "Q64337_S372Q64337_S330;Q64337_S334Q64337_S330Q64337_S28Q64337_S24Q64337_S226Q64337_S152",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 737,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 5.53046197935763
+        }
+      },
+      {
+        "id": 2250,
+        "x": 135.26282415105916,
+        "y": -80.54208235554181,
+        "v": {
+          "n": "ATG5",
+          "r": "uniprot:Q9H1Y0",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.0500891230582048,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": 0,
+          "type": "protein",
+          "ph_min_up_ipvalue": 1,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:9474",
+            "ensembl:ENSP00000358072"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Atg5",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ab_ilog2fc": -0.60463979392726,
+          "ph_detected": 0,
+          "diffusion_output_heat": 0.266790710583,
+          "Column 1": "Q99J83",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 721,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0
+        }
+      },
+      {
+        "id": 2252,
+        "x": 16.188226318359398,
+        "y": 1.9746023813883369,
+        "v": {
+          "n": "GABARAP",
+          "r": "uniprot:O95166",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 0.165073844859112,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": 0,
+          "type": "protein",
+          "ph_min_up_ipvalue": 1,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:11337",
+            "ensembl:ENSP00000306866"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Gabarap",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ab_ilog2fc": -0.57573794749299,
+          "ph_detected": 0,
+          "diffusion_output_heat": 0.291534335157,
+          "Column 1": "Q9DCD6",
+          "ub_detected": 0,
+          "diffusion_output_rank": 589,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0
+        }
+      },
+      {
+        "id": 2330,
+        "x": 128.0550886571562,
+        "y": 60.207882100641044,
+        "v": {
+          "n": "TBC1D17",
+          "r": "uniprot:Q9HA65",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.00129666046631792,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": -1.00749568882476,
+          "ub_sig_down": 1,
+          "ph_min_ilog2fc": 5.24660217614967,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.036599,
+          "ub_all_down_ptm": "Q8BYH7_K303",
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:79735",
+            "ensembl:ENSP00000221543"
+          ],
+          "ub_min_ilog2fc": -1.00749568882476,
+          "ph_sig_up": 1,
+          "ab_sig_up": 0,
+          "mouse_gene": "Tbc1d17",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.0230053978104602,
+          "ab_ilog2fc": -1.18959769247121,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.616606436087,
+          "Column 1": "Q8BYH7",
+          "ph_all_up_ptm": "Q8BYH7_T19",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 290,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 5.24660217614967
+        }
+      },
+      {
+        "id": 2334,
+        "x": 11.27409751712507,
+        "y": -151.3956211730313,
+        "v": {
+          "n": "WDFY3",
+          "r": "uniprot:Q8IZQ1",
+          "ph_min_down_ipvalue": 0.275435336108778,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.0113489938621752,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -1.11672076320651,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.721163365211446,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:23001",
+            "ensembl:ENSP00000295888"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Wdfy3",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q6VNB8_T2483Q6VNB8_S969Q6VNB8_S2277",
+          "ab_ilog2fc": -0.755205797545184,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.65648562819,
+          "Column 1": "Q6VNB8",
+          "ph_all_up_ptm": "Q6VNB8_S2474",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 264,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0.163918531951908
+        }
+      },
+      {
+        "id": 2337,
+        "x": 130.23290016788826,
+        "y": -1.1722135215293026,
+        "v": {
+          "n": "OPTN",
+          "r": "uniprot:Q96CV9",
+          "ph_min_down_ipvalue": 0.537139335218428,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -0.278034117065999,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.000153167554818534,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:10133",
+            "ensembl:ENSP00000368022"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 2,
+          "ab_sig_up": 0,
+          "mouse_gene": "Optn",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q8K3K8_T529",
+          "ab_ilog2fc": 0,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.243000927421,
+          "Column 1": "Q8K3K8",
+          "ph_all_up_ptm": "Q8K3K8_T210;Q8K3K8_T212Q8K3K8_S187",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 975,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 8.41965852552888
+        }
+      },
+      {
+        "id": 2340,
+        "x": -77.3705115246396,
+        "y": -81.18684115356656,
+        "v": {
+          "n": "FUNDC1",
+          "r": "uniprot:Q8IVP5",
+          "ph_min_down_ipvalue": 0.047348,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -6.65167289299877,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.139617461281617,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:139341",
+            "ensembl:ENSP00000367284"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Fundc1",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q9DB70_Y11Q9DB70_S17",
+          "ab_ilog2fc": 0,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.524492863979,
+          "Column 1": "Q9DB70",
+          "ph_all_up_ptm": "Q9DB70_Y18Q9DB70_S13",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 349,
+          "ph_sig_down": 1,
+          "ph_max_ilog2fc": 0.499278995056934
+        }
+      },
+      {
+        "id": 2347,
+        "x": 44.279191846240685,
+        "y": 93.04822958408067,
+        "v": {
+          "n": "TBC1D15",
+          "r": "uniprot:Q8TC07",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.0021523866038994,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 0.171971043670459,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": 0.201435896873536,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.544589548045971,
+          "ub_all_down_ptm": "Q9CXF4_K324",
+          "ub_min_up_ipvalue": 0.879673395537255,
+          "alias": [
+            "ncbigene:64786",
+            "ensembl:ENSP00000448182"
+          ],
+          "ub_min_ilog2fc": -0.594426070039738,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Tbc1d15",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.279547042097547,
+          "ab_ilog2fc": -0.697565010042498,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.602324696019,
+          "ub_all_up_ptm": "Q9CXF4_K322",
+          "Column 1": "Q9CXF4",
+          "ph_all_up_ptm": "Q9CXF4_S203",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 299,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0.201435896873536
+        }
+      },
+      {
+        "id": 2348,
+        "x": -23.998479732584897,
+        "y": 94.91570715469915,
+        "v": {
+          "n": "TP53INP2",
+          "r": "uniprot:Q8IXH6",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": -5.11603125000573,
+          "ub_sig_down": 1,
+          "ph_min_ilog2fc": 0,
+          "type": "protein",
+          "ph_min_up_ipvalue": 1,
+          "ub_all_down_ptm": "Q8CFU8_K166",
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:58476",
+            "ensembl:ENSP00000363943"
+          ],
+          "ub_min_ilog2fc": -5.11603125000573,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Tp53inp2",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.0460435,
+          "ab_ilog2fc": 0,
+          "ph_detected": 0,
+          "diffusion_output_heat": 0.847564375018,
+          "Column 1": "Q8CFU8",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 147,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0
+        }
+      },
+      {
+        "id": 2352,
+        "x": -78.07793064422346,
+        "y": 3.7764435860357146,
+        "v": {
+          "n": "BNIP3L",
+          "r": "uniprot:O60238",
+          "ph_min_down_ipvalue": 0.0135595,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -6.02033688007947,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.666904774548488,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:665",
+            "ensembl:ENSP00000370003"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Bnip3l",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q9Z2F7_S61;Q9Z2F7_S63Q9Z2F7_S61;Q9Z2F7_S62Q9Z2F7_S141;Q9Z2F7_S144Q9Z2F7_S116",
+          "ab_ilog2fc": 0,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.64632121989,
+          "Column 1": "Q9Z2F7",
+          "ph_all_up_ptm": "Q9Z2F7_S136;Q9Z2F7_S141;Q9Z2F7_S145",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 269,
+          "ph_sig_down": 1,
+          "ph_max_ilog2fc": 0.168766379752225
+        }
+      },
+      {
+        "id": 10165,
+        "x": -198.96418240167154,
+        "y": 5.725261935142777,
+        "v": {
+          "n": "SLC40A1",
+          "r": "uniprot:Q9NP59",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": -1.04366158007935,
+          "ub_sig_down": 1,
+          "ph_min_ilog2fc": 0,
+          "type": "protein",
+          "ph_min_up_ipvalue": 1,
+          "ub_all_down_ptm": "Q9JHI9_K240",
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:30061",
+            "ensembl:ENSP00000261024"
+          ],
+          "ub_min_ilog2fc": -1.04366158007935,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Slc40a1",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.0941492572100553,
+          "ab_ilog2fc": 0,
+          "ph_detected": 0,
+          "diffusion_output_heat": 0.662862954643,
+          "Column 1": "Q9JHI9",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 262,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0
+        }
+      },
+      {
+        "id": 11689,
+        "x": -72.21052096746732,
+        "y": 54.722540385854394,
+        "v": {
+          "n": "MIB1",
+          "r": "uniprot:Q86YT6",
+          "ph_min_down_ipvalue": 1,
+          "ab_sig_down": 0,
+          "ab_ipvalue": 1,
+          "ab_detected": 0,
+          "ub_max_ilog2fc": -1.53022792406894,
+          "ub_sig_down": 1,
+          "ph_min_ilog2fc": 0,
+          "type": "protein",
+          "ph_min_up_ipvalue": 1,
+          "ub_all_down_ptm": "Q80SY4_K896Q80SY4_K420",
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:57534",
+            "ensembl:ENSP00000261537"
+          ],
+          "ub_min_ilog2fc": -1.53022792406894,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Mib1",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.000455943279821845,
+          "ab_ilog2fc": 0,
+          "ph_detected": 0,
+          "diffusion_output_heat": 0.441269256888,
+          "Column 1": "Q80SY4",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 399,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0
+        }
+      },
+      {
+        "id": 12998,
+        "x": -135.81961761282702,
+        "y": 3.0003415287869233,
+        "v": {
+          "n": "STEAP3",
+          "r": "uniprot:Q658P3",
+          "ph_min_down_ipvalue": 0.0239591195705968,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.0276087638946072,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": -0.622739166469865,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -0.847569201356008,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.656057837029766,
+          "ub_all_down_ptm": "Q8CI59_K62",
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:55240",
+            "ensembl:ENSP00000376822"
+          ],
+          "ub_min_ilog2fc": -0.622739166469865,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Steap3",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 0.527330949446233,
+          "ph_all_down_ptm": "Q8CI59_S20Q8CI59_S2Q8CI59_S17",
+          "ab_ilog2fc": -0.550199160912057,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.892642205263,
+          "Column 1": "Q8CI59",
+          "ph_all_up_ptm": "Q8CI59_S17;Q8CI59_S20",
+          "diffusion_input": 1,
+          "ub_detected": 1,
+          "diffusion_output_rank": 111,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0.24441307553244
+        }
+      },
+      {
+        "id": 14740,
+        "x": 197.76573855906406,
+        "y": -109.85068961007642,
+        "v": {
+          "n": "TECPR1",
+          "r": "uniprot:Q7Z6L1",
+          "ph_min_down_ipvalue": 0.607442735648039,
+          "ab_sig_down": 1,
+          "ab_ipvalue": 0.00000247568584849516,
+          "ab_detected": 1,
+          "ub_max_ilog2fc": 0,
+          "ub_sig_down": 0,
+          "ph_min_ilog2fc": -0.346981512578011,
+          "type": "protein",
+          "ph_min_up_ipvalue": 0.301056519171826,
+          "ub_min_up_ipvalue": 1,
+          "alias": [
+            "ncbigene:25851",
+            "ensembl:ENSP00000404923"
+          ],
+          "ub_min_ilog2fc": 0,
+          "ph_sig_up": 0,
+          "ab_sig_up": 0,
+          "mouse_gene": "Tecpr1",
+          "ub_sig_up": 0,
+          "ub_min_down_ipvalue": 1,
+          "ph_all_down_ptm": "Q80VP0_S413",
+          "ab_ilog2fc": -1.31591715184636,
+          "ph_detected": 1,
+          "diffusion_output_heat": 0.869862191743,
+          "Column 1": "Q80VP0",
+          "ph_all_up_ptm": "Q80VP0_T408;Q80VP0_S418",
+          "diffusion_input": 1,
+          "ub_detected": 0,
+          "diffusion_output_rank": 117,
+          "ph_sig_down": 0,
+          "ph_max_ilog2fc": 0.934685107032737
+        }
+      }
+    ]
+  },
+  {
+    "edges": [
+      {
+        "id": 204684,
+        "s": 2334,
+        "t": 2245,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 379,
+          "textmining_transferred": 204,
+          "combined_score": 896,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 0,
+          "name": "WDFY3 (interacts-with) SQSTM1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 807,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 204686,
+        "s": 2334,
+        "t": 2250,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 377,
+          "textmining_transferred": 340,
+          "combined_score": 912,
+          "fusion": 0,
+          "experiments_transferred": 261,
+          "database": 0,
+          "name": "WDFY3 (interacts-with) ATG5",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 746,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 204687,
+        "s": 2334,
+        "t": 2252,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 61,
+          "cooccurence": 0,
+          "experiments": 861,
+          "textmining_transferred": 181,
+          "combined_score": 988,
+          "fusion": 0,
+          "experiments_transferred": 809,
+          "database": 0,
+          "name": "WDFY3 (interacts-with) GABARAP",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 542,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 31417,
+        "s": 2330,
+        "t": 2252,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 87,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 56,
+          "combined_score": 869,
+          "fusion": 0,
+          "experiments_transferred": 50,
+          "database": 800,
+          "name": "TBC1D17 (interacts-with) GABARAP",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 328,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 31411,
+        "s": 2330,
+        "t": 2347,
+        "v": {
+          "homology": 933,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 820,
+          "textmining_transferred": 0,
+          "combined_score": 964,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 800,
+          "name": "TBC1D17 (interacts-with) TBC1D15",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 901,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 31410,
+        "s": 2330,
+        "t": 2337,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 61,
+          "cooccurence": 0,
+          "experiments": 313,
+          "textmining_transferred": 51,
+          "combined_score": 961,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 900,
+          "name": "TBC1D17 (interacts-with) OPTN",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 473,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 111219,
+        "s": 10165,
+        "t": 12998,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 339,
+          "combined_score": 716,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 0,
+          "name": "SLC40A1 (interacts-with) STEAP3",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 588,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 381604,
+        "s": 2352,
+        "t": 12998,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 379,
+          "textmining_transferred": 0,
+          "combined_score": 997,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 900,
+          "name": "BNIP3L (interacts-with) STEAP3",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 958,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 238010,
+        "s": 2252,
+        "t": 2250,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 49,
+          "cooccurence": 0,
+          "experiments": 45,
+          "textmining_transferred": 533,
+          "combined_score": 989,
+          "fusion": 0,
+          "experiments_transferred": 290,
+          "database": 900,
+          "name": "GABARAP (interacts-with) ATG5",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 707,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 238000,
+        "s": 2252,
+        "t": 2352,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 77,
+          "cooccurence": 0,
+          "experiments": 336,
+          "textmining_transferred": 53,
+          "combined_score": 954,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 800,
+          "name": "GABARAP (interacts-with) BNIP3L",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 669,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 238001,
+        "s": 2252,
+        "t": 2243,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 77,
+          "cooccurence": 0,
+          "experiments": 192,
+          "textmining_transferred": 422,
+          "combined_score": 835,
+          "fusion": 0,
+          "experiments_transferred": 313,
+          "database": 0,
+          "name": "GABARAP (interacts-with) ULK2",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 531,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 238003,
+        "s": 2252,
+        "t": 2245,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 64,
+          "cooccurence": 0,
+          "experiments": 361,
+          "textmining_transferred": 446,
+          "combined_score": 980,
+          "fusion": 0,
+          "experiments_transferred": 262,
+          "database": 800,
+          "name": "GABARAP (interacts-with) SQSTM1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 674,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 237996,
+        "s": 2252,
+        "t": 2348,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 44,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 0,
+          "combined_score": 860,
+          "fusion": 0,
+          "experiments_transferred": 97,
+          "database": 800,
+          "name": "GABARAP (interacts-with) TP53INP2",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 287,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 237991,
+        "s": 2252,
+        "t": 2347,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 87,
+          "cooccurence": 0,
+          "experiments": 61,
+          "textmining_transferred": 62,
+          "combined_score": 873,
+          "fusion": 0,
+          "experiments_transferred": 50,
+          "database": 800,
+          "name": "GABARAP (interacts-with) TBC1D15",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 330,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 237981,
+        "s": 2252,
+        "t": 2340,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 61,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 59,
+          "combined_score": 934,
+          "fusion": 0,
+          "experiments_transferred": 320,
+          "database": 800,
+          "name": "GABARAP (interacts-with) FUNDC1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 538,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 237975,
+        "s": 2252,
+        "t": 2337,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 61,
+          "cooccurence": 0,
+          "experiments": 328,
+          "textmining_transferred": 94,
+          "combined_score": 963,
+          "fusion": 0,
+          "experiments_transferred": 384,
+          "database": 800,
+          "name": "GABARAP (interacts-with) OPTN",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 580,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 347800,
+        "s": 2250,
+        "t": 2340,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 62,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 131,
+          "combined_score": 951,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 900,
+          "name": "ATG5 (interacts-with) FUNDC1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 473,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 347794,
+        "s": 2250,
+        "t": 2337,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 62,
+          "cooccurence": 0,
+          "experiments": 379,
+          "textmining_transferred": 89,
+          "combined_score": 731,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 0,
+          "name": "ATG5 (interacts-with) OPTN",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 554,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 347793,
+        "s": 2250,
+        "t": 2243,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 53,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 525,
+          "combined_score": 838,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 0,
+          "name": "ATG5 (interacts-with) ULK2",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 669,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 347796,
+        "s": 2250,
+        "t": 2245,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 52,
+          "cooccurence": 0,
+          "experiments": 379,
+          "textmining_transferred": 410,
+          "combined_score": 993,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 900,
+          "name": "ATG5 (interacts-with) SQSTM1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 836,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 347788,
+        "s": 2250,
+        "t": 14740,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 0,
+          "cooccurence": 0,
+          "experiments": 897,
+          "textmining_transferred": 72,
+          "combined_score": 982,
+          "fusion": 0,
+          "experiments_transferred": 338,
+          "database": 0,
+          "name": "ATG5 (interacts-with) TECPR1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 753,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 114793,
+        "s": 11689,
+        "t": 2252,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 80,
+          "cooccurence": 0,
+          "experiments": 342,
+          "textmining_transferred": 284,
+          "combined_score": 700,
+          "fusion": 0,
+          "experiments_transferred": 390,
+          "database": 0,
+          "name": "MIB1 (interacts-with) GABARAP",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 0,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 386397,
+        "s": 2245,
+        "t": 2243,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 108,
+          "cooccurence": 0,
+          "experiments": 358,
+          "textmining_transferred": 317,
+          "combined_score": 810,
+          "fusion": 0,
+          "experiments_transferred": 132,
+          "database": 0,
+          "name": "SQSTM1 (interacts-with) ULK2",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 527,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 376511,
+        "s": 2340,
+        "t": 2352,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 62,
+          "cooccurence": 0,
+          "experiments": 0,
+          "textmining_transferred": 132,
+          "combined_score": 795,
+          "fusion": 0,
+          "experiments_transferred": 0,
+          "database": 0,
+          "name": "FUNDC1 (interacts-with) BNIP3L",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 0,
+          "database_transferred": 0,
+          "textmining": 769,
+          "i": "interacts-with"
+        }
+      },
+      {
+        "id": 377711,
+        "s": 2337,
+        "t": 2245,
+        "v": {
+          "homology": 0,
+          "coexpression_transferred": 64,
+          "cooccurence": 0,
+          "experiments": 336,
+          "textmining_transferred": 339,
+          "combined_score": 909,
+          "fusion": 0,
+          "experiments_transferred": 186,
+          "database": 0,
+          "name": "OPTN (interacts-with) SQSTM1",
+          "neighborhood": 0,
+          "neighborhood_transferred": 0,
+          "coexpression": 60,
+          "database_transferred": 0,
+          "textmining": 767,
+          "i": "interacts-with"
+        }
+      }
+    ]
+  },
+  {
+    "visualProperties": [
+      {
+        "default": {
+          "edge": {
+            "EDGE_SOURCE_ARROW_SIZE": 6,
+            "EDGE_LABEL_OPACITY": 1,
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_WIDTH": 1,
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_LINE_COLOR": "#0066FF",
+            "EDGE_Z_ORDER": 0,
+            "EDGE_LABEL_MAX_WIDTH": 200,
+            "EDGE_OPACITY": 1,
+            "EDGE_LABEL_ROTATION": 0,
+            "EDGE_LABEL_FONT_FACE": {
+              "FONT_FAMILY": "sans-serif",
+              "FONT_STYLE": "normal",
+              "FONT_WEIGHT": "normal",
+              "FONT_NAME": "Dialog"
+            },
+            "EDGE_VISIBILITY": "element",
+            "EDGE_LABEL_FONT_SIZE": 10,
+            "EDGE_LABEL_COLOR": "#000000",
+            "EDGE_SELECTED_PAINT": "#FF0000",
+            "EDGE_STACKING": "AUTO_BEND",
+            "EDGE_SELECTED": "false",
+            "EDGE_STACKING_DENSITY": 0.5,
+            "EDGE_SOURCE_ARROW_COLOR": "#000000",
+            "EDGE_CURVED": true,
+            "EDGE_LINE_STYLE": "solid",
+            "EDGE_TARGET_ARROW_COLOR": "#000000",
+            "EDGE_TARGET_ARROW_SIZE": 6
+          },
+          "network": {
+            "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
+          },
+          "node": {
+            "NODE_IMAGE_9": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_Y_LOCATION": "0.0",
+            "NODE_IMAGE_1": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_4_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_BACKGROUND_COLOR": "#F2F2F2",
+            "NODE_IMAGE_2": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_3": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_4": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_5": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_6": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_7": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_8": "org.cytoscape.cg.model.NullCustomGraphics,0,[ Remove Graphics ],",
+            "NODE_IMAGE_9_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_BORDER_STYLE": "solid",
+            "NODE_IMAGE_5_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_VISIBILITY": "element",
+            "NODE_BACKGROUND_OPACITY": 1,
+            "NODE_LABEL_COLOR": "#000000",
+            "NODE_IMAGE_8_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_IMAGE_6_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_IMAGE_9_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_SHAPE": "ellipse",
+            "NODE_IMAGE_2_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_BORDER_OPACITY": 1,
+            "NODE_LABEL_ROTATION": 0,
+            "NODE_IMAGE_3_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "COMPOUND_NODE_PADDING": "10.0",
+            "NODE_LABEL_FONT_FACE": {
+              "FONT_FAMILY": "sans-serif",
+              "FONT_STYLE": "normal",
+              "FONT_WEIGHT": "normal",
+              "FONT_NAME": "Dialog"
+            },
+            "NODE_LABEL_MAX_WIDTH": 200,
+            "NODE_IMAGE_3_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_IMAGE_4_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_IMAGE_7_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_IMAGE_1_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_WIDTH": 35,
+            "COMPOUND_NODE_SHAPE": "ROUND_RECTANGLE",
+            "NODE_IMAGE_8_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_LABEL_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "top",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "bottom",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0,
+              "JUSTIFICATION": "center"
+            },
+            "NODE_Z_LOCATION": "0.0",
+            "NODE_IMAGE_2_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_IMAGE_1_SIZE": {
+              "WIDTH": 50,
+              "HEIGHT": 50
+            },
+            "NODE_IMAGE_7_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_SELECTED": false,
+            "NODE_BORDER_COLOR": "#CCCCCC",
+            "NODE_LABEL_FONT_SIZE": 12,
+            "NODE_X_LOCATION": "0.0",
+            "NODE_IMAGE_5_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_BORDER_WIDTH": 0,
+            "NODE_IMAGE_6_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "VERTICAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "VERTICAL_ANCHOR": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0
+            },
+            "NODE_HEIGHT": 35,
+            "NODE_LABEL_OPACITY": 1,
+            "NODE_SELECTED_PAINT": "#FF0059"
+          }
+        },
+        "nodeMapping": {
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
+            "definition": {
+              "attribute": "name"
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "nodeBypasses": [
+      {
+        "id": 2243,
+        "v": {
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "VERTICAL_ALIGN": "top",
+            "HORIZONTAL_ANCHOR": "center",
+            "VERTICAL_ANCHOR": "bottom",
+            "MARGIN_X": -34.98,
+            "MARGIN_Y": -25.65,
+            "JUSTIFICATION": "center"
+          }
+        }
+      },
+      {
+        "id": 2340,
+        "v": {
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "VERTICAL_ALIGN": "top",
+            "HORIZONTAL_ANCHOR": "center",
+            "VERTICAL_ANCHOR": "bottom",
+            "MARGIN_X": -42.75,
+            "MARGIN_Y": -24.88,
+            "JUSTIFICATION": "center"
+          }
+        }
+      },
+      {
+        "id": 2250,
+        "v": {
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "VERTICAL_ALIGN": "top",
+            "HORIZONTAL_ANCHOR": "center",
+            "VERTICAL_ANCHOR": "bottom",
+            "MARGIN_X": 20.99,
+            "MARGIN_Y": -3.89,
+            "JUSTIFICATION": "center"
+          }
+        }
+      },
+      {
+        "id": 2334,
+        "v": {
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "VERTICAL_ALIGN": "top",
+            "HORIZONTAL_ANCHOR": "center",
+            "VERTICAL_ANCHOR": "bottom",
+            "MARGIN_X": 1.55,
+            "MARGIN_Y": -51.31,
+            "JUSTIFICATION": "center"
+          }
+        }
+      },
+      {
+        "id": 2337,
+        "v": {
+          "NODE_LABEL_POSITION": {
+            "HORIZONTAL_ALIGN": "center",
+            "VERTICAL_ALIGN": "top",
+            "HORIZONTAL_ANCHOR": "center",
+            "VERTICAL_ANCHOR": "bottom",
+            "MARGIN_X": 41.98,
+            "MARGIN_Y": -23.32,
+            "JUSTIFICATION": "center"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "visualEditorProperties": [
+      {
+        "properties": {
+          "nodeSizeLocked": true,
+          "arrowColorMatchesEdge": false,
+          "NETWORK_CENTER_Y_LOCATION": -14.909388,
+          "nodeCustomGraphicsSizeSync": true,
+          "NETWORK_CENTER_X_LOCATION": 46.96711,
+          "NETWORK_SCALE_FACTOR": 1.2864126
+        }
+      }
+    ]
+  },
+  {
+    "cyTableColumn": [
+      {
+        "applies_to": "node_table",
+        "n": "shared name"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "name"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "type"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "list_of_string",
+        "n": "alias"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "Column 1"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "mouse_gene"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ab_ilog2fc"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ab_ipvalue"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ab_sig_down"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ab_sig_up"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ab_detected"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ub_max_ilog2fc"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ub_min_ilog2fc"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ub_sig_up"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ub_sig_down"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ub_detected"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ub_min_down_ipvalue"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ub_min_up_ipvalue"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ph_max_ilog2fc"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ph_min_ilog2fc"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ph_sig_up"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ph_sig_down"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "ph_detected"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ph_min_down_ipvalue"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "ph_min_up_ipvalue"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "ph_all_down_ptm"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "ph_all_up_ptm"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "ub_all_down_ptm"
+      },
+      {
+        "applies_to": "node_table",
+        "n": "ub_all_up_ptm"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "diffusion_input"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "integer",
+        "n": "diffusion_output_rank"
+      },
+      {
+        "applies_to": "node_table",
+        "d": "double",
+        "n": "diffusion_output_heat"
+      },
+      {
+        "applies_to": "edge_table",
+        "n": "shared name"
+      },
+      {
+        "applies_to": "edge_table",
+        "n": "shared interaction"
+      },
+      {
+        "applies_to": "edge_table",
+        "n": "name"
+      },
+      {
+        "applies_to": "edge_table",
+        "n": "interaction"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "neighborhood"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "neighborhood_transferred"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "fusion"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "cooccurence"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "homology"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "coexpression"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "coexpression_transferred"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "experiments"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "experiments_transferred"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "database"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "database_transferred"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "textmining"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "textmining_transferred"
+      },
+      {
+        "applies_to": "edge_table",
+        "d": "double",
+        "n": "combined_score"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "shared name"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "name"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "description"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "version"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "__iconurl"
+      },
+      {
+        "applies_to": "network_table",
+        "d": "list_of_string",
+        "n": "networkType"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "organism"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "prov:wasDerivedFrom"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "prov:wasGeneratedBy"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "rights"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "rightsHolder"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "@context"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "reference"
+      },
+      {
+        "applies_to": "network_table",
+        "d": "list_of_string",
+        "n": "__Annotations"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "disease"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "author"
+      },
+      {
+        "applies_to": "network_table",
+        "n": "tissue"
+      }
+    ]
+  },
+  {
+    "cyHiddenAttributes": [
+      {
+        "v": "d5510d5e-368d-11ec-b3be-0ac135e8bacf",
+        "n": "NDEx UUID"
+      },
+      {
+        "v": "Prefuse Force Directed OpenCL Layout",
+        "n": "layoutAlgorithm"
+      },
+      {
+        "v": "2021-10-26 11:52:48.363",
+        "n": "NDEx Modification Timestamp"
+      }
+    ]
+  },
+  {
+    "status": [
+      {
+        "success": true
+      }
+    ]
+  }
+]

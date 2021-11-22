@@ -15,7 +15,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { NDEx } from 'ndex-client';
+import { NDEx } from '@js4cytoscape/ndex-client';
 
 import { NetworkEditorController } from '../network-editor/controller';
 import { NDEX_API_URL } from '../../env';

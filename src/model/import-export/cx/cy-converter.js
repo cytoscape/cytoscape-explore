@@ -1,90 +1,85 @@
 
- import { getVisualPropertiesAspect, getBypassesAspect } from './cx-export-visual-properties';
+import _ from 'lodash';
+import { getVisualPropertiesAspect, getBypassesAspect } from './cx-export-visual-properties';
+import { getCXType, IS_CX_ELE, CX_DATA_KEY, hasCXId, exportCXEdgeID, exportCXNodeID } from './cx-util';
 
- /**
-  * Get the CX2 datatype of a value
-  * Returns null if type is not supported
-  * Supported types:
-  *    // string
-       // long
-       // integer
-       // double
-       // boolean
-       // list_of_string
-       // list_of_long
-       // list_of_integer
-       // list_of_double
-       // list_of_boolean
-  * @param {*} value
-  */
- export const getCXType = (value) => {
-   let type = typeof value;
-
-   if(type === 'string' || type === 'boolean'){
-     return type;
-   }
-
-   if(type === 'number'){
-     if(Number.isInteger(value)){
-       if(value > -2147483648 && value < 2147483647){
-         return 'integer';
-       } else {
-         return 'long';
-       }
-
-     } else {
-       return 'double';
-     }
-   }
-
-   if(Array.isArray(value) && value.length > 0){
-     let firstValueType = getCXType(value[0]);
-
-     if( firstValueType == null || Array.isArray(value[0])){
-       return null;
-     }
-     // need to also make sure that each value in the array is of the same type
-     for(let i = 1; i < value.length; i++){
-       let curValueType = getCXType(value[i]);
-       if(curValueType !== firstValueType){
-         return null;
-       }
-     }
-
-     return `list_of_${firstValueType}`;
-   }
-
-   return null;
- };
-
- export const cx2Descriptor = () => ({
+export const cx2Descriptor = () => ({
     CXVersion: "2.0",
     hasFragments: false
- });
+});
 
- export const cxDataAspects = (cy) => {
+export const networkIsImportedFromCX = (cy) => cy.data(CX_DATA_KEY) != null;
+
+export const cxDataAspects = (cy) => {
   const nodeAttributes = {
   };
-
   const edgeAttributes = {
   };
-
   const cxIdMap = {
-
   };
-
   const cxNodes = [];
   const cxEdges = [];
+  const cxData = cy.data(CX_DATA_KEY);
 
-  cy.elements().forEach((ele, index) => {
-    let v = {};
-    let isNode = ele.isNode();
-    cxIdMap[ele.id()] = index;
+  const specialDataKeys = ['id', 'source', 'target', IS_CX_ELE];
+
+  // // if the network was imported from CX
+  // // all new nodes created in CE will be assigned
+  // // ids that are larger than the largest id in the CX
+  // let cxExportNodeIdCounter = cy.nodes()
+  //   .filter(n => hasCXId(n))
+  //   .map(n => exportCXNodeID(n.id()))
+  //   .reduce((a, b) => Math.max(a, b), 0) + 1;
+    
+  // // if the network was imported from CX
+  // // all new edges created in CE will be assigned
+  // // ids that are larger than the largest id in the CX
+  // let cxExportEdgeIdCounter = cy.edges()
+  // .filter(e => hasCXId(e))
+  // .map(e => exportCXEdgeID(e.id()))
+  // .reduce((a, b) => Math.max(a, b), 0) + 1;
+
+  const getExportIdFromCX = (cy, ele) => {
+    if(ele.isNode()){
+      if(networkIsImportedFromCX(cy) && hasCXId(ele)){
+        return exportCXNodeID(ele.id());
+      } else {
+        // todo: re-enable after network editor implements
+        // create new node functionality
+        // return cxExportNodeIdCounter++;
+      }
+    } else {
+      if(networkIsImportedFromCX(cy) && hasCXId(ele)){
+        return exportCXEdgeID(ele.id());
+      } else {
+        // todo: re-enable after network editor implements
+        // create new node functionality
+        // return cxExportEdgeIdCounter++;
+      }
+    }
+  };
+
+  // if a network is imported from CX, only export CX elements
+  // the network editor currently does not handle export of nodes
+  // created in CE alongside CE imported networks
+  // networks created purely in CE can be exported properly
+  const validElements = networkIsImportedFromCX(cy) ? [
+    ...cy.nodes().filter(e => hasCXId(e)),
+    ...cy.edges().filter(e => hasCXId(e))
+  ] : [...cy.nodes(), ...cy.edges()];
+
+
+  // elements are 
+  validElements.forEach((ele, index) => {
+    const v = {};
+    const isNode = ele.isNode();
+    const exportedId = networkIsImportedFromCX(cy) ? getExportIdFromCX(cy, ele) : index;
+    cxIdMap[ele.id()] = exportedId;
 
     Object.keys(ele.data()).forEach(key => {
       let value = ele.data(key);
 
-      if(key !== 'id' && key !== 'source' && key !== 'target') {
+      if(!specialDataKeys.includes(key)) {
         let type = getCXType(value);
 
         // TODO also need to check that the type for each attribute is the same for
@@ -102,14 +97,14 @@
 
     if(isNode){
       cxNodes.push({
-        id: index,
+        id: exportedId,
         x: ele.position('x'),
         y: ele.position('y'),
         v
       });
     } else {
       cxEdges.push({
-        id: index,
+        id: exportedId,
         s: cxIdMap[ele.source().id()],
         t: cxIdMap[ele.target().id()],
         v
@@ -118,7 +113,10 @@
   });
 
   const attributeDeclarationsAspect = {
-    attributeDeclarations: [{
+    // attributeDeclarations must be wrapped in a array because
+    // it is converted to an object if it is imported from CX
+    // this is the only aspect that currently has this behaviour
+    attributeDeclarations: [_.get(cxData, 'saved-aspects.1.attributeDeclarations', {
       networkAttributes: {
         name: { d: 'string', v: ''},
         description: { d: 'string', v: ''},
@@ -126,15 +124,15 @@
       },
       nodes: nodeAttributes,
       edges: edgeAttributes
-    }]
+    })]
   };
 
   const networkAttributesAspect = {
-    networkAttributes: [{
+    networkAttributes: _.get(cxData, 'saved-aspects.2.networkAttributes', [{
       name: cy.data('name') || 'cyexplore',
       description: cy.data('description') || 'description',
       version: cy.data('version') || '1.0'
-    }]
+    }])
   };
 
   const nodesAspect = { nodes: cxNodes };
@@ -147,9 +145,9 @@
     attributeDeclarationsAspect,
     networkAttributesAspect
   };
- };
+};
 
- export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
+export const cxVisualPropertiesAspects = (cy, cxIdMap) => {
   const visualPropertiesAspect = getVisualPropertiesAspect(cy);
 
   const { nodeBypasses, edgeBypasses } = getBypassesAspect(cy, cxIdMap);
@@ -159,14 +157,14 @@
     nodeBypassesAspect: { nodeBypasses },
     edgeBypassesAspect: { edgeBypasses }
    };
- };
+};
 
  /**
   * Export a Cytoscape instance to CX2 format
   * @param {Cytoscape.Core} cy
   */
- export const convertCY = (cy) => {
-
+export const convertCY = (cy) => {
+  const cxData = cy.data(CX_DATA_KEY);
   const {
     cxIdMap,
     nodesAspect,
@@ -182,13 +180,21 @@
   } = cxVisualPropertiesAspects(cy, cxIdMap);
 
   const visualEditorPropertiesAspect = {
-    visualEditorProperties: [
+    visualEditorProperties: _.get(cxData, 'saved-aspects.3.visualEditorProperties', [
       {
         properties: {
           nodeSizeLocked: false
         }
       }
-    ]
+    ])
+  };
+
+  const cyTableColumnAspect = {
+    cyTableColumn: _.get(cxData, 'saved-aspects.4.cyTableColumn', [])
+  };
+
+  const cyHiddenAttributesAspect = {
+    cyHiddenAttributes: _.get(cxData, 'saved-aspects.5.cyHiddenAttributes', [])
   };
 
   const statusAspect = {
@@ -228,8 +234,12 @@
         name: 'edgeBypasses'
       },
       {
-        elementCount: visualEditorPropertiesAspect.visualEditorProperties.length,
-        name: 'visualEditorProperties'
+        elementCount: cyTableColumnAspect.cyTableColumn.length,
+        name: 'cyTableColumn'
+      },
+      {
+        elementCount: cyHiddenAttributesAspect.cyHiddenAttributes.length,
+        name: 'cyHiddenAttributes'
       }
     ]
   };
@@ -245,8 +255,10 @@
     nodeBypassesAspect,
     edgeBypassesAspect,
     visualEditorPropertiesAspect,
+    cyTableColumnAspect,
+    cyHiddenAttributesAspect,
     statusAspect,
   ];
 
   return cx2Output;
- };
+};

@@ -1,15 +1,24 @@
 
-import { updateAttributeDeclarations as updateAttributeDeclarations, updateInferredTypes, renameAttributesByAlias, addDefaultValues, createAttributeDeclarations } from './cx-util.js';
-import { SAVED_ASPECTS, CX_DATA_KEY } from './converter-constants';
-import { isAspectKeyInArray } from './converter-utils';
+import {
+    updateAttributeDeclarations,
+    updateInferredTypes,
+    renameAttributesByAlias,
+    addDefaultValues,
+    createAttributeDeclarations,
+    SAVED_ASPECTS,
+    CX_DATA_KEY,
+    IS_CX_ELE
+} from './cx-util.js';
 
-export const cxNodeToJsNode = () => {
-
-};
-
-export const cxEdgeToJsEdge = () => {
-
-};
+export const isAspectKeyInArray = (aspect, aspectKeyArray) => {
+    let output = false;
+    aspectKeyArray.forEach( aspectKey => {
+        if (aspect[aspectKey]) {
+            output = true;
+        }
+    });
+    return output;
+  };
 
 export const createData = (v, attributeAliasMap, attributeDefaultValueMap) => {
 
@@ -119,6 +128,7 @@ export const convertCX = (cx) => {
                 const element = {};
                 element['data'] = createData(cxNode['v'], nodeAttributeDeclarations.aliasMap, nodeAttributeDeclarations.defaultValueMap);
                 element['data']['id'] = cxNode.id.toString();
+                element['data'][IS_CX_ELE] = true;
                 element['position'] = {
                     x: cxNode['x'],
                     y: cxNode['y']
@@ -130,6 +140,7 @@ export const convertCX = (cx) => {
             cxEdges.forEach((cxEdge) => {
                 const element = {};
                 element['data'] = createData(cxEdge['v'], edgeAttributeDeclarations.aliasMap, edgeAttributeDeclarations.defaultValueMap);
+                element['data'][IS_CX_ELE] = true;
                 element['data']['id'] = "e" + cxEdge.id.toString();
                 element['data']['source'] = cxEdge['s'];
                 element['data']['target'] = cxEdge['t'];
