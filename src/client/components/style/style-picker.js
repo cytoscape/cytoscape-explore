@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Popover, Button, Tooltip } from "@material-ui/core";
-import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
+import { PopoverButton } from '../network-editor/popover-button';
+import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Tooltip } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
@@ -85,50 +85,15 @@ StyleSection.propTypes = {
 };
 
 
-class StylePopoverButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      popoverAnchorEl: null,
-      styleVal: props.styleVal,
-    };
-  }
-
-  render() {
-    const handlePopoverOpen = (event) => {
-      this.setState({ popoverAnchorEl: event.currentTarget });
-    };
-    const handlePopoverClose = () => {
-      this.setState({ popoverAnchorEl: null });
-    };
-    const handleChange = (styleVal) => {
-      this.props.handleChange(styleVal);
-      this.setState({ styleVal });
-    };
-
-    const { styleVal } = this.state;
-    return (
-      // TODO: The onClick handler on the top div is problematic, 
-      // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
-      // Should probably get a reference to the discrete icon, or pass the onClick handler down to the icon.
-      <div> 
-        <div>
-          <span onClick={handlePopoverOpen}>{ this.props.renderButton(styleVal) }</span>
-        </div>
-        <Popover 
-          open={Boolean(this.state.popoverAnchorEl)}
-          anchorEl={this.state.popoverAnchorEl}
-          onClose={handlePopoverClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <div style={{ padding: '10px' }}> 
-            { this.props.renderPopover(styleVal, handleChange) }
-          </div>
-        </Popover>
-      </div>
-    );
-  }
+// MKTODO remove this and replace usages with PopoverButton
+function StylePopoverButton(props){
+  return <PopoverButton
+    value={props.styleVal}
+    renderButton={props.renderButton}
+    renderPopover={props.renderPopover}
+    handleChange={props.handleChange}
+    closeOnSelect={false}
+  />;
 }
 StylePopoverButton.propTypes = {
   styleVal: PropTypes.any,
