@@ -1,0 +1,15 @@
+.export-ndex-network-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.export-ndex-network-content {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.export-ndex-network-content-block {
+    margin-bottom: 1em !important;
+}

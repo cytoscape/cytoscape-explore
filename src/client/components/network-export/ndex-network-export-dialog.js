@@ -12,12 +12,14 @@ import {
   Select,
   MenuItem,
   Button,
+  IconButton
 
 } from '@material-ui/core';
 
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CloseIcon from '@material-ui/icons/Close';
 
 export class NDExExportDialog extends Component {
 
@@ -81,16 +83,28 @@ export class NDExExportDialog extends Component {
 
     let renderStep0 = (
       <Dialog
-        maxWidth="xs"
+        disableBackdropClick
+        disableEscapeKeyDown
+        fullWidth
+        maxWidth="sm"
         aria-labelledby="confirmation-dialog-title"
         open={this.props.open}
-        onBackdropClick={e => this.props.onClose(e)}
         onClose={e => this.props.onClose(e)}
         >
-        <DialogTitle id="confirmation-dialog-title">Export Network to NDEx</DialogTitle>
-        <DialogContent dividers style={{display: 'flex', flexDirection: 'column'}} >
+        <DialogTitle 
+          disableTypography
+          className="export-ndex-network-header"
+        >
+          <h2>Export Network to NDEx</h2>
+          <IconButton 
+            aria-label="close" 
+            onClick={(e) => this.props.onClose(e)}>
+            <CloseIcon />
+          </IconButton>
+          </DialogTitle>
+        <DialogContent dividers className="export-ndex-network-content" >
           <TextField
-            style={{marginBottom: '16px'}}
+            className="export-ndex-network-content-block"
             autoFocus={true}
             label={'Network name'}
             placeholder={'My network'}
@@ -122,14 +136,27 @@ export class NDExExportDialog extends Component {
 
     let renderStep1 = (
       <Dialog
-      maxWidth="xs"
+      maxWidth="sm"
+      fullWidth
+      disableBackdropClick
+      disableEscapeKeyDown
       aria-labelledby="confirmation-dialog-title"
       open={this.props.open}
       onBackdropClick={e => this.props.onClose(e)}
       onClose={e => this.props.onClose(e)}
       >
-      <DialogTitle id="confirmation-dialog-title">Export Network to NDEx</DialogTitle>
-      <DialogContent dividers style={{display: 'flex', flexDirection: 'column'}} >
+        <DialogTitle 
+          disableTypography
+          className="export-ndex-network-header"
+        >
+          <h2>Export Network to NDEx</h2>
+          <IconButton 
+            aria-label="close" 
+            onClick={e => this.props.onClose(e)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>      
+        <DialogContent dividers className="export-ndex-network-content" >
         <Alert variant="outlined" severity="success">
             <AlertTitle>Confirm Network Export</AlertTitle>
             <p><b>{this.props.controller.cy.data('name')} has been exported to NDEx</b> </p>
