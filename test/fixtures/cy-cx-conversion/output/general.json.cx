@@ -34,8 +34,12 @@
         "name": "edgeBypasses"
       },
       {
-        "elementCount": 1,
-        "name": "visualEditorProperties"
+        "elementCount": 0,
+        "name": "cyTableColumn"
+      },
+      {
+        "elementCount": 0,
+        "name": "cyHiddenAttributes"
       }
     ]
   },
@@ -54,16 +58,9 @@
           "version": {
             "d": "string",
             "v": ""
-          },
-          "cytoscapeExploreId": {
-            "d": "string",
-            "v": ""
           }
         },
         "nodes": {
-          "cytoscapeExploreId": {
-            "d": "string"
-          },
           "attr1": {
             "d": "double"
           },
@@ -75,9 +72,6 @@
           }
         },
         "edges": {
-          "cytoscapeExploreId": {
-            "d": "string"
-          },
           "attr1": {
             "d": "double"
           },
@@ -202,45 +196,34 @@
             "NETWORK_BACKGROUND_COLOR": "#FFFFFF"
           },
           "node": {
-            "NODE_BACKGROUND_COLOR": "#6666CC",
-            "NODE_WIDTH": 30,
-            "NODE_HEIGHT": 30,
-            "NODE_BORDER_COLOR": "#888888",
-            "NODE_BORDER_WIDTH": 1,
             "NODE_SHAPE": "round-rectangle",
+            "NODE_BORDER_COLOR": "#888888",
+            "NODE_HEIGHT": 30,
+            "NODE_WIDTH": 30,
+            "NODE_BACKGROUND_COLOR": "#6666CC",
+            "NODE_LABEL_POSITION": {
+              "HORIZONTAL_ALIGN": "center",
+              "HORIZONTAL_ANCHOR": "center",
+              "JUSTIFICATION": "center",
+              "MARGIN_X": 0,
+              "MARGIN_Y": 0,
+              "VERTICAL_ALIGN": "center",
+              "VERTICAL_ANCHOR": "top"
+            },
             "NODE_LABEL_COLOR": "#111111",
             "NODE_LABEL_FONT_SIZE": 10
           },
           "edge": {
-            "EDGE_LINE_COLOR": "#282828",
-            "EDGE_LINE_WIDTH": 2,
-            "EDGE_SOURCE_ARROW_SHAPE": "none",
-            "EDGE_SOURCE_ARROW_COLOR": "#282828",
-            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_LINE_STYLE": "solid",
             "EDGE_TARGET_ARROW_COLOR": "#282828",
-            "EDGE_LINE_STYLE": "solid"
+            "EDGE_TARGET_ARROW_SHAPE": "none",
+            "EDGE_SOURCE_ARROW_COLOR": "#282828",
+            "EDGE_SOURCE_ARROW_SHAPE": "none",
+            "EDGE_LINE_WIDTH": 2,
+            "EDGE_LINE_COLOR": "#282828"
           }
         },
         "nodeMapping": {
-          "NODE_LABEL": {
-            "type": "PASSTHROUGH",
-            "definition": {
-              "attribute": "attr3",
-              "selector": "data(attr3)"
-            }
-          },
-          "NODE_BORDER_COLOR": {
-            "type": "DISCRETE",
-            "definition": {
-              "attribute": "attr2",
-              "map": [
-                {
-                  "v": "-0.5406318800042764",
-                  "vp": "#40BF40"
-                }
-              ]
-            }
-          },
           "NODE_BORDER_WIDTH": {
             "type": "CONTINUOUS",
             "definition": {
@@ -255,6 +238,25 @@
                   "maxVPValue": 10
                 }
               ]
+            }
+          },
+          "NODE_BORDER_COLOR": {
+            "type": "DISCRETE",
+            "definition": {
+              "attribute": "attr2",
+              "map": [
+                {
+                  "v": "-0.5406318800042764",
+                  "vp": "#40BF40"
+                }
+              ]
+            }
+          },
+          "NODE_LABEL": {
+            "type": "PASSTHROUGH",
+            "definition": {
+              "attribute": "attr3",
+              "selector": "data(attr3)"
             }
           }
         },
@@ -324,6 +326,12 @@
         }
       }
     ]
+  },
+  {
+    "cyTableColumn": []
+  },
+  {
+    "cyHiddenAttributes": []
   },
   {
     "status": [

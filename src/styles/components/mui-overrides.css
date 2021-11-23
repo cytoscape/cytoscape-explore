@@ -4,3 +4,11 @@
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
 }
+
+.MuiSlider-colorSecondary .MuiSlider-valueLabel {
+  color: #666;
+}
+
+.MuiTouchRipple-root {
+  display: none !important;
+}

@@ -8,66 +8,116 @@ import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
 PouchDB.plugin(PouchDBMemoryAdapter);
 
 
-// import CytoscapeSyncher from '../src/model/cytoscape-syncher';
+import CytoscapeSyncher from '../src/model/cytoscape-syncher';
 
 import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
-import { getCXType } from '../src/model/import-export/cx/cy-converter';
+import { CX_DATA_KEY, exportCXEdgeID, exportCXNodeID, getCXType, getCXValue, IS_CX_ELE } from '../src/model/import-export/cx/cx-util';
+import { labelLocationMapper } from '../src/model/import-export/cx';
+import { STYLE_TYPE } from '../src/model/style';
 
-describe('CX Conversion', () => {
-    before(() => {
-      registerCytoscapeExtensions();
+describe('Importing CX networks to CE', () => {
+  before(() => {
+    registerCytoscapeExtensions();
+  });
+
+  it('converts nodel label position CX values to CE', () => {
+    const input = {
+      HORIZONTAL_ALIGN: 'center',
+      VERTICAL_ALIGN: 'top',
+      HORIZONTAL_ANCHOR: 'center',
+      VERTICAL_ANCHOR: 'bottom',
+      MARGIN_X: -34.98,
+      MARGIN_Y: -25.65,
+      JUSTIFICATION: 'center'
+    };
+
+    const output = {
+        "text-halign": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "center",
+          "stringValue": "center"
+        },
+        "text-valign": {
+          "type": "STRING",
+          "mapping": "VALUE",
+          "value": "bottom",
+          "stringValue": "bottom"
+        }
+    }
+
+    expect(labelLocationMapper.valueCvtr(input)).to.deep.equal(output);
+    // sanity check an issue where the labelLocationMapper would produce
+    // the wrong result after calling it once (mutation related issue)
+    expect(labelLocationMapper.valueCvtr(input)).to.deep.equal(output);
+  });
+
+  it('imports networks to CE', () => {
+    let cxDir = './fixtures/cy-cx-conversion/output/';
+    let cxFiles = fs.readdirSync(path.resolve(__dirname, cxDir));
+
+    cxFiles.forEach(async cxFile => {
+      const fileInputPath = path.resolve(__dirname, cxDir, cxFile);
+
+      const input = JSON.parse(fs.readFileSync(fileInputPath));
+      const cy = new Cytoscape();
+      cy.data({id: '_cx2_import_test'});
+      const cySyncher = new CytoscapeSyncher(cy, 'test');
+
+      cy.importCX2(input);
+      const output = cy.exportCX2();
+
+      expect(cy.data(CX_DATA_KEY) != null).to.equal(true);
+      cy.nodes().forEach(n => {
+        expect(n.data(IS_CX_ELE)).to.equal(true)
+        expect(isNaN(exportCXNodeID(n.id()))).to.equal(false);
+      });
+      cy.edges().forEach(e => {
+        expect(e.data(IS_CX_ELE)).to.equal(true);
+        expect(isNaN(exportCXEdgeID(e.id()))).to.equal(false);
+      });
     });
-    // const NDEX_TEST_API_URL = 'https://dev.ndexbio.org/v2';
-    // const NDEX_TEST_USER = 'testtesttest';
-    // const NDEX_TEST_PASSWORD = '123123123';
+  });
+});
 
-    // const networkIds = [
-    //   '4ae2709d-3055-11ec-94bf-525400c25d22',
-    //   '8baf882a-3056-11ec-94bf-525400c25d22',
-    //   '8b957078-3056-11ec-94bf-525400c25d22',
-    //   '8b51d7c5-3056-11ec-94bf-525400c25d22',
-    //   '8b3faf53-3056-11ec-94bf-525400c25d22',
-    //   'f9dce77c-3055-11ec-94bf-525400c25d22',
-    //   'f9ca49da-3055-11ec-94bf-525400c25d22',
-    //   'f9aeab88-3055-11ec-94bf-525400c25d22',
-    //   'f99975d6-3055-11ec-94bf-525400c25d22',
-    //   'f96b39e4-3055-11ec-94bf-525400c25d22',
-    //   'f950ad02-3055-11ec-94bf-525400c25d22',
-    //   'f625f9ef-3055-11ec-94bf-525400c25d22',
-    // ];
+describe('Exporting CE networks to CX', () => {
+    before(() => {
+      // registerCytoscapeExtensions();
+    });
 
-    // basic test to import a network to CE from CX, and then
-    // export it again as CX2.
-    // it('converts networks from cx to cy.js', async () => {
-    //   const ndex = new NDEx(NDEX_TEST_API_URL);
-    //   const expected = [];
-    //   const actual = [];
+    it('converts CE style values to CX style values', () => {
+      let tests = [
+          {
+            input: {
+              type: STYLE_TYPE.NUMBER,
+              value: 1
+            },
+            output: 1
+          },
+          {
+            input: {
+              type: STYLE_TYPE.STRING,
+              value: '1'
+            },
+            output: '1'
+          },
+          {
+            input: {
+              type: STYLE_TYPE.COLOR,
+              value: {
+                r: 100,
+                g: 100,
+                b: 100
+              },
+            },
+            output: '#646464'
+          }
+      ];
 
-    //   for(let i = 0; i < networkIds.length; i++){
-    //     const networkId = networkIds[i];
-
-    //     try {
-    //       const cx = await ndex.getCX2Network(networkId);
-    //       const cy = new Cytoscape();
-    //       cy.data({id: 'test'});
-    //       const cySyncher = new CytoscapeSyncher(cy, 'test');
-    //       cy.importCX(cx);
-
-
-    //       expected.push(cx);
-
-    //       actual.push(cy.exportCX2());
-
-    //       cySyncher.destroy();
-    //       cy.destroy();
-
-    //     } catch (err) {
-    //       console.log(err);
-    //     }
-    //   }
-
-    //   expect(expected[0]).to.deep.equal(actual[0]);
-    // }).timeout(100000);
+      tests.forEach(({input, output}) => {
+        expect(getCXValue(input)).to.equal(output);
+      });
+    });
 
     it('converts networks from CE to CX', () => {
       let inputPath = './fixtures/cy-cx-conversion/input/';
@@ -75,16 +125,22 @@ describe('CX Conversion', () => {
       let fixtures = fs.readdirSync(path.resolve(__dirname, inputPath));
 
       fixtures.forEach(file => {
-        let input = JSON.parse(fs.readFileSync(path.resolve(__dirname, inputPath, file)));
-        let expected = JSON.parse(fs.readFileSync(path.resolve(__dirname, outputPath, `${file}.cx`)));
+        let fileInputPath = path.resolve(__dirname, inputPath, file);
+        let fileOutputPath = path.resolve(__dirname, outputPath, `${file}.cx`);
+
+        let input = JSON.parse(fs.readFileSync(fileInputPath));
+        let expected = JSON.parse(fs.readFileSync(fileOutputPath));
+
         let cy = new Cytoscape();
         cy.importJSON(input);
         let output = cy.exportCX2();
+
+        // fs.writeFileSync(fileOutputPath, JSON.stringify(output, null, 2));
         expect(output).to.deep.equal(expected);
       });
     });
 
-    it('produces a cx type string for supported values', () => {
+    it('produces a CX type string for supported values', () => {
       let tests = [
         {
           input: 'blah',

@@ -1,6 +1,9 @@
 import Color from 'color';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 
+export const NODE_SELECTOR = 'node';
+export const EDGE_SELECTOR = 'edge';
+
 /**
  * @typedef {String} MAPPING
  **/
@@ -18,7 +21,9 @@ export const MAPPING = {
   /** A passthrough mapping (i.e. use data property verbatim)  */
   PASSTHROUGH: 'PASSTHROUGH',
   /** A discrete mapping */
-  DISCRETE: 'DISCRETE'
+  DISCRETE: 'DISCRETE',
+  /** A dependant mapping */
+  DEPENDANT: 'DEPENDANT',
 };
 
 const assertDataRangeOrder = (arr) => {
@@ -80,7 +85,7 @@ const dataPoints = (eleData, vals, styles) => { // assume vals is sorted
  * @param {StyleStruct} styleStruct The style struct to calculate
  * @returns {(String|Number)} A computed style value (string or number) that can be used directly as a Cytoscape style property value
  */
-export const getFlatStyleForEle = (ele, styleStruct) => {
+export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStruct) => {
   const { mapping, type, value, stringValue } = styleStruct;
 
   if( MAPPING.VALUE === mapping ){
@@ -120,6 +125,12 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
       return `rgb(${r}, ${g}, ${b})`;
     } else if( STYLE_TYPE.NUMBER === type || STYLE_TYPE.STRING === type) {
       return styleValue;
+    }
+  } else if(MAPPING.DEPENDANT === mapping) {
+    const sourceVal = getFlatStyleForEle(ele, sourceForDependantStyleStruct);
+    if(sourceVal) {
+      const { multiplier } = styleStruct.value;
+      return sourceVal * multiplier;
     }
   }
 };
@@ -169,6 +180,20 @@ export const getFlatStyleForEle = (ele, styleStruct) => {
  * @property {String} data The data attribute that's mapped
  * @property {Array<Number>} dataValues The data values
  * @property {Array<Number>} styleValues The style values
+ */
+
+/**
+ * The style struct for a dependant mapping.
+ * @typedef {Object} DependantNumberStyleStruct
+ * @property {STYLE_TYPE} type The type of the style value (e.g. number)
+ * @property {MAPPING} mapping The type of mapping (flat value, linear, etc.)
+ * @property {DependantNumberStyleValue} value The value of the string.
+ */
+
+/**
+ * @typedef {Object} DependantNumberStyleValue
+ * @property {String} property The property that this mapping is dependant on.
+ * @property {Number} multiplier The property that this mapping is dependant on.
  */
 
 /**
@@ -306,7 +331,7 @@ export const styleFactory = {
   },
 
   /**
-   * Create a discrete mapping for color.
+   * Create a discrete mapping for number.
    * @property {String} data The data attribute that's mapped
    * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
    * @property {{[key: (String|Number)]: Color}} styleValues The minimum value of the input data range
@@ -322,6 +347,24 @@ export const styleFactory = {
         styleValues
       },
       stringValue: '???' // TODO
+    };
+  },
+
+  /**
+   * Create a dependant mapping for numeric value.
+   * @property {String} property The visual property that this mapping depends on.
+   * @property {Number} multiplier The data attribute that's mapped
+   * @returns {DependantNumberStyleStruct} The style value object (JSON)
+   */
+  dependantNumber: (property, multiplier) => {
+    return {
+      type: STYLE_TYPE.NUMBER,
+      mapping: MAPPING.DEPENDANT,
+      value: {
+        property,
+        multiplier
+      },
+      stringValue: `${multiplier}`
     };
   },
 
@@ -457,6 +500,7 @@ export const PROPERTY_TYPE = {
   'text-halign': STYLE_TYPE.STRING,
   'text-valign': STYLE_TYPE.STRING,
   'font-size': STYLE_TYPE.NUMBER,
+  'opacity': STYLE_TYPE.NUMBER,
 };
 
 /**  Supported node style properties  */
@@ -479,15 +523,27 @@ export const NODE_STYLE_PROPERTIES = [
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
   'width': styleFactory.number(30),
-  'height': styleFactory.number(30),
+  'height': styleFactory.dependantNumber('width', 1.0),
   'label': styleFactory.stringPassthrough('name'),
   'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
   'shape': styleFactory.string('ellipse'),
   'color': styleFactory.color('#111'), // label color
-  'text-halign': styleFactory.string('top'),
-  'text-valign': styleFactory.string('center'),
-  'font-size': styleFactory.number(10)
+  'text-halign': styleFactory.string('center'),
+  'text-valign': styleFactory.string('top'),
+  'font-size': styleFactory.number(10),
+  'opacity': styleFactory.number(1), // This is required to support selection, even if we don't expose it in the UI
+};
+
+// Note, these mapping defaults are hard-coded for now. This is temporary. They correspond to mappings from the UI components.
+export const DEFAULT_NODE_MAPPING_STYLE_VALUES = {
+  'background-color': [{"r":230,"g":179,"b":179}, {"r":153,"g":51,"b":51}], // This is the red gradient from the ColorGradients component.
+  'width': [10, 50],
+  'height': [10, 50],
+  'border-color': [{"r":179,"g":179,"b":230}, {"r":51,"g":51,"b":153}], // This is the blue gradient from the ColorGradients component.
+  'border-width': [0, 10],
+  'color': [{"r":179,"g":179,"b":230}, {"r":51,"g":51,"b":153}],
+  'font-size': [4, 30],
 };
 
 const NODE_STYLE_PROPERTIES_SET = new Set(NODE_STYLE_PROPERTIES);
@@ -506,6 +562,7 @@ export const EDGE_STYLE_PROPERTIES = [
   'target-arrow-shape',
   'target-arrow-color',
   'line-style',
+  'opacity',
 ];
 
 /** An object map of the default edge style values */
@@ -517,6 +574,14 @@ export const DEFAULT_EDGE_STYLE = {
   'target-arrow-shape': styleFactory.string('none'),
   'target-arrow-color': styleFactory.color('#888'),
   'line-style': styleFactory.string('solid'),
+  'opacity': styleFactory.number(1),
+};
+
+
+export const DEFAULT_EDGE_MAPPING_STYLE_VALUES = {
+  'line-color': [{"r":230,"g":179,"b":179}, {"r":153,"g":51,"b":51}],
+  'opacity': [0, 1],
+  'width': [1, 10]
 };
 
 const EDGE_STYLE_PROPERTIES_SET = new Set(EDGE_STYLE_PROPERTIES);
@@ -537,7 +602,7 @@ export const edgeStylePropertyExists = property => {
 export const stylePropertyExists = (property, selector) => {
   if( !selector ){
     return nodeStylePropertyExists(property) || edgeStylePropertyExists(property);
-  } else if( selector === 'node' ){
+  } else if( selector === NODE_SELECTOR ){
     return nodeStylePropertyExists(property);
   } else {
     return edgeStylePropertyExists(property);

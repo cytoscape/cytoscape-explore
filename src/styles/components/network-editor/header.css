@@ -1,5 +1,9 @@
 .header {
   border-bottom: 2px solid #050505;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
 }
 
 .header .logo {

@@ -7,10 +7,12 @@ import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AttributeSelect from '../network-editor/attribute-select';
 import { MAPPING } from '../../../model/style';
-import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients } from '../style/colors';
+import { ColorSwatch, ColorSwatches, ColorGradient, ColorGradients, OpacitySlider, OpacityGradient, OpacityGradients } from '../style/colors';
 import { ShapeIcon, ShapeIconGroup } from '../style/shapes';
-import { SizeSlider, SizeGradients, SizeGradient } from '../style/sizes';
+import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../style/sizes';
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
+import LockIcon from '@material-ui/icons/Lock';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 
 
@@ -40,8 +42,8 @@ export class StylePanel extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className="style-picker-heading">
+      <div className="style-panel">
+        <div className="tool-panel-heading">
           { this.props.title || "Style Panel" }
         </div>
         { this.state.numSelected > 0 
@@ -63,12 +65,14 @@ StylePanel.propTypes = {
 };
 
 
-export function StyleSection({ title, children }) {
+export function StyleSection({ title, children, extra }) {
   return (
-    <div>
-      <hr/>
-      <b>{title || "style section"}</b>
-      <div style={{ padding: '5px', paddingBottom: '15px'} }>
+    <div className="tool-panel-section">
+      <div className="tool-panel-section-title">
+        <div className="tool-panel-label">{title || "Style Section"}</div>
+        <div className="tool-panel-extra">{extra}</div>
+      </div>
+      <div>
         {children}
       </div>
     </div>
@@ -76,7 +80,8 @@ export function StyleSection({ title, children }) {
 }
 StyleSection.propTypes = {
   title: PropTypes.string,
-  children: PropTypes.any
+  children: PropTypes.any,
+  extra: PropTypes.any
 };
 
 
@@ -107,11 +112,8 @@ class StylePopoverButton extends React.Component {
       // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
       // Should probably get a reference to the discrete icon, or pass the onClick handler down to the icon.
       <div> 
-        <div 
-          style={{ padding: '5px', textAlign: 'left' }}
-          onClick={handlePopoverOpen}
-        >
-          { this.props.renderButton(styleVal) }
+        <div>
+          <span onClick={handlePopoverOpen}>{ this.props.renderButton(styleVal) }</span>
         </div>
         <Popover 
           open={Boolean(this.state.popoverAnchorEl)}
@@ -215,6 +217,12 @@ MappingAndAttributeSelector.defaultProps = {
 };
 
 
+const BYPASS_TYPE = {
+  MIXED: 'MIXED',
+  ALL_SAME: 'ALL_SAME',
+  ALL_UNSET: 'ALL_UNSET',
+};
+
 export class StylePicker extends React.Component { 
 
   constructor(props) {
@@ -256,23 +264,21 @@ export class StylePicker extends React.Component {
       style: {},
     };
 
+    // see vizmapper.js method bypass()
     const bypassStyle = this.props.getBypassStyle();
     
-    // If all the selected elements have the same value.
-    if(bypassStyle.length == 1) {
-      const scalarValue = bypassStyle[0].styleVal;
-      if(scalarValue == 'unset') {
-        state.bypassType = 'all-unset';
-      } else {
-        // add this so that renderValue() will work.
-        state.style = { 
-          mapping: MAPPING.VALUE,
-          scalarValue,
-        };
-        state.bypassType = 'all-same';
-      }
+    // If all the selected elements have the same value
+    // TODO Make 'mixed', 'all-unset' and 'all-same' into an enum
+    if(bypassStyle === 'mixed') {
+      state.bypassType = BYPASS_TYPE.MIXED;
+    } else if(bypassStyle == undefined) {
+      state.bypassType = BYPASS_TYPE.ALL_UNSET;
     } else {
-      state.bypassType = 'mixed';
+      state.style = { 
+        mapping: MAPPING.VALUE,
+        scalarValue: bypassStyle.value,
+      };
+      state.bypassType = BYPASS_TYPE.ALL_SAME;
     }
     return state;
   }
@@ -314,33 +320,41 @@ export class StylePicker extends React.Component {
     }
   }
 
+  handleStyleChange(changes) {
+    const newStyle = {...this.state.style, ...changes };
+    
+    console.log("newStyle: " + JSON.stringify(newStyle));
 
-  onStyleChanged(style) {
-    switch(style.mapping) {
+    switch(newStyle.mapping) {
       case MAPPING.VALUE:
-        if(style.scalarValue !== undefined)
-          this.props.onValueSet(style.scalarValue);
-        break;
-      case MAPPING.PASSTHROUGH:
-        if(style.attribute !== undefined)
-          this.props.onPassthroughSet(style.attribute);
+        if(newStyle.scalarValue === undefined) {
+          newStyle.scalarValue = this.props.getDiscreteDefault();
+        }
+        if(newStyle.scalarValue !== undefined) {
+          this.props.onValueSet(newStyle.scalarValue);
+        }
         break;
       case MAPPING.LINEAR:
-        if(style.attribute !== undefined && style.mappingValue !== undefined)
-          this.props.onMappingSet(style.attribute, style.mappingValue);
+        if(newStyle.mappingValue === undefined) {
+          newStyle.mappingValue = this.props.getMappingDefault();
+        }
+        if(newStyle.attribute !== undefined && newStyle.mappingValue !== undefined) {
+          this.props.onMappingSet(newStyle.attribute, newStyle.mappingValue);
+        }
         break;
       case MAPPING.DISCRETE:
-        if(style.attribute !== undefined && style.discreteValue !== undefined)
-          this.props.onDiscreteSet(style.attribute, style.discreteValue);
+        if(newStyle.attribute !== undefined && newStyle.discreteValue !== undefined) {
+          this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue);
+        }
+        break;
+      case MAPPING.PASSTHROUGH:
+        if(newStyle.attribute !== undefined) {
+          this.props.onPassthroughSet(newStyle.attribute);
+        }
         break;
     }
-  }
 
-  handleStyleChange(changes) {
-    console.log(JSON.stringify(changes));
-    const change = { style: {...this.state.style, ...changes }};
-    this.setState(change);
-    this.onStyleChanged(change.style);
+    this.setState({ style: newStyle });
   }
 
   render() {
@@ -351,7 +365,7 @@ export class StylePicker extends React.Component {
 
   renderNormal() {
     return (
-      <div className="style-picker">
+      <div>
         <MappingAndAttributeSelector
           {...this.props}
           continuous={Boolean(this.props.onMappingSet)}
@@ -361,6 +375,7 @@ export class StylePicker extends React.Component {
           attribute={this.state.style.attribute}
           onChange={(mapping, attribute) => this.handleStyleChange({ mapping, attribute })}
         />
+        <div>
         {(() => {
           const { attribute, mapping } = this.state.style;
           if(mapping === MAPPING.VALUE)
@@ -372,6 +387,7 @@ export class StylePicker extends React.Component {
           else if(mapping === MAPPING.DISCRETE)
             return this.renderDiscrete();
         })()}
+        </div>
       </div>
     );
   }
@@ -391,8 +407,8 @@ export class StylePicker extends React.Component {
     const discreteDefault = this.props.getDiscreteDefault();
     return (
       <List 
-        // This style causes this List to scroll and not the entire Popover from the StylePickerButton
-        style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 300 }} 
+        // This style causes this List to scroll
+        style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 200 }} 
         dense={true}
       >
         {dataVals.map(dataVal => {
@@ -440,18 +456,18 @@ export class StylePicker extends React.Component {
     };
 
     const { bypassType } = this.state;
-    if(bypassType == 'mixed') {
+    if(bypassType == BYPASS_TYPE.MIXED) {
       return <div>
         The selected elements have different bypass values.
         <br />
         <BypassButton variant='remove' />
       </div>;
-    } else if(bypassType == 'all-same') {
+    } else if(bypassType == BYPASS_TYPE.ALL_SAME) {
       return <div>
         { this.renderValue() }
         <BypassButton variant='remove' />
       </div>;
-    } else if(bypassType == 'all-unset') {
+    } else if(bypassType == BYPASS_TYPE.ALL_UNSET) {
       return <BypassButton variant='add' />; 
     }
   }
@@ -466,6 +482,7 @@ StylePicker.propTypes = {
   getStyle: PropTypes.func,
   getBypassStyle: PropTypes.func,
   getDiscreteDefault: PropTypes.func,
+  getMappingDefault: PropTypes.func,
   onValueSet: PropTypes.func,
   onMappingSet: PropTypes.func,
   onDiscreteSet: PropTypes.func,
@@ -484,11 +501,37 @@ StylePicker.defaultProps = {
 };
 
 
+function DefaultStylePicker(props) {
+  const { controller, selector, styleProp } = props;
+  return <StylePicker
+    {...props}
+    key={`${selector}_${styleProp}`}
+    getStyle={() => 
+      controller.getStyle(selector, styleProp)
+    }
+    getBypassStyle={() =>
+      controller.getBypassStyle(selector, styleProp)
+    }
+    getDiscreteDefault={() =>
+      controller.getDiscreteDefault(selector, styleProp)
+    }
+    getMappingDefault={() =>
+      controller.getMappingDefault(selector, styleProp)
+    }
+  />;
+}
+DefaultStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  selector: PropTypes.oneOf(['node', 'edge']),
+  styleProp: PropTypes.string
+};
+
 
 export function ColorStylePicker({ controller, selector, styleProps }) {
-  return <StylePicker
+  return <DefaultStylePicker
     controller={controller}
     selector={selector}
+    styleProp={styleProps[0]}
     valueLabel="Single Color"
     mappingLabel="Color Gradient"
     discreteLabel="Color per Data Value"
@@ -515,15 +558,6 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
           <ColorGradients selected={gradient} onSelect={onSelect} /> 
         }
       />
-    }
-    getStyle={() => 
-      controller.getStyle(selector, styleProps[0])
-    }
-    getBypassStyle={() =>
-      controller.getBypassStyle(selector, styleProps[0])
-    }
-    getDiscreteDefault={() =>
-      controller.getDiscreteDefault(selector, styleProps[0])
     }
     onValueSet={color => 
       styleProps.forEach(p => controller.setColor(selector, p, color))
@@ -555,31 +589,25 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
       valueLabel = "Same for all edges";
       discreteLabel = "Line style per Data Value";
   }
-  return <StylePicker 
+  return <DefaultStylePicker 
     controller={controller}
     selector={selector}
+    styleProp={styleProp}
     valueLabel={valueLabel}
     discreteLabel={discreteLabel}
     renderValue={(currentShape, setShape) => 
-      <StylePopoverButton 
-        styleVal={currentShape}
-        handleChange={setShape}
-        renderButton={(shape) => 
-          <ShapeIcon type={variant} shape={shape} />
-        }
-        renderPopover={(shape, onSelect) => 
-          <ShapeIconGroup type={variant} selected={shape} onSelect={onSelect} />
-        }
-      />
-    }
-    getStyle={() => 
-      controller.getStyle(selector, styleProp)
-    }
-    getBypassStyle={() =>
-      controller.getBypassStyle(selector, styleProp)
-    }
-    getDiscreteDefault={() =>
-      controller.getDiscreteDefault(selector, styleProp)
+      <div className="shape-swatches">
+        <StylePopoverButton 
+          styleVal={currentShape}
+          handleChange={setShape}
+          renderButton={(shape) => 
+            <ShapeIcon type={variant} shape={shape} />
+          }
+          renderPopover={(shape, onSelect) => 
+            <div className="shape-swatches-popover-content"><ShapeIconGroup type={variant} selected={shape} onSelect={onSelect} /></div>
+          }
+        />
+      </div>
     }
     onValueSet={shape => 
       controller.setString(selector, styleProp, shape)
@@ -601,14 +629,16 @@ ShapeStylePicker.propTypes = {
 export function SizeStylePicker({ controller, selector, variant, styleProps }) {
   const [min, max] = 
     (variant == 'solid') ? [10, 50] : 
-    (variant == 'text')  ? [10, 30] : 
-    [0, 10];
-  return <StylePicker
+    (variant == 'text')  ? [4, 30] : 
+    (variant == "border") ? [0, 10] :
+    [1, 10];
+  return <DefaultStylePicker
+    controller={controller}
+    selector={selector}
+    styleProp={styleProps[0]}
     valueLabel="Single Size"
     mappingLabel="Size Mapping"
     discreteLabel="Sized per Data Value"
-    controller={controller}
-    selector={selector}
     renderValue={(size, onSelect) => 
       <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
     }
@@ -617,7 +647,7 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
         styleVal={minMax}
         handleChange={setSize}
         renderButton={(sizeRange) => 
-          <SizeGradient variant={variant} selected={sizeRange} reversed={minMax[0] > minMax[1]} /> 
+          <SizeGradient variant={variant} selected={sizeRange} reversed={minMax && minMax[0] > minMax[1]} /> 
         }
         renderPopover={(gradient, onSelect) =>
           <SizeGradients variant={variant} min={min} max={max} selected={gradient} onSelect={onSelect} />
@@ -636,15 +666,6 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
         }
       />
     }
-    getStyle={() => 
-      controller.getStyle(selector, styleProps[0])
-    }
-    getBypassStyle={() =>
-      controller.getBypassStyle(selector, styleProps[0])
-    }
-    getDiscreteDefault={() =>
-      controller.getDiscreteDefault(selector, styleProps[0])
-    }
     onValueSet={size =>
       styleProps.forEach(p => controller.setNumber(selector, p,  size))
     }
@@ -662,22 +683,238 @@ SizeStylePicker.propTypes = {
   styleProps: PropTypes.array,
   variant: PropTypes.oneOf(['solid', 'border', 'line', 'text']),
 };
+SizeStylePicker.defaultProps = {
+  variant: 'solid'
+};
+
+
+export function OpacityStylePicker({ controller, selector, styleProp }) {
+  return <DefaultStylePicker
+    valueLabel="Single Opacity"
+    mappingLabel="Opacity Mapping"
+    discreteLabel="Opacity per Data Value"
+    controller={controller}
+    selector={selector}
+    styleProp={styleProp}
+    renderValue={(value, onSelect) => 
+      <OpacitySlider value={value} onSelect={onSelect} />
+    }
+    renderMapping={(value, setValue) =>
+      <StylePopoverButton 
+        styleVal={value}
+        handleChange={setValue}
+        renderButton={(value) => 
+          <OpacityGradient value={value} />
+        }
+        renderPopover={(value, onSelect) =>
+          <OpacityGradients value={value} onSelect={onSelect} />
+        }
+      />
+    }
+    renderDiscrete={(value, setValue) => 
+      <StylePopoverButton 
+        styleVal={value}
+        handleChange={setValue}
+        renderButton={value => 
+          <Button variant='outlined'>{Math.round(value * 100)}</Button>
+        }
+        renderPopover={(value, onSelect) => 
+          <OpacitySlider value={value} onSelect={onSelect} />
+        }
+      />
+    }
+    onValueSet={value =>
+      controller.setNumber(selector, styleProp, value)
+    }
+    onMappingSet={(attribute, value) =>
+      controller.setNumberLinearMapping(selector, styleProp, attribute, value)
+    }
+    onDiscreteSet={(attribute, valueMap) =>
+      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap)
+    }
+  />;
+}
+OpacityStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  selector: PropTypes.oneOf(['node', 'edge']),
+  styleProp: PropTypes.string,
+};
+
+
+
+export class NodeSizeStyleSection extends React.Component {
+  constructor(props) {
+    super(props);
+    const heightStyle = props.controller.getStyle('node', 'height');
+    this.state = {
+      locked: heightStyle && heightStyle.mapping === MAPPING.DEPENDANT
+    };
+  }
+
+  toggleLocked() {
+    const locked = !this.state.locked;
+    const { controller } = this.props;
+    if(locked) {
+      controller.setNumberDependantMapping('node', 'height', 'width', 1); // TODO cache the multiplier so it doesn't reset
+    } else {
+      const widthStyle = controller.getStyle('node', 'width');
+      controller.vizmapper.set('node', 'height', widthStyle);
+    }
+    this.setState({ locked });
+  }
+
+  render() {
+    return this.state.locked
+      ? this.renderLocked()
+      : this.renderUnlocked();
+  }
+
+  renderLockButton() {
+    const { locked } = this.state;
+    const tooltip = locked ? "Unlock Width/Height" : "Lock Width/Height";
+    return <Tooltip title={tooltip}>
+      <span onClick={() => this.toggleLocked()}>
+        { locked
+          ? <LockIcon fontSize='small' />
+          : <LockOpenIcon fontSize='small'/>
+        }
+      </span>
+    </Tooltip>;
+  }
+
+  renderLocked() {
+    return (
+      <StyleSection title="Size" extra={this.renderLockButton()}>
+        <NodeSizeStylePicker controller={this.props.controller} />
+      </StyleSection>
+    );
+  }
+
+  renderUnlocked() {
+    return <div>
+      <StyleSection title="Width" extra={this.renderLockButton()}>
+        <SizeStylePicker
+          controller={this.props.controller}
+          selector='node'
+          styleProps={['width']}
+        />
+      </StyleSection>
+      <StyleSection title="Height" extra={this.renderLockButton()}>
+        <SizeStylePicker
+          controller={this.props.controller}
+          selector='node'
+          styleProps={['height']}
+        />
+      </StyleSection>
+    </div>;
+  }
+}
+NodeSizeStyleSection.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+};
+
+
+export class NodeSizeStylePicker extends React.Component {
+  constructor(props) {
+    super(props);
+    // TODO need to initialize with the current style
+    // TODO need to support bypassing
+    // controller.getStyle(selector, 'width')
+    const heightStyle = props.controller.getStyle('node', 'height');
+    if(heightStyle.mapping !== MAPPING.DEPENDANT) {
+      this.state = {
+        error: true,
+      };
+    } else {
+      this.state = {
+        multiplier: heightStyle.value.multiplier
+      };
+    }
+    this.handleMultiplier = this.handleMultiplier.bind(this);
+  }
+
+  handleMultiplier(multiplier) {
+    const { controller } = this.props;
+    controller.setNumberDependantMapping('node', 'height', 'width', multiplier);
+    this.setState({ multiplier });
+  }
+
+  render() {
+    if(this.state.error) {
+      return <div>Error</div>;  // TODO, how to handle the case that there are separate mappings????
+    }
+    const { controller } = this.props;
+    const [min, max] =  [10, 50];
+    const selector = 'node';
+    return <DefaultStylePicker
+      valueLabel="Single Size"
+      mappingLabel="Size Mapping"
+      discreteLabel="Sized per Data Value"
+      controller={this.props.controller}
+      selector={selector}
+      styleProp='width'
+      renderValue={(size, onSelect) =>
+        <div>
+          <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} />
+          <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} />
+        </div>
+      }
+      renderMapping={(minMax, setSize) =>
+        <div>
+          <StylePopoverButton 
+            styleVal={minMax}
+            handleChange={setSize}
+            renderButton={(sizeRange) => 
+              <SizeGradient variant='solid' selected={sizeRange} reversed={minMax && (minMax[0] > minMax[1])} /> 
+            }
+            renderPopover={(gradient, onSelect) =>
+              <SizeGradients variant='solid' min={min} max={max} selected={gradient} onSelect={onSelect} />
+            }
+          />
+          <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} />
+        </div>
+      }
+      renderDiscrete={(minMax, setSize) => 
+        <div>
+          <StylePopoverButton 
+            styleVal={minMax}
+            handleChange={setSize}
+            renderButton={size => 
+              <Button variant='outlined'>{size}</Button>
+            }
+            renderPopover={(size, onSelect) => 
+              <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
+            }
+          />
+          {/* <AspectRatioPicker multiplier={this.state.multiplier} onChange={this.handleMultiplier} /> */}
+        </div>
+      }
+      onValueSet={size =>
+        controller.setNumber(selector, 'width', size)
+      }
+      onMappingSet={(attribute, sizeRange) =>
+        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange)
+      }
+      onDiscreteSet={(attribute, valueMap) =>
+        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap)
+      }
+    />;
+  }
+}
+NodeSizeStylePicker.propTypes = {
+  controller: PropTypes.instanceOf(NetworkEditorController),
+};
 
 
 export function TextStylePicker({ controller, selector, styleProp }) {
-  return <StylePicker 
+  return <DefaultStylePicker 
     controller={controller}
     selector={selector}
+    styleProp={styleProp}
     passthroughLabel="Text Mapping"
     valueSet={"Same Label for all " + (selector == 'node' ? "nodes" : "edges")}
     renderValue={(text, onChange) =>
       <LabelInput value={text} onChange={onChange} />
-    }
-    getStyle={() => 
-      controller.getStyle(selector, styleProp)
-    }
-    getBypassStyle={() =>
-      controller.getBypassStyle(selector, styleProp)
     }
     onValueSet={text => 
       controller.setString(selector, styleProp, text)
@@ -701,12 +938,11 @@ export function NodeLabelPositionStylePicker({ controller }) {
   return <StylePicker 
     controller={controller}
     selector={selector}
+    key={`${selector}_position`}
     valueLabel='Position'
     discreteLabel='Position per Data Value'
     renderValue={(value, setValue) => 
-      <div style={{marginTop:'10px'}}>
-        <LabelPosition value={value} onSelect={setValue} />
-      </div>
+      <LabelPosition value={value} onSelect={setValue} />
     }
     renderDiscrete={(value, setValue) => 
       <StylePopoverButton 
@@ -749,17 +985,21 @@ export function NodeLabelPositionStylePicker({ controller }) {
       }
     }}
     getBypassStyle={() => {
-      const h = controller.getBypassStyle(selector, 'text-halign');
-      const v = controller.getBypassStyle(selector, 'text-valign');
+      const hStyle = controller.getBypassStyle(selector, 'text-halign');
+      const vStyle = controller.getBypassStyle(selector, 'text-valign');
+      if(hStyle == undefined || vStyle == undefined)
+        return undefined;
+      if(hStyle == 'mixed' || vStyle == 'mixed')
+        return 'mixed';
       return {
         type: 'STRING',
         mapping: MAPPING.VALUE,
-        value: stylePropsToLabelPos(h.value, v.value)
+        value: stylePropsToLabelPos(hStyle.value, vStyle.value)
       };
     }}
     onValueSet={pos => {
-      controller.setString(selector, 'text-halign', pos.halign);
-      controller.setString(selector, 'text-valign', pos.valign);
+      controller.setString(selector, 'text-halign', pos && pos.halign);
+      controller.setString(selector, 'text-valign', pos && pos.valign);
     }}
     onDiscreteSet={(attribute, valueMap) => {
       const halignMap = {};

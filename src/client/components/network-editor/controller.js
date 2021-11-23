@@ -1,4 +1,6 @@
 import EventEmitter from 'eventemitter3';
+import { NDEx } from '@js4cytoscape/ndex-client';
+
 import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
@@ -6,17 +8,18 @@ import { UndoSupport } from '../undo/undo';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
-import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
+import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, DEFAULT_NODE_MAPPING_STYLE_VALUES, DEFAULT_EDGE_MAPPING_STYLE_VALUES } from '../../../model/style';
 import { DEFAULT_PADDING } from '../layout/defaults';
-
+import { NDEX_API_URL } from '../../env';
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
- * 
+ *
  * @property {Cytoscape.Core} cy The graph instance
  * @property {CytoscapeSyncher} cySyncher The syncher that corresponds to the graph instance
  * @property {EventEmitter} bus The event bus that the controller emits on after every operation
  * @property {VizMapper} vizmapper The vizmapper for managing style
+ * @property {NDEx} ndexClient The API client for the ndex rest server
  */
 export class NetworkEditorController {
   /**
@@ -33,7 +36,7 @@ export class NetworkEditorController {
     this.cySyncher = cySyncher;
 
     /** @type {VizMapper} */
-    this.vizmapper = this.cy.vizmapper(); 
+    this.vizmapper = this.cy.vizmapper();
 
     /** @type {EventEmitter} */
     this.bus = bus || new EventEmitter();
@@ -44,6 +47,10 @@ export class NetworkEditorController {
     /** @type {UndoSupport} */
     this.undoSupport = new UndoSupport(this);
     this._initSyncUndoListeners();
+
+    /** @type {NDEx} */
+    this.ndexClient = new NDEx(NDEX_API_URL);
+
 
     this.drawModeEnabled = false;
 
@@ -89,7 +96,7 @@ export class NetworkEditorController {
     //     redo: () => ele.cy().add(ele)
     //   }, true);
     // };
-  
+
     this.cySyncher.emitter.on('add',    () => this.undoSupport.invalidate()); // node/edge added
     this.cySyncher.emitter.on('remove', () => this.undoSupport.invalidate()); // node/edge removed
     this.cySyncher.emitter.on('ele',    () => this.undoSupport.invalidate()); // node position change
@@ -168,7 +175,7 @@ export class NetworkEditorController {
 
   /**
    * Stops the currently running layout, if there is one, and apply the new layout options.
-   * @param {*} options 
+   * @param {*} options
    */
   applyLayout(options) {
     if (this.layout) {
@@ -300,7 +307,7 @@ export class NetworkEditorController {
 
     // TODO If I delete nodes then what about the adjacent edges?
     this.undoSupport.post({
-      title: "Delete Elements", 
+      title: "Delete Elements",
       undo: () => this.cy.add(deletedEls),
       redo: () => this.cy.remove(deletedEls)
     });
@@ -310,12 +317,12 @@ export class NetworkEditorController {
 
   /**
    * Get the list of data attributes that exist on the nodes, and the types of each attribute.
-   * 
+   *
    */
   getPublicAttributes(selector = 'node') {
     const attrNames = new Set();
     const nodes = this.cy.elements(selector);
-    
+
     nodes.forEach(n => {
       const attrs = Object.keys(n.data());
       attrs.forEach(a => {
@@ -354,10 +361,26 @@ export class NetworkEditorController {
    * @return {Any} the discrete default mapping value
    */
   getDiscreteDefault(selector, property) {
+    if(property === 'label')
+      return '';
     if(selector === 'node')
       return DEFAULT_NODE_STYLE[property].value;
-    else if(selector === 'edge')
+    if(selector === 'edge')
       return DEFAULT_EDGE_STYLE[property].value;
+  }
+
+  /**
+   * Return the default mapping range.
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a color value, such as 'background-color'
+   * @return {Any} the discrete default mapping value
+   */
+  getMappingDefault(selector, property) {
+    if(selector === 'node') {
+      return DEFAULT_NODE_MAPPING_STYLE_VALUES[property];
+    } else if(selector === 'edge') {
+      return DEFAULT_EDGE_MAPPING_STYLE_VALUES[property];
+    }
   }
 
   /**
@@ -423,7 +446,7 @@ export class NetworkEditorController {
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setColorDiscreteMapping', selector, property, attribute, valueMap);
   }
-  
+
   /**
    * Set a numeric propetry of all elements to single value.
    * @param {String} selector 'node' or 'edge'
@@ -470,6 +493,21 @@ export class NetworkEditorController {
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setNumberDiscreteMapping', selector, property, attribute, valueMap);
   }
+
+
+  /**
+   * Set the numeric value of all elements to a discrete mapping
+   * @param {String} selector 'node' or 'edge'
+   * @param {String} property a style property that expects a numeric value.
+   * @param {String} dependantProperty a style property that the property is depedant on.
+   * @param {Number} multiplier multiplier to be use in the mapping.
+   */
+   setNumberDependantMapping(selector, property, dependantProperty, multiplier) {
+    const style = styleFactory.dependantNumber(dependantProperty, multiplier);
+    this.vizmapper.set(selector, property, style);
+    this.bus.emit('setNumberDependantMapping', selector, property, dependantProperty, multiplier);
+  }
+
 
   /**
    * Set a string propetry of all elements to single value.
@@ -526,7 +564,7 @@ export class NetworkEditorController {
       } else {
         return [ min, max ];
       }
-    } 
+    }
   }
-  
+
 }

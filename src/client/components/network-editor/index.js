@@ -7,7 +7,6 @@ import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { NODE_ENV } from '../../env';
 import { Header } from './header';
 import { ToolPanel } from './tool-panel';
-import { StylePanel } from './style-panel';
 import EventEmitter from 'eventemitter3';
 import { NetworkEditorController } from './controller';
 import { ThemeProvider } from '@material-ui/core/styles';
@@ -69,7 +68,7 @@ export class NetworkEditor extends Component {
       {
         selector: '.unselected',
         style: {
-          'opacity': 0.333
+          'opacity': ele => 0.333 * this.cy.vizmapper().calculate(ele, 'opacity')
         }
       },
       {

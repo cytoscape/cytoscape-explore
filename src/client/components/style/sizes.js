@@ -2,13 +2,14 @@ import React from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Slider } from '@material-ui/core';
+import { IconButton, Slider, Tooltip } from '@material-ui/core';
+import { FormControl, Select } from "@material-ui/core";
 
 export function SizeSlider(props) {
   const debouncedOnChange = _.throttle(value => props.onSelect(value), 150, { leading: true });
-  const min = props.min || 1;
-  const max = props.max || 100;
-  const def = props.defaultValue || (max / 2.0);
+  const min = _.defaultTo(props.min, 1);
+  const max = _.defaultTo(props.max, 100);
+  const def = _.defaultTo(props.defaultValue, (max / 2.0));
   const marks = [ { value: min, label: min }, { value: max, label: max } ];
   return (
     <div className="size-slider">
@@ -16,7 +17,7 @@ export function SizeSlider(props) {
         min={min} 
         max={max} 
         defaultValue={def}
-        marks={marks}
+        // marks={marks}
         valueLabelDisplay='auto'
         onChange={(event,value) => debouncedOnChange(value)}
       />
@@ -48,15 +49,15 @@ export function SizeGradient(props) {
 
   if(variant === 'border') {
     elements = sizeSteps(2, 10).map(size => (
-      <div className="size-swatch-border" style={{ 'border-width':size }} key={size} />
+      <div className="size-swatch-border" style={{ borderWidth: size }} key={size} />
     ));
   } else if(variant === 'line') {
     elements = sizeSteps(2, 10).map(size => (
-      <div className="size-swatch-line" style={{ 'border-left-width':size }} key={size} />
+      <div className="size-swatch-line" style={{ borderLeftWidth: size }} key={size} />
     ));
   } else if(variant === 'solid') {
     elements = sizeSteps(20, 40).map(size => (
-      <div className="size-swatch-solid" style={{ width:size, height:size }} key={size} />
+      <div className="size-swatch-solid" style={{ width: size, height: size }} key={size} />
     ));
   } else if(variant === 'text') {
     elements = [
@@ -119,4 +120,48 @@ SizeGradients.defaultProps = {
   max: 40,
   steps: 5,
   variant: 'solid',
+};
+
+
+const aspects = [
+  { label:'16:9', multiplier: 1/(16/9), style: { height:'13px', width:'24px' }},
+  { label:'4:3',  multiplier: 1/(4/3),  style: { height:'18px', width:'24px' }},
+  { label:'1:1',  multiplier: 1,        style: { height:'24px', width:'24px' }},
+  { label:'3:4',  multiplier: (4/3),    style: { height:'24px', width:'18px' }},
+  { label:'9:16', multiplier: (16/9),   style: { height:'24px', width:'13px' }},
+];
+
+export function AspectRatioPicker(props) {
+  return <div>
+    <div className="tool-panel-section-secondary-title">
+      Orientation
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      { aspects.map((aspect, index) => {
+        const { multiplier, label } = aspect;
+        const selected = props.multiplier == multiplier;
+        const style = { 
+          ...aspect.style,
+          backgroundColor: selected ? '#147acd' : '#777'
+        };
+        const orientation = multiplier == 1 ? "Square" : multiplier < 1 ? "Landscape" : "Portrait";
+        const tooltip = `${orientation} (${label})`;
+        return (
+          <Tooltip key={index} title={tooltip}>
+            <IconButton key={index} aria-label={label} 
+              onClick={() => props.onChange(multiplier)}
+            > 
+              <div style={style}/>
+            </IconButton>
+          </Tooltip>
+        );
+      })}
+    </div>
+  </div>;
+}
+AspectRatioPicker.propTypes = {
+  multiplier: PropTypes.any,
+  onChange: PropTypes.func,
+};
+AspectRatioPicker.defaultProps = {
 };
