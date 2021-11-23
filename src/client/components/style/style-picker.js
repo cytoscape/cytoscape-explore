@@ -192,6 +192,18 @@ const BYPASS_TYPE = {
   ALL_UNSET: 'ALL_UNSET',
 };
 
+
+function abbreviate(value, length=10) {
+  let text = String(value);
+  let abbreviated = false;
+  if(text.length > length) {
+    text = text.slice(0, length-1) + "...";
+    abbreviated = true;
+  }
+  return [ text, abbreviated ];
+}
+
+
 export class StylePicker extends React.Component { 
 
   constructor(props) {
@@ -291,7 +303,6 @@ export class StylePicker extends React.Component {
 
   handleStyleChange(changes) {
     const newStyle = {...this.state.style, ...changes };
-    
     console.log("newStyle: " + JSON.stringify(newStyle));
 
     switch(newStyle.mapping) {
@@ -312,8 +323,12 @@ export class StylePicker extends React.Component {
         }
         break;
       case MAPPING.DISCRETE:
+        if(newStyle.discreteValue === undefined) {
+          newStyle.discreteValue = {};
+          newStyle.discreteDefault = this.props.getDiscreteDefault();
+        }
         if(newStyle.attribute !== undefined && newStyle.discreteValue !== undefined) {
-          this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue);
+          this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue, newStyle.discreteDefault);
         }
         break;
       case MAPPING.PASSTHROUGH:
@@ -372,13 +387,13 @@ export class StylePicker extends React.Component {
   }
 
   renderDiscrete() {
-    // Add the "other" option
-    // Make the (+) dissapear when the list is complete
-    // Pre-populate the mapping if there are only <=3 entries
-    // Fix the popover
-
+    // TODO: Pre-populate the mapping if there are <= 3 entries
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
-    const discreteDefault = this.props.getDiscreteDefault();
+    const builtInDefault = this.props.getDiscreteDefault(); // the hard-coded default
+    const discreteDefault = this.state.style.discreteDefault || builtInDefault; // the user supplied default, aka "Other"
+    const discreetMappings = this.state.style.discreteValue || {};
+    // TODO: sort the values, or make the popup list sortable by the user
+    const menuItemValues = dataVals.filter(dataVal => !(dataVal in discreetMappings));
 
     const handleStyleValChange = (dataVal, newStyleVal) => {
       const discreteValue = { ...this.state.style.discreteValue };
@@ -389,51 +404,55 @@ export class StylePicker extends React.Component {
       this.handleStyleChange({ discreteValue });
     };
 
-    const toText = (dataVal) => {
-      let text = String(dataVal);
-      if(text.length > 10)
-        return [ text.slice(0, 9) + "...", true ];
-      return [ text, false ];
+    const handleOtherStyleValChange = (discreteDefault) => {
+      this.handleStyleChange({ discreteDefault });
     };
 
-    const DataValListItemText = ({ dataVal }) => {
-      const [ text, abbreviated ] = toText(dataVal);
-      return abbreviated
-        ? <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>
-        : <ListItemText primary={text} />;
+    const DataValueListItem = ({ dataVal, styleVal, onStyleChange, hideCloseButton }) => {
+      const [ text, abbreviated ] = abbreviate(dataVal, 12);
+      return <ListItem key={dataVal}>
+        { abbreviated
+          ? <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>
+          : <ListItemText primary={text} />
+        }
+        <ListItemSecondaryAction>
+          <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+            { this.props.renderDiscrete
+              ? this.props.renderDiscrete(styleVal, newVal => onStyleChange(dataVal, newVal))
+              : this.props.renderValue(   styleVal, newVal => onStyleChange(dataVal, newVal))
+            }
+            <Tooltip title='Remove Mapping'>
+              <CloseIcon 
+                style={{color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', visibility: hideCloseButton ? 'hidden' : null }}
+                onClick={() => handleStyleValChange(dataVal, undefined)} 
+              />
+            </Tooltip>
+          </div>
+        </ListItemSecondaryAction>
+      </ListItem>;
     };
-
-    const discreetMappings = this.state.style.discreteValue || {};
-    const menuItemValues = dataVals.filter(dataVal => !(dataVal in discreetMappings));
 
     return <div>
-      <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:200}}>
+      <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:125}}>
         { Object.entries(discreetMappings).map(([dataVal, styleVal]) =>
-            <ListItem key={dataVal}>
-              <Tooltip title='Remove Mapping'>
-                <CloseIcon 
-                  style={{cursor:'pointer'}}
-                  onClick={() => handleStyleValChange(dataVal, undefined)} 
-                />
-              </Tooltip>
-              &nbsp;
-              <DataValListItemText dataVal={dataVal} />
-              <ListItemSecondaryAction>
-                { this.props.renderDiscrete
-                  ? this.props.renderDiscrete(styleVal, newVal => handleStyleValChange(dataVal, newVal))
-                  : this.props.renderValue(   styleVal, newVal => handleStyleValChange(dataVal, newVal))
-                }
-              </ListItemSecondaryAction>
-            </ListItem>
+            <DataValueListItem key={dataVal} 
+              dataVal={dataVal} 
+              styleVal={styleVal} 
+              onStyleChange={handleStyleValChange} />
         )}
+        <DataValueListItem 
+          hideCloseButton
+          dataVal='Other'
+          styleVal={discreteDefault} 
+          onStyleChange={(dataVal, styleVal) => handleOtherStyleValChange(styleVal)} />
       </List>
       { menuItemValues.length <= 0 ? null :
-        <div style={{ textAlign: 'center', width: '100%' }}>
+        <div style={{textAlign: 'center', width: '100%'}}>
           <BasicMenu
             buttonText="(+) Add Data Value"
-            items={menuItemValues.map(dataVal => (
-              { label: toText(dataVal)[0], 
-                onClick: () => handleStyleValChange(dataVal, discreteDefault) 
+            items={ menuItemValues.map(dataVal => (
+              { label: abbreviate(dataVal, 12)[0], 
+                onClick: () => handleStyleValChange(dataVal, builtInDefault) 
               }
             ))}
           /> 
@@ -564,8 +583,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     onMappingSet={(attribute, gradient) => 
       styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient))
     }
-    onDiscreteSet={(attribute, valueMap) => 
-      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap))
+    onDiscreteSet={(attribute, valueMap, defaultValue) => 
+      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap, defaultValue))
     }
   />;
 }
@@ -611,8 +630,8 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     onValueSet={shape => 
       controller.setString(selector, styleProp, shape)
     }
-    onDiscreteSet={(attribute, valueMap) => {
-      controller.setStringDiscreteMapping(selector, styleProp,  attribute, valueMap);
+    onDiscreteSet={(attribute, valueMap, defaultValue) => {
+      controller.setStringDiscreteMapping(selector, styleProp,  attribute, valueMap, defaultValue);
     }}
   />;
 }
@@ -671,8 +690,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
     onMappingSet={(attribute, sizeRange) =>
       styleProps.forEach(p => controller.setNumberLinearMapping(selector, p,  attribute, sizeRange))
     }
-    onDiscreteSet={(attribute, valueMap) =>
-      styleProps.forEach(p => controller.setNumberDiscreteMapping(selector, p,  attribute, valueMap))
+    onDiscreteSet={(attribute, valueMap, defaultValue) =>
+      styleProps.forEach(p => controller.setNumberDiscreteMapping(selector, p,  attribute, valueMap, defaultValue))
     }
   />;
 }
@@ -728,8 +747,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
     onMappingSet={(attribute, value) =>
       controller.setNumberLinearMapping(selector, styleProp, attribute, value)
     }
-    onDiscreteSet={(attribute, valueMap) =>
-      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap)
+    onDiscreteSet={(attribute, valueMap, defaultValue) =>
+      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap, defaultValue)
     }
   />;
 }
@@ -894,8 +913,8 @@ export class NodeSizeStylePicker extends React.Component {
       onMappingSet={(attribute, sizeRange) =>
         controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange)
       }
-      onDiscreteSet={(attribute, valueMap) =>
-        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap)
+      onDiscreteSet={(attribute, valueMap, defaultValue) =>
+        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap, defaultValue)
       }
     />;
   }
@@ -1000,15 +1019,15 @@ export function NodeLabelPositionStylePicker({ controller }) {
       controller.setString(selector, 'text-halign', pos && pos.halign);
       controller.setString(selector, 'text-valign', pos && pos.valign);
     }}
-    onDiscreteSet={(attribute, valueMap) => {
+    onDiscreteSet={(attribute, valueMap, defaultValue) => {
       const halignMap = {};
       const valignMap = {};
       for (const [key, {halign, valign}] of Object.entries(valueMap)) {
         halignMap[key] = halign;
         valignMap[key] = valign;
       }
-      controller.setStringDiscreteMapping(selector, 'text-halign', attribute, halignMap);
-      controller.setStringDiscreteMapping(selector, 'text-valign', attribute, valignMap);
+      controller.setStringDiscreteMapping(selector, 'text-halign', attribute, halignMap, defaultValue.halign);
+      controller.setStringDiscreteMapping(selector, 'text-valign', attribute, valignMap, defaultValue.valign);
     }}
     getDiscreteDefault={() => defaultValue}  // TODO is it ok to hardcode this?
   />;
