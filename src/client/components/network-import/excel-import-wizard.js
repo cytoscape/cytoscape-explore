@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import theme from '../../theme';
-import _ from 'underscore';
+import _ from 'lodash';
 import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
 import * as gaussian from 'gaussian';
@@ -26,7 +26,7 @@ const NODE_COLOR = "#0571B0";
 const EDGE_COLOR = "#A6CADF";
 const LABEL_COLOR = theme.palette.text.primary;
 
-let charts = [];
+let previewCharts = []; // Charts that will need to be destroyed before each render()
 
 class ExcelImportSubWizard extends React.Component {
 
@@ -50,6 +50,8 @@ class ExcelImportSubWizard extends React.Component {
       nodeIdAttr: null,
       edgePreviewData: null,
       nodePreviewData: null,
+      edgeChartConfigs: null, // the attribute name is the key
+      nodeChartConfigs: null, // the attribute name is the key
       error: null,
     };
 
@@ -68,43 +70,18 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   componentWillUnmount() {
-    this.destroyCharts();
+    this.destroyPreviewCharts();
   }
 
   componentDidUpdate() {
-    const { step, edgeData, nodeData, edgePreviewData, nodePreviewData } = this.state;
+    const { step, edgeChartConfigs, nodeChartConfigs } = this.state;
 
     // Recreate preview charts
     if (step === 1 || step === 2) {
-      const previewData = step === 1 ? edgePreviewData : nodePreviewData;
-      const allData = step === 1 ? edgeData : nodeData;
-      
-      if (previewData && previewData.length > 0) {
-        const obj = previewData[previewData.length - 1];
-        const data = obj.data;
-        const keys = Object.keys(data);
-        const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
+      const chartConfigs = step === 1 ? edgeChartConfigs : nodeChartConfigs;
 
-        for (const k of chartKeys) {
-          // Get the column data
-          const colData = [];
-
-          for (const row of allData) {
-            if (typeof row[k] === 'number')
-              colData.push(row[k]);
-          }
-
-          // Normal distribution - sort values
-          colData.sort((a, b) => a - b);
-          const m = mean(colData);
-          const sd = std(colData); // The standard deviation
-
-          if (sd > 0) {
-            const val = data[k]; // This element's value
-            this.createPreviewChart(k, val, colData, m, sd);
-          }
-        }
-      }
+      if (chartConfigs)
+        this.createPreviewCharts(chartConfigs);
     }
   }
 
@@ -139,6 +116,10 @@ class ExcelImportSubWizard extends React.Component {
         const firstRow = json && json.length > 0 ? json[0] : null;
         const edgePreviewData = this.createCyElements([firstRow]);
 
+        const edgeChartConfigs = edgePreviewData && edgePreviewData.length > 1
+            ? this.createPreviewChartConfigs(edgePreviewData[edgePreviewData.length - 1], json)
+            : null;
+
         let node1IdAttr, node2IdAttr;
   
         if (firstRow) {
@@ -152,7 +133,7 @@ class ExcelImportSubWizard extends React.Component {
           }
         }
 
-        this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData });
+        this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData, edgeChartConfigs });
         this.updateButtons({ ...this.state, json });
       });
     }
@@ -167,6 +148,7 @@ class ExcelImportSubWizard extends React.Component {
         const firstRow = json && json.length > 0 ? json[0] : null;
         let nodeIdAttr;
         let nodePreviewData = [];
+        let nodeChartConfigs;
 
         if (firstRow) {
           const keys = Object.keys(firstRow);
@@ -182,23 +164,25 @@ class ExcelImportSubWizard extends React.Component {
                   n.data[k] = firstRow[k];
               });
               nodePreviewData.push(n);
+
+              nodeChartConfigs = this.createPreviewChartConfigs(n, json);
             }
           }
         }
 
-        this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData });
+        this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData, nodeChartConfigs });
         this.updateButtons({ ...this.state, json });
       });
     }
   }
 
   handleEdgeFileDelete() {
-      this.setState({ edgeFile: null, edgeData: null, node1IdAttr: null, node2IdAttr: null, edgePreviewData: null });
+      this.setState({ edgeFile: null, edgeData: null, node1IdAttr: null, node2IdAttr: null, edgePreviewData: null, edgeChartConfigs: null });
       this.updateButtons({ ...this.state, edgeFile: null, edgeData: null });
   }
 
   handleNodeFileDelete() {
-    this.setState({ nodeFile: null, nodeData: null, nodeIdAttr: null, nodePreviewData: null });
+    this.setState({ nodeFile: null, nodeData: null, nodeIdAttr: null, nodePreviewData: null, nodeChartConfigs: null });
     this.updateButtons({ ...this.state, nodeFile: null, nodeData: null});
   }
 
@@ -234,15 +218,6 @@ class ExcelImportSubWizard extends React.Component {
       } catch (e) {
         console.log(e); // TODO Show error to user
       }
-
-      // TODO: quick style
-      let edgeColorAttr;
-      let nodeColorAttr;
-
-      if (edgeColorAttr)
-        this.controller.setColorLinearMapping("edge", "line-color", edgeColorAttr, ['#9ebcda', '#8856a7']);
-      if (nodeColorAttr)
-        this.controller.setColorLinearMapping("node", "background-color", nodeColorAttr, ['#ece2f0', '#1c9099']);
 
       // TODO Apply preferred layout
       this.controller.applyLayout(this.controller.layoutOptions.fcose);
@@ -293,7 +268,6 @@ class ExcelImportSubWizard extends React.Component {
       if (nodeData && nodeData.length > 0) {
         for (const row of nodeData) {
           const keys = Object.keys(row);
-          console.log(keys);
 
           if (keys.length > 1) {
             var id = row[keys[0]]; // Node id is always the first column
@@ -326,68 +300,107 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   /**
-   * Create charts for numeric attributes.
+   * Create a chart data object for each numeric attribute.
    */ 
-  createPreviewChart(k, val, data, mean, sd) {
-      const dist = sd > 0 ? gaussian(mean, sd) : 0;
+  createPreviewChartConfigs(obj, allData) {
+    const chartConfigs = {};
 
-      const lowerBound = data[0];
-      const upperBound = data[data.length - 1];
+    const data = obj.data;
+    const keys = Object.keys(data);
+    const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
+
+    for (const k of chartKeys) {
+      // Get the column data
+      const colValues = [];
+
+      for (const row of allData) {
+        if (typeof row[k] === 'number')
+          colValues.push(row[k]);
+      }
+
+      if (colValues.length === 0)
+        continue;
+
+      // Normal distribution - sort values
+      colValues.sort((a, b) => a - b);
+      
+      const sd = std(colValues); // The standard deviation
+
+      if (sd === 0)
+        continue;
+
+      const lowerBound = colValues[0];
+      const upperBound = colValues[colValues.length - 1];
       const min = lowerBound - 2 * sd;
       const max = upperBound + 2 * sd;
       const unit = (max - min) / 100;
       
       const xSeries = _.range(min, max, unit);
       const ySeries = [];
-      const chartData = [];
+      const plotData = [];
       
+      const m = mean(colValues);
+      const dist = gaussian(m, sd);
+
       for (const x of xSeries) {
         const y = dist.pdf(x);
         ySeries.push(y);
-        chartData.push({ x: x, y: y });
+        plotData.push({ x: x, y: y });
       }
+
+      const val = data[k]; // This element's value
 
       // We need the labels!
       const labels = xSeries.map((i) => String(i));
 
       // Customize options -- show the current value as a chart annotation
       // (see: https://www.chartjs.org/chartjs-plugin-annotation/guide/types/line.html)
-      const options = { ...chartOptions };
+      const options = _.cloneDeep(chartOptions);
       const myValueLine = options.plugins.annotation.annotations.myValueLine;
       myValueLine['xMin'] = val;
       myValueLine['xMax'] = val;
       myValueLine['yMin'] = Math.min(ySeries);
       myValueLine['yMax'] = Math.max(ySeries);
-      myValueLine.label['content'] = val;
+      myValueLine.label['content'] = '' + val;
 
+      const cfg = {
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'line',
+              label: 'All Values of ' + k,
+              data: plotData,
+              borderWidth: 1,
+              borderColor: theme.palette.text.primary,
+              fill: true,
+              backgroundColor: theme.palette.divider,
+              tension: 0.3,
+            },
+          ]
+        },
+        options: options,
+      };
+      chartConfigs[k] = cfg;
+    }
+
+    return chartConfigs;
+  }
+ 
+  createPreviewCharts(chartConfigs) {
+    for (const [k, cfg] of Object.entries(chartConfigs)) {
       // Create the chart
       const ctx = document.getElementById(`chart-${k.replaceAll(' ', '_')}`).getContext('2d');
-      const chart = new Chart(ctx, {
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                type: 'line',
-                label: 'All Values of ' + k,
-                data: chartData,
-                borderWidth: 1,
-                borderColor: theme.palette.text.primary,
-                fill: true,
-                backgroundColor: theme.palette.divider,
-                tension: 0.3,
-              },
-            ]
-          },
-          options: options,
-      });
-      charts.push(chart);
+      const chart = new Chart(ctx, cfg);
+      previewCharts.push(chart);
+    }
   }
 
-  destroyCharts() {
-    for (const c of charts)
+  destroyPreviewCharts() {
+    for (const c of previewCharts)
       c.destroy();
     
-      charts = [];
+      previewCharts = [];
   }
 
   updateStep(nextStep) {
@@ -412,7 +425,7 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   render() {
-    this.destroyCharts();
+    this.destroyPreviewCharts();
 
     return (
       <div>
@@ -433,7 +446,7 @@ class ExcelImportSubWizard extends React.Component {
   renderTableUpload(initialFile, onChange, onDelete) {
     const { step, edgeData, nodeData } = this.state;
     const { node1IdAttr, node2IdAttr, nodeIdAttr } = this.state;
-    const { edgePreviewData, nodePreviewData } = this.state;
+    const { edgePreviewData, nodePreviewData, edgeChartConfigs, nodeChartConfigs } = this.state;
 
     const group = step === 1 ? "Edge" : "Node";
     const data = step === 1 ? edgeData : nodeData;
@@ -443,20 +456,23 @@ class ExcelImportSubWizard extends React.Component {
     const isLoop = step === 1 && edgePreviewData && edgePreviewData.length === 2;
     const isNode = step === 2 && nodePreviewData && nodePreviewData.length === 1;
 
-    let previewImg, previewData;
+    let previewImg, previewData, chartConfigs;
 
     if (isEdge) {
       // Regular edge preview (2 nodes)
       previewImg = this.edgePreviewImg();
       previewData = edgePreviewData[2];
+      chartConfigs = edgeChartConfigs;
     } else if (isLoop) {
       // 'Loop' edge preview (1 node)
       previewImg = this.loopPreviewImg();
       previewData = edgePreviewData[1];
+      chartConfigs = edgeChartConfigs;
     } else if (isNode) {
       // Ndge preview (1 node)
       previewImg = this.nodePreviewImg();
       previewData = nodePreviewData[0];
+      chartConfigs = nodeChartConfigs;
     }
 
     let keys = previewData ? Object.keys(previewData.data) : [];
@@ -501,7 +517,7 @@ class ExcelImportSubWizard extends React.Component {
                 PREVIEW &#8212; {group} from the First Row:
               </h4>
               {isLoop && keys.length > 0 && (
-                this.renderDataTable(previewData, keys, "down", { marginBottom: -6 }, { marginLeft: -28 })
+                this.renderDataTable(previewData, keys, chartConfigs, "down", { marginBottom: -6 }, { marginLeft: -28 })
               )}
               {isEdge && (
                 <Grid
@@ -528,7 +544,7 @@ class ExcelImportSubWizard extends React.Component {
                 this.renderNodeIdAttrLabel(node1IdAttr + " | " + node2IdAttr, "up", { marginTop: -4 })
               )}
               {(isEdge || isNode) && keys.length > 0 && (
-                this.renderDataTable(previewData, keys, "up", { marginTop: (isEdge? -20 : -10) })
+                this.renderDataTable(previewData, keys, chartConfigs, "up", { marginTop: (isEdge? -20 : -10) })
               )}
             </Grid>
           </Paper>
@@ -557,9 +573,8 @@ class ExcelImportSubWizard extends React.Component {
     );
   }
 
-  renderDataTable(obj, keys, arrowDirection, gridStyle, arrowStyle) {
+  renderDataTable(obj, keys, chartConfigs, arrowDirection, gridStyle, arrowStyle) {
     const data = obj.data;
-    const chartKeys = keys.filter(k => this.isPreviewChartKey(k, data));
 
     return (
       <Grid 
@@ -586,7 +601,7 @@ class ExcelImportSubWizard extends React.Component {
                 <TableRow>
                   {keys && keys.map((k) => (
                       <TableCell key={k} style={{textAlign: 'center'}}>
-                        {chartKeys.includes(k) ?
+                        {chartConfigs && chartConfigs[k] != null ?
                           <canvas
                             id={`chart-${k.replaceAll(' ', '_')}`}
                             style={{width: '128px', height: '64px'}}
