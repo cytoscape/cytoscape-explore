@@ -1,0 +1,74 @@
+.import-dialog .MuiDialog-paper {
+  overflow: hidden;
+}
+
+.excel-import .MuiDropzoneArea-root {
+  min-height: 120px;
+}
+
+.excel-import .MuiDropzoneArea-text {
+  margin-top: 10px;
+}
+
+.MuiDialogContent-root .MuiTypography-h5 {
+  font-size: 1rem;
+}
+
+.import-preview {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.preview-popper-node {
+  padding-bottom: 0.25em;
+}
+
+.preview-popper-data {
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.preview-popper-node .popper-content {
+  border-radius: 6px;
+  color: #b4b4b4;
+  background-color: #121212;
+  font-size: 0.9em;
+  font-weight: bold;
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.preview-popper-data .popper-content {
+  border-radius: 6px;
+  background-color: #121212;
+  color: #b4b4b4;
+  font-size: 0.9em;
+  font-weight: bold;
+  padding: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.import-preview .arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #121212;
+  border-bottom: 8px solid transparent;
+}
+
+.import-preview .arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid #121212;
+}
+
+.popper-content .MuiTableContainer-root {
+  max-width: 480px;
+}

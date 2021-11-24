@@ -153,7 +153,7 @@ export class NetworkAnalyser {
             [ ATTR_TYPE.UNKNOWN, { set: new Set() } ],
             [ ATTR_TYPE.MISSING, { set: first ? new Set() : COMMON } ],  // if we have processed at least one node but haven't seen this attribute yet then make unknown the common type
             [ type,              { set: first ? COMMON : new Set(ele) } ]  // override previous entry for the type
-          ])
+          ]),
         };
         if(type == ATTR_TYPE.NUMBER) {
           this._expandRange(newInfo.types.get(ATTR_TYPE.NUMBER), data[attr]);

@@ -2,6 +2,7 @@
 @import "./tool-panel.css";
 @import "./header.css";
 @import "./layout-panel.css";
+@import "./import-wizard.css";
 @import "./label-position-widget.css";
 
 .network-editor {

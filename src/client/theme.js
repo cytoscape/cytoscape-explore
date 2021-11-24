@@ -1,12 +1,6 @@
 import { createTheme }  from '@material-ui/core/styles';
 
-import { ThemeOptions } from '@material-ui/core/styles/createTheme';
-
-// Ref. : https://bareynol.github.io/mui-theme-creator
-//
-
-/** @type ThemeOptions */
-const themeOptions = {
+const theme = createTheme({
   palette: {
     type: 'dark',
     primary: {
@@ -52,33 +46,6 @@ const themeOptions = {
       }
     },
   },
-};
-
-const theme = createTheme(themeOptions);
-
-// const theme = createMuiTheme({
-//   palette: {
-//     primary: {
-//       main: '#1D6995',
-//       light: '#5C95B7',
-//       dark: '#053E60',
-//       contrastText: '#fff'
-//     },
-//     secondary: {
-//       main: '#1D6995',
-//       light: '#5C95B7',
-//       dark: '#053E60',
-//       contrastText: '#fff'
-//     }
-//   },
-//   typography: {
-//     fontFamily: 'Open Sans, Helvetica Neue, Helvetica, sans-serif'
-//   },
-//   props: {
-//     MuiButtonBase: {
-//       // disableRipple: true // No more ripple, on the whole application
-//     }
-//   },
-// });
+});
 
 export default theme;
