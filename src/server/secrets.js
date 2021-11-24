@@ -1,7 +1,16 @@
 import PouchDB  from 'pouchdb';
-import { COUCHDB_URL } from './env';
+import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from './env';
 
-const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`);
+const options = {};
+
+if (USE_COUCH_AUTH) {
+  options.auth = {
+    username: COUCHDB_USER,
+    password: COUCHDB_PASSWORD
+  };
+}
+
+const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`, options);
 
 const isReadOp = (req, op) => req.method === 'GET';
 const isWriteOp = (req, op) => !isReadOp(req, op);
