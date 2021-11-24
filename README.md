@@ -2,8 +2,8 @@
 
 ## Required software
 
-- [Node.js](https://nodejs.org/en/) ^12.15.0
-- [CouchDB](http://couchdb.apache.org) ^2.3.1
+- [Node.js](https://nodejs.org/en/) 14.x, >=14.15
+- [CouchDB](http://couchdb.apache.org) ^2.x, >=2.3
 
 ## Getting started
 
