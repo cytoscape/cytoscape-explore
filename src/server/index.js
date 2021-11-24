@@ -10,8 +10,9 @@ import logger from './logger';
 import fs from 'fs';
 import proxy from 'express-http-proxy';
 import stream from 'stream';
+import btoa from 'btoa';
 
-import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT } from './env';
+import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT, USE_COUCH_AUTH, COUCHDB_USER, COUCHDB_PASSWORD } from './env';
 import indexRouter from './routes/index';
 import apiRouter from './routes/api';
 import { registerCytoscapeExtensions } from '../model/cy-extensions';
@@ -61,6 +62,15 @@ app.use(express.static(path.join(__dirname, '../..', 'public')));
 
 // proxy requests under /db to the CouchDB server
 app.use('/db', secrets); // apply security before proxy
+app.use('/db', function(req, res, next) {
+  if (USE_COUCH_AUTH) {
+    let auth = 'Basic ' + btoa(`${COUCHDB_USER}:${COUCHDB_PASSWORD}`);
+
+    req.headers['authorization'] = auth;
+  }
+
+  next();
+});
 app.use('/db', proxy(COUCHDB_URL));
 
 app.use('/api', apiRouter);
