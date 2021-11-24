@@ -93,17 +93,40 @@ export class NetworkEditor extends Component {
     ]);
 
     const enableSync = async () => {
+      console.log('Starting to enable sync in editor');
+
       try {
+        console.log('Loading');
         await this.cySyncher.load();
+        console.log('Loaded');
 
         if (this.cySyncher.editable()) {
+          console.log('Enabling sync');
           await this.cySyncher.enable();
+          console.log('Sync enabled');
         }
 
         this.cy.fit(DEFAULT_PADDING);
+
+        console.log('Successful load from DB');
       } catch(err){
         console.error(`Could not load document`, err);
+
+        if (this.cySyncher.editable()) {
+          console.log('Attempting to create document.  This should probably be done by creating a document beforehand in future (e.g. with a post request made in a file manager UI)');
+        
+          try {
+            await this.cySyncher.create();
+            await this.cySyncher.enable();
+          } catch(err) {
+            console.error('Document creation failed');
+          }
+        } else {
+          console.log('No secret available to jury-rig client-side document creation');
+        }
       }
+
+      console.log('End of editor sync initial phase');
     };
 
     enableSync();
