@@ -59,7 +59,10 @@ PopoverButton.propTypes = {
   handleChange: PropTypes.func,
   closeOnSelect: PropTypes.bool,
 };
-
+PopoverButton.defaultProps = {
+  closeOnSelect: false,
+  handleChange: () => null,
+};
 
 export function BasicMenu(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);

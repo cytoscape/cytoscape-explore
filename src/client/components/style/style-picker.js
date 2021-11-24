@@ -89,24 +89,6 @@ StyleSection.propTypes = {
 };
 
 
-// MKTODO remove this and replace usages with PopoverButton
-function StylePopoverButton(props){
-  return <PopoverButton
-    value={props.styleVal}
-    renderButton={props.renderButton}
-    renderPopover={props.renderPopover}
-    handleChange={props.handleChange}
-    closeOnSelect={false}
-  />;
-}
-StylePopoverButton.propTypes = {
-  styleVal: PropTypes.any,
-  renderButton: PropTypes.func,
-  renderPopover: PropTypes.func,
-  handleChange: PropTypes.func,
-};
-
-
 export class MappingAndAttributeSelector extends React.Component {
 
   constructor(props) {
@@ -200,7 +182,7 @@ function abbreviate(value, length=10) {
     text = text.slice(0, length-1) + "...";
     abbreviated = true;
   }
-  return [ text, abbreviated ];
+  return { text, abbreviated };
 }
 
 
@@ -376,6 +358,12 @@ export class StylePicker extends React.Component {
     );
   }
 
+  renderStyleButton(styleVal, onStyleChange) {
+    return this.props.renderDiscrete
+      ? this.props.renderDiscrete(styleVal, newVal => onStyleChange(newVal))
+      : this.props.renderValue(   styleVal, newVal => onStyleChange(newVal));
+  }
+
   renderValue() {
     const handleChange = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
     return this.props.renderValue(this.state.style.scalarValue, handleChange);
@@ -409,7 +397,7 @@ export class StylePicker extends React.Component {
     };
 
     const DataValueListItem = ({ dataVal, styleVal, onStyleChange, hideCloseButton }) => {
-      const [ text, abbreviated ] = abbreviate(dataVal, 12);
+      const { text, abbreviated } = abbreviate(dataVal, 12);
       return <ListItem key={dataVal}>
         { abbreviated
           ? <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>
@@ -424,7 +412,7 @@ export class StylePicker extends React.Component {
             <Tooltip title='Remove Mapping'>
               <CloseIcon 
                 style={{color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', visibility: hideCloseButton ? 'hidden' : null }}
-                onClick={() => handleStyleValChange(dataVal, undefined)} 
+                onClick={() => onStyleChange(dataVal, undefined)} 
               />
             </Tooltip>
           </div>
@@ -451,7 +439,7 @@ export class StylePicker extends React.Component {
           <BasicMenu
             buttonText="(+) Add Data Value"
             items={ menuItemValues.map(dataVal => (
-              { label: abbreviate(dataVal, 12)[0], 
+              { label: abbreviate(dataVal,12).text, 
                 onClick: () => handleStyleValChange(dataVal, builtInDefault) 
               }
             ))}
@@ -554,8 +542,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     mappingLabel="Color Gradient"
     discreteLabel="Color per Data Value"
     renderValue={(currentColor, setColor) => 
-      <StylePopoverButton 
-        styleVal={currentColor}
+      <PopoverButton 
+        value={currentColor}
         handleChange={setColor}
         renderButton={color => 
           <ColorSwatch color={color} />
@@ -566,8 +554,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
       />
     }
     renderMapping={(currentGradient, setGradient) => 
-      <StylePopoverButton 
-        styleVal={currentGradient}
+      <PopoverButton 
+        value={currentGradient}
         handleChange={setGradient}
         renderButton={(gradient) => 
           <ColorGradient value={gradient} /> 
@@ -615,8 +603,8 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     discreteLabel={discreteLabel}
     renderValue={(currentShape, setShape) => 
       <div className="shape-swatches">
-        <StylePopoverButton 
-          styleVal={currentShape}
+        <PopoverButton 
+          value={currentShape}
           handleChange={setShape}
           renderButton={(shape) => 
             <ShapeIcon type={variant} shape={shape} />
@@ -661,8 +649,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
       <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
     }
     renderMapping={(minMax, setSize) =>
-      <StylePopoverButton 
-        styleVal={minMax}
+      <PopoverButton 
+        value={minMax}
         handleChange={setSize}
         renderButton={(sizeRange) => 
           <SizeGradient variant={variant} selected={sizeRange} reversed={minMax && minMax[0] > minMax[1]} /> 
@@ -673,8 +661,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
       />
     }
     renderDiscrete={(minMax, setSize) => 
-      <StylePopoverButton 
-        styleVal={minMax}
+      <PopoverButton 
+        value={minMax}
         handleChange={setSize}
         renderButton={size => 
           <Button variant='outlined'>{size}</Button>
@@ -718,8 +706,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
       <OpacitySlider value={value} onSelect={onSelect} />
     }
     renderMapping={(value, setValue) =>
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={(value) => 
           <OpacityGradient value={value} />
@@ -730,8 +718,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
       />
     }
     renderDiscrete={(value, setValue) => 
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={value => 
           <Button variant='outlined'>{Math.round(value * 100)}</Button>
@@ -879,8 +867,8 @@ export class NodeSizeStylePicker extends React.Component {
       }
       renderMapping={(minMax, setSize) =>
         <div>
-          <StylePopoverButton 
-            styleVal={minMax}
+          <PopoverButton 
+            value={minMax}
             handleChange={setSize}
             renderButton={(sizeRange) => 
               <SizeGradient variant='solid' selected={sizeRange} reversed={minMax && (minMax[0] > minMax[1])} /> 
@@ -894,8 +882,8 @@ export class NodeSizeStylePicker extends React.Component {
       }
       renderDiscrete={(minMax, setSize) => 
         <div>
-          <StylePopoverButton 
-            styleVal={minMax}
+          <PopoverButton 
+            value={minMax}
             handleChange={setSize}
             renderButton={size => 
               <Button variant='outlined'>{size}</Button>
@@ -963,8 +951,8 @@ export function NodeLabelPositionStylePicker({ controller }) {
       <LabelPosition value={value} onSelect={setValue} />
     }
     renderDiscrete={(value, setValue) => 
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={(value) => 
           <PositionButton value={value} />
