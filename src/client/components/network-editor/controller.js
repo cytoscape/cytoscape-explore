@@ -424,12 +424,12 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {Array<Color>} styleValues The style mapping struct value to use as the mapping
    */
-  setColorLinearMapping(selector, property, attribute, styleValues) {
+  setColorLinearMapping(selector, property, attribute, styleValues, defaultValue) {
     const diverging = styleValues.length == 3;
     const dataValues = this._dataRange(selector, attribute, diverging);
     if(!dataValues)
       return;
-    const style = styleFactory.linearColor(attribute, dataValues, styleValues);
+    const style = styleFactory.linearColor(attribute, defaultValue, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setColorLinearMapping', selector, property, attribute, styleValues);
   }
@@ -469,12 +469,12 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {Array<Number>} styleValues The style mapping struct value to use as the mapping
    */
-  setNumberLinearMapping(selector, property, attribute, styleValues) {
+  setNumberLinearMapping(selector, property, attribute, styleValues, defaultValue) {
     const diverging = styleValues.length == 3;
     const dataValues = this._dataRange(selector, attribute, diverging);
     if(!dataValues)
       return;
-    const style = styleFactory.linearNumber(attribute, dataValues, styleValues);
+    const style = styleFactory.linearNumber(attribute, defaultValue, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setNumberLinearMapping', selector, property, attribute, styleValues);
   }

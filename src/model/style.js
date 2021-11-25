@@ -34,9 +34,10 @@ const assertDataRangeOrder = (arr) => {
   }
 };
 
-export const rgbObjToHex = ({r, g, b}) => {
-  return Color({r, g, b}).hex().toString();
-};
+export const rgbObjToHex = ({r, g, b}) => Color({r, g, b}).hex().toString();
+
+export const rgbToCss = ({r, g, b}) => `rgb(${r}, ${g}, ${b})`;
+
 
 /**
  * @typedef {String} STYLE_TYPE
@@ -97,23 +98,33 @@ export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStru
   } else if( MAPPING.PASSTHROUGH === mapping ){
     return ele.data(value.data);
   } else if( MAPPING.LINEAR === mapping ){
-    const { data, dataValues, styleValues } = styleStruct.value;
+    const { data, defaultValue, dataValues, styleValues } = styleStruct.value;
     const eleData = ele.data(data);
     if( STYLE_TYPE.NUMBER === type ){
+      if(eleData === undefined)
+        return defaultValue;
       const d = dataPoints(eleData, dataValues, styleValues);
       if(d !== undefined) {
         const { d1, d2, s1, s2 } = d;
-        return mapLinear(eleData, d1, d2, s1, s2);
+        const val = mapLinear(eleData, d1, d2, s1, s2);
+        if(!Number.isNaN(val)) {
+          return val;
+        }
       }
+      return defaultValue;
     } else if( STYLE_TYPE.COLOR === type ){
+      if(eleData === undefined)
+        return defaultValue && rgbToCss(defaultValue);
       const d = dataPoints(eleData, dataValues, styleValues);
       if(d !== undefined) {
         const { d1, d2, s1, s2 } = d;
-        const { r, g, b } = mapColor(eleData, d1, d2, s1, s2);
-        if([r,g,b].some(Number.isNaN))
-          return null;
-        return `rgb(${r}, ${g}, ${b})`;
+        const rgb = mapColor(eleData, d1, d2, s1, s2);
+        const { r, g, b } = rgb;
+        if(![r,g,b].some(Number.isNaN)) {
+          return rgbToCss(rgb);
+        }
       }
+      return defaultValue && rgbToCss(defaultValue);
     }
   } else if( MAPPING.DISCRETE === mapping ){
     const { data, defaultValue, styleValues } = styleStruct.value;
@@ -178,6 +189,7 @@ export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStru
 /**
  * @typedef {Object} LinearNumberStyleValue
  * @property {String} data The data attribute that's mapped
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
  * @property {Array<Number>} dataValues The data values
  * @property {Array<Number>} styleValues The style values
  */
@@ -257,6 +269,7 @@ export const getFlatStyleForEle = (ele, styleStruct, sourceForDependantStyleStru
 /**
  * @typedef {Object} LinearColorStyleValue
  * @property {String} data The data attribute that's mapped
+ * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
  * @property {Array<Number>} dataValues Data range
  * @property {Array<RgbColor>} styleValues Style properties
  */
@@ -311,10 +324,11 @@ export const styleFactory = {
    * Create a linear mapping of a number
    * @param {String} data The data property name to map
    * @param {Array<Number>} dataValues The points of the data values to map
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
    * @param {Array<Number>} styleValues The style values corresponding to the data values.
    * @returns {LinearNumberStyleStruct} The style value object (JSON)
    */
-  linearNumber: (data, dataValues, styleValues) => {
+  linearNumber: (data, defaultValue, dataValues, styleValues) => {
     assertDataRangeOrder(dataValues);
     console.assert(dataValues.length == styleValues.length);
 
@@ -323,6 +337,7 @@ export const styleFactory = {
       mapping: MAPPING.LINEAR,
       value: {
         data,
+        defaultValue,
         dataValues,
         styleValues
       },
@@ -458,11 +473,12 @@ export const styleFactory = {
   /**
    * Create a linear mapping of a color
    * @param {String} data The data property name to map
+   * @property {Color} defaultValue The defalt color value to use for values that don't have a mapping.
    * @param {Array<Number>} dataValues The points of the data values to map
    * @param {Array<Number>} styleValues The style values corresponding to the data values.
    * @returns {LinearColorStyleStruct} The style value object (JSON)
    */
-  linearColor: (data, dataValues, styleValues) => {
+  linearColor: (data, defaultValue, dataValues, styleValues) => {
     assertDataRangeOrder(dataValues);
     console.assert(dataValues.length == styleValues.length);
 
@@ -472,6 +488,7 @@ export const styleFactory = {
       mapping: MAPPING.LINEAR,
       value: {
         data,
+        defaultValue,
         dataValues,
         styleValues: colorObjects,
       },

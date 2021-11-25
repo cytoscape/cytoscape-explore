@@ -269,6 +269,7 @@ export class StylePicker extends React.Component {
           style: {
             mapping: MAPPING.LINEAR,
             attribute: style.value.data,
+            mappingDefault: style.value.defaultValue,
             mappingValue: style.value.styleValues,
           }};
       case MAPPING.DISCRETE:
@@ -298,16 +299,17 @@ export class StylePicker extends React.Component {
         break;
       case MAPPING.LINEAR:
         if(newStyle.mappingValue === undefined) {
+          newStyle.mappingDefault =this.props.getDiscreteDefault();
           newStyle.mappingValue = this.props.getMappingDefault();
         }
         if(newStyle.attribute !== undefined && newStyle.mappingValue !== undefined) {
-          this.props.onMappingSet(newStyle.attribute, newStyle.mappingValue);
+          this.props.onMappingSet(newStyle.attribute, newStyle.mappingValue, newStyle.mappingDefault);
         }
         break;
       case MAPPING.DISCRETE:
         if(newStyle.discreteValue === undefined) {
-          newStyle.discreteValue = {};
           newStyle.discreteDefault = this.props.getDiscreteDefault();
+          newStyle.discreteValue = {};
         }
         if(newStyle.attribute !== undefined && newStyle.discreteValue !== undefined) {
           this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue, newStyle.discreteDefault);
@@ -370,8 +372,21 @@ export class StylePicker extends React.Component {
   }
 
   renderContinuous() {
-    const handleMappingChange = mappingValue => this.handleStyleChange({ mappingValue });
-    return this.props.renderMapping(this.state.style.mappingValue, handleMappingChange);
+    const handleMappingChange = mappingValue   => this.handleStyleChange({ mappingValue });
+    const handleDefaultChange = mappingDefault => this.handleStyleChange({ mappingDefault });
+    const { mappingDefault } = this.state.style;
+
+    return <div>
+      { this.props.renderMapping(this.state.style.mappingValue, handleMappingChange) }
+      <List dense style={{width:'100%', position:'relative', overflow:'auto' }}>
+        <ListItem>
+          <ListItemText primary='Default' />
+          <ListItemSecondaryAction>
+            { this.renderStyleButton(mappingDefault, handleDefaultChange) }
+          </ListItemSecondaryAction>
+        </ListItem>
+      </List>
+    </div>;
   }
 
   renderDiscrete() {
@@ -392,9 +407,7 @@ export class StylePicker extends React.Component {
       this.handleStyleChange({ discreteValue });
     };
 
-    const handleOtherStyleValChange = (discreteDefault) => {
-      this.handleStyleChange({ discreteDefault });
-    };
+    const handleOtherStyleValChange = discreteDefault => this.handleStyleChange({ discreteDefault });
 
     const DataValueListItem = ({ dataVal, styleVal, onStyleChange, hideCloseButton }) => {
       const { text, abbreviated } = abbreviate(dataVal, 12);
@@ -405,10 +418,7 @@ export class StylePicker extends React.Component {
         }
         <ListItemSecondaryAction>
           <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-            { this.props.renderDiscrete
-              ? this.props.renderDiscrete(styleVal, newVal => onStyleChange(dataVal, newVal))
-              : this.props.renderValue(   styleVal, newVal => onStyleChange(dataVal, newVal))
-            }
+            { this.renderStyleButton(styleVal, newVal => onStyleChange(dataVal, newVal)) }
             <Tooltip title='Remove Mapping'>
               <CloseIcon 
                 style={{color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', visibility: hideCloseButton ? 'hidden' : null }}
@@ -568,8 +578,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     onValueSet={color => 
       styleProps.forEach(p => controller.setColor(selector, p, color))
     }
-    onMappingSet={(attribute, gradient) => 
-      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient))
+    onMappingSet={(attribute, gradient, defaultValue) => 
+      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient, defaultValue))
     }
     onDiscreteSet={(attribute, valueMap, defaultValue) => 
       styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap, defaultValue))
@@ -675,8 +685,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
     onValueSet={size =>
       styleProps.forEach(p => controller.setNumber(selector, p,  size))
     }
-    onMappingSet={(attribute, sizeRange) =>
-      styleProps.forEach(p => controller.setNumberLinearMapping(selector, p,  attribute, sizeRange))
+    onMappingSet={(attribute, sizeRange, defaultValue) =>
+      styleProps.forEach(p => controller.setNumberLinearMapping(selector, p,  attribute, sizeRange, defaultValue))
     }
     onDiscreteSet={(attribute, valueMap, defaultValue) =>
       styleProps.forEach(p => controller.setNumberDiscreteMapping(selector, p,  attribute, valueMap, defaultValue))
@@ -732,8 +742,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
     onValueSet={value =>
       controller.setNumber(selector, styleProp, value)
     }
-    onMappingSet={(attribute, value) =>
-      controller.setNumberLinearMapping(selector, styleProp, attribute, value)
+    onMappingSet={(attribute, value, defaultValue) =>
+      controller.setNumberLinearMapping(selector, styleProp, attribute, value, defaultValue)
     }
     onDiscreteSet={(attribute, valueMap, defaultValue) =>
       controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap, defaultValue)
@@ -898,8 +908,8 @@ export class NodeSizeStylePicker extends React.Component {
       onValueSet={size =>
         controller.setNumber(selector, 'width', size)
       }
-      onMappingSet={(attribute, sizeRange) =>
-        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange)
+      onMappingSet={(attribute, sizeRange, defaultValue) =>
+        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange, defaultValue)
       }
       onDiscreteSet={(attribute, valueMap, defaultValue) =>
         controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap, defaultValue)
