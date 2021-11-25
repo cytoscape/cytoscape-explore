@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import theme from '../../theme';
 import { makeStyles } from '@material-ui/core/styles';
 import { ImageList, ImageListItem, ImageListItemBar } from '@material-ui/core';
 import { Button, IconButton, Tooltip } from '@material-ui/core';
@@ -237,9 +238,13 @@ export class Cy3ImportSubWizard extends React.Component {
     const classes = useStyles();
 
     return (
-      <div className={classes.root} style={{backgroundColor: 'rgba(0, 0, 0, 0.87)'}}>
-        <Skeleton variant="rect" width={250} height={180} />
-      </div>
+      <ImageList rowHeight={IMG_HEIGHT} gap={IMG_GAP} className={classes.imageList} style={{backgroundColor: theme.palette.divider}}>
+        {[0, 1].map((val) => (
+          <ImageListItem key={val} button='false' cols={1}>
+            <Skeleton variant="rect" width={IMG_WIDTH} height={IMG_HEIGHT} style={{backgroundColor: theme.palette.background.paper}} />
+          </ImageListItem>
+        ))}
+      </ImageList>
     );
   }
 
@@ -263,7 +268,7 @@ export class Cy3ImportSubWizard extends React.Component {
             The current Cytoscape session has {data.length} network{data.length !== 1 ? 's' : ''}.
           </header>
         }
-        <ImageList rowHeight={IMG_HEIGHT} gap={IMG_GAP} className={classes.imageList}>
+        <ImageList rowHeight={IMG_HEIGHT} gap={IMG_GAP} className={classes.imageList} style={{backgroundColor: theme.palette.divider}}>
         { data && data.map((net, idx) => (
           <ImageListItem 
             button='true'
@@ -278,6 +283,7 @@ export class Cy3ImportSubWizard extends React.Component {
             <img
               src={this.getNetworkImageUrl(net.SUID, (odd && idx === 0 ? IMG_GAP + 2 * IMG_WIDTH : IMG_WIDTH), IMG_HEIGHT)}
               alt={net.name}
+              style={{backgroundColor: theme.palette.background.paper}}
             />
             <ImageListItemBar
               title={
@@ -287,7 +293,7 @@ export class Cy3ImportSubWizard extends React.Component {
               }
               subtitle={<span>{net.nodeCount} nodes, {net.edgeCount} edges</span>}
               actionIcon={
-                <IconButton style={{color: '#fff'}} disabled={loading}>
+                <IconButton disabled={loading}>
                   { selectedSUID === net.SUID ? <CheckCircleIcon /> : <RadioButtonUncheckedIcon /> }
                 </IconButton>
               }
