@@ -12,14 +12,60 @@ import {
   Select,
   MenuItem,
   Button,
-  IconButton
+  IconButton,
+  Snackbar,
+  Box
 
 } from '@material-ui/core';
 
+import FilterNoneSharpIcon from '@material-ui/icons/FilterNoneSharp';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
+
+export class CopyLink extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      copied: false
+    }
+  }
+  
+  handleCopyClick(content){
+    navigator.clipboard.writeText(content).then(() => {
+      this.setState({
+        copied: true
+      });  
+    });
+  }
+
+  render(){
+    const { title, linkContent } = this.props;
+    return (
+    <div className="ndex-link-container" onClick={ (e) => this.handleCopyClick(linkContent)}> 
+      <div className="ndex-link-title">{title}</div>  
+      <div className="ndex-link-content">
+        <div className="ndex-link-value">{linkContent}</div>
+        <div className="ndex-link-copy">
+          <FilterNoneSharpIcon/>
+        </div>
+      </div>
+      <Snackbar
+        open={this.state.copied}
+        autoHideDuration={4000}
+        onClose={() => this.setState({copied: false})}
+      >
+        <Alert severity="info">
+          {`${title} copied!`}
+        </Alert>
+      </Snackbar>
+    </div>
+    );
+  }
+} 
+
 
 export class NDExExportDialog extends Component {
 
@@ -33,6 +79,7 @@ export class NDExExportDialog extends Component {
       loading: false,
       step: 0,
       ndexNetworkURL: null,
+      ndexNetworkId: null,
     };
 
   }
@@ -62,12 +109,13 @@ export class NDExExportDialog extends Component {
         });
 
         let body = await result.json();
-        let { ndexNetworkURL } = body;
+        let { uuid: ndexNetworkId, ndexNetworkURL } = body;
 
         this.setState({
           step: 1,
           loading: false,
-          ndexNetworkURL
+          ndexNetworkURL,
+          ndexNetworkId
         });
       };
       exportNDEx();
@@ -160,12 +208,10 @@ export class NDExExportDialog extends Component {
         <Alert variant="outlined" severity="success">
             <AlertTitle>Confirm Network Export</AlertTitle>
             <p><b>{this.props.controller.cy.data('name')} has been exported to NDEx</b> </p>
-            <div>
-              <span>Click </span>
-              <a href={this.state.ndexNetworkURL} target={'_blank'} rel={'noreferrer'}>here </a>
-              <span>to view it in NDEx.</span>
-            </div>
         </Alert>
+
+        <CopyLink title={'NDEx Network URL'} linkContent={this.state.ndexNetworkURL}/>
+        <CopyLink title={'NDEx Network ID'} linkContent={this.state.ndexNetworkId}/>
       </DialogContent>
       <DialogActions>
         <Button

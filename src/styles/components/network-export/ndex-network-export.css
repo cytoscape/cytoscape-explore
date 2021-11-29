@@ -13,3 +13,35 @@
 .export-ndex-network-content-block {
     margin-bottom: 1em !important;
 }
+
+.ndex-link-container {
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.ndex-link-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ndex-link-title {
+    margin-bottom: 0.5em;
+}
+
+.ndex-link-value {
+    overflow: hidden;
+    border: 1px solid var(--widgetBorderColor);
+    padding: 0.5em;
+    margin-right: 1em;
+    cursor: pointer;
+    border-radius: 0.25em;
+    height: 32px;
+    width: 400px;
+  }
+
+.ndex-link-copy {
+    cursor: pointer;
+}

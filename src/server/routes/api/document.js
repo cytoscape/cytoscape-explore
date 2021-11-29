@@ -99,7 +99,7 @@ const exportNetworkToNDEx = async (req, res, next) => {
     const ndexUrl = new URL(NDEX_API_URL).origin;
     const { uuid } = await ndex0.createNetworkFromRawCX2(cx2, makePublic);
     const ndexNetworkURL = new URL(`viewer/networks/${uuid}`, ndexUrl).href;
-    res.send({ndexNetworkURL});
+    res.send({ uuid, ndexNetworkURL });
   } catch (err) {
     next(err);
   }
