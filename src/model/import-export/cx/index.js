@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { convertCX } from './cx-converter.js';
 import { convertCY } from './cy-converter.js';
 import { styleFactory } from '../../style';
+import { CX_DATA_KEY } from './cx-util.js';
 
 
 /* order of keys:  anchor_v, anchor_h, label_v, label_h */
@@ -295,6 +296,7 @@ const convertStyle = (visualPropertyKey, cxValue) => {
 };
 
 const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
+  const unsupportedCXProperties = [];
   Object.keys(defaultProperties).forEach(visualPropertyKey => {
 
     const visualPropertyValue = defaultProperties[visualPropertyKey];
@@ -303,7 +305,7 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
     const vizmapperPropertyValue = convertStyle(visualPropertyKey, visualPropertyValue);
 
     if (!vizmapperPropertyKey) {
-      // console.warn(`Visual Property ${visualPropertyKey} cannot be resolved to portable style id.`);
+      unsupportedCXProperties.push(visualPropertyKey);
     } else {
       if (visualPropertyKey.startsWith('NODE_')) {
         if ( vizmapperPropertyKey instanceof Array) {
@@ -318,10 +320,12 @@ const applyDefaultPropertyMap = (vizmapper, defaultProperties) => {
               vizmapper.edge(vizmapperPropertyKey, vizmapperPropertyValue);
           }
       } else {
-        throw new Error(`Visual Property ${visualPropertyKey} cannot be resolved to vizmapper function. Must be NODE_ or EDGE_`);
+        unsupportedCXProperties.push(visualPropertyKey);
       }
     }
   });
+
+  return unsupportedCXProperties;
 };
 
 // result is {dataValues:[], styleValues[]}
@@ -348,6 +352,7 @@ const _continuousMappingCvtr = (result, currentV) => {
  * @param defaultTable   the node or edge default table in vis properites
  */
 const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   {
+  const unsupportedCXProperties = [];
   for (const [vpName, mapping] of Object.entries(styleMappings)) {
     if (STYLE_CONVERTING_TABLE[vpName]) {
         const jsvpName = STYLE_CONVERTING_TABLE[vpName].jsVPName;
@@ -394,12 +399,18 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
                 }
             }
         }
+    } else {
+      unsupportedCXProperties.push(vpName);
     }
   }
+
+  return unsupportedCXProperties;
 };
 
 const applyBypasses = ( selector, cy, bypasses ) => {
     const vizmapper = cy.vizmapper();
+    const unsupportedCXProperties = [];
+
     bypasses.forEach( elmt => {
         const eid = (selector ==='node'? '' : 'e') + elmt.id;
         const selected = cy.$id(eid);
@@ -412,13 +423,15 @@ const applyBypasses = ( selector, cy, bypasses ) => {
                         jsVPName.forEach((e) => vizmapper.bypass(selected, e, value[e]));
                     } else
                         vizmapper.bypass(selected, jsVPName, value);
+                } else {
+                  unsupportedCXProperties.push(vpName);
                 }
             }
         } else
             console.warning(selector + ' with id=' + elmt.id + " was not found.");
     });
 
-
+    return unsupportedCXProperties;
 };
 
 
@@ -430,42 +443,47 @@ const applyBypasses = ( selector, cy, bypasses ) => {
 export const importCX = (cy, cx) => {
 
   const converted = convertCX(cx);
+  const data = _.get(converted, 'data', {});
+  const elements = _.get(converted, 'elements', []);
+  const cxVisualProperties = _.get(converted, 'cxVisualProperties', []);
+  const cxNodeBypasses = _.get(converted, 'cxNodeBypasses', []);
+  const cxEdgeBypasses = _.get(converted, 'cxEdgeBypasses', []);
 
-  cy.data(converted.data);
-
-  cy.add(converted.elements);
+  cy.add(elements);
 
   const vizmapper = cy.vizmapper();
 
-  converted.cxVisualProperties.forEach(property => {
+  const unsupportedCXProperties = new Set();
+
+  cxVisualProperties.forEach(property => {
     if (property.default) {
       if (property.default.node) {
-        applyDefaultPropertyMap(vizmapper, property.default.node);
+        const unsupportedProperties = applyDefaultPropertyMap(vizmapper, property.default.node);
+        unsupportedProperties.forEach(p => unsupportedCXProperties.add(p));
       }
       if (property.default.edge) {
-        applyDefaultPropertyMap(vizmapper, property.default.edge);
+        const unsupportedProperties = applyDefaultPropertyMap(vizmapper, property.default.edge);
+        unsupportedProperties.forEach(p => unsupportedCXProperties.add(p));
       }
       if (property.default.network) {
         //cy.setNetworkBackgroundColor('#00BB00');
       }
     }
     if (property.nodeMapping ) {
-      convertMapping( 'node', vizmapper, property.nodeMapping, property.default.node);
+      const unsupportedProperties = convertMapping( 'node', vizmapper, property.nodeMapping, property.default.node);
+      unsupportedProperties.forEach(p => unsupportedCXProperties.add(p));
     }
     if (property.edgeMapping ) {
-      convertMapping( 'edge', vizmapper, property.edgeMapping, property.default.edge);
+      const unsupportedProperties = convertMapping( 'edge', vizmapper, property.edgeMapping, property.default.edge);
+      unsupportedProperties.forEach(p => unsupportedCXProperties.add(p));
     }
-
   });
 
-  if( converted.cxNodeBypasses) {
-        applyBypasses('node', cy, converted.cxNodeBypasses);
-  }
+  const unsupportedBypassProperties = [...applyBypasses('node', cy, cxNodeBypasses), ...applyBypasses('edge', cy, cxEdgeBypasses)];
+  unsupportedBypassProperties.forEach(p => unsupportedCXProperties.add(p));
 
-  if( converted.cxEdgeBypasses) {
-      applyBypasses('edge', cy, converted.cxEdgeBypasses);
-  }
-
+  data[CX_DATA_KEY]['unsupported-cx-properties'] = Array.from(unsupportedCXProperties).sort();
+  cy.data(data);
 };
 
 /**
