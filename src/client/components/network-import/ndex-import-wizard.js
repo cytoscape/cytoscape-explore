@@ -70,7 +70,7 @@ export class NDExImportSubWizard extends React.Component {
     if (step === 1) {
       if (loading) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
-      } else if (error || !data || data.length === 0) {
+      } else if (error || !data || !data.numFound) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'hidden' });
       } else if (selectedId) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
@@ -164,7 +164,7 @@ export class NDExImportSubWizard extends React.Component {
     let searchString = "";
     const runSearch = (event) => {
       event.preventDefault();
-      this.setState({ loading: true });
+      this.setState({ loading: true, selectedId: null });
       this.updateButtons( { ...this.state, loading: true });
       this.fetchSearchResults(searchString);
     };
