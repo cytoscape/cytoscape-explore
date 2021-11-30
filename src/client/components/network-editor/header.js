@@ -5,14 +5,8 @@ import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-// import Button from '@material-ui/core/Button';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
-// import AccountCircle from '@material-ui/icons/AccountCircle';
-// import MenuIcon from '@material-ui/icons/Menu';
-// import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-// import { Close } from '@material-ui/icons';
-import AccountIcon from '@material-ui/icons/AccountCircle';
 import DebugIcon from '@material-ui/icons/BugReport';
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
@@ -23,13 +17,10 @@ import MenuList from "@material-ui/core/MenuList";
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
-import Cy3NetworkImportDialog from '../network-import/cy3-network-import-dialog';
-import NDExNetworkImportDialog from '../network-import/ndex-network-import-dialog';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
 import { DEFAULT_PADDING } from '../layout/defaults';
-
 
 /**
  * The network editor's header or app bar.
@@ -261,9 +252,7 @@ export class Header extends Component {
                 )}
                 {menuName === 'main' && !dialogName && (
                   <MenuList>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network From Cytoscape</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('new-import')}>Import Network (New)</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-import')}>Import Network From NDEx</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network</MenuItem>
                     <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
@@ -274,28 +263,12 @@ export class Header extends Component {
           </AppBar>
         </div>
         {dialogName === 'network-import' && (
-          <Cy3NetworkImportDialog
-            id="network-import"
-            controller={this.controller}
-            open={true}
-            onClose={() => this.hideDialog()}
-          />
-        )}
-        {dialogName === 'new-import' && (
           <ImportWizard
             id="network-import"
             controller={this.controller}
             open={true}
             onClose={() => this.hideDialog()}
           />
-        )}
-        {dialogName === 'ndex-network-import' && (
-            <NDExNetworkImportDialog
-                id="ndex-network-import"
-                controller={this.controller}
-                open={true}
-                onClose={() => this.hideDialog()}
-            />
         )}
       </>
     );
