@@ -2,8 +2,22 @@
   overflow: hidden;
 }
 
+.excel-import.Edge-import .dropzone-background {
+  background-image: url('images/edge-table-import-help.png');
+  background-repeat: no-repeat;
+  background-size: 373px 97px;
+  background-position: center bottom 20px;
+}
+
+.excel-import.Node-import .dropzone-background {
+  background-image: url('images/node-table-import-help.png');
+  background-repeat: no-repeat;
+  background-size: 275px 97px;
+  background-position: center bottom 20px;
+}
+
 .excel-import .MuiDropzoneArea-root {
-  min-height: 120px;
+  background-color: transparent;
 }
 
 .excel-import .MuiDropzoneArea-text {

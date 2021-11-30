@@ -481,14 +481,16 @@ class ExcelImportSubWizard extends React.Component {
     return (
       <div className={`excel-import ${group}-import`}>
         {!initialFile && (
-          <DropzoneArea
-            acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
-            filesLimit={1}
-            initialFiles={initialFile ? [initialFile] : []}
-            onChange={files => onChange(files, onChange)}
-            showPreviews={false}
-            showPreviewsInDropzone={false}
-          />
+          <div className="dropzone-background">
+            <DropzoneArea
+              acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
+              filesLimit={1}
+              initialFiles={initialFile ? [initialFile] : []}
+              onChange={files => onChange(files, onChange)}
+              showPreviews={false}
+              showPreviewsInDropzone={false}
+            />
+          </div>
         )}
         {initialFile && (
           <div style={{marginTop: 24, marginBottom: 24, marginLeft: -20, textAlign: 'center'}}>
