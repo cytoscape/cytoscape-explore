@@ -77,6 +77,8 @@ export class NDExImportSubWizard extends React.Component {
         let results = userNetworks.filter( n => (n.name || '').includes(searchString) || (n.description || '').includes(searchString));
         
         return { 
+          numFound: results.length,
+          start: 0,
           networks: results
         };
       } else {
