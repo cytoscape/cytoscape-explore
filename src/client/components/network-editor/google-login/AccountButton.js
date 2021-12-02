@@ -41,6 +41,7 @@ const AccountButton = ({controller}) => {
     const userInfo = response["profileObj"];
     console.assert(response.tokenId === window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token);
     controller.ndexClient.setAuthToken(response.tokenId);
+    controller.bus.emit('googleLogin');
     setUserInfo(userInfo);
   };
 
@@ -48,6 +49,7 @@ const AccountButton = ({controller}) => {
     console.info("Logout Success:", response);
     controller.ndexClient._authType = null;
     controller.ndexClient._authToken = null;
+    controller.bus.emit('googleLogout');
     setUserInfo(null);
     setAnchorEl(null);
   };
