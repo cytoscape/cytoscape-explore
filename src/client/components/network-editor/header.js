@@ -227,7 +227,7 @@ export class Header extends Component {
                 {menuName === 'main' && !dialogName && (
                   <MenuList>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-export')}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
