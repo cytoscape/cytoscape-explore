@@ -8,8 +8,10 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
+import Box from '@material-ui/core/Tabs';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Link from '@material-ui/core/Link';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -26,6 +28,23 @@ function isAuthenticated(ndexClient){
   return ndexClient.authenticationType != null && ndexClient._authToken != null;
 }
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`browse-ndex-tabpanel-${index}`}
+      aria-labelledby={`browse-ndexpanel-tab-${index}`}
+      {...other}
+    >
+      {value === index && (children)}
+    </div>
+  );
+}
+
+
 export class NDExImportSubWizard extends React.Component {
 
   constructor(props) {
@@ -40,15 +59,23 @@ export class NDExImportSubWizard extends React.Component {
     props.controller.bus.on('googleLogin', () => this.setState({
       showAccountNetworksTabs: true,
       searchAccountNetworks: true,
-    }));
+      browseNdexTabId: 0
+    }, () => this.fetchMyNetworks()));
 
     props.controller.bus.on('googleLogout', () => this.setState({
       showAccountNetworksTabs: false,
-      searchAccountNetworks: false
+      searchAccountNetworks: false,
+      browseNdexTabId: 1,
+      myNetworks: null
     }));
     
+    const authenticated = isAuthenticated(this.props.controller.ndexClient);
+
     this.state = {
       step: 1,
+      browseNdexTabId: authenticated ? 0 : 1,
+      myNetworks: null,
+      myNetworksError: null,
       data: null,
       error: null,
       loading: false,
@@ -60,7 +87,36 @@ export class NDExImportSubWizard extends React.Component {
 
   componentDidMount() {
     this.updateButtons(this.state);
+
+    if(isAuthenticated(this.props.controller.ndexClient)){
+      this.fetchMyNetworks();
+    }
   }
+
+  fetchMyNetworks(){
+    this.setState({ loading: true });
+
+    const ndexClient = this.props.controller.ndexClient;
+
+    let searchFn = async () => {
+      if(isAuthenticated(ndexClient)){
+        let userNetworks = await ndexClient.getAccountPageNetworks(0, 400);
+        // return results in a consistent format
+        
+        return { 
+          numFound: userNetworks.length,
+          start: 0,
+          networks: userNetworks
+        };
+      }
+    };
+
+  return searchFn()
+    .then(myNetworks => this.setState({ myNetworks, myNetworksError: null, loading: false }))
+    .then(() => this.updateButtons({ ...this.state, loading: false }))
+    .catch(error => this.setState({ myNetworks: null, myNetworksError: error, loading: false }));
+  }
+
 
   fetchSearchResults(searchString) {
     if(!searchString)
@@ -71,21 +127,9 @@ export class NDExImportSubWizard extends React.Component {
     const ndexClient = this.props.controller.ndexClient;
 
     let searchFn = async () => {
-      if(this.state.searchAccountNetworks){
-        let userNetworks = await ndexClient.getAccountPageNetworks(0, 400);
-        // return results in a consistent format
-        let results = userNetworks.filter( n => (n.name || '').includes(searchString) || (n.description || '').includes(searchString));
-        
-        return { 
-          numFound: results.length,
-          start: 0,
-          networks: results
-        };
-      } else {
         let results = await ndexClient.searchNetworks(searchString);
         // results format: {networks: [], numFound: 0, start: 0};
-        return results;  
-      }
+        return results;
     };
 
   searchFn()
@@ -95,14 +139,14 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   updateButtons(state) {
-    const { step, data, error, loading, selectedId } = state;
+    const { step, data, error, loading, selectedId, myNetworks, myNetworksError } = state;
     const { setButtonState } = this.props.wizardCallbacks;
 
     // Note: backButton is always visible by default
     if (step === 1) {
       if (loading) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
-      } else if (error || !data || !data.numFound) {
+      } else if (error || (data == null && myNetworks == null)) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'hidden' });
       } else if (selectedId) {
         setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
@@ -113,7 +157,6 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   async handleFinish() {
-    // TODO actually import the network !!!
     const res = await fetch( `/api/document/cx-import`, {
           method: 'POST',
           headers: {
@@ -148,27 +191,48 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   renderSearch() {
+      const a11yProps = (tabIndex) => {
+        return {
+          id: `browse-ndex-${tabIndex}`,
+          'aria-controls': `browse-ndexpanel-${tabIndex}`,
+        };
+      }
+
+      const handleTabChange = (e, newTabId) => {
+        if(newTabId === 0){
+          this.setState({browseNdexTabId: newTabId}, () => this.fetchMyNetworks());
+        } else {
+          this.setState({browseNdexTabId: newTabId});
+        }
+      }
+
       return (
         <div>
-          {this.state.showAccountNetworksTabs ? (<FormControlLabel
-           control={
-             <Switch
-               checked={this.state.searchAccountNetworks}
-               onChange={() => this.setState({searchAccountNetworks: !this.state.searchAccountNetworks})}
-               name="checkedB"
-               color="primary"
-             />
-           }
-           label="Limit search to my networks"
-          />)
-          : null
+          {
+            !this.state.showAccountNetworksTabs ? <div style={{marginLeft: '1em'}}>
+              <Link href="" onClick={(e) => {
+                e.preventDefault();
+                this.props.controller.bus.emit('openGoogleLogin');
+              }}>Sign in to NDEx</Link> to browse your networks
+            </div> : null
           }
-          <div>
-            { this.renderSearchBox() }
-          </div>
-          <div style={{ marginTop: 10 }}>
-            { this.renderSearchResultsArea() }
-          </div>
+          <Tabs value={this.state.browseNdexTabId} onChange={handleTabChange} aria-label="browse NDEx tabs">
+            <Tab label="Browse my networks" {...a11yProps(0)} disabled={!this.state.showAccountNetworksTabs}/>
+            <Tab label="SEARCH NDEx" style={{textTransform: 'none'}} {...a11yProps(1)} />
+          </Tabs>
+          <TabPanel value={this.state.browseNdexTabId} index={0}>
+            <div style={{ marginTop: 10 }}>
+              { this.renderMyNetworks() }
+            </div>
+          </TabPanel>
+          <TabPanel  value={this.state.browseNdexTabId} index={1}>
+            <div>
+              { this.renderSearchBox() }
+            </div>
+            <div style={{ marginTop: 10 }}>
+              { this.renderSearchResultsArea() }
+            </div>
+          </TabPanel>
         </div>
       );
   }
@@ -182,7 +246,22 @@ export class NDExImportSubWizard extends React.Component {
       if(data.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        return this.renderNetworkList();
+        return this.renderNetworkList(data.networks);
+      }
+    }
+    return null;
+  }
+
+  renderMyNetworks() {
+    const { loading, myNetworks } = this.state;
+    if(loading) {
+      return this.renderLoading();
+    }
+    if(myNetworks) {
+      if(myNetworks.networks.length == 0) {
+        return this.renderEmpty();
+      } else {
+        return this.renderNetworkList(myNetworks.networks);
       }
     }
     return null;
@@ -219,7 +298,7 @@ export class NDExImportSubWizard extends React.Component {
         <InputBase
           autoFocus={true}
           style={{marginLeft: '5px', flex: 1 }}
-          placeholder={this.state.searchAccountNetworks ? "Search my NDEx networks" : "Search NDEx"}
+          placeholder={"Search NDEx"}
           inputProps={{ 'aria-label': 'search google maps' }}
           onChange={(evt) => searchString = evt.target.value}
         />
@@ -230,14 +309,11 @@ export class NDExImportSubWizard extends React.Component {
         >
           <SearchIcon />
         </IconButton>
-        <Divider style={{height: 28, margin: 4}} orientation="vertical" />
-        <AccountButton controller={this.controller}/>
       </Paper>
     );
   }
 
-  renderNetworkList() {
-    const { networks } = this.state.data;
+  renderNetworkList(ndexNetworkReults) {
     const handleRadio = (selectedId) => {
       this.setState({ selectedId });
       this.updateButtons({ ...this.state, selectedId });
@@ -255,7 +331,7 @@ export class NDExImportSubWizard extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            { networks.map(network => (
+            { ndexNetworkReults.map(network => (
               <TableRow key={network.externalId}>
                 <TableCell align="center">
                 <Radio
