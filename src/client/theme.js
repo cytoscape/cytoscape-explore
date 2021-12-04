@@ -12,6 +12,7 @@ const theme = createTheme({
     background: {
       default: '#272728',
       paper: '#242424',
+      focus: '#050505',
     },
     error: {
       main: '#db4f4f',

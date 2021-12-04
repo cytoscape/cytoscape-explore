@@ -1,6 +1,5 @@
 import EventEmitter from 'eventemitter3';
 import { NDEx } from '@js4cytoscape/ndex-client';
-
 import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
@@ -164,6 +163,16 @@ export class NetworkEditorController {
     }
 
     this.bus.emit('setNetwork', this.cy);
+  }
+
+  /**
+   * @param {String} name The new network name.
+   */
+  renameNetwork(name) {
+    if (name !== this.cy.data('name')) {
+      this.cy.data({ name });
+      this.bus.emit('setNetworkName', name);
+    }
   }
 
   setNetworkBackgroundColor(color) {
