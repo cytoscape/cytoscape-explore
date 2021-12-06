@@ -7,6 +7,7 @@ import { Router } from './router';
 import { Chart } from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { registerCytoscapeExtensions } from '../model/cy-extensions';
+import { fixOldFashionedScrollStyle } from './scroll';
 
 PouchDB.plugin(PouchDBMemoryAdapter);
 
@@ -27,3 +28,5 @@ ReactDOM.render(
   <Router/>,
   div
 );
+
+fixOldFashionedScrollStyle();
