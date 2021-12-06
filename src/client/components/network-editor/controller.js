@@ -165,16 +165,6 @@ export class NetworkEditorController {
     this.bus.emit('setNetwork', this.cy);
   }
 
-  /**
-   * @param {String} name The new network name.
-   */
-  renameNetwork(name) {
-    if (name !== this.cy.data('name')) {
-      this.cy.data({ name });
-      this.bus.emit('setNetworkName', name);
-    }
-  }
-
   setNetworkBackgroundColor(color) {
     if (color !== this.networkBackgroundColor) {
       this.networkBackgroundColor = color;

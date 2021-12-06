@@ -25,7 +25,7 @@ import { DEFAULT_PADDING } from '../layout/defaults';
  */
 export class Header extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.controller = props.controller;
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
@@ -35,6 +35,8 @@ export class Header extends Component {
       anchorEl: null,
       dialogId: null,
     };
+
+    this.onDataChanged = this.onDataChanged.bind(this);
   }
 
   handleClick(event, menuName) {
@@ -81,15 +83,61 @@ export class Header extends Component {
   }
 
   componentDidMount() {
-    const onSetNetwork = (cy) => this.setState({ networkName: cy.data('name') });
+    const onSetNetwork = (cy) => {
+      this.setState({ networkName: cy.data('name') });
+      this.addCyListeners();
+    };
     const dirty = () => this.setState({ dirty: Date.now() });
 
     this.busProxy.on('toggleDrawMode', dirty);
     this.busProxy.on('setNetwork', onSetNetwork);
+    this.addCyListeners();
   }
 
   componentWillUnmount() {
     this.busProxy.removeAllListeners();
+    this.removeCyListeners();
+  }
+
+  addCyListeners() {
+    this.controller.cy.on('data', this.onDataChanged);
+  }
+
+  removeCyListeners() {
+    this.controller.cy.removeListener('data', this.onDataChanged);
+  }
+
+  onDataChanged(event) {
+    const name = event.cy.data('name');
+    
+    if (this.state.networkName != name)
+      this.setState({ networkName: name });
+  }
+
+  handleNetworkNameKeyDown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.target.blur();
+    } else if (event.key === 'Escape') {
+      this.cancelNetworkNameChange();
+      event.preventDefault();
+    }
+  }
+
+  handleNetworkNameFocus(event) {
+    if (!this.state.networkName)
+      event.target.value = '';
+    else
+      event.target.select();
+  }
+
+  handleNetworkNameBlur(event) {
+    const networkName = event.target.value;
+    this.renameNetwork(networkName);
+  }
+
+  cancelNetworkNameChange() {
+    this.setState({ networkName: this.controller.cy.data('name') });
   }
 
   // temp: should be somewhere else, e.g. in network management page
@@ -117,41 +165,9 @@ export class Header extends Component {
     create();
   }
 
-  handleNetworkNameKeyDown(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.target.blur();
-    } else if (event.key === 'Escape') {
-      this.cancelNetworkNameChange();
-      event.preventDefault();
-    }
-  }
-
-  handleNetworkNameFocus(event) {
-    if (!this.state.networkName)
-      event.target.value = '';
-    else
-      event.target.select();
-  }
-
-  handleNetworkNameBlur(event) {
-    const networkName = event.target.value;
-    console.log(networkName);
-    this.renameNetwork(networkName);
-    this.setState({ networkName });
-  }
-
-  cancelNetworkNameChange() {
-    this.setState({ networkName: this.controller.cy.data('name') });
-  }
-
   renameNetwork(newName) {
     const networkName = newName != null ? newName.trim() : null;
-
-    if (networkName != newName)
-      this.setState({ networkName });
-    
-    this.controller.renameNetwork(networkName);
+    this.controller.cy.data({ name: networkName });
   }
 
   exportNetworkToNDEx(){
