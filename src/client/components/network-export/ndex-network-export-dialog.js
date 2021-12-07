@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { Alert, AlertTitle } from '@material-ui/lab';
+import _ from 'lodash';
 import {
   DialogTitle,
   DialogContent,
@@ -14,14 +15,26 @@ import {
   Button,
   IconButton,
   Snackbar,
-  Tooltip
+  Tooltip,
+  Link,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  List,
+  ListItem,
+  Divider,
+  
 } from '@material-ui/core';
 
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FilterNoneSharpIcon from '@material-ui/icons/FilterNoneSharp';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
+
+import { CX_DATA_KEY } from '../../../model/import-export/cx/cx-util';
 
 export class CopyLink extends Component {
   constructor(props) {
@@ -150,6 +163,48 @@ export class NDExExportDialog extends Component {
           </IconButton>
           </DialogTitle>
         <DialogContent dividers className="export-ndex-network-content" >
+          {_.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Alert className="export-ndex-network-alert" variant="outlined" severity="warning">
+                    <AlertTitle>Some visual properties are not supported in Cytoscape Explore</AlertTitle>
+                  </Alert>
+                </AccordionSummary>
+                <AccordionDetails className="export-ndex-network-property-list">
+                  <Link color="primary" target="_blank" href="">Learn more about portable Cytoscape styles</Link>
+                  <div>Unsupported properties found in your network:</div>
+                    {Object.entries(
+                      _.groupBy(
+                        _.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
+                        vpName => vpName.split('_')[0]
+                    )).map(([group, entries]) => {
+                      return (
+                        <div>
+                          <Accordion>
+                            <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                            >
+                              {group}
+                            </AccordionSummary>
+                            <AccordionDetails>
+                            <List>
+                            {entries.map(e => <div>{e}</div>)}
+                            </List>
+                            </AccordionDetails>
+                          </Accordion>
+                          <Divider/>
+                        </div>
+                      )
+                    })}
+                </AccordionDetails>
+              </Accordion> : null
+          }
           <TextField
             className="export-ndex-network-content-block"
             autoFocus={true}
@@ -164,12 +219,8 @@ export class NDExExportDialog extends Component {
             value={this.state.exportPublicNetwork}
             onChange={e => this.setState({exportPublicNetwork: e.target.value})}
           >
-            <Tooltip arrow title="Unlisted networks are public and not searchable">
               <MenuItem value={true}>Unlisted</MenuItem>
-            </Tooltip>
-            <Tooltip arrow title="Private networks are not public and not searchable ">
               <MenuItem value={false}>Private</MenuItem>
-            </Tooltip>
           </Select>
           </DialogContent>
         <DialogActions>

@@ -45,3 +45,13 @@
 .ndex-link-copy {
     cursor: pointer;
 }
+
+.export-ndex-network-alert {
+    margin-bottom: 1em;
+}
+
+.export-ndex-network-property-list {
+    display: block !important;
+    max-height: 500px;
+    overflow-y: scroll;
+}
