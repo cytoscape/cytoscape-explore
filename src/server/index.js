@@ -11,6 +11,7 @@ import fs from 'fs';
 import proxy from 'express-http-proxy';
 import stream from 'stream';
 import btoa from 'btoa';
+import Cytoscape from 'cytoscape';
 
 import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT, USE_COUCH_AUTH, COUCHDB_USER, COUCHDB_PASSWORD } from './env';
 import indexRouter from './routes/index';
@@ -20,10 +21,15 @@ import { secrets } from './secrets';
 
 import PouchDB from 'pouchdb';
 import PouchDBMemoryAdapter from 'pouchdb-adapter-memory';
+import CytoscapeSyncher from '../model/cytoscape-syncher';
+import { createDemo } from './routes/api/document';
 
 // extensions/plugins
 PouchDB.plugin(PouchDBMemoryAdapter);
 registerCytoscapeExtensions();
+
+// ensure demo doc always exists
+createDemo();
 
 const debugLog = debug('cytoscape-home:server');
 const app = express();
