@@ -5,10 +5,8 @@ import Radio from '@material-ui/core/Radio';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
-import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
-import Box from '@material-ui/core/Tabs';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Link from '@material-ui/core/Link';
@@ -21,7 +19,6 @@ import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { NetworkEditorController } from '../network-editor/controller';
-import AccountButton from '../network-editor/google-login/AccountButton';
 
 
 function isAuthenticated(ndexClient){
@@ -157,12 +154,16 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   async handleFinish() {
+    const bodyObj = { ndexUUID: this.state.selectedId };
+
+    isAuthenticated(this.props.controller.ndexClient) ? bodyObj.authToken = this.props.controller.ndexClient._authToken : null;
+
     const res = await fetch( `/api/document/cx-import`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ ndexUUID: this.state.selectedId })
+          body: JSON.stringify(bodyObj)
         }
     );
 

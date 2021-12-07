@@ -107,10 +107,13 @@ const exportNetworkToNDEx = async (req, res, next) => {
 
 const importNDExNetworkById = async (req, res, next) => {
   try {
-    const { ndexUUID } = req.body;
+    const { ndexUUID, authToken } = req.body;
 
     const ndex0 = new ndexClient.NDEx(NDEX_API_URL);
+    authToken != null ? ndex0.setAuthToken(authToken) : null;
+
     const rawcx2 = await ndex0.getCX2Network(ndexUUID);
+
     req.body = rawcx2;
 
     let response = await postCX2Network(importCX, req, res, next);

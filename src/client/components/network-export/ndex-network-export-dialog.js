@@ -14,8 +14,7 @@ import {
   Button,
   IconButton,
   Snackbar,
-  Box
-
+  Tooltip
 } from '@material-ui/core';
 
 import FilterNoneSharpIcon from '@material-ui/icons/FilterNoneSharp';
@@ -165,8 +164,12 @@ export class NDExExportDialog extends Component {
             value={this.state.exportPublicNetwork}
             onChange={e => this.setState({exportPublicNetwork: e.target.value})}
           >
-            <MenuItem value={true}>Public</MenuItem>
-            <MenuItem value={false}>Private</MenuItem>
+            <Tooltip arrow title="Unlisted networks are public and not searchable">
+              <MenuItem value={true}>Unlisted</MenuItem>
+            </Tooltip>
+            <Tooltip arrow title="Private networks are not public and not searchable ">
+              <MenuItem value={false}>Private</MenuItem>
+            </Tooltip>
           </Select>
           </DialogContent>
         <DialogActions>
