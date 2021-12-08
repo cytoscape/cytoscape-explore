@@ -95,13 +95,17 @@ export class TitleEditor extends Component {
     const CssInputBase = styled(InputBase)(({ theme }) => ({
       '& .MuiInputBase-input': {
         position: 'relative',
-        borderBottom: '1px solid transparent',
+        border: '1px solid transparent',
+        borderRadius: 5,
         width: '100%',
         maxWidth: 640,
         padding: 2,
         fontWeight: 'bold',
+        '&:hover': {
+          border: `1px solid ${theme.palette.secondary.main}`,
+        },
         '&:focus': {
-          borderBottom: `1px solid ${theme.palette.primary.main}`,
+          border: `1px solid ${theme.palette.primary.main}`,
           backgroundColor: theme.palette.background.focus,
           fontWeight: 'normal',
         },
@@ -109,7 +113,7 @@ export class TitleEditor extends Component {
     }));
 
     return (
-      <Tooltip arrow placement="bottom-start" title="Rename Network">
+      <Tooltip arrow placement="bottom" title="Rename Network">
         <CssInputBase
           fullWidth={true}
           defaultValue={networkName || 'Untitled Network'}
