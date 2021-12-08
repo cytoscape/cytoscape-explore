@@ -4,6 +4,7 @@ import VizMapper from './vizmapper';
 import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
 import cola from 'cytoscape-cola';
+import popper from 'cytoscape-popper';
 import { isObject } from 'lodash';
 
 import { exportCX, importCX } from './import-export/cx';
@@ -101,6 +102,8 @@ export const registerCytoscapeExtensions = () => {
   Cytoscape.use(dagre);
   Cytoscape.use(fcose);
   Cytoscape.use(cola);
+
+  Cytoscape.use(popper);
 
   const cy = new Cytoscape();
   const ele = cy.add({});

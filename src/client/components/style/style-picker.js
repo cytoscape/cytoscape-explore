@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Popover, Button, Tooltip } from "@material-ui/core";
-import { List, ListItem, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
+import { BasicMenu, PopoverButton } from '../network-editor/popover-button';
+import { Button, Tooltip } from "@material-ui/core";
 import { FormControl, Select } from "@material-ui/core";
 import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
@@ -13,7 +13,11 @@ import { SizeSlider, SizeGradients, SizeGradient, AspectRatioPicker } from '../s
 import { LabelInput, PositionButton, LabelPosition, stylePropsToLabelPos, LABEL_POS } from '../style/labels';
 import LockIcon from '@material-ui/icons/Lock';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
-
+import CloseIcon from '@material-ui/icons/Close';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem'; 
+import ListItemText from '@material-ui/core/ListItemText'; 
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
 
 export class StylePanel extends React.Component {
@@ -82,59 +86,6 @@ StyleSection.propTypes = {
   title: PropTypes.string,
   children: PropTypes.any,
   extra: PropTypes.any
-};
-
-
-class StylePopoverButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      popoverAnchorEl: null,
-      styleVal: props.styleVal,
-    };
-  }
-
-  render() {
-    const handlePopoverOpen = (event) => {
-      this.setState({ popoverAnchorEl: event.currentTarget });
-    };
-    const handlePopoverClose = () => {
-      this.setState({ popoverAnchorEl: null });
-    };
-    const handleChange = (styleVal) => {
-      this.props.handleChange(styleVal);
-      this.setState({ styleVal });
-    };
-
-    const { styleVal } = this.state;
-    return (
-      // TODO: The onClick handler on the top div is problematic, 
-      // clicking anywhere in the div opens the popup, and the positioning is sometimes wrong.
-      // Should probably get a reference to the discrete icon, or pass the onClick handler down to the icon.
-      <div> 
-        <div>
-          <span onClick={handlePopoverOpen}>{ this.props.renderButton(styleVal) }</span>
-        </div>
-        <Popover 
-          open={Boolean(this.state.popoverAnchorEl)}
-          anchorEl={this.state.popoverAnchorEl}
-          onClose={handlePopoverClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <div style={{ padding: '10px' }}> 
-            { this.props.renderPopover(styleVal, handleChange) }
-          </div>
-        </Popover>
-      </div>
-    );
-  }
-}
-StylePopoverButton.propTypes = {
-  styleVal: PropTypes.any,
-  renderButton: PropTypes.func,
-  renderPopover: PropTypes.func,
-  handleChange: PropTypes.func,
 };
 
 
@@ -223,6 +174,18 @@ const BYPASS_TYPE = {
   ALL_UNSET: 'ALL_UNSET',
 };
 
+
+function abbreviate(value, length=10) {
+  let text = String(value);
+  let abbreviated = false;
+  if(text.length > length) {
+    text = text.slice(0, length-1) + "...";
+    abbreviated = true;
+  }
+  return { text, abbreviated };
+}
+
+
 export class StylePicker extends React.Component { 
 
   constructor(props) {
@@ -306,6 +269,7 @@ export class StylePicker extends React.Component {
           style: {
             mapping: MAPPING.LINEAR,
             attribute: style.value.data,
+            mappingDefault: style.value.defaultValue,
             mappingValue: style.value.styleValues,
           }};
       case MAPPING.DISCRETE:
@@ -322,7 +286,6 @@ export class StylePicker extends React.Component {
 
   handleStyleChange(changes) {
     const newStyle = {...this.state.style, ...changes };
-    
     console.log("newStyle: " + JSON.stringify(newStyle));
 
     switch(newStyle.mapping) {
@@ -336,15 +299,20 @@ export class StylePicker extends React.Component {
         break;
       case MAPPING.LINEAR:
         if(newStyle.mappingValue === undefined) {
+          newStyle.mappingDefault =this.props.getDiscreteDefault();
           newStyle.mappingValue = this.props.getMappingDefault();
         }
         if(newStyle.attribute !== undefined && newStyle.mappingValue !== undefined) {
-          this.props.onMappingSet(newStyle.attribute, newStyle.mappingValue);
+          this.props.onMappingSet(newStyle.attribute, newStyle.mappingValue, newStyle.mappingDefault);
         }
         break;
       case MAPPING.DISCRETE:
+        if(newStyle.discreteValue === undefined) {
+          newStyle.discreteDefault = this.props.getDiscreteDefault();
+          newStyle.discreteValue = {};
+        }
         if(newStyle.attribute !== undefined && newStyle.discreteValue !== undefined) {
-          this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue);
+          this.props.onDiscreteSet(newStyle.attribute, newStyle.discreteValue, newStyle.discreteDefault);
         }
         break;
       case MAPPING.PASSTHROUGH:
@@ -392,55 +360,103 @@ export class StylePicker extends React.Component {
     );
   }
 
+  renderStyleButton(styleVal, onStyleChange) {
+    return this.props.renderDiscrete
+      ? this.props.renderDiscrete(styleVal, newVal => onStyleChange(newVal))
+      : this.props.renderValue(   styleVal, newVal => onStyleChange(newVal));
+  }
+
   renderValue() {
     const handleChange = scalarValue => this.handleStyleChange( { mapping: MAPPING.VALUE, scalarValue } );
     return this.props.renderValue(this.state.style.scalarValue, handleChange);
   }
 
   renderContinuous() {
-    const handleMappingChange = mappingValue => this.handleStyleChange({ mappingValue });
-    return this.props.renderMapping(this.state.style.mappingValue, handleMappingChange);
+    const handleMappingChange = mappingValue   => this.handleStyleChange({ mappingValue });
+    const handleDefaultChange = mappingDefault => this.handleStyleChange({ mappingDefault });
+    const { mappingDefault } = this.state.style;
+
+    return <div>
+      { this.props.renderMapping(this.state.style.mappingValue, handleMappingChange) }
+      <List dense style={{width:'100%', position:'relative', overflow:'auto' }}>
+        <ListItem>
+          <ListItemText primary='Default' />
+          <ListItemSecondaryAction>
+            { this.renderStyleButton(mappingDefault, handleDefaultChange) }
+          </ListItemSecondaryAction>
+        </ListItem>
+      </List>
+    </div>;
   }
 
   renderDiscrete() {
+    // TODO: Pre-populate the mapping if there are <= 3 entries
     const dataVals = this.controller.getDiscreteValueList(this.props.selector, this.state.style.attribute);
-    const discreteDefault = this.props.getDiscreteDefault();
-    return (
-      <List 
-        // This style causes this List to scroll
-        style={{ width: '100%', position: 'relative', overflow: 'auto', maxHeight: 200 }} 
-        dense={true}
-      >
-        {dataVals.map(dataVal => {
-          const styleVal = (this.state.style.discreteValue || {})[dataVal] || discreteDefault;
-          let dataValText = String(dataVal);
-          let abbreviated = false;
-          if(dataValText.length > 10) {
-            dataValText = dataValText.slice(0, 9) + "...";
-            abbreviated = true;
-          }
-          const handleChange = (newStyleVal) => {
-            const discreteValue = { ...this.state.style.discreteValue };
-            discreteValue[dataVal] = newStyleVal;
-            this.handleStyleChange({ discreteValue });
-          };
-          return (
-            <ListItem key={dataVal}>
-              { abbreviated
-                ? <Tooltip title={dataVal}><ListItemText primary={dataValText}/></Tooltip>
-                : <ListItemText primary={dataValText} />
-              }
-              <ListItemSecondaryAction>
-                { this.props.renderDiscrete
-                  ? this.props.renderDiscrete(styleVal, handleChange)
-                  : this.props.renderValue(styleVal, handleChange)
-                }
-              </ListItemSecondaryAction>
-            </ListItem>
-          );})
+    const builtInDefault = this.props.getDiscreteDefault(); // the hard-coded default
+    const discreteDefault = this.state.style.discreteDefault || builtInDefault; // the user supplied default, aka "Other"
+    const discreetMappings = this.state.style.discreteValue || {};
+    // TODO: sort the values, or make the popup list sortable by the user
+    const menuItemValues = dataVals.filter(dataVal => !(dataVal in discreetMappings));
+
+    const handleStyleValChange = (dataVal, newStyleVal) => {
+      const discreteValue = { ...this.state.style.discreteValue };
+      if(newStyleVal === undefined)
+        delete discreteValue[dataVal];
+      else
+        discreteValue[dataVal] = newStyleVal;
+      this.handleStyleChange({ discreteValue });
+    };
+
+    const handleOtherStyleValChange = discreteDefault => this.handleStyleChange({ discreteDefault });
+
+    const DataValueListItem = ({ dataVal, styleVal, onStyleChange, hideCloseButton }) => {
+      const { text, abbreviated } = abbreviate(dataVal, 12);
+      return <ListItem key={dataVal}>
+        { abbreviated
+          ? <Tooltip title={dataVal}><ListItemText primary={text}/></Tooltip>
+          : <ListItemText primary={text} />
         }
-        </List>
-    );
+        <ListItemSecondaryAction>
+          <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+            { this.renderStyleButton(styleVal, newVal => onStyleChange(dataVal, newVal)) }
+            <Tooltip title='Remove Mapping'>
+              <CloseIcon 
+                style={{color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', visibility: hideCloseButton ? 'hidden' : null }}
+                onClick={() => onStyleChange(dataVal, undefined)} 
+              />
+            </Tooltip>
+          </div>
+        </ListItemSecondaryAction>
+      </ListItem>;
+    };
+
+    return <div>
+      <List dense style={{width:'100%', position:'relative', overflow:'auto', maxHeight:125}}>
+        { Object.entries(discreetMappings).map(([dataVal, styleVal]) =>
+            <DataValueListItem key={dataVal} 
+              dataVal={dataVal} 
+              styleVal={styleVal} 
+              onStyleChange={handleStyleValChange} />
+        )}
+        <DataValueListItem 
+          hideCloseButton
+          dataVal='Other'
+          styleVal={discreteDefault} 
+          onStyleChange={(dataVal, styleVal) => handleOtherStyleValChange(styleVal)} />
+      </List>
+      { menuItemValues.length <= 0 ? null :
+        <div style={{textAlign: 'center', width: '100%'}}>
+          <BasicMenu
+            buttonText="(+) Add Data Value"
+            items={ menuItemValues.map(dataVal => (
+              { label: abbreviate(dataVal,12).text, 
+                onClick: () => handleStyleValChange(dataVal, builtInDefault) 
+              }
+            ))}
+          /> 
+        </div>
+      }
+    </div>;
   }
 
   renderBypass() {
@@ -536,8 +552,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     mappingLabel="Color Gradient"
     discreteLabel="Color per Data Value"
     renderValue={(currentColor, setColor) => 
-      <StylePopoverButton 
-        styleVal={currentColor}
+      <PopoverButton 
+        value={currentColor}
         handleChange={setColor}
         renderButton={color => 
           <ColorSwatch color={color} />
@@ -548,8 +564,8 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
       />
     }
     renderMapping={(currentGradient, setGradient) => 
-      <StylePopoverButton 
-        styleVal={currentGradient}
+      <PopoverButton 
+        value={currentGradient}
         handleChange={setGradient}
         renderButton={(gradient) => 
           <ColorGradient value={gradient} /> 
@@ -562,11 +578,11 @@ export function ColorStylePicker({ controller, selector, styleProps }) {
     onValueSet={color => 
       styleProps.forEach(p => controller.setColor(selector, p, color))
     }
-    onMappingSet={(attribute, gradient) => 
-      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient))
+    onMappingSet={(attribute, gradient, defaultValue) => 
+      styleProps.forEach(p => controller.setColorLinearMapping(selector, p, attribute, gradient, defaultValue))
     }
-    onDiscreteSet={(attribute, valueMap) => 
-      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap))
+    onDiscreteSet={(attribute, valueMap, defaultValue) => 
+      styleProps.forEach(p => controller.setColorDiscreteMapping(selector, p, attribute, valueMap, defaultValue))
     }
   />;
 }
@@ -597,8 +613,8 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     discreteLabel={discreteLabel}
     renderValue={(currentShape, setShape) => 
       <div className="shape-swatches">
-        <StylePopoverButton 
-          styleVal={currentShape}
+        <PopoverButton 
+          value={currentShape}
           handleChange={setShape}
           renderButton={(shape) => 
             <ShapeIcon type={variant} shape={shape} />
@@ -612,8 +628,8 @@ export function ShapeStylePicker({ controller, selector, styleProp, variant }) {
     onValueSet={shape => 
       controller.setString(selector, styleProp, shape)
     }
-    onDiscreteSet={(attribute, valueMap) => {
-      controller.setStringDiscreteMapping(selector, styleProp,  attribute, valueMap);
+    onDiscreteSet={(attribute, valueMap, defaultValue) => {
+      controller.setStringDiscreteMapping(selector, styleProp,  attribute, valueMap, defaultValue);
     }}
   />;
 }
@@ -643,8 +659,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
       <SizeSlider min={min} max={max} defaultValue={size} onSelect={onSelect} /> 
     }
     renderMapping={(minMax, setSize) =>
-      <StylePopoverButton 
-        styleVal={minMax}
+      <PopoverButton 
+        value={minMax}
         handleChange={setSize}
         renderButton={(sizeRange) => 
           <SizeGradient variant={variant} selected={sizeRange} reversed={minMax && minMax[0] > minMax[1]} /> 
@@ -655,8 +671,8 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
       />
     }
     renderDiscrete={(minMax, setSize) => 
-      <StylePopoverButton 
-        styleVal={minMax}
+      <PopoverButton 
+        value={minMax}
         handleChange={setSize}
         renderButton={size => 
           <Button variant='outlined'>{size}</Button>
@@ -669,11 +685,11 @@ export function SizeStylePicker({ controller, selector, variant, styleProps }) {
     onValueSet={size =>
       styleProps.forEach(p => controller.setNumber(selector, p,  size))
     }
-    onMappingSet={(attribute, sizeRange) =>
-      styleProps.forEach(p => controller.setNumberLinearMapping(selector, p,  attribute, sizeRange))
+    onMappingSet={(attribute, sizeRange, defaultValue) =>
+      styleProps.forEach(p => controller.setNumberLinearMapping(selector, p,  attribute, sizeRange, defaultValue))
     }
-    onDiscreteSet={(attribute, valueMap) =>
-      styleProps.forEach(p => controller.setNumberDiscreteMapping(selector, p,  attribute, valueMap))
+    onDiscreteSet={(attribute, valueMap, defaultValue) =>
+      styleProps.forEach(p => controller.setNumberDiscreteMapping(selector, p,  attribute, valueMap, defaultValue))
     }
   />;
 }
@@ -700,8 +716,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
       <OpacitySlider value={value} onSelect={onSelect} />
     }
     renderMapping={(value, setValue) =>
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={(value) => 
           <OpacityGradient value={value} />
@@ -712,8 +728,8 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
       />
     }
     renderDiscrete={(value, setValue) => 
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={value => 
           <Button variant='outlined'>{Math.round(value * 100)}</Button>
@@ -726,11 +742,11 @@ export function OpacityStylePicker({ controller, selector, styleProp }) {
     onValueSet={value =>
       controller.setNumber(selector, styleProp, value)
     }
-    onMappingSet={(attribute, value) =>
-      controller.setNumberLinearMapping(selector, styleProp, attribute, value)
+    onMappingSet={(attribute, value, defaultValue) =>
+      controller.setNumberLinearMapping(selector, styleProp, attribute, value, defaultValue)
     }
-    onDiscreteSet={(attribute, valueMap) =>
-      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap)
+    onDiscreteSet={(attribute, valueMap, defaultValue) =>
+      controller.setNumberDiscreteMapping(selector, styleProp, attribute, valueMap, defaultValue)
     }
   />;
 }
@@ -861,8 +877,8 @@ export class NodeSizeStylePicker extends React.Component {
       }
       renderMapping={(minMax, setSize) =>
         <div>
-          <StylePopoverButton 
-            styleVal={minMax}
+          <PopoverButton 
+            value={minMax}
             handleChange={setSize}
             renderButton={(sizeRange) => 
               <SizeGradient variant='solid' selected={sizeRange} reversed={minMax && (minMax[0] > minMax[1])} /> 
@@ -876,8 +892,8 @@ export class NodeSizeStylePicker extends React.Component {
       }
       renderDiscrete={(minMax, setSize) => 
         <div>
-          <StylePopoverButton 
-            styleVal={minMax}
+          <PopoverButton 
+            value={minMax}
             handleChange={setSize}
             renderButton={size => 
               <Button variant='outlined'>{size}</Button>
@@ -892,11 +908,11 @@ export class NodeSizeStylePicker extends React.Component {
       onValueSet={size =>
         controller.setNumber(selector, 'width', size)
       }
-      onMappingSet={(attribute, sizeRange) =>
-        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange)
+      onMappingSet={(attribute, sizeRange, defaultValue) =>
+        controller.setNumberLinearMapping(selector, 'width',  attribute, sizeRange, defaultValue)
       }
-      onDiscreteSet={(attribute, valueMap) =>
-        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap)
+      onDiscreteSet={(attribute, valueMap, defaultValue) =>
+        controller.setNumberDiscreteMapping(selector, 'width',  attribute, valueMap, defaultValue)
       }
     />;
   }
@@ -945,8 +961,8 @@ export function NodeLabelPositionStylePicker({ controller }) {
       <LabelPosition value={value} onSelect={setValue} />
     }
     renderDiscrete={(value, setValue) => 
-      <StylePopoverButton 
-        styleVal={value}
+      <PopoverButton 
+        value={value}
         handleChange={setValue}
         renderButton={(value) => 
           <PositionButton value={value} />
@@ -1001,15 +1017,15 @@ export function NodeLabelPositionStylePicker({ controller }) {
       controller.setString(selector, 'text-halign', pos && pos.halign);
       controller.setString(selector, 'text-valign', pos && pos.valign);
     }}
-    onDiscreteSet={(attribute, valueMap) => {
+    onDiscreteSet={(attribute, valueMap, defaultValue) => {
       const halignMap = {};
       const valignMap = {};
       for (const [key, {halign, valign}] of Object.entries(valueMap)) {
         halignMap[key] = halign;
         valignMap[key] = valign;
       }
-      controller.setStringDiscreteMapping(selector, 'text-halign', attribute, halignMap);
-      controller.setStringDiscreteMapping(selector, 'text-valign', attribute, valignMap);
+      controller.setStringDiscreteMapping(selector, 'text-halign', attribute, halignMap, defaultValue.halign);
+      controller.setStringDiscreteMapping(selector, 'text-valign', attribute, valignMap, defaultValue.valign);
     }}
     getDiscreteDefault={() => defaultValue}  // TODO is it ok to hardcode this?
   />;

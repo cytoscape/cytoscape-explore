@@ -20,12 +20,9 @@ import { NDEx } from '@js4cytoscape/ndex-client';
 import { NetworkEditorController } from '../network-editor/controller';
 import { NDEX_API_URL } from '../../env';
 
-
-
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 
 export class NDExImportSubWizard extends React.Component {
 
@@ -65,24 +62,21 @@ export class NDExImportSubWizard extends React.Component {
     .catch(error => this.setState({ data: null, error, loading: false }));
   }
 
-
   updateButtons(state) {
     const { step, data, error, loading, selectedId } = state;
     const { setButtonState } = this.props.wizardCallbacks;
 
     // Note: backButton is always visible by default
-    if(step == 1) {
+    if (step === 1) {
       if (loading) {
-        setButtonState({ continueButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
-      } else if(error || !data || data.length === 0) {
-        setButtonState({ continueButton: 'hidden', cancelButton: 'hidden', finishButton: 'hidden' });
-      } else if(selectedId) {
-        setButtonState({ continueButton: 'enabled', cancelButton: 'hidden', finishButton: 'hidden' });
+        setButtonState({ nextButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
+      } else if (error || !data || !data.numFound) {
+        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'hidden' });
+      } else if (selectedId) {
+        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
       } else {
-        setButtonState({ continueButton: 'disabled', cancelButton: 'hidden', finishButton: 'hidden' });
+        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'disabled' });
       }
-    } else if(step == 2) {
-      setButtonState({ continueButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
     }
   }
 
@@ -115,24 +109,10 @@ export class NDExImportSubWizard extends React.Component {
       this.props.wizardCallbacks.returnToSelector();
   }
 
-
   render() {
     const { step } = this.state;
     if(step == 1)
       return this.renderSearch();
-    if(step == 2)
-      return this.renderConfirm();
-  }
-
-  renderConfirm() {
-    const { networks } = this.state.data;
-    const network = networks.filter(net => net.externalId == this.state.selectedId)[0];
-    return (
-      <Alert variant="outlined" severity="success">
-        <AlertTitle>Confirm Network Import</AlertTitle>
-        <p> The network <b>{network.name}</b> will be imported into Cytoscape Explore. </p>
-      </Alert>
-    );
   }
 
   renderSearch() {
@@ -184,7 +164,7 @@ export class NDExImportSubWizard extends React.Component {
     let searchString = "";
     const runSearch = (event) => {
       event.preventDefault();
-      this.setState({ loading: true });
+      this.setState({ loading: true, selectedId: null });
       this.updateButtons( { ...this.state, loading: true });
       this.fetchSearchResults(searchString);
     };
@@ -258,7 +238,6 @@ export class NDExImportSubWizard extends React.Component {
   }
 
 }
-
 
 NDExImportSubWizard.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),

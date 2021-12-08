@@ -424,12 +424,12 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {Array<Color>} styleValues The style mapping struct value to use as the mapping
    */
-  setColorLinearMapping(selector, property, attribute, styleValues) {
+  setColorLinearMapping(selector, property, attribute, styleValues, defaultValue) {
     const diverging = styleValues.length == 3;
     const dataValues = this._dataRange(selector, attribute, diverging);
     if(!dataValues)
       return;
-    const style = styleFactory.linearColor(attribute, dataValues, styleValues);
+    const style = styleFactory.linearColor(attribute, defaultValue, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setColorLinearMapping', selector, property, attribute, styleValues);
   }
@@ -439,9 +439,9 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
    */
-  setColorDiscreteMapping(selector, property, attribute, valueMap) {
-    // TODO Allow user to set default value?
-    const defaultValue = this.getDiscreteDefault(selector, property);
+  setColorDiscreteMapping(selector, property, attribute, valueMap, defaultValue) {
+    if(defaultValue === undefined)
+      defaultValue = this.getDiscreteDefault(selector, property);
     const style = styleFactory.discreteColor(attribute, defaultValue, valueMap);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setColorDiscreteMapping', selector, property, attribute, valueMap);
@@ -469,12 +469,12 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {Array<Number>} styleValues The style mapping struct value to use as the mapping
    */
-  setNumberLinearMapping(selector, property, attribute, styleValues) {
+  setNumberLinearMapping(selector, property, attribute, styleValues, defaultValue) {
     const diverging = styleValues.length == 3;
     const dataValues = this._dataRange(selector, attribute, diverging);
     if(!dataValues)
       return;
-    const style = styleFactory.linearNumber(attribute, dataValues, styleValues);
+    const style = styleFactory.linearNumber(attribute, defaultValue, dataValues, styleValues);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setNumberLinearMapping', selector, property, attribute, styleValues);
   }
@@ -486,9 +486,9 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
    */
-  setNumberDiscreteMapping(selector, property, attribute, valueMap) {
-    // TODO Allow user to set default value?
-    const defaultValue = this.getDiscreteDefault(selector, property);
+  setNumberDiscreteMapping(selector, property, attribute, valueMap, defaultValue) {
+    if(defaultValue === undefined)
+      defaultValue = this.getDiscreteDefault(selector, property);
     const style = styleFactory.discreteNumber(attribute, defaultValue, valueMap);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setNumberDiscreteMapping', selector, property, attribute, valueMap);
@@ -542,14 +542,14 @@ export class NetworkEditorController {
    * @param {String} attribute The data attribute to map
    * @param {DiscreteColorStyleValue} valueMap The style mapping struct value to use as the mapping
    */
-  setStringDiscreteMapping(selector, property, attribute, valueMap) {
+  setStringDiscreteMapping(selector, property, attribute, valueMap, defaultValue) {
     // TODO Allow user to set default value?
-    const defaultValue = this.getDiscreteDefault(selector, property);
+    if(defaultValue === undefined)
+      defaultValue = this.getDiscreteDefault(selector, property);
     const style = styleFactory.discreteString(attribute, defaultValue, valueMap);
     this.vizmapper.set(selector, property, style);
     this.bus.emit('setStringDiscreteMapping', selector, property, attribute, valueMap);
   }
-
 
   /**
    * Returns the min, max and center values to use for a linear or diverging mapping.
