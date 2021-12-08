@@ -18,7 +18,7 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controll
 
   useEffect(() => {
     controller.bus.on('openGoogleLogin', () => {
-      loginRef.current.click();
+      loginRef != null ? loginRef.current.click() : null;
     });
   }, loginRef);
 

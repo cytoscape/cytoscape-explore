@@ -37,12 +37,14 @@ const AccountButton = ({controller}) => {
 
   // Handle response from Google
   const responseHandler = (response) => {
-    console.info("Success obtaining user info:", response);
-    const userInfo = response["profileObj"];
-    console.assert(response.tokenId === window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token);
-    controller.ndexClient.setAuthToken(response.tokenId);
-    controller.bus.emit('googleLogin');
-    setUserInfo(userInfo);
+    if(response['error'] == null){
+      console.info("Success obtaining user info:", response);
+      const userInfo = response["profileObj"];
+      console.assert(response.tokenId === window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token);
+      controller.ndexClient.setAuthToken(response.tokenId);
+      controller.bus.emit('googleLogin');
+      setUserInfo(userInfo);  
+    }
   };
 
   const logoutResponseHandler = (response) => {
