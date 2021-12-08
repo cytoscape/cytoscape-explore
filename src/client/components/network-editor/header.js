@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { styled } from '@material-ui/core/styles';
 import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { AppBar, Toolbar } from '@material-ui/core';
 import { MenuList, MenuItem} from "@material-ui/core";
-import { Box, Popover, Tooltip } from '@material-ui/core';
-import { InputBase, IconButton } from '@material-ui/core';
+import { Box, Popover, Tooltip, IconButton} from '@material-ui/core';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
 import DebugIcon from '@material-ui/icons/BugReport';
@@ -14,6 +12,7 @@ import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import DrawEdgeIcon from '@material-ui/icons/CallMade';
+import TitleEditor from './title-editor';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
@@ -30,13 +29,10 @@ export class Header extends Component {
     this.controller = props.controller;
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
-      networkName: this.controller.cy.data('name'),
       menu: null,
       anchorEl: null,
       dialogId: null,
     };
-
-    this.onDataChanged = this.onDataChanged.bind(this);
   }
 
   handleClick(event, menuName) {
@@ -83,61 +79,13 @@ export class Header extends Component {
   }
 
   componentDidMount() {
-    const onSetNetwork = (cy) => {
-      this.setState({ networkName: cy.data('name') });
-      this.addCyListeners();
-    };
     const dirty = () => this.setState({ dirty: Date.now() });
 
     this.busProxy.on('toggleDrawMode', dirty);
-    this.busProxy.on('setNetwork', onSetNetwork);
-    this.addCyListeners();
   }
 
   componentWillUnmount() {
     this.busProxy.removeAllListeners();
-    this.removeCyListeners();
-  }
-
-  addCyListeners() {
-    this.controller.cy.on('data', this.onDataChanged);
-  }
-
-  removeCyListeners() {
-    this.controller.cy.removeListener('data', this.onDataChanged);
-  }
-
-  onDataChanged(event) {
-    const name = event.cy.data('name');
-    
-    if (this.state.networkName != name)
-      this.setState({ networkName: name });
-  }
-
-  handleNetworkNameKeyDown(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.target.blur();
-    } else if (event.key === 'Escape') {
-      this.cancelNetworkNameChange();
-      event.preventDefault();
-    }
-  }
-
-  handleNetworkNameFocus(event) {
-    if (!this.state.networkName)
-      event.target.value = '';
-    else
-      event.target.select();
-  }
-
-  handleNetworkNameBlur(event) {
-    const networkName = event.target.value;
-    this.renameNetwork(networkName);
-  }
-
-  cancelNetworkNameChange() {
-    this.setState({ networkName: this.controller.cy.data('name') });
   }
 
   // temp: should be somewhere else, e.g. in network management page
@@ -165,17 +113,12 @@ export class Header extends Component {
     create();
   }
 
-  renameNetwork(newName) {
-    const networkName = newName != null ? newName.trim() : null;
-    this.controller.cy.data({ name: networkName });
-  }
-
   exportNetworkToNDEx(){
     const cy = this.controller.cy;
     const ndexClient = this.controller.ndexClient;
     const id = cy.data('id');
 
-    if(ndexClient.authenticationType != null && ndexClient._authToken != null){
+    if (ndexClient.authenticationType != null && ndexClient._authToken != null) {
       let exportNDEx = async () => {
         let result = await fetch('/api/document/cx-export', {
           method: 'POST',
@@ -210,25 +153,9 @@ export class Header extends Component {
   }
 
   render() {
-    const { networkName, anchorEl, menuName, dialogName } = this.state;
+    const { anchorEl, menuName, dialogName } = this.state;
     const controller = this.controller;
     
-    const CssInputBase = styled(InputBase)(({ theme }) => ({
-      '& .MuiInputBase-input': {
-        position: 'relative',
-        borderBottom: '1px solid transparent',
-        width: '100%',
-        maxWidth: 640,
-        padding: 2,
-        fontWeight: 'bold',
-        '&:focus': {
-          borderBottom: `1px solid ${theme.palette.primary.main}`,
-          backgroundColor: theme.palette.background.focus,
-          fontWeight: 'normal',
-        },
-      },
-    }));
-
     return (
       <>
         <div className="header">
@@ -236,15 +163,7 @@ export class Header extends Component {
             <Toolbar variant="dense">
               <AppLogoIcon {...logoIconProps} />
               <div className="header-title-area">
-                <Tooltip arrow placement="bottom" title="Rename Network">
-                  <CssInputBase
-                    fullWidth={true}
-                    defaultValue={networkName || 'Untitled Network'}
-                    onFocus={(evt) => this.handleNetworkNameFocus(evt)}
-                    onBlur={(evt) => this.handleNetworkNameBlur(evt)}
-                    onKeyDown={(evt) => this.handleNetworkNameKeyDown(evt)}
-                  />
-                </Tooltip>
+                <TitleEditor controller={controller} />
                 <div className="header-title-save-status">Edits saved</div>
               </div>
 
