@@ -67,10 +67,10 @@ const UserInfoPopover = (props) => {
 };
 
 UserInfoPopover.propTypes = {
-  userInfo: {
+  userInfo: PropTypes.shape({
     name: PropTypes.string,
     imageUrl: PropTypes.string,
-  },
+  }),
   isOpen: PropTypes.bool.isRequired,
   anchorEl: PropTypes.any,
   onClose: PropTypes.func,

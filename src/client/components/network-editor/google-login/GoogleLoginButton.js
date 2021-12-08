@@ -20,7 +20,7 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controll
     controller.bus.on('openGoogleLogin', () => {
       loginRef != null ? loginRef.current.click() : null;
     });
-  }, loginRef);
+  }, [loginRef]);
 
   return (
     <GoogleLogin

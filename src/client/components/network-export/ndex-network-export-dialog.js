@@ -86,6 +86,12 @@ export class NDExExportDialog extends Component {
     this.controller = props.controller;
     this.onClose = props.onClose;
 
+    this.onGoogleLogout = () => this.dirty();
+    this.onGoogleLogin = () => this.dirty();
+
+    this.props.controller.bus.on('googleLogin', this.onGoogleLogin);
+    this.props.controller.bus.on('googleLogout', () => this.onGoogleLogout);
+
     this.state = {
       exportPublicNetwork: true,
       loading: false,
@@ -93,7 +99,11 @@ export class NDExExportDialog extends Component {
       ndexNetworkURL: null,
       ndexNetworkId: null,
     };
+  }
 
+  componentWillUnmount(){
+    this.props.controller.bus.removeListener('googleLogin', this.onGoogleLogin);
+    this.props.controller.bus.removeListener('googleLogout', this.onGoogleLogout);
   }
 
   dirty(){
@@ -131,15 +141,82 @@ export class NDExExportDialog extends Component {
         });
       };
       exportNDEx();
-    } else {
-      this.controller.bus.emit('openGoogleLogin');
     }
   }
 
   render() {
-    if(this.props.controller.ndexClient._authType !== 'g'){
-      this.props.controller.bus.emit('openGoogleLogin');
-    }
+    const isAuthenticated = this.props.controller.ndexClient.authenticationType != null && this.props.controller.ndexClient._authToken != null;
+
+    const step0Content = !isAuthenticated ? (
+      <DialogContent dividers className="export-ndex-network-content" >
+        <Link href="" onClick={(e) => {
+          e.preventDefault();
+          this.props.controller.bus.emit('openGoogleLogin');
+        }}>Sign in to NDEx to export this network to your account</Link> 
+      </DialogContent>
+    ) : (
+      <DialogContent dividers className="export-ndex-network-content" >
+      {_.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Alert className="export-ndex-network-alert" variant="outlined" severity="warning">
+            <AlertTitle>Some visual properties are not supported in Cytoscape Explore</AlertTitle>
+          </Alert>
+        </AccordionSummary>
+        <AccordionDetails className="export-ndex-network-property-list">
+          <Link color="primary" target="_blank" href="">Learn more about portable Cytoscape styles</Link>
+          <div>Unsupported properties found in your network:</div>
+            {Object.entries(
+              _.groupBy(
+                _.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
+                vpName => vpName.split('_')[0]
+            )).map(([group, entries]) => {
+              return (
+                <div key={group}>
+                  <Accordion>
+                    <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                    >
+                      {group}
+                    </AccordionSummary>
+                    <AccordionDetails>
+                    <List>
+                    {entries.map((e, i) => <div key={i}>{e}</div>)}
+                    </List>
+                    </AccordionDetails>
+                  </Accordion>
+                  <Divider/>
+                </div>
+              )
+            })}
+        </AccordionDetails>
+      </Accordion> : null
+      }
+      <TextField
+        className="export-ndex-network-content-block"
+        autoFocus={true}
+        label={'Network name'}
+        placeholder={'My network'}
+        onChange={(evt) => { this.props.controller.cy.data('name', evt.target.value); this.dirty();}}
+        value={this.props.controller.cy.data('name')}
+      />
+      <InputLabel id="network-visibility-select">Visibility</InputLabel>
+      <Select
+      labelId="network-visibility-select"
+      value={this.state.exportPublicNetwork}
+      onChange={e => this.setState({exportPublicNetwork: e.target.value})}
+    >
+        <MenuItem value={true}>Unlisted</MenuItem>
+        <MenuItem value={false}>Private</MenuItem>
+    </Select>
+    </DialogContent>
+    );
 
     let renderStep0 = (
       <Dialog
@@ -151,10 +228,7 @@ export class NDExExportDialog extends Component {
         open={this.props.open}
         onClose={e => this.props.onClose(e)}
         >
-        <DialogTitle 
-          disableTypography
-          className="export-ndex-network-header"
-        >
+        <DialogTitle  disableTypography className="export-ndex-network-header">
           <h2>Export Network to NDEx</h2>
           <IconButton 
             aria-label="close" 
@@ -162,67 +236,7 @@ export class NDExExportDialog extends Component {
             <CloseIcon />
           </IconButton>
           </DialogTitle>
-        <DialogContent dividers className="export-ndex-network-content" >
-          {_.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Alert className="export-ndex-network-alert" variant="outlined" severity="warning">
-                    <AlertTitle>Some visual properties are not supported in Cytoscape Explore</AlertTitle>
-                  </Alert>
-                </AccordionSummary>
-                <AccordionDetails className="export-ndex-network-property-list">
-                  <Link color="primary" target="_blank" href="">Learn more about portable Cytoscape styles</Link>
-                  <div>Unsupported properties found in your network:</div>
-                    {Object.entries(
-                      _.groupBy(
-                        _.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
-                        vpName => vpName.split('_')[0]
-                    )).map(([group, entries]) => {
-                      return (
-                        <div>
-                          <Accordion>
-                            <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                            >
-                              {group}
-                            </AccordionSummary>
-                            <AccordionDetails>
-                            <List>
-                            {entries.map(e => <div>{e}</div>)}
-                            </List>
-                            </AccordionDetails>
-                          </Accordion>
-                          <Divider/>
-                        </div>
-                      )
-                    })}
-                </AccordionDetails>
-              </Accordion> : null
-          }
-          <TextField
-            className="export-ndex-network-content-block"
-            autoFocus={true}
-            label={'Network name'}
-            placeholder={'My network'}
-            onChange={(evt) => { this.props.controller.cy.data('name', evt.target.value); this.dirty();}}
-            value={this.props.controller.cy.data('name')}
-          />
-          <InputLabel id="network-visibility-select">Visibility</InputLabel>
-          <Select
-            labelId="network-visibility-select"
-            value={this.state.exportPublicNetwork}
-            onChange={e => this.setState({exportPublicNetwork: e.target.value})}
-          >
-              <MenuItem value={true}>Unlisted</MenuItem>
-              <MenuItem value={false}>Private</MenuItem>
-          </Select>
-          </DialogContent>
+          {step0Content}
         <DialogActions>
           <Button
               variant="contained"

@@ -52,19 +52,23 @@ export class NDExImportSubWizard extends React.Component {
     props.wizardCallbacks.onFinish(() => this.handleFinish());
     props.wizardCallbacks.onBack(() => this.handleBack());
 
-    // update state when receiving google login events from the bus
-    props.controller.bus.on('googleLogin', () => this.setState({
+    this.onGoogleLogin = () => this.setState({
       showAccountNetworksTabs: true,
       searchAccountNetworks: true,
       browseNdexTabId: 0
-    }, () => this.fetchMyNetworks()));
+    }, () => this.fetchMyNetworks());
 
-    props.controller.bus.on('googleLogout', () => this.setState({
+    this.onGoogleLogout = () => this.setState({
       showAccountNetworksTabs: false,
       searchAccountNetworks: false,
       browseNdexTabId: 1,
       myNetworks: null
-    }));
+    });
+
+    // update state when receiving google login events from the bus
+    props.controller.bus.on('googleLogin', this.onGoogleLogin);
+
+    props.controller.bus.on('googleLogout', this.onGoogleLogout);
     
     const authenticated = isAuthenticated(this.props.controller.ndexClient);
 
@@ -88,6 +92,11 @@ export class NDExImportSubWizard extends React.Component {
     if(isAuthenticated(this.props.controller.ndexClient)){
       this.fetchMyNetworks();
     }
+  }
+
+  componentWillUnmount(){
+    this.props.controller.bus.removeListener('googleLogin', this.onGoogleLogin);
+    this.props.controller.bus.removeListener('googleLogout', this.onGoogleLogout);
   }
 
   fetchMyNetworks(){
