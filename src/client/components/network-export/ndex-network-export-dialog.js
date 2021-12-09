@@ -42,7 +42,7 @@ export class CopyLink extends Component {
 
     this.state = {
       copied: false
-    }
+    };
   }
   
   handleCopyClick(content){
@@ -156,7 +156,7 @@ export class NDExExportDialog extends Component {
       </DialogContent>
     ) : (
       <DialogContent dividers className="export-ndex-network-content" >
-      {_.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
+      {_.get(this.controller.cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -172,7 +172,7 @@ export class NDExExportDialog extends Component {
           <div>Unsupported properties found in your network:</div>
             {Object.entries(
               _.groupBy(
-                _.get(cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
+                _.get(this.controller.cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
                 vpName => vpName.split('_')[0]
             )).map(([group, entries]) => {
               return (
@@ -193,7 +193,7 @@ export class NDExExportDialog extends Component {
                   </Accordion>
                   <Divider/>
                 </div>
-              )
+              );
             })}
         </AccordionDetails>
       </Accordion> : null
@@ -315,6 +315,11 @@ NDExExportDialog.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+};
+
+CopyLink.propTypes = {
+  title: PropTypes.string.isRequired,
+  linkContent: PropTypes.string.isRequired
 };
 
 export default NDExExportDialog;

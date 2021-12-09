@@ -206,7 +206,7 @@ export class NDExImportSubWizard extends React.Component {
           id: `browse-ndex-${tabIndex}`,
           'aria-controls': `browse-ndexpanel-${tabIndex}`,
         };
-      }
+      };
 
       const handleTabChange = (e, newTabId) => {
         if(newTabId === 0){
@@ -214,7 +214,7 @@ export class NDExImportSubWizard extends React.Component {
         } else {
           this.setState({browseNdexTabId: newTabId});
         }
-      }
+      };
 
       return (
         <div>
@@ -361,8 +361,13 @@ export class NDExImportSubWizard extends React.Component {
       </TableContainer>
     );
   }
-
 }
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  value: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired
+};
 
 NDExImportSubWizard.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
