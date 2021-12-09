@@ -218,7 +218,7 @@ export const supportedCXVisualProperties = {
     group: 'edge',
     isNestedCXVP: false
   },
-  EDGE_LINE_WIDTH: {
+  EDGE_WIDTH: {
     cyJsName: 'width',
     group: 'edge',
     isNestedCXVP: false

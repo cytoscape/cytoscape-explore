@@ -219,7 +219,7 @@
             "EDGE_TARGET_ARROW_SHAPE": "none",
             "EDGE_SOURCE_ARROW_COLOR": "#282828",
             "EDGE_SOURCE_ARROW_SHAPE": "none",
-            "EDGE_LINE_WIDTH": 2,
+            "EDGE_WIDTH": 2,
             "EDGE_LINE_COLOR": "#282828"
           }
         },
