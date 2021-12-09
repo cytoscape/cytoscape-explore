@@ -387,7 +387,7 @@ const convertMapping = (selector, vizmapper, styleMappings, defaultTable ) =>   
                     });
                     let cyStyleValues = newList.styleValues.map(x => STYLE_CONVERTING_TABLE[vpName].mapper.valueCvtr(x).value);
                     const style = STYLE_CONVERTING_TABLE[vpName].mapper.cotinuousMappingFactory(attr,
-                        newList.dataValues, cyStyleValues);
+                        newList.dataValues[0], newList.dataValues, cyStyleValues);
                     vizmapper.set(selector, STYLE_CONVERTING_TABLE[vpName].jsVPName, style);
                 }
             } else if (mapping.type === 'PASSTHROUGH') {
