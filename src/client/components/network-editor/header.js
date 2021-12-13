@@ -21,6 +21,7 @@ import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
 import { DEFAULT_PADDING } from '../layout/defaults';
+import ShareButton from './share-button';
 
 /**
  * The network editor's header or app bar.
@@ -217,6 +218,10 @@ export class Header extends Component {
 
                 <div className="header-separator"></div>
 
+                <ShareButton controller={controller}/>
+
+                <div className="header-separator"></div>
+                
                 <Tooltip arrow placement="bottom" title="Search">
                   <IconButton size="small" edge="start" color="inherit" aria-label="search">
                     <SearchIcon />
