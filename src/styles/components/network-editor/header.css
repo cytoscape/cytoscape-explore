@@ -26,20 +26,13 @@
 .header-title-area {
   margin-left: 2em;
   line-height: 1;
-}
-
-.header-title-text {
-  font-weight: bold;
+  flex-grow: 3;
 }
 
 .header-title-save-status {
   opacity: 0.666;
   font-size: 0.8em;
   margin-top: 0.25em;
-}
-
-.header-tools {
-
 }
 
 .header-tools > * {
