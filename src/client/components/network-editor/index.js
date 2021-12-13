@@ -18,12 +18,8 @@ export class NetworkEditor extends Component {
   constructor(props){
     super(props);
 
-    const id = _.get(props, ['match', 'params', 'id']);
-    let secret = _.get(props, ['match', 'params', 'secret']);
-
-    if (secret == null && id === 'demo') {
-      secret = 'demo';
-    }
+    const id = _.get(props, ['match', 'params', 'id'], _.get(props, 'id'));
+    let secret = _.get(props, ['match', 'params', 'secret'], _.get(props, 'secret'));
 
     this.bus = new EventEmitter();
 
@@ -93,17 +89,23 @@ export class NetworkEditor extends Component {
     ]);
 
     const enableSync = async () => {
-      try {
-        await this.cySyncher.load();
+      console.log('Starting to enable sync in editor');
 
-        if (this.cySyncher.editable()) {
-          await this.cySyncher.enable();
-        }
+      console.log('Loading');
+      await this.cySyncher.load();
+      console.log('Loaded');
 
-        this.cy.fit(DEFAULT_PADDING);
-      } catch(err){
-        console.error(`Could not load document`, err);
+      if (this.cySyncher.editable()) {
+        console.log('Enabling sync');
+        await this.cySyncher.enable();
+        console.log('Sync enabled');
       }
+
+      this.cy.fit(DEFAULT_PADDING);
+
+      console.log('Successful load from DB');
+
+      console.log('End of editor sync initial phase');
     };
 
     enableSync();
@@ -199,6 +201,48 @@ export class NetworkEditor extends Component {
 NetworkEditor.propTypes = {
   history: PropTypes.any
 };
+
+export class NewDoc extends Component {
+  constructor(props) {
+    super(props);
+
+    let juryRigDoc = async () => {
+      console.log('Attempting to jury-rig document creation.  This should probably be done by creating a document beforehand in future (e.g. with a post request made in a file manager UI)');
+      
+      const res = await fetch(`/api/document`, {
+        method: 'POST',
+        body: JSON.stringify({
+          // empty for now
+        })
+      });
+
+      const json = await res.json();
+
+      console.log('Doc created');
+      console.log(json);
+
+      const { privateUrl } = json;
+
+      location.assign(privateUrl); // redirect to the private URL whereupon the new doc is loaded
+    };
+
+    juryRigDoc();
+  }
+
+  render() {
+    return <div>Creating new doc...</div>;
+  }
+}
+
+export class Demo extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return <NetworkEditor id="demo" secret="demo"></NetworkEditor>;
+  }
+}
 
 class NetworkBackground extends Component {
   constructor(props){

@@ -3,8 +3,10 @@ import uuid from 'uuid';
 import Cytoscape from 'cytoscape';
 import CytoscapeSyncher from '../../../model/cytoscape-syncher';
 import ndexClient from '@js4cytoscape/ndex-client';
+import PouchDB  from 'pouchdb';
 
 import { BASE_URL, NDEX_API_URL } from '../../env';
+import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from '../../env';
 import { importCX, exportCX } from '../../../model/import-export/cx';
 import { importJSON, exportJSON } from '../../../model/import-export/json';
 
@@ -45,6 +47,41 @@ const makeNetworkId = () => 'cy' + uuid();
   }
 };
 
+const setSecret = async (id, secret) => {
+  let options;
+
+    if (USE_COUCH_AUTH) {
+      options.auth = {
+        username: COUCHDB_USER,
+        password: COUCHDB_PASSWORD
+      };
+    }
+    
+    const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`, options);
+
+    await secretsDb.put({ _id: id, secret: secret });
+};
+
+export const createDemo = async () => {
+  try {
+    const id = 'demo';
+    const secret = 'demo';
+    const cy = new Cytoscape();
+
+    cy.data({ id });
+
+    const cySyncher = new CytoscapeSyncher(cy, secret);
+
+    await cySyncher.create();
+
+    cySyncher.destroy();
+    cy.destroy();
+
+    await setSecret(id, secret);
+  } catch (err) {
+    // demo probably already exists then
+  }
+};
 
 /**
  * Post (create) a new network
@@ -53,7 +90,7 @@ const makeNetworkId = () => 'cy' + uuid();
  * @param {Express.Response} res The HTTP response
  * @param {Express.NextFunction} next The Express next(err) function
  */
- const postNetwork = async (importBody, req, res, next) => {
+const postNetwork = async (importBody, req, res, next) => {
   try {
     const body = req.body;
     const id = makeNetworkId();
@@ -71,6 +108,8 @@ const makeNetworkId = () => 'cy' + uuid();
 
     cySyncher.destroy();
     cy.destroy();
+
+    await setSecret(id, secret);
 
     res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
   } catch(err) {

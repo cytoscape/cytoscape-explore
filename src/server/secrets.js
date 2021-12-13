@@ -1,7 +1,16 @@
 import PouchDB  from 'pouchdb';
-import { COUCHDB_URL } from './env';
+import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from './env';
 
-const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`);
+const options = {};
+
+if (USE_COUCH_AUTH) {
+  options.auth = {
+    username: COUCHDB_USER,
+    password: COUCHDB_PASSWORD
+  };
+}
+
+const secretsDb = new PouchDB(`${COUCHDB_URL}/secrets`, options);
 
 const isReadOp = (req, op) => req.method === 'GET';
 const isWriteOp = (req, op) => !isReadOp(req, op);
@@ -18,16 +27,9 @@ const handleDoc = async (req, res, docId, op, next) => {
     if (isWriteOp(req, op)) {
       let storedSecret;
       
-      try {
-        const storedSecretRes = await secretsDb.get(docId);
+      const storedSecretRes = await secretsDb.get(docId);
 
-        storedSecret = storedSecretRes.secret;
-      } catch(err) {
-        // no secret => new doc => store secret
-        await secretsDb.put({ _id: docId, secret: specifiedSecret });
-
-        storedSecret = specifiedSecret;
-      }
+      storedSecret = storedSecretRes.secret;
 
       if (specifiedSecret !== storedSecret) {
         throw new Error(`Secret mismatch`);
