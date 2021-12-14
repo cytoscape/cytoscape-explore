@@ -330,7 +330,7 @@ export class NDExImportSubWizard extends React.Component {
     };
     return (
       <TableContainer component={Paper}>
-        <Table size="small" aria-label="network table">
+        <Table size="medium" aria-label="network table">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
