@@ -48,7 +48,7 @@ const makeNetworkId = () => 'cy' + uuid();
 };
 
 const setSecret = async (id, secret) => {
-  let options;
+  let options = {};
 
     if (USE_COUCH_AUTH) {
       options.auth = {
