@@ -156,7 +156,7 @@ export class NDExExportDialog extends Component {
       </DialogContent>
     ) : (
       <DialogContent dividers className="export-ndex-network-content" >
-      {_.get(this.controller.cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], null) != null ?
+      {_.get(this.controller.cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], null) != null ?
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -164,15 +164,15 @@ export class NDExExportDialog extends Component {
           id="panel1a-header"
         >
           <Alert className="export-ndex-network-alert" variant="outlined" severity="warning">
-            <AlertTitle>Some visual properties are not supported in Cytoscape Explore</AlertTitle>
+            <AlertTitle>Some visual properties are incompatible with Cytoscape Explore</AlertTitle>
           </Alert>
         </AccordionSummary>
         <AccordionDetails className="export-ndex-network-property-list">
           <Link color="primary" target="_blank" href="">Learn more about portable Cytoscape styles</Link>
-          <div>Unsupported properties found in your network:</div>
+          <div>Incompatible properties found in your network:</div>
             {Object.entries(
               _.groupBy(
-                _.get(this.controller.cy.data(), [CX_DATA_KEY, 'unsupported-cx-properties'], []),
+                _.get(this.controller.cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], []),
                 vpName => vpName.split('_')[0]
             )).map(([group, entries]) => {
               return (
@@ -183,7 +183,7 @@ export class NDExExportDialog extends Component {
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                     >
-                      {group}
+                      {`${group} properties`}
                     </AccordionSummary>
                     <AccordionDetails>
                     <List>
@@ -212,7 +212,7 @@ export class NDExExportDialog extends Component {
       value={this.state.exportPublicNetwork}
       onChange={e => this.setState({exportPublicNetwork: e.target.value})}
     >
-        <MenuItem value={true}>Unlisted</MenuItem>
+        <MenuItem value={true}>Public (not searchable)</MenuItem>
         <MenuItem value={false}>Private</MenuItem>
     </Select>
     </DialogContent>
@@ -238,14 +238,15 @@ export class NDExExportDialog extends Component {
           </DialogTitle>
           {step0Content}
         <DialogActions>
-          <Button
+          { isAuthenticated ? <Button
               variant="contained"
               color="primary"
               endIcon={<KeyboardArrowRightIcon />}
               onClick={() => this.exportNetworkToNDEx()}
             >
               Continue
-          </Button>
+          </Button> : null
+          }
         </DialogActions>
       </Dialog>
     );
@@ -279,7 +280,7 @@ export class NDExExportDialog extends Component {
         </Alert>
 
         <CopyLink title={'NDEx Network URL'} linkContent={this.state.ndexNetworkURL}/>
-        <CopyLink title={'NDEx Network ID'} linkContent={this.state.ndexNetworkId}/>
+        <CopyLink title={'NDEx Network UUID'} linkContent={this.state.ndexNetworkId}/>
       </DialogContent>
       <DialogActions>
         <Button

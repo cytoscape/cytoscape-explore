@@ -128,12 +128,16 @@ export const cxDataAspects = (cy) => {
   };
 
   const networkAttributesAspect = {
+    // if no saved network attributes, use defaults
     networkAttributes: _.get(cxData, 'saved-aspects.2.networkAttributes', [{
-      name: cy.data('name') || 'cyexplore',
       description: cy.data('description') || 'description',
       version: cy.data('version') || '1.0'
     }])
   };
+
+  // cy.data('name') is the proper source for the network name now regardless of whether or not a network 
+  // has a name saved in the attributes
+  _.set(networkAttributesAspect, 'networkAttributes.0.name', cy.data('name') || 'cyexplore');
 
   const nodesAspect = { nodes: cxNodes };
   const edgesAspect = { edges: cxEdges };

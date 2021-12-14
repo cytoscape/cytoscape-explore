@@ -482,7 +482,7 @@ export const importCX = (cy, cx) => {
   const unsupportedBypassProperties = [...applyBypasses('node', cy, cxNodeBypasses), ...applyBypasses('edge', cy, cxEdgeBypasses)];
   unsupportedBypassProperties.forEach(p => unsupportedCXProperties.add(p));
 
-  data[CX_DATA_KEY]['unsupported-cx-properties'] = Array.from(unsupportedCXProperties).sort();
+  data[CX_DATA_KEY]['incompatible-cx-properties'] = Array.from(unsupportedCXProperties).sort();
   cy.data(data);
 };
 
