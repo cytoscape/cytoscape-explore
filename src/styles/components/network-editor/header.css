@@ -43,3 +43,39 @@
   width: 1em;
   display: inline-block;
 }
+
+.share-button-popover-heading {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  font-size: 1.25em;
+  font-weight: bold;
+  padding-bottom: 0.5em;
+  margin-left: -0.5em;
+  margin-right: -0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  align-items: center;
+}
+
+.share-button-popover-content { 
+  width: 450px;
+  background-color: #121212;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 2px solid gray;
+}
+
+.share-button-popover-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.share-button-popover {
+  margin-top: 10px;
+}
+
+
