@@ -12,6 +12,12 @@ import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import DrawEdgeIcon from '@material-ui/icons/CallMade';
+import Popover from '@material-ui/core/Popover';
+import MenuList from "@material-ui/core/MenuList";
+import MenuItem from '@material-ui/core/MenuItem';
+import Box from '@material-ui/core/Box';
+import Tooltip from '@material-ui/core/Tooltip';
+import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
 import TitleEditor from './title-editor';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
@@ -111,32 +117,6 @@ export class Header extends Component {
     };
 
     create();
-  }
-
-  exportNetworkToNDEx(){
-    const cy = this.controller.cy;
-    const ndexClient = this.controller.ndexClient;
-    const id = cy.data('id');
-
-    if (ndexClient.authenticationType != null && ndexClient._authToken != null) {
-      let exportNDEx = async () => {
-        let result = await fetch('/api/document/cx-export', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            id,
-            authToken: ndexClient._authToken
-          })
-        });
-
-        let body = await result.json();
-        let { ndexNetworkURL } = body;
-        window.open(`${ndexNetworkURL}`);
-      };
-      exportNDEx();
-    }
   }
 
   async loadGAL() {
@@ -245,7 +225,7 @@ export class Header extends Component {
                 {menuName === 'main' && !dialogName && (
                   <MenuList>
                     <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
+                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-export')}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
                   </MenuList>
@@ -261,6 +241,14 @@ export class Header extends Component {
             open={true}
             onClose={() => this.hideDialog()}
           />
+        )}
+        {dialogName === 'ndex-network-export' && (
+            <NDExNetworkExportDialog
+                id="ndex-network-export"
+                controller={this.controller}
+                open={true}
+                onClose={() => this.hideDialog()}
+            />
         )}
       </>
     );

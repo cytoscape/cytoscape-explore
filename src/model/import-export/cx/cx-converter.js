@@ -48,7 +48,6 @@ export const convertCX = (cx) => {
     let savedData = {};
 
     savedData[CX_DATA_KEY] = {
-        'ndex-uuid': undefined,
         'saved-aspects': []
     };
 

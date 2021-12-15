@@ -218,7 +218,7 @@ export const supportedCXVisualProperties = {
     group: 'edge',
     isNestedCXVP: false
   },
-  EDGE_LINE_WIDTH: {
+  EDGE_WIDTH: {
     cyJsName: 'width',
     group: 'edge',
     isNestedCXVP: false
@@ -352,8 +352,14 @@ export const baseCXBypassConverter = (cxVPInfo, bypassObj) => {
 };
 
 export const getVisualPropertiesAspect = (cy) => {
+  // if any node has a name, don't override the default label style
+  // if all nodes dont have a name, set label to be empty string
+  const anyNodeHasName = cy.nodes().filter(n => n.data('name') != null).size() > 0;
+  let defaultNodeStyle = _.cloneDeep(DEFAULT_NODE_STYLE);
+  !anyNodeHasName ? defaultNodeStyle = Object.assign(defaultNodeStyle, { label: styleFactory.string('')}) : null;
+  
   const styleSnapShot = {
-    [NODE_SELECTOR]: Object.assign(_.cloneDeep(DEFAULT_NODE_STYLE), { label: styleFactory.string('')}),
+    [NODE_SELECTOR]: defaultNodeStyle,
     [EDGE_SELECTOR]: _.cloneDeep(DEFAULT_EDGE_STYLE)
   };
   const _styles = _.cloneDeep(cy.data('_styles')) || { [NODE_SELECTOR]: {}, [EDGE_SELECTOR]: {}};
