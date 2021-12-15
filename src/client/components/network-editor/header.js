@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
+import { AppBar, Toolbar } from '@material-ui/core';
+import { MenuList, MenuItem} from "@material-ui/core";
+import { Box, Popover, Tooltip, IconButton} from '@material-ui/core';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
 import DebugIcon from '@material-ui/icons/BugReport';
@@ -18,6 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
 import Tooltip from '@material-ui/core/Tooltip';
 import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
+import TitleEditor from './title-editor';
 import ImportWizard from '../network-import/import-wizard';
 import { UndoButton } from '../undo/undo-button';
 import AccountButton from './google-login/AccountButton';
@@ -29,12 +30,11 @@ import { DEFAULT_PADDING } from '../layout/defaults';
  */
 export class Header extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.controller = props.controller;
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
-      networkName: this.controller.cy.data('name'),
       menu: null,
       anchorEl: null,
       dialogId: null,
@@ -85,11 +85,9 @@ export class Header extends Component {
   }
 
   componentDidMount() {
-    const onSetNetwork = (cy) => this.setState({ networkName: cy.data('name') });
     const dirty = () => this.setState({ dirty: Date.now() });
 
     this.busProxy.on('toggleDrawMode', dirty);
-    this.busProxy.on('setNetwork', onSetNetwork);
   }
 
   componentWillUnmount() {
@@ -135,10 +133,9 @@ export class Header extends Component {
   }
 
   render() {
-    const { networkName, anchorEl, menuName, dialogName } = this.state;
-    const cy = this.controller.cy;
+    const { anchorEl, menuName, dialogName } = this.state;
     const controller = this.controller;
-
+    
     return (
       <>
         <div className="header">
@@ -146,11 +143,12 @@ export class Header extends Component {
             <Toolbar variant="dense">
               <AppLogoIcon {...logoIconProps} />
               <div className="header-title-area">
-                <div className="header-title-text">{ networkName || 'Untitled network'  }</div>
+                <TitleEditor controller={controller} />
                 <div className="header-title-save-status">Edits saved</div>
               </div>
 
               <div className="grow" />
+
               <Box className="header-tools" color="secondary.main">
                 <Tooltip arrow placement="bottom" title="Add Node">
                   <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>

@@ -120,6 +120,10 @@ export class CytoscapeSyncher {
       throw new Error(`Can't create a CytoscapeSyncher after it's already been loaded or created`);
     }
 
+    if (isClient()) {
+      throw new Error("The client is forbidden from creating docs manually.  Use the server HTTP API");
+    }
+
     const { localDb, remoteDb, cy, docId } = this;
 
     const doc = {
