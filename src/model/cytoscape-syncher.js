@@ -1,12 +1,10 @@
 import { EventEmitterProxy } from './event-emitter-proxy';
 import EventEmitter from 'eventemitter3';
-import { isClient, isServer } from '../util';
+import { isServer } from '../util';
 import PouchDB  from 'pouchdb';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
-
-const SYNC_INTERVAL = 400;
 
 const COUCHDB_URL = process.env.COUCHDB_URL;
 const COUCHDB_USER = process.env.COUCHDB_USER;
@@ -22,16 +20,20 @@ const log = LOG_SYNC ? console.log : _.noop;
  * @type CytoscapeSyncher
  */
 export class CytoscapeSyncher {
+  static synchInterval = 400;
+
   /**
    * Create a `CytoscapeSyncher` which has live-synch disabled.
    *
    * @param {Cytoscape} cy The Cytoscape instance to synchronise.
    * @param {String} secret The secret token used for write authenication.
    */
-  constructor(cy, secret){
+  constructor(cy, secret, isSyncherOnServer = isServer(), useServerOrigin){
     if( !cy ){
       throw new Error(`Can't create a 'CytoscapeSyncher' without a 'cy'.`);
     }
+
+    this.isSyncherOnServer = isSyncherOnServer;
 
     const networkId = cy.data('id');
 
@@ -57,7 +59,7 @@ export class CytoscapeSyncher {
     this.emitter = new EventEmitter();
     this.cyEmitter = new EventEmitterProxy(this.cy);
 
-    const pouchOrigin = isClient() ? location.origin : COUCHDB_URL;
+    const serverOrigin = this.serverOrigin = useServerOrigin ? useServerOrigin : (this.isClient() ? location.origin : COUCHDB_URL);
     
     const remotePouchOptions = {
       fetch: (url, opts) => {
@@ -67,28 +69,36 @@ export class CytoscapeSyncher {
       }
     };
 
-    if (isServer() && USE_COUCH_AUTH) {
+    if (this.isServer() && USE_COUCH_AUTH) {
       const auth = remotePouchOptions.auth = {};
 
       auth.username = COUCHDB_USER;
       auth.password = COUCHDB_PASSWORD;
     }
 
-    if (this.editable() || isServer()) {
-      this.localDb = new PouchDB(this.dbName, { adapter: 'memory' }); // store in memory to avoid multitab db event noise
+    if (this.editable() || this.isServer()) {
+      this.localDb = new PouchDB(this.dbName + Math.random(), { adapter: 'memory' }); // store in memory to avoid multitab db event noise
       
       let remoteUrl;
 
-      if (isServer()) {
-        remoteUrl = `${pouchOrigin}/${this.dbName}`; // server gets unrestricted access
+      if (this.isServer()) {
+        remoteUrl = `${serverOrigin}/${this.dbName}`; // server gets unrestricted access
       } else {
-        remoteUrl = `${pouchOrigin}/db/${this.dbName}`; // /db applied security
+        remoteUrl = `${serverOrigin}/db/${this.dbName}`; // /db applied security
       }
       
       this.remoteDb = new PouchDB(remoteUrl, remotePouchOptions);
     }
 
     cy.scratch('_cySyncher', this);
+  }
+
+  isClient() {
+    return !this.isSyncherOnServer;
+  }
+
+  isServer() {
+    return this.isSyncherOnServer;
   }
 
   editable() {
@@ -120,7 +130,7 @@ export class CytoscapeSyncher {
       throw new Error(`Can't create a CytoscapeSyncher after it's already been loaded or created`);
     }
 
-    if (isClient()) {
+    if (this.isClient()) {
       throw new Error("The client is forbidden from creating docs manually.  Use the server HTTP API");
     }
 
@@ -169,8 +179,8 @@ export class CytoscapeSyncher {
 
     const { cy, localDb, remoteDb, dbName, docId } = this;
 
-    if (!this.editable() && isClient()) { // load one-time read-only view
-      const res = await fetch(`/api/document/${this.networkId}`);
+    if (!this.editable() && this.isClient()) { // load one-time read-only view
+      const res = await fetch(`${this.serverOrigin}/api/document/${this.networkId}`);
       const json = await res.json();
 
       if (json.data) { cy.data(json.data); }
@@ -236,6 +246,11 @@ export class CytoscapeSyncher {
     this.emitter.emit('load');
   }
 
+  async delete() {
+    await this.localDb.destroy();
+    await this.remoteDb.destroy();
+  }
+
   /**
    * @private
    */
@@ -259,7 +274,7 @@ export class CytoscapeSyncher {
     const synchLoop = async () => {
       if( !canUpdate() ){
         // try next time
-        this.synchTimeout = setTimeout(synchLoop, SYNC_INTERVAL);
+        this.synchTimeout = setTimeout(synchLoop, CytoscapeSyncher.synchInterval);
 
         return;
       }
@@ -304,7 +319,7 @@ export class CytoscapeSyncher {
         });
       }
 
-      this.synchTimeout = setTimeout(synchLoop, SYNC_INTERVAL);
+      this.synchTimeout = setTimeout(synchLoop, CytoscapeSyncher.synchInterval);
 
       this.runningSyncLoop = false;
     };
@@ -342,6 +357,7 @@ export class CytoscapeSyncher {
     this.synchHandler = ( this.localDb.sync(this.remoteDb, { live: true, retry: true })
       .on('change', info => {
         log('PouchDB change', info);
+        log(_.get(info, ['change', 'docs']));
 
         const isUpdateFromOtherClient = info.direction === 'pull';
 
@@ -376,21 +392,23 @@ export class CytoscapeSyncher {
                   const elePos = ele.position();
 
                   if( doc.position.x !== elePos.x || doc.position.y !== elePos.y ){
-                    const syncPosAni = ele.animation({
-                      position: _.clone(doc.position),
-                      duration: 250,
-                      easing: 'ease-out'
-                    });
+                    ele.position(_.clone(doc.position));
 
-                    const oldPosAni = ele.scratch('syncPosAni');
+                  //   const syncPosAni = ele.animation({
+                  //     position: _.clone(doc.position),
+                  //     duration: 250,
+                  //     easing: 'ease-out'
+                  //   });
 
-                    if( oldPosAni != null ){
-                      oldPosAni.stop();
-                    }
+                  //   const oldPosAni = ele.scratch('syncPosAni');
 
-                    ele.scratch('syncPosAni', syncPosAni);
+                  //   if( oldPosAni != null ){
+                  //     oldPosAni.stop();
+                  //   }
 
-                    syncPosAni.play();
+                  //   ele.scratch('syncPosAni', syncPosAni);
+
+                  //   syncPosAni.play();
                   }
 
                   this.emitter.emit('ele', ele);

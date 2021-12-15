@@ -213,7 +213,8 @@ export class NewDoc extends Component {
         method: 'POST',
         body: JSON.stringify({
           // empty for now
-        })
+        }),
+        headers: {'Content-Type': 'application/json'}
       });
 
       const json = await res.json();

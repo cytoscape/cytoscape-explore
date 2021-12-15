@@ -3,7 +3,7 @@
     "browser": true,
     "node": true,
     "mocha": true,
-    "es6": true
+    "es2021": true
   },
   "extends": [
     "eslint:recommended",
@@ -15,7 +15,7 @@
     }
   },
   "parserOptions": {
-    "ecmaVersion": 9,
+    "ecmaVersion": "latest",
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
