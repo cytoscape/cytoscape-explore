@@ -41,6 +41,8 @@ const makeNetworkId = () => 'cy' + uuid();
     cySyncher.destroy();
     cy.destroy();
 
+    await setSecret(id, secret);
+
     res.send({ id, secret, url: privateUrl, privateUrl, publicUrl });
   } catch(err) {
     next(err);
