@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
+import { NetworkEditorController } from './controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { AppBar, Toolbar } from '@material-ui/core';
-import { MenuList, MenuItem} from "@material-ui/core";
-import { Box, Popover, Tooltip, IconButton} from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent } from '@material-ui/core';
+import { MenuList, MenuItem } from "@material-ui/core";
+import { Box, Popover, Tooltip, IconButton } from '@material-ui/core';
+import { DataPanel } from './data-panel';
 import { AppLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search';
+import CloseIcon from '@material-ui/icons/Close';
 import DebugIcon from '@material-ui/icons/BugReport';
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
@@ -248,6 +251,7 @@ export class Header extends Component {
                     <MenuItem disabled={false} onClick={() => this.exportNetworkToNDEx()}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
+                    <MenuItem onClick={() => this.showDialog('data')}>Show Network Attributes</MenuItem>
                   </MenuList>
                 )}
               </Popover>
@@ -262,6 +266,33 @@ export class Header extends Component {
             onClose={() => this.hideDialog()}
           />
         )}
+        {dialogName === 'data' && (
+          <Dialog
+            id="data"
+            controller={this.controller}
+            fullWidth
+            maxWidth='lg'
+            scroll='paper'
+            open={true}
+            onClose={() => this.hideDialog()}
+          >
+            <DialogTitle
+              disableTypography
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}
+            >
+              <h2>Attributes</h2>
+              <IconButton 
+                aria-label='close' 
+                onClick={() => this.hideDialog()}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent dividers>
+              <DataPanel controller={this.controller} />
+            </ DialogContent>
+          </Dialog>
+        )}
+        
       </>
     );
   }
