@@ -16,11 +16,11 @@ function SidePanel({ title, onClose, children }) {
   return <div>
     <div className="tool-panel-heading">
       { title || "Panel" }
-      <Tooltip arrow placement="left" title="Close Panel">
+      {/* <Tooltip arrow placement="left" title="Close Panel"> */}
         <IconButton size="small" onClick={onClose}>
           <i className="material-icons">keyboard_arrow_right</i>
         </IconButton>
-      </Tooltip>
+      {/* </Tooltip> */}
     </div>
     <div>
       { children }
@@ -56,15 +56,13 @@ export class ToolPanel extends Component {
 
   render(){
     const { controller } = this.props;
-    const { toolRender, tool } = this.state;
+    const { toolRender } = this.state;
 
-    const togglePanel = open => {
-      this.setState({ panelOpen: open });
-      this.props.onSetOpen && this.props.onSetOpen(open);
-    };
-    const openPanel  = () => togglePanel(true);
-    const closePanel = () => togglePanel(false);
-
+    const openPanel  = () => this.setState({ panelOpen: true });
+    const closePanel = () => this.setState({ panelOpen: false });
+    const notifyOpen  = () => this.props.onSetOpen(true);
+    const notifyClose = () => this.props.onSetOpen(false);
+      
     const ToolButton = ({ icon, title, tool, onClick = (() => {}), render = (() => <div></div>) }) => {
         const color = this.state.tool === tool ? 'primary' : 'inherit';
         const buttonOnClick = () => { 
@@ -82,7 +80,15 @@ export class ToolPanel extends Component {
 
 
     return (<div className="tool-panel">
-      <Drawer variant='persistent' anchor='right' open={this.state.panelOpen} style={{ zIndex: -1 }}>
+      <Drawer 
+        variant='persistent' 
+        anchor='right' 
+        open={this.state.panelOpen} 
+        style={{ zIndex: -1 }} // MKTODO Is there a better way to do this?
+        SlideProps={{ // Notify the network editor after the slide animation completes.
+          onEntered: notifyOpen,
+          onExit: notifyClose
+        }}>
         <div className="tool-panel-wrapper" bgcolor="background.paper">
           { toolRender() }
         </div>
@@ -279,6 +285,9 @@ export class ToolPanel extends Component {
 ToolPanel.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
   onSetOpen: PropTypes.func,
+};
+ToolPanel.defaultProps ={
+  onSetOpen: () => null
 };
 
 export default ToolPanel;

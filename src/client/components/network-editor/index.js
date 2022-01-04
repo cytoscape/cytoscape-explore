@@ -185,6 +185,7 @@ export class NetworkEditor extends Component {
 
   render() {
     const { controller } = this;
+    const setOpen = open => this.setState({ rightPanelOpen: open });
 
     const panelStyleOverrides = {};
     if(this.state.rightPanelOpen) {
@@ -197,15 +198,13 @@ export class NetworkEditor extends Component {
         <div className="network-editor">
           <Header controller={controller} />
           <div className="network-editor-content">
-            <div className="cy" style={panelStyleOverrides}>
-              <div id="cy" />
-              <NetworkBackground controller={controller} />
-            </div>
+              <div className="cy" style={panelStyleOverrides}>
+                <div id="cy" />
+                <NetworkBackground controller={controller} />
+              </div>
             <ToolPanel 
               controller={controller} 
-              onSetOpen={open => {
-                this.setState({ rightPanelOpen: open });
-              }}
+              onSetOpen={setOpen}
             />
           </div>
         </div>
