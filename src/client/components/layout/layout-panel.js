@@ -77,8 +77,6 @@ export class LayoutPanel extends Component {
 
     return (
       <div className="layout-panel">
-        <div className="tool-panel-heading">Layout</div>
-
         <div position="relative" color="default">
           <Tabs
             value={value}

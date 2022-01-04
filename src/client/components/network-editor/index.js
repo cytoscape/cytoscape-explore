@@ -186,9 +186,9 @@ export class NetworkEditor extends Component {
   render() {
     const { controller } = this;
 
-    const panelStyleOverride = {};
+    const panelStyleOverrides = {};
     if(this.state.rightPanelOpen) {
-      panelStyleOverride.right = '350px';
+      panelStyleOverrides.right = '300px';
     }
 
     return (
@@ -197,7 +197,7 @@ export class NetworkEditor extends Component {
         <div className="network-editor">
           <Header controller={controller} />
           <div className="network-editor-content">
-            <div className="cy" style={panelStyleOverride}>
+            <div className="cy" style={panelStyleOverrides}>
               <div id="cy" />
               <NetworkBackground controller={controller} />
             </div>
