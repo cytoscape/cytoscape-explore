@@ -49,6 +49,7 @@ export class StylePanel extends React.Component {
       <div className="style-panel">
         <div className="tool-panel-heading">
           { this.props.title || "Style Panel" }
+          <div className="tool-panel-extra">{this.props.extra}</div>
         </div>
         { this.state.numSelected > 0 
           ? <div style={{ textAlign: 'center' }}>{ this.getBypassMessage() }</div> 
@@ -65,6 +66,7 @@ StylePanel.propTypes = {
   title: PropTypes.string,
   children: PropTypes.any,
   selector: PropTypes.oneOf(['node', 'edge']),
+  extra: PropTypes.any,
   controller: PropTypes.instanceOf(NetworkEditorController),
 };
 

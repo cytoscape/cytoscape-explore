@@ -3,6 +3,7 @@ import EventEmitterProxy from '../../../model/event-emitter-proxy';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from './controller';
 import Tooltip from '@material-ui/core/Tooltip';
+import { Drawer } from '@material-ui/core';
 import { IconButton, Divider, Box } from '@material-ui/core';
 import { StyleSection, StylePanel, OpacityStylePicker } from '../style/style-picker'; 
 import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker } from '../style/style-picker';
@@ -16,7 +17,8 @@ export class ToolPanel extends Component {
     super(props);
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
-      toolRender: () => <div></div>
+      toolRender: () => <div></div>,
+      panelOpen: false,
     };
   }
 
@@ -33,9 +35,18 @@ export class ToolPanel extends Component {
     const { controller } = this.props;
     const { toolRender, tool } = this.state;
 
+    const openPanel = open => {
+      this.setState({ panelOpen: open });
+      this.props && this.props.onSetOpen(open);
+    };
+
     const ToolButton = ({ icon, title, tool, onClick = (() => {}), render = (() => <div></div>) }) => {
         const color = this.state.tool === tool ? 'primary' : 'inherit';
-        const buttonOnClick = () => { onClick(); this.setState({ tool, toolRender: render }); };
+        const buttonOnClick = () => { 
+          onClick(); 
+          this.setState({ tool, toolRender: render });
+          openPanel(true);
+        };
         
         return <Tooltip arrow placement="left" title={title}>
           <IconButton size="small" color={color} onClick={buttonOnClick}>
@@ -44,13 +55,21 @@ export class ToolPanel extends Component {
         </Tooltip>;
     };
 
+    const CollapseButton = () =>
+      <IconButton size="small" onClick={() => openPanel(false)}>
+        <i className="material-icons">keyboard_arrow_right</i>
+      </IconButton>;
 
-    return (<div className={"tool-panel " + (tool ? "tool-panel-has-tool" : "tool-panel-no-tool")}>
-      <Box className="tool-panel-content">
-        <div className="tool-panel-wrapper" bgcolor="background.paper">
-          { toolRender() }
+
+    return (<div className="tool-panel">
+      <Drawer variant='persistent' anchor='right' open={this.state.panelOpen} style={{ zIndex: -1 }}>
+        <div style={{ height: '60px'}} />
+        <div style={{ marginRight:'52px', width:'300px' }}>
+          <div className="tool-panel-wrapper" bgcolor="background.paper">
+            { toolRender() }
+          </div>
         </div>
-      </Box>
+      </Drawer>
 
       <Box className="tool-panel-buttons" bgcolor="background.paper" color="secondary.main">
 
@@ -71,7 +90,8 @@ export class ToolPanel extends Component {
             <StylePanel 
               title="Node Body"
               selector="node"
-              controller={controller}>
+              controller={controller}
+              extra={<CollapseButton />}>
               <StyleSection title="Color">
                 <ColorStylePicker
                   controller={controller}
@@ -242,7 +262,8 @@ export class ToolPanel extends Component {
 }
 
 ToolPanel.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController)
+  controller: PropTypes.instanceOf(NetworkEditorController),
+  onSetOpen: PropTypes.func,
 };
 
 export default ToolPanel;

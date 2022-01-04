@@ -51,6 +51,9 @@
   margin-right: -0.5em;
   padding-left: 1em;
   padding-right: 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .layout-panel .tool-panel-heading {

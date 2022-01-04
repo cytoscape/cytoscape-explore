@@ -42,6 +42,12 @@ export class NetworkEditor extends Component {
       window.controller = this.controller;
     }
 
+    this.state = {
+      rightPanelOpen: false,
+      // can add more panels here
+    };
+
+
     this.cy.style().fromJson([
       {
         selector: 'node',
@@ -180,17 +186,27 @@ export class NetworkEditor extends Component {
   render() {
     const { controller } = this;
 
+    const panelStyleOverride = {};
+    if(this.state.rightPanelOpen) {
+      panelStyleOverride.right = '350px';
+    }
+
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="network-editor">
           <Header controller={controller} />
           <div className="network-editor-content">
-            <div className="cy">
+            <div className="cy" style={panelStyleOverride}>
               <div id="cy" />
               <NetworkBackground controller={controller} />
             </div>
-            <ToolPanel controller={controller} />
+            <ToolPanel 
+              controller={controller} 
+              onSetOpen={open => {
+                this.setState({ rightPanelOpen: open });
+              }}
+            />
           </div>
         </div>
       </ThemeProvider>
