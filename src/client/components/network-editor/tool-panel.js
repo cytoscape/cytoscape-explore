@@ -9,18 +9,15 @@ import { StyleSection, StylePanel, OpacityStylePicker } from '../style/style-pic
 import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker } from '../style/style-picker';
 import { NodeSizeStyleSection, NodeLabelPositionStylePicker } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
-
-
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 function SidePanel({ title, onClose, children }) {
   return <div>
     <div className="tool-panel-heading">
       { title || "Panel" }
-      {/* <Tooltip arrow placement="left" title="Close Panel"> */}
-        <IconButton size="small" onClick={onClose}>
-          <i className="material-icons">keyboard_arrow_right</i>
-        </IconButton>
-      {/* </Tooltip> */}
+      <IconButton size="small" onClick={onClose}>
+        <KeyboardArrowRightIcon />
+      </IconButton>
     </div>
     <div>
       { children }
@@ -85,7 +82,7 @@ export class ToolPanel extends Component {
         anchor='right' 
         open={this.state.panelOpen} 
         style={{ zIndex: -1 }} // MKTODO Is there a better way to do this?
-        SlideProps={{ // Notify the network editor after the slide animation completes.
+        SlideProps={{ // Notify the network editor *after* the slide animation completes.
           onEntered: notifyOpen,
           onExit: notifyClose
         }}>
