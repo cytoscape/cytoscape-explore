@@ -13,7 +13,7 @@ import stream from 'stream';
 import btoa from 'btoa';
 import Cytoscape from 'cytoscape';
 
-import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT, USE_COUCH_AUTH, COUCHDB_USER, COUCHDB_PASSWORD } from './env';
+import { NODE_ENV, PORT, COUCHDB_URL, UPLOAD_LIMIT, USE_COUCH_AUTH, COUCHDB_USER, COUCHDB_PASSWORD, TESTING } from './env';
 import indexRouter from './routes/index';
 import apiRouter from './routes/api';
 import { registerCytoscapeExtensions } from '../model/cy-extensions';
@@ -51,15 +51,17 @@ app.set('view engine', 'html');
 
 app.use(favicon(path.join(__dirname, '../..', 'public', 'icon.png')));
 
-app.use(morgan('dev', {
-  stream: new stream.Writable({
-    write( chunk, encoding, next ){
-      logger.info( chunk.toString('utf8').trim() );
+if (!TESTING) {
+  app.use(morgan('dev', {
+    stream: new stream.Writable({
+      write( chunk, encoding, next ){
+        logger.info( chunk.toString('utf8').trim() );
 
-      next();
-    }
-  })
-}));
+        next();
+      }
+    })
+  }));
+}
 
 app.use(bodyParser.json({ limit: UPLOAD_LIMIT }));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -142,4 +144,4 @@ function onListening() {
   debugLog('Listening on ' + bind);
 }
 
-export default app;
+export { app, server };
