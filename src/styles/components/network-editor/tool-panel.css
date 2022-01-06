@@ -33,6 +33,9 @@
 }
 
 .tool-panel-wrapper {
+  margin-right: 52px;
+  margin-top: 60px;
+  width: 250px;
   padding: 0.5em;
 }
 
@@ -51,6 +54,9 @@
   margin-right: -0.5em;
   padding-left: 1em;
   padding-right: 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .layout-panel .tool-panel-heading {
@@ -134,11 +140,6 @@
 .tool-panel-section-secondary-title {
   color: rgba(255, 255, 255, 0.7);
   margin: 0.666em;
-}
-
-.tool-panel-extra {
-  cursor: pointer;
-  /* transform: scale(0.666); */
 }
 
 .tool-panel-bottom-spacer {
