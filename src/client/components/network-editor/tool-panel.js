@@ -9,6 +9,7 @@ import { StyleSection, StylePanel, OpacityStylePicker } from '../style/style-pic
 import { ColorStylePicker, ShapeStylePicker, SizeStylePicker, TextStylePicker } from '../style/style-picker';
 import { NodeSizeStyleSection, NodeLabelPositionStylePicker } from '../style/style-picker';
 import { LayoutPanel } from '../layout/layout-panel';
+import { HistoryPanel } from './history-panel';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 function SidePanel({ title, onClose, children }) {
@@ -104,6 +105,17 @@ export class ToolPanel extends Component {
           }>
         </ToolButton>
         
+        <ToolButton 
+          title="History"
+          tool="history"
+          icon="history"
+          render={() =>
+            <SidePanel title="History" onClose={closePanel}>
+              <HistoryPanel controller={controller} />
+            </SidePanel>
+          }>
+        </ToolButton>
+
         <Divider />
 
         <ToolButton 

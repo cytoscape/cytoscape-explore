@@ -372,7 +372,9 @@ export class CytoscapeSyncher {
             let rev = doc._rev;
             let deleted = doc._deleted;
 
-            if( id === this.networkId ){
+            if( id === 'snapshots' ) {
+              this.emitter.emit('snapshots', doc.snapshots);
+            } else if( id === this.networkId ){
               this.cy.data(_.clone(doc.data));
               this.cy.scratch({ rev });
 
