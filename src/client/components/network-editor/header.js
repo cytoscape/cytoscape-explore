@@ -169,11 +169,12 @@ export class Header extends Component {
                   </IconButton>
                 </Tooltip>
 
-                <div className="header-separator"></div>
+                {/* <div className="header-separator"></div>
 
                 <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
 
-                <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
+                <UndoButton type='redo' icon='redo' title='Redo' controller={controller} /> 
+                */}
 
                 <div className="header-separator"></div>
 
