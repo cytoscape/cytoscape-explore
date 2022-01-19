@@ -95,13 +95,10 @@ export class Header extends Component {
     let create = async () => {
       let res = await fetch('/api/document', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           data: {},
-          elements: [
-          ]
+          elements: []
         })
       });
 

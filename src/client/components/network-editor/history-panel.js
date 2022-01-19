@@ -12,16 +12,18 @@ export class HistoryPanel extends Component {
 
   constructor(props) {
     super(props);
+    this.netID = this.props.controller.cy.data('id');
 
     this.state = {
       snapshots: [],
-      snapshotDisabled: false
+      waiting: true
     };
 
     // Do an initial load of the snapshots
     // MKTODO move this logic into the controller
     this.props.controller.cySyncher.localDb.get('snapshots')
-    .then(doc => this.setState({ snapshots: doc.snapshots }));
+      .then(doc => this.setState({ snapshots: doc.snapshots, waiting: false }))
+      .catch(() => this.setState({ waiting: false }));
 
     this.busProxy = new EventEmitterProxy(this.props.controller.cySyncher.emitter);
     this.busProxy.addListener('snapshots', snapshots => this.setState({ snapshots }));
@@ -32,22 +34,34 @@ export class HistoryPanel extends Component {
   }
 
   handleTakeSnapshot() {
-    const netID = this.props.controller.cy.data('id');
-    this.setState({ snapshotDisabled: true });
-
-    fetch(`/api/history/snapshot/${netID}`, { method: 'POST' })
-      .then(res  => this.setState({ snapshotDisabled: false }))
-      .catch(err => this.setState({ snapshotDisabled: false }));
+    // Note the snapshots document automatically gets synched by pouchDB, no need to read the response.
+    this.setState({ waiting: true });
+    fetch(`/api/history/snapshot/${this.netID}`, { method: 'POST' })
+      .then(()  => this.setState({ waiting: false }))
+      .catch(() => this.setState({ waiting: false }));
   }
 
+  handleDeleteShapshot(snapID) {
+    this.setState({ waiting: true });
+    fetch(`/api/history/snapshot/${this.netID}/${snapID}`, { method: 'DELETE' })
+      .then(()  => this.setState({ waiting: false }))
+      .catch(() => this.setState({ waiting: false }));
+  }
+
+  handleRestoreShapshot(snapID) {
+    this.setState({ waiting: true });
+    fetch(`/api/history/restore/${this.netID}/${snapID}`, { method: 'POST' })
+      .then(()  => this.setState({ waiting: false }))
+      .catch(() => this.setState({ waiting: false }));
+  }
 
   render() {
     const SnapshotButton = () => 
       <Button
         className='history-panel-take-snapshot'
         variant='contained'
-        disabled={this.state.snapshotDisabled}
-        startIcon={this.state.snapshotDisabled ? <CircularProgress/> : <AddAPhotoIcon/>} 
+        disabled={this.state.waiting}
+        startIcon={this.state.waiting ? <CircularProgress size={20} /> : <AddAPhotoIcon/>} 
         onClick={() => this.handleTakeSnapshot()}>
         Take Snapshot
       </Button>;
@@ -70,12 +84,14 @@ export class HistoryPanel extends Component {
             </div>
             <div style={{ padding:'5px', display: 'inline-block', alignSelf: 'center' }}>
               <Tooltip arrow title="Restore">
-                <IconButton size='small' color='secondary'>
+                <IconButton size='small' color='secondary'
+                  onClick={() => this.handleRestoreShapshot(snapshot.id)}>
                   <RestoreIcon fontSize='small'/>
                 </IconButton>
               </Tooltip>
               <Tooltip arrow title="Delete">
-                <IconButton size='small' color='secondary'>
+                <IconButton size='small' color='secondary' 
+                  onClick={() => this.handleDeleteShapshot(snapshot.id)}>
                   <DeleteForeverIcon fontSize='small'/>
                 </IconButton>
               </Tooltip>
@@ -87,7 +103,6 @@ export class HistoryPanel extends Component {
 
     return <div>
       <SnapshotButton />
-      <hr />
       { this.state.snapshots.map(snapshot =>
         <SnapshotTile key={snapshot.id} snapshot={snapshot} />
       )}

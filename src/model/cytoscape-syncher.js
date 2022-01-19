@@ -64,7 +64,6 @@ export class CytoscapeSyncher {
     const remotePouchOptions = {
       fetch: (url, opts) => {
         opts.headers.set('X-Secret', this.secret);
-  
         return PouchDB.fetch(url, opts);
       }
     };
@@ -222,7 +221,7 @@ export class CytoscapeSyncher {
         });
 
         foundCyDoc = true;
-      } else {
+      } else if( row.id !== 'snapshots') {
         eleJsons.push({
           data: _.clone(doc.data),
           position: _.clone(doc.position),
