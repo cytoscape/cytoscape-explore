@@ -5,8 +5,8 @@ WORKDIR /usr/src/app
 
 COPY . .
 RUN NODE_ENV=development npm ci # dev b/c we need dev deps
+RUN npm run build # build the clientside app
 
 EXPOSE 3000
 
-CMD npm run build # build the clientside app
 CMD npm run start # run the server
