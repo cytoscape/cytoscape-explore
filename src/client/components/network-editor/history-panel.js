@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, IconButton, Paper, CircularProgress, Tooltip } from "@material-ui/core";
+import { Button, IconButton, CircularProgress, Tooltip, Collapse } from "@material-ui/core";
+import { List, ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
+import { TransitionGroup } from 'react-transition-group';
 import { NetworkEditorController } from './controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
-import CloudCircleIcon from '@material-ui/icons/CloudCircle';
+import CloudIcon from '@material-ui/icons/Cloud';
 import RestoreIcon from '@material-ui/icons/Restore';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
@@ -66,46 +68,43 @@ export class HistoryPanel extends Component {
         Take Snapshot
       </Button>;
 
-    const SnapshotTile = ({ snapshot })=> {
-      const date = new Date(snapshot.timestamp);
-      return <div style={{ padding: '5px' }}>
-        <Paper variant='outlined'>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ padding:'10px', display: 'inline-block', alignSelf: 'center' }}>
-              <CloudCircleIcon fontSize='large' />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 4, padding:'5px', alignSelf: 'center' }}>
-              <div>
-                { date.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' }) }
-              </div>
-              <div>
-                { date.toLocaleString("en-US", { minute: 'numeric', hour: 'numeric' }) }
-              </div>
-            </div>
-            <div style={{ padding:'5px', display: 'inline-block', alignSelf: 'center' }}>
-              <Tooltip arrow title="Restore">
-                <IconButton size='small' color='secondary'
-                  onClick={() => this.handleRestoreShapshot(snapshot.id)}>
-                  <RestoreIcon fontSize='small'/>
-                </IconButton>
-              </Tooltip>
-              <Tooltip arrow title="Delete">
-                <IconButton size='small' color='secondary' 
-                  onClick={() => this.handleDeleteShapshot(snapshot.id)}>
-                  <DeleteForeverIcon fontSize='small'/>
-                </IconButton>
-              </Tooltip>
-            </div>
-          </div>
-        </Paper>
-      </div>;
+    const SnapshotListItem = ({ snapshot })=> {
+      const timestamp = new Date(snapshot.timestamp);
+      const date = timestamp.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+      const time = timestamp.toLocaleString("en-US", { minute: 'numeric', hour: 'numeric' });
+      return <ListItem key={snapshot.id}>
+        <ListItemAvatar>
+          <Avatar><CloudIcon/></Avatar>
+        </ListItemAvatar>
+        <ListItemText primary={date} secondary={time} />
+        <ListItemSecondaryAction>
+          <Tooltip arrow title="Restore">
+            <IconButton size='small' color='secondary'
+                onClick={() => this.handleRestoreShapshot(snapshot.id)}>
+                <RestoreIcon fontSize='small'/>
+            </IconButton>
+          </Tooltip>
+          <Tooltip arrow title="Delete">
+            <IconButton size='small' color='secondary' 
+              onClick={() => this.handleDeleteShapshot(snapshot.id)}>
+              <DeleteForeverIcon fontSize='small'/>
+            </IconButton>
+          </Tooltip>
+        </ListItemSecondaryAction>
+      </ListItem>;
     };
 
-    return <div>
+    return <div style={{ paddingTop: '10px' }}>
       <SnapshotButton />
-      { this.state.snapshots.map(snapshot =>
-        <SnapshotTile key={snapshot.id} snapshot={snapshot} />
-      )}
+      <List sx={{ width: '100%' }}>
+      <TransitionGroup>
+        { this.state.snapshots.map(snapshot =>
+          <Collapse  key={snapshot.id} >
+            <SnapshotListItem snapshot={snapshot} />
+          </Collapse>
+        )}
+      </TransitionGroup>
+      </List>
     </div>;
   }
 }
