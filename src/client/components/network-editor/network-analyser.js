@@ -57,10 +57,35 @@ export class NetworkAnalyser {
     }
   }
 
+  _clearCountCache() {
+    this._countCache = {};
+  }
+
+  _getCachedCount(selector) {
+    let eles = this._countCache[selector];
+
+    if (eles == null) {
+      eles = this._countCache[selector] = this.cy.collection().merge(this.cy.filter(selector))
+    }
+
+    return eles.length;
+  }
+
+  _addToCountCache(selector, ele) {
+    if (this._countCache && this._countCache[selector] != null) {
+      this._countCache[selector].merge(ele);
+    }
+  }
+
+  _rmFromCountCache(selector, ele) {
+    if (this._countCache && this._countCache[selector] != null) {
+      this._countCache[selector].unmerge(ele);
+    }
+  }
 
   getCount(selector, attrName, type) {
     if(!attrName) {
-      return this.cy.elements(selector).size();
+      return this._getCachedCount(selector);
     }
     const attrInfo = this.attributes[selector].get(attrName);
     if(attrInfo) {
@@ -109,6 +134,7 @@ export class NetworkAnalyser {
 
 
   _reset() {
+    this._clearCountCache();
     this.attributes = {
       node: new Map(),
       edge: new Map()
@@ -125,6 +151,8 @@ export class NetworkAnalyser {
   // TWo things: iterate over all known attributes
   // If a new attribute is found
   _addElement(selector, ele) {
+    this._addToCountCache(selector, ele);
+
     const map = this.attributes[selector];
     const data = ele.data();
     const first = map.size == 0; // is this the first node or edge to be processed?
@@ -174,6 +202,8 @@ export class NetworkAnalyser {
   }
 
   _removeElement(selector, ele) {
+    this._rmFromCountCache(selector, ele);
+
     const map = this.attributes[selector];
     const toRemove = [];
 
