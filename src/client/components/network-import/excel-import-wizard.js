@@ -216,16 +216,12 @@ class ExcelImportSubWizard extends React.Component {
     const elements = this.createCyElements(edgeData, nodeData);
 
     // Create another Cytoscape instance, just so we can apply a layout
-    const cy = new Cytoscape();
+    const cy = new Cytoscape({ styleEnabled: true });
     cy.data(data);
     cy.add(elements);
 
-    // Apply grid layout (but first, calculate an adequate bounding box where nodes don't overlap)
-    const nc = cy.nodes().length;
-    const size = 50 * Math.round(Math.sqrt(nc));
-    const w = 1.25 * size;
-    const h = 0.75 * size;
-    cy.layout({ name: 'grid', boundingBox: { x1: 0, y1: 0, w, h } }).run();
+    // Apply grid layout
+    cy.layout({ name: 'grid', avoidOverlap: true }).run();
     
     // Get the json data that should now include the new node positions
     const json = cy.json(true);
