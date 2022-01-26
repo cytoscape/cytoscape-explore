@@ -59,6 +59,7 @@
     "cytoscape-edgehandles": "^3.6.0",
     "cytoscape-fcose": "^1.2.3",
     "cytoscape-popper": "^1.0.7",
+    "cytosnap": "^3.1.0",
     "dotenv": "^6.2.0",
     "esm": "^3.2.25",
     "eventemitter3": "^3.1.2",
