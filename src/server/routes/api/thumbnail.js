@@ -8,7 +8,7 @@ import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from '../
 const cytosnap = require('cytosnap');
 const snap = cytosnap();
 
-async function createThumbnail(id) {
+async function createThumbnail(id, width, height) {
   await snap.start();
   console.log("Cytosnap stared!");
 
@@ -21,7 +21,7 @@ async function createThumbnail(id) {
     // cytoscape.js options
     elements, // cytoscape.js elements json
     //style: undefined, // a cytoscape.js stylesheet in json format (or a function that returns it)
-    //layout: undefined, // a cytoscape.js layout options object (or a function that returns it)
+    layout: { name: 'preset' }, // a cytoscape.js layout options object (or a function that returns it)
     // (specifying style or layout via a function is useful in cases where you can't send properly serialisable json)
    
     // image export options
@@ -29,13 +29,12 @@ async function createThumbnail(id) {
     format: 'png', // 'png' or 'jpg'/'jpeg' (n/a if resolvesTo: 'json')
     quality: 85, // quality of image if exporting jpg format, 0 (low) to 100 (high)
     background: 'transparent', // a css colour for the background (transparent by default)
-    width: 200, // the width of the image in pixels
-    height: 200 // the height of the image in pixels
+    width, // the width of the image in pixels
+    height // the height of the image in pixels
   };
   
   // TODO figure out how to use an image stream, shouldn't have to encode/decode base64
   const image = await snap.shot(options);
-  console.log("Image generated! " + image);
   return image;
 }
 
@@ -93,13 +92,17 @@ const http = Express.Router();
 http.get('/:id', async function(req, res, next) {
   try {
     const { id } = req.params;
-    const imageEncoded = await createThumbnail(id);
+    const { w = 400, h = 300 } = req.query || {};
+
+    const imageEncoded = await createThumbnail(id, +w, +h);
     const image = Buffer.from(imageEncoded, 'base64');
+
     res.writeHead(200, {
       'Content-Type': 'image/png',
       'Content-Length': image.length
     });
     res.end(image);
+
   } catch (err) {
     next(err);
   }
