@@ -1,6 +1,9 @@
 import Express from 'express';
 import PouchDB  from 'pouchdb';
 import _ from 'lodash';
+import VizMapper from '../../../model/vizmapper';
+import Cytoscape from 'cytoscape';
+
 import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from '../../env';
 
 
@@ -15,12 +18,18 @@ async function createThumbnail(id, width, height) {
   const db = createPouchInstance(id);
   console.log("PouchDB instance created!");
 
-  const elements = await createCytoscapeElementsJSON(db, id);
+  const { elements, style } = await createCytoscapeElementsAndStyle(db, id);
+
+  console.log("Elements");
+  console.log(JSON.stringify(elements));
+
+  console.log("Style");
+  console.log(JSON.stringify(style));
 
   var options = {
     // cytoscape.js options
     elements, // cytoscape.js elements json
-    //style: undefined, // a cytoscape.js stylesheet in json format (or a function that returns it)
+    style, // a cytoscape.js stylesheet in json format (or a function that returns it)
     layout: { name: 'preset' }, // a cytoscape.js layout options object (or a function that returns it)
     // (specifying style or layout via a function is useful in cases where you can't send properly serialisable json)
    
@@ -39,34 +48,56 @@ async function createThumbnail(id, width, height) {
 }
 
 
-async function createCytoscapeElementsJSON(db, id) {
+async function createCytoscapeElementsAndStyle(db, id) {
   const docs = await db.allDocs({
     include_docs: true
   });
-  console.log("Docs retreived!");
-
   if(docs.total_rows === 0) {
     new Error(`The database is empty: ${id}`);
   }
 
-  let eleJsons = [];
-  let styleJson = []; // TODO ???
-
+  const cy = new Cytoscape();
+  let elements = [];
+  
   for(let i = 0; i < docs.rows.length; i++) {
     let row = docs.rows[i];
     let { doc } = row;
 
-    if(row.id === id){
-      // TODO get the style
+    if(row.id === id) {
+      cy.data(_.clone(doc.data));
     } else if(row.id !== 'snapshots') { // TODO Remove the check for 'snapshots'
-      eleJsons.push({
+      elements.push({
         data: _.clone(doc.data),
         position: _.clone(doc.position),
       });
     }
   }
+  if(elements.length > 0){
+    cy.add(elements);
+  }
 
-  return eleJsons;
+  const vizmapper = new VizMapper(cy, null);
+
+  const _styles = cy.data('_styles') || {};
+  const nodeStyleProps = Object.keys(_styles['node'] || {});
+  const edgeStyleProps = Object.keys(_styles['edge'] || {});
+
+  const style = [];
+
+  cy.elements().forEach(ele => {
+    const styleProps = ele.isNode() ? nodeStyleProps : edgeStyleProps;
+    const elementStyle = {};
+    for(const prop of styleProps) {
+      const styleValue = vizmapper.calculate(ele, prop);
+      elementStyle[prop] = styleValue;
+    }
+    style.push({
+      selector: "#" + ele.id(),
+      style: elementStyle
+    });
+  });
+
+  return { elements, style };
 }
 
 
