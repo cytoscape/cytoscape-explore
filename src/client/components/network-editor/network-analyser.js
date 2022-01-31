@@ -65,7 +65,7 @@ export class NetworkAnalyser {
     let eles = this._countCache[selector];
 
     if (eles == null) {
-      eles = this._countCache[selector] = this.cy.collection().merge(this.cy.filter(selector))
+      eles = this._countCache[selector] = this.cy.collection().merge(this.cy.filter(selector));
     }
 
     return eles.length;
