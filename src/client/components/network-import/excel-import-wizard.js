@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { NetworkEditorController } from '../network-editor/controller';
 import theme from '../../theme';
+import Cytoscape from 'cytoscape';
 import _ from 'lodash';
 import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
@@ -210,20 +211,36 @@ class ExcelImportSubWizard extends React.Component {
 
   async handleFinish() {
     const { networkName, edgeData, nodeData } = this.state;
+
+    const data = { name: networkName };
     const elements = this.createCyElements(edgeData, nodeData);
 
-    if (elements && elements.length > 0) {
-      try {
-        this.controller.setNetwork(elements, { name: networkName });
-      } catch (e) {
-        console.log(e); // TODO Show error to user
-      }
+    // Create another Cytoscape instance, just so we can apply a layout
+    const cy = new Cytoscape({ styleEnabled: true });
+    cy.data(data);
+    cy.add(elements);
 
-      // TODO Apply preferred layout
-      this.controller.applyLayout(this.controller.layoutOptions.fcose);
-    }
+    // Apply grid layout
+    cy.layout({ name: 'grid', avoidOverlap: true }).run();
+    
+    // Get the json data that should now include the new node positions
+    const json = cy.json(true);
+    cy.destroy(); // We can now destroy this Cytoscape instance
+
+    // Ask the server to import the json data
+    const res = await fetch( `/api/document/json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(json),
+    });
+
+    // Navigate to the new document
+    const urls = await res.json();
 
     this.props.wizardCallbacks.closeWizard();
+    location.replace(`/document/${urls.id}/${urls.secret}`); 
   }
 
   createCyElements(edgeData, nodeData) {
