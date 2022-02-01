@@ -1,80 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
-import { Button, IconButton, Tooltip, Fade } from '@material-ui/core';
-import { Grid } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
+import { Grid, Divider } from '@material-ui/core';
 import { LinearProgress } from '@material-ui/core';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
 import CancelIcon from '@material-ui/icons/Cancel';
-import DescriptionIcon from '@material-ui/icons/Description';
-import { Cy3LogoIcon, NDExLogoIcon } from '../svg-icons';
-import Cy3ImportSubWizard from './cy3-import-wizard';
-import ExcelImportSubWizard from './excel-import-wizard';
-import { NetworkEditorController } from '../network-editor/controller';
-import NDExImportSubWizard from './ndex-import-wizard';
-
-const PARENT_STEP = {
-  SELECT_A_WIZARD: "SELECT_A_WIZARD",
-  SUB_WIZARD: "SUB_WIZARD"
-};
-
-const SUB_WIZARD = {
-  UNSELECTED: null,
-  CY3: "CY3",
-  NDEX: "NDEX",
-  EXCEL: "EXCEL"
-};
-
-const itemStyle = {
-  padding: '6px',
-};
-
-const logoIconProps = {
-  viewBox: '0 0 64 64',
-  p: 0,
-  m: 0,
-};
-
-const logoIconStyle = {
-  width: 'auto',
-  fontSize: '2rem',
-  margin: 0, 
-  fill: '#fff',
-};
-
-const WIZARDS = [
-  {
-    id: SUB_WIZARD.CY3,
-    label: "Cytoscape 3",
-    tooltip: "Cytoscape Desktop",
-    icon: <Cy3LogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
-    color: '#ea9123',
-  },
-  {
-    id: SUB_WIZARD.NDEX,
-    label: "NDEx",
-    tooltip: "ndexbio.org",
-    icon: <NDExLogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
-    color: '#0087d2',
-  },
-  {
-    id: SUB_WIZARD.EXCEL,
-    label: "Excel File",
-    tooltip: "Excel or CSV file",
-    icon: <DescriptionIcon style={{...logoIconStyle}} />,
-    color: '#107c41',
-  },
-];
+import { LoginController } from '../login/controller';
 
 export class ImportWizard extends React.Component {
 
   constructor(props){
     super(props);
-    this.controller = props.controller;
 
     this.wizardCallbacks = {
       _onFinish:   () => null,
@@ -95,8 +36,6 @@ export class ImportWizard extends React.Component {
 
     this.state = {
       open: true,
-      parentStep: PARENT_STEP.SELECT_A_WIZARD,
-      subWizard: SUB_WIZARD.UNSELECTED,
       steps: null,
       step: null,
       loading: false,
@@ -104,25 +43,20 @@ export class ImportWizard extends React.Component {
       nextButton: 'hidden',
       backButton: 'hidden',
       finishButton: 'hidden',
-      cancelButton: 'enabled',
     };
   }
 
   handleCancel() {
     this.setState({ open: false });
+
+    this.wizardCallbacks._onClose && this.wizardCallbacks._onClose();
+    this.wizardCallbacks._onCancel && this.wizardCallbacks._onCancel();
+    
     this.props.onClose && this.props.onClose();
-    this.wizardCallbacks._onCancel();
   }
 
   handleContinue() {
-    if (this.state.parentStep == PARENT_STEP.SELECT_A_WIZARD) {
-      this.setState({ 
-        parentStep: PARENT_STEP.SUB_WIZARD,
-        subWizard: this.state.subWizardButton,
-        backButton: 'enabled'
-      });
-    } 
-    this.wizardCallbacks._onContinue();
+    this.wizardCallbacks._onContinue && this.wizardCallbacks._onContinue();
   }
 
   handleBack() {
@@ -131,16 +65,14 @@ export class ImportWizard extends React.Component {
 
   handleFinish() {
     this.setState({ loading: true });
-    this.wizardCallbacks._onFinish();
+    this.wizardCallbacks._onFinish && this.wizardCallbacks._onFinish();
   }
 
   handleReturnToSelector() {
     this.setState({ 
-      parentStep: PARENT_STEP.SELECT_A_WIZARD,
       backButton: 'hidden',
       nextButton: 'hidden',
       finishButton: 'hidden',
-      cancelButton: 'enabled',
       steps: null,
       step: null,
     });
@@ -156,19 +88,19 @@ export class ImportWizard extends React.Component {
       this.setState({ step });
   }
 
-  handleButtonState({ nextButton, backButton, finishButton, cancelButton }) {
+  handleButtonState({ nextButton, backButton, finishButton }) {
     if (nextButton)
       this.setState({ nextButton });
     if (backButton)
       this.setState({ backButton });
     if (finishButton)
       this.setState({ finishButton });
-    if (cancelButton)
-      this.setState({ cancelButton });
   }
 
   render() {
     const { steps, step, loading } = this.state;
+    const Wizard = this.props.wizard;
+    const wizardProps = this.props.wizardProps || {};
     
     let optional = false;
     let title;
@@ -194,7 +126,7 @@ export class ImportWizard extends React.Component {
           disableTypography
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}
         >
-          <h2>{ this.renderTitleText() }</h2>
+          <h2>{ title }</h2>
           <IconButton 
             aria-label='close' 
             onClick={() => this.handleCancel()}>
@@ -209,16 +141,13 @@ export class ImportWizard extends React.Component {
             { loading &&
               <LinearProgress />
             }
-            { title &&
-              <h3>{ title }{ optional ? <sup style={{fontWeight: 'normal', paddingLeft: 10}}>(optional)</sup> : '' }</h3>
-            }
-            { this.renderPage() }
+            { <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} /> }
           </>
         </DialogContent>
         <DialogActions>
-          <Grid container justifyContent="space-between" spacing={10}>
-            <Grid item>
-              { this.state.backButton !== 'hidden' &&
+          <Grid container justifyContent="space-between" spacing={2}>
+            { this.state.backButton !== 'hidden' &&
+              <Grid item>
                 <Button
                   variant="contained"
                   color="primary"
@@ -228,162 +157,70 @@ export class ImportWizard extends React.Component {
                 >
                   Back
                 </Button>
-              }
-            </Grid>
-            <Grid item>
-              <Grid container justifyContent="space-between" spacing={2}>
-                { this.state.cancelButton !== 'hidden' &&
-                  <Grid item>
-                    <Button
-                      disabled={this.state.cancelButton !== 'enabled'}
-                      variant="outlined"
-                      color="primary"
-                      endIcon={<CancelIcon />}
-                      onClick={() => this.handleCancel()}
-                    >
-                      Cancel
-                    </Button>
-                  </Grid>
-                }
-                { this.state.finishButton !== 'hidden' &&
-                  <Grid item>
-                    <Button
-                      disabled={loading || this.state.finishButton !== 'enabled'}
-                      variant="contained"
-                      color="primary"
-                      endIcon={<CheckCircleIcon />}
-                      onClick={() => this.handleFinish()}
-                    >
-                      Finish
-                    </Button>
-                  </Grid>
-                }
-                { this.state.nextButton !== 'hidden' &&
-                  <Grid item>
-                    <Button
-                      autoFocus
-                      disabled={loading || this.state.nextButton !== 'enabled'}
-                      variant="contained"
-                      color="primary"
-                      endIcon={<KeyboardArrowRightIcon />}
-                      onClick={() => this.handleContinue()}
-                    >
-                      Next
-                    </Button>
-                  </Grid>
-                }
               </Grid>
-            </Grid>
+            }
+            <Grid item style={{ flexGrow: 1 }} />
+            { this.state.finishButton !== 'hidden' &&
+              <Grid item>
+                <Button
+                  disabled={loading || this.state.finishButton !== 'enabled'}
+                  variant="contained"
+                  color="primary"
+                  endIcon={<CheckCircleIcon />}
+                  onClick={() => this.handleFinish()}
+                >
+                  Finish
+                </Button>
+              </Grid>
+            }
+            { this.state.nextButton !== 'hidden' &&
+              <Grid item>
+                <Button
+                  autoFocus
+                  disabled={loading || this.state.nextButton !== 'enabled'}
+                  variant="contained"
+                  color="primary"
+                  endIcon={<KeyboardArrowRightIcon />}
+                  onClick={() => this.handleContinue()}
+                >
+                  Next
+                </Button>
+              </Grid>
+            }
           </Grid>
         </DialogActions>
       </Dialog>
     );
   }
-  
-  renderTitleText() {
-    switch(this.state.parentStep) {
-      case PARENT_STEP.SELECT_A_WIZARD: return "Import Network";
-      case PARENT_STEP.SUB_WIZARD:
-        switch(this.state.subWizard) {
-          case SUB_WIZARD.CY3:   return "Import from Cytoscape Desktop";
-          case SUB_WIZARD.NDEX:  return "Import from NDEx";
-          case SUB_WIZARD.EXCEL: return "Import from Excel File";
-        }
-        break;
-    }
-  }
-
-  renderPage() {
-    switch(this.state.parentStep) {
-      case PARENT_STEP.SELECT_A_WIZARD: 
-        return this.renderWizardSelector();
-      case PARENT_STEP.SUB_WIZARD:
-        return this.renderSubWizard();
-    }
-  }
-
-  renderWizardSelector() {
-    const classes = useStyles();
-
-    const handleButton = (subWizardButton) => {
-      this.setState({ 
-        parentStep: PARENT_STEP.SUB_WIZARD,
-        subWizard: subWizardButton,
-        backButton: 'enabled'
-      });
-      this.wizardCallbacks._onContinue();
-    };
-
-    return (
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        className={classes.root}
-        spacing={2}
-        style={{margin: 8}}
-      >
-        <Grid item xs={12}>
-          <Grid container direction="column" justifycontent="center" spacing={4}>
-            {WIZARDS.map((w) => (
-              <Grid key={w.id} item style={{...itemStyle}}>
-                <Tooltip
-                  arrow
-                  placement="right"
-                  enterDelay={500}
-                  TransitionComponent={Fade}
-                  TransitionProps={{timeout: 600}}
-                  title={<span style={{fontSize: '0.8rem'}}>{w.tooltip}</span>}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    className={classes.button}
-                    style={{backgroundColor: w.color, textTransform: 'unset', fontWeight: 'bold', minWidth: '180px', justifyContent: "flex-start"}}
-                    startIcon={w.icon}
-                    onClick={() => handleButton(w.id)}
-                  >
-                    {w.label}
-                  </Button>
-                </Tooltip>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-  }
-
-  renderSubWizard() {
-    switch(this.state.subWizard) {
-      case SUB_WIZARD.CY3: 
-        return <Cy3ImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-      case SUB_WIZARD.NDEX:
-        return <NDExImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-      case SUB_WIZARD.EXCEL: 
-        return <ExcelImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-    }
-  }
-
 }
 
-function useStyles() {
-  return makeStyles((theme) => ({
-    root: {
-      flexGrow: 1,
-      width: '100%',
-    },
-    button: {
-      margin: theme.spacing(1),
-    },
-  }));
-}
+const useStyles = theme => ({
+  root: {
+    flexGrow: 1,
+    width: '100%',
+    margin: 0,
+  },
+  item: {
+    margin: 0,
+  },
+  button: {
+    margin: 0,
+    textTransform: 'unset',
+  },
+  label: {
+    textTransform: 'none',
+  },
+  startIcon: {
+    marginLeft: 0,
+    marginRight: 0,
+  },
+});
 
 ImportWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
+  wizard: PropTypes.func.isRequired,
+  wizardProps: PropTypes.any,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };
 
-export default ImportWizard;
+export default withStyles(useStyles)(ImportWizard);

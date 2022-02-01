@@ -15,9 +15,10 @@ import theme from '../../theme';
 import { DEFAULT_PADDING } from '../layout/defaults';
 
 export class NetworkEditor extends Component {
-  constructor(props){
-    super(props);
 
+  constructor(props) {
+    super(props);
+    
     const id = _.get(props, ['match', 'params', 'id'], _.get(props, 'id'));
     let secret = _.get(props, ['match', 'params', 'secret'], _.get(props, 'secret'));
 
@@ -29,14 +30,11 @@ export class NetworkEditor extends Component {
     });
 
     this.cyEmitter = new EventEmitterProxy(this.cy);
-
     this.cy.data({ id });
-
     this.cySyncher = new CytoscapeSyncher(this.cy, secret);
-
     this.controller = new NetworkEditorController(this.cy, this.cySyncher, this.bus);
 
-    if( NODE_ENV !== 'production' ){
+    if (NODE_ENV !== 'production') {
       window.cy = this.cy;
       window.cySyncher = this.cySyncher;
       window.controller = this.controller;
@@ -46,7 +44,6 @@ export class NetworkEditor extends Component {
       rightPanelOpen: false,
       // can add more panels here
     };
-
 
     this.cy.style().fromJson([
       {
@@ -110,7 +107,6 @@ export class NetworkEditor extends Component {
       this.cy.fit(DEFAULT_PADDING);
 
       console.log('Successful load from DB');
-
       console.log('End of editor sync initial phase');
     };
 
@@ -185,12 +181,13 @@ export class NetworkEditor extends Component {
 
   render() {
     const { controller } = this;
+
     const setOpen = open => this.setState({ rightPanelOpen: open });
 
     const panelStyleOverrides = {};
-    if(this.state.rightPanelOpen) {
+    
+    if (this.state.rightPanelOpen)
       panelStyleOverrides.right = '300px';
-    }
 
     return (
       <ThemeProvider theme={theme}>
@@ -198,10 +195,10 @@ export class NetworkEditor extends Component {
         <div className="network-editor">
           <Header controller={controller} />
           <div className="network-editor-content">
-              <div className="cy" style={panelStyleOverrides}>
-                <div id="cy" />
-                <NetworkBackground controller={controller} />
-              </div>
+            <div className="cy" style={panelStyleOverrides}>
+              <div id="cy" />
+              <NetworkBackground controller={controller} />
+            </div>
             <ToolPanel 
               controller={controller} 
               onSetOpen={setOpen}
@@ -256,7 +253,7 @@ export class Demo extends Component {
   }
 
   render() {
-    return <NetworkEditor id="demo" secret="demo"></NetworkEditor>;
+    return <NetworkEditor id="demo" secret="demo" />;
   }
 }
 

@@ -24,7 +24,7 @@
 }
 
 .header-title-area {
-  margin-left: 2em;
+  margin-left: 1em;
   line-height: 1;
   flex-grow: 3;
 }
@@ -58,7 +58,7 @@
   align-items: center;
 }
 
-.share-button-popover-content { 
+.share-button-popover-content {
   width: 450px;
   background-color: #121212;
   padding: 10px;
@@ -77,5 +77,3 @@
 .share-button-popover {
   margin-top: 10px;
 }
-
-
