@@ -7,6 +7,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.eslintrc.json'
+      - '.github/workflows/tests.yaml'
 
 jobs:
   ci:
