@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Wait for CouchDB
         run: |
-          sleep 60 && curl http://127.0.0.1:5984/    
+          sleep 15 && curl http://127.0.0.1:5984/    
     
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
           NODE_ENV: development
           PORT: 3000
           LOG_LEVEL: info
-          COUCHDB_URL: http://localhost:5984
+          COUCHDB_URL: http://couchdb:5984
           USE_COUCH_AUTH: false
           COUCHDB_USER: admin
           COUCHDB_PASSWORD: admin
