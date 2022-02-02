@@ -15,13 +15,15 @@ const on = (evt, target) => new Promise(resolve => {
   target.on(evt, resolve);
 });
 
-describe('CytoscapeSyncher', () => {
+describe('CytoscapeSyncher', function() {
   let cy, syncher; // instances for simualted client1
   let cy2, syncher2; // instances for simulated client2
   let id = 'test'; // test network id
   let secret = 'secret';
   let defSyncInt;
   let expressServer, expressApp;
+
+  this.timeout(10000);
 
   before(async () => {
     const { server, app } = await import('../src/server');

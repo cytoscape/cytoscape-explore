@@ -323,13 +323,13 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   renderNetworkList(ndexNetworkReults) {
-    const handleNetworkSelection = (selectedId) => {
+    const handleRadio = (selectedId) => {
       this.setState({ selectedId });
       this.updateButtons({ ...this.state, selectedId });
     };
     return (
       <TableContainer component={Paper}>
-        <Table size="large" aria-label="network table">
+        <Table size="medium" aria-label="network table">
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
@@ -341,13 +341,13 @@ export class NDExImportSubWizard extends React.Component {
           </TableHead>
           <TableBody>
             { ndexNetworkReults.map(network => (
-              <TableRow
-                key={network.externalId}
-                selected={this.state.selectedId === network.externalId}
-                onClick={() => handleNetworkSelection(network.externalId)}
-                className="ndex-import-network-entry"
-              >
+              <TableRow key={network.externalId}>
                 <TableCell align="center">
+                  <Radio
+                    checked={this.state.selectedId === network.externalId}
+                    onClick={() => handleRadio(network.externalId)}
+                    value={network.externalId}
+                  />
                 </TableCell>
                 <TableCell component="th" scope="row">{network.name}</TableCell>
                 <TableCell align="right">{network.owner}</TableCell>

@@ -14,13 +14,25 @@ const USE_COUCH_AUTH = ('' + process.env.USE_COUCH_AUTH).toLowerCase() === 'true
 const LOG_SYNC = process.env.LOG_POUCH_DB === 'true';
 const log = LOG_SYNC ? console.log : _.noop;
 
+// map an element to its json representation to be stored in the db
+const getEleDBJson = ele => {
+  if (ele.isNode()) {
+    return { data: ele.data(), position: ele.position() };
+  } else { // edge
+    return { data: ele.data() };
+  }
+};
+
+// deep copy
+const copy = obj => JSON.parse(JSON.stringify(obj));
+
 /**
  * A client creates an instance of `CytoscapeSyncher` to automatically manage synchronisation
  * of the Cytoscape network with the server.
  * @type CytoscapeSyncher
  */
 export class CytoscapeSyncher {
-  static synchInterval = 400;
+  static synchInterval = 3000; // 3 seconds of inactivity => upload changes
 
   /**
    * Create a `CytoscapeSyncher` which has live-synch disabled.
@@ -138,24 +150,13 @@ export class CytoscapeSyncher {
 
     const doc = {
       _id: docId,
-      data: _.clone(cy.data())
+      data: copy(cy.data()),
+      elements: copy(cy.elements().map(getEleDBJson))
     };
 
     const putRes = await localDb.put(doc);
 
     this.cy.scratch({ rev: putRes.rev });
-
-    this.cy.elements().forEach(async ele => {
-      const doc = {
-        _id: ele.id(),
-        data: _.clone(ele.data()),
-        position: _.clone(ele.position())
-      };
-
-      const putRes = await localDb.put(doc);
-
-      ele.scratch({ rev: putRes.rev });
-    });
 
     // do initial, one-way synch from local db to server db
     const info = await localDb.replicate.to(remoteDb);
@@ -208,37 +209,27 @@ export class CytoscapeSyncher {
     }
 
     let foundCyDoc = false;
-    let eleJsons = [];
 
     for( let i = 0; i < res.rows.length; i++ ){
       let row = res.rows[i];
       let { doc } = row;
 
       if( row.id === this.docId ){
-        cy.data( _.clone(doc.data) );
+        cy.json( copy({ // let cy patch the network
+          data: doc.data,
+          elements: doc.elements
+        }) );
 
-        cy.scratch({
+        cy.scratch({ // note the rev for future edits
           rev: doc._rev
         });
 
         foundCyDoc = true;
-      } else {
-        eleJsons.push({
-          data: _.clone(doc.data),
-          position: _.clone(doc.position),
-          scratch: {
-            rev: doc._rev
-          }
-        });
       }
     }
 
     if( !foundCyDoc ){
       throw new DocumentNotFoundError(dbName, docId, 'Could not find network document');
-    }
-
-    if( eleJsons.length > 0 ){
-      cy.add(eleJsons);
     }
 
     this.loadedOrCreated = true;
@@ -271,29 +262,28 @@ export class CytoscapeSyncher {
 
     const canUpdate = () => this.enabled && !this.updatingFromRemoteChange;
 
-    const synchLoop = async () => {
+    const scheduleUpload = _.debounce(() => {
+      upload(); // kick off async upload
+    }, CytoscapeSyncher.synchInterval);
+
+    const upload = async () => {
       if( !canUpdate() ){
         // try next time
-        this.synchTimeout = setTimeout(synchLoop, CytoscapeSyncher.synchInterval);
+        scheduleUpload();
 
         return;
       }
 
       this.runningSyncLoop = true;
 
-      const docsToWrite = this.dirtyEles.map(ele => ({
-        _id: ele.id(),
-        _rev: ele.scratch('rev'),
-        _deleted: ele.removed(),
-        data: _.clone(ele.data()),
-        position: _.clone(ele.position())
-      }));
+      const docsToWrite = [];
 
-      if( this.dirtyCy ){
+      if( this.dirtyCy || this.dirtyEles.nonempty() ){
         docsToWrite.push({
           _id: this.cy.data('id'),
           _rev: this.cy.scratch('rev'),
-          data: _.clone(this.cy.data())
+          data: copy(this.cy.data()),
+          elements: copy(this.cy.elements().map(getEleDBJson))
         });
       }
 
@@ -313,13 +303,11 @@ export class CytoscapeSyncher {
             if( id === this.networkId ){
               this.cy.scratch({ rev });
             } else {
-              this.cy.getElementById(id).scratch({ rev });
+              // if we use multiple docs for the network in future, they would need the revs locally updated here
             }
           }
         });
       }
-
-      this.synchTimeout = setTimeout(synchLoop, CytoscapeSyncher.synchInterval);
 
       this.runningSyncLoop = false;
     };
@@ -331,6 +319,8 @@ export class CytoscapeSyncher {
         } else if( isValidTargetEle(target) ){
           this.dirtyEles.merge(target);
         }
+
+        scheduleUpload();
       }
     };
 
@@ -368,60 +358,33 @@ export class CytoscapeSyncher {
 
           for( let i = 0; i < docs.length; i++ ){
             const doc = docs[i];
-            let id = doc._id;
-            let rev = doc._rev;
-            let deleted = doc._deleted;
+            const id = doc._id;
+            const rev = doc._rev;
+            const deleted = doc._deleted; // TODO for handling future network deletion
+            const isNetworkDoc = id === this.networkId;
 
-            if( id === this.networkId ){
-              this.cy.data(_.clone(doc.data));
+            if (isNetworkDoc) {
+              const elements = copy(doc.elements);
+
+              // don't apply position updates to nodes this user is currently grabbing
+              for (let elJson of elements) {
+                const el = this.cy.getElementById(elJson.data.id);
+
+                if (el.grabbed()) {
+                  delete elJson.position;
+                }
+              }
+
+              this.cy.json({
+                data: copy(doc.data),
+                elements
+              });
+
               this.cy.scratch({ rev });
 
               this.emitter.emit('cy', doc.data);
             } else {
-              const ele = this.cy.getElementById(id);
-
-              if( ele.nonempty() || deleted ){
-                if( deleted ){
-                  ele.remove();
-
-                  this.emitter.emit('remove', ele);
-                } else {
-                  ele.data(_.clone(doc.data));
-                  ele.scratch({ rev });
-
-                  const elePos = ele.position();
-
-                  if( doc.position.x !== elePos.x || doc.position.y !== elePos.y ){
-                    ele.position(_.clone(doc.position));
-
-                  //   const syncPosAni = ele.animation({
-                  //     position: _.clone(doc.position),
-                  //     duration: 250,
-                  //     easing: 'ease-out'
-                  //   });
-
-                  //   const oldPosAni = ele.scratch('syncPosAni');
-
-                  //   if( oldPosAni != null ){
-                  //     oldPosAni.stop();
-                  //   }
-
-                  //   ele.scratch('syncPosAni', syncPosAni);
-
-                  //   syncPosAni.play();
-                  }
-
-                  this.emitter.emit('ele', ele);
-                }
-              } else {
-                const newEle = this.cy.add({
-                  data: _.clone(doc.data),
-                  position: _.clone(doc.position),
-                  scratch: { rev }
-                });
-
-                this.emitter.emit('add', newEle);
-              }
+              // if in future we use multiple docs per network, then we'd need to apply those doc updates here
             }
           }
 
@@ -438,9 +401,6 @@ export class CytoscapeSyncher {
         log('PouchDB error', err);
       })
     );
-
-    // start the async loop
-    synchLoop();
   }
 
   /**
@@ -455,8 +415,6 @@ export class CytoscapeSyncher {
       this.synchHandler.cancel();
       this.synchHandler.removeAllListeners();
     }
-
-    clearTimeout(this.synchTimeout);
 
     this.listenersAdded = false;
   }
