@@ -13,12 +13,17 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     container: node:14.15.4
+    
+    services:
+      couchdb:
+        image: couchdb:2.3.1
+        ports:
+        - 5984:5984
 
     steps:
-      - name: Set up CouchDB
-        uses: "cobot/couchdb-action@master"
-        with:
-          couchdb version: '2.3.1'
+      - name: Wait for CouchDB
+        run: |
+          sleep 60 && curl http://127.0.0.1:5984/    
     
       - name: Check out repository code
         uses: actions/checkout@v2
