@@ -125,6 +125,13 @@ export class Header extends Component {
     cy.layout({ name: 'grid' }).run();
   }
 
+  showPouch() {
+    this.props.controller.cySyncher.localDb
+      .allDocs({ include_docs: true }) // just want a list of the docs, not their contents
+        .then(doc => console.log(JSON.stringify(doc)))
+        .catch(err => console.log(JSON.stringify(err)));
+  }
+
   render() {
     const { anchorEl, menuName, dialogName } = this.state;
     const controller = this.controller;
@@ -226,6 +233,7 @@ export class Header extends Component {
                     <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-export')}>Export Network To NDEx</MenuItem>
                     <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
                     <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
+                    <MenuItem onClick={() => this.showPouch()}>Display Contents of PouchDB in Console</MenuItem>
                   </MenuList>
                 )}
               </Popover>
