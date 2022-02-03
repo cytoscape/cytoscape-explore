@@ -22,39 +22,33 @@ export class HistoryPanel extends Component {
     };
 
     // Do an initial load of the snapshots
-    // MKTODO move this logic into the controller
-    this.props.controller.cySyncher.localDb.get('snapshots')
-      .then(doc => this.setState({ snapshots: doc.snapshots, waiting: false }))
+    fetch(`/api/history/snapshot/${this.netID}`)
+      .then(res => res.json())
+      .then(snapshots  => this.setState({ snapshots, waiting: false }))
       .catch(() => this.setState({ waiting: false }));
-
-    this.busProxy = new EventEmitterProxy(this.props.controller.cySyncher.emitter);
-    this.busProxy.addListener('snapshots', snapshots => this.setState({ snapshots }));
-  }
-
-  componentWillUnmount() {
-    this.busProxy.removeAllListeners();
   }
 
   handleTakeSnapshot() {
-    // Note the snapshots document automatically gets synched by pouchDB, no need to read the response.
     this.setState({ waiting: true });
     fetch(`/api/history/snapshot/${this.netID}`, { method: 'POST' })
-      .then(()  => this.setState({ waiting: false }))
+      .then(res => res.json())
+      .then(snapshots  => this.setState({ snapshots, waiting: false }))
       .catch(() => this.setState({ waiting: false }));
   }
 
   handleDeleteShapshot(snapID) {
     this.setState({ waiting: true });
     fetch(`/api/history/snapshot/${this.netID}/${snapID}`, { method: 'DELETE' })
-      .then(()  => this.setState({ waiting: false }))
+      .then(res => res.json())
+      .then(snapshots  => this.setState({ snapshots, waiting: false }))
       .catch(() => this.setState({ waiting: false }));
   }
 
   handleRestoreShapshot(snapID) {
-    this.setState({ waiting: true });
-    fetch(`/api/history/restore/${this.netID}/${snapID}`, { method: 'POST' })
-      .then(()  => this.setState({ waiting: false }))
-      .catch(() => this.setState({ waiting: false }));
+  //   this.setState({ waiting: true });
+  //   fetch(`/api/history/restore/${this.netID}/${snapID}`, { method: 'POST' })
+  //     .then(()  => this.setState({ waiting: false }))
+  //     .catch(() => this.setState({ waiting: false }));
   }
 
   render() {
