@@ -273,11 +273,6 @@ export class VizMapper {
 
 
   _getStyleStruct(data, ele, property) {
-    console.log("_getStyleStruct");
-    console.log("property: " + property);
-    console.log("data");
-    console.log(JSON.stringify(data));
-    
     const selector = ele.isNode() ? 'node' : 'edge';
     const DEF_STYLE = ele.isNode() ? DEFAULT_NODE_STYLE : DEFAULT_EDGE_STYLE;
     const id = ele.id();
