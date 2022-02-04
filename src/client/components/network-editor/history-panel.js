@@ -8,6 +8,7 @@ import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
 import CloudIcon from '@material-ui/icons/Cloud';
 import RestoreIcon from '@material-ui/icons/Restore';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import ConfirmDialog from './confirm-dialog';
 
 export class HistoryPanel extends Component {
 
@@ -17,7 +18,8 @@ export class HistoryPanel extends Component {
 
     this.state = {
       snapshots: [],
-      waiting: true
+      waiting: true,
+      dialogOpen: false
     };
   }
 
@@ -34,8 +36,23 @@ export class HistoryPanel extends Component {
   }
 
   handleRestoreShapshot(snapID) {
-    //this.runSnapshotApiCall(`/api/history/restore/${this.netID}/${snapID}`, 'POST');
+    this.setState({
+      dialogOpen: true,
+      restoreSnapID: snapID,
+    });
   }
+
+  handleRestoreConfirm(confirmed) {
+    const snapID = this.state.restoreSnapID;
+    this.setState({ 
+      dialogOpen: false, 
+      restoreSnapID: null 
+    });
+    if(confirmed) {
+      this.snapshotApiCall(`/api/history/restore/${this.netID}/${snapID}`, 'POST');
+    }
+  }
+
 
   snapshotApiCall(url, method) {
     // All of the endpoints in the history API return the list of snapshots.
@@ -95,6 +112,13 @@ export class HistoryPanel extends Component {
           )}
         </TransitionGroup>
       </List>
+      <ConfirmDialog 
+        open={this.state.dialogOpen} 
+        title='Restore Snapshot?'
+        message='This will overwrite the contents of the network with the contents of the Snapshot.'
+        onConfirm={() => this.handleRestoreConfirm(true)}
+        onCancel= {() => this.handleRestoreConfirm(false)}
+      />
     </div>;
   }
 }

@@ -66,7 +66,7 @@ async function deleteSnapshot(id, snapID) {
 
   const headRes = await fetch(snapURL, { method: 'HEAD' });
   if(!headRes.ok) {
-    new Error("Cannot get rev for snapshot document " + response.err);
+    new Error("Cannot get rev for snapshot document " + headRes.err);
   }
   const rev = removeQuotes(headRes.headers.get('ETag'));
 
@@ -75,6 +75,42 @@ async function deleteSnapshot(id, snapID) {
     new Error("Cannot delete snapshots view " + response.err);
   }
 }
+
+
+async function restoreSnapshot(id, snapID) {
+  const docURL = getNetworkDocURL(id);
+  const snapURL = getSnapshotDocURL(id, snapID);
+
+  const headRes = await fetch(docURL, { method: 'HEAD' });
+  if(!headRes.ok) {
+    new Error("Cannot get rev for network document " + headRes.err);
+  }
+  const rev = removeQuotes(headRes.headers.get('ETag'));
+
+  const snapRes = await fetch(snapURL, { method: 'GET' });
+  if(!snapRes.ok) {
+    new Error("Cannot get snapshot document " + snapRes.err);
+  }
+
+  const snapshot = await snapRes.json();
+  delete snapshot._id;
+  delete snapshot._rev;
+  delete snapshot.snapshot;
+  delete snapshot.timestamp;
+
+  const putResponse = await fetch(docURL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      _rev: rev,
+      ...snapshot
+    })
+  });
+  if(!putResponse.ok) {
+    new Error("Cannot restore snapshot document for " + id);
+  }
+}
+
 
 
 const http = Express.Router();
@@ -113,8 +149,10 @@ http.delete('/snapshot/:id/:snapID', async function(req, res, next) {
 
 http.post('/restore/:id/:snapID', async function(req, res, next) {
   try {
-    console.log("restore???");
-    res.send('ok');
+    const { id, snapID } = req.params;
+    await restoreSnapshot(id, snapID);
+    const snapshots = await getSnapshots(id);
+    res.send(JSON.stringify(snapshots));
   } catch (err) {
     next(err);
   }
