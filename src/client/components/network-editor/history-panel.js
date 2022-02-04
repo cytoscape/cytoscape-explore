@@ -9,6 +9,7 @@ import CloudIcon from '@material-ui/icons/Cloud';
 import RestoreIcon from '@material-ui/icons/Restore';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ConfirmDialog from './confirm-dialog';
+import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 
 export class HistoryPanel extends Component {
 
@@ -16,6 +17,16 @@ export class HistoryPanel extends Component {
     super(props);
     this.netID = this.props.controller.cy.data('id');
 
+    this.expectingEvent = false;
+    this.emitter = new EventEmitterProxy(props.controller.cySyncher.emitter);
+    this.emitter.on('snapshot', () => {
+      if(this.expectingEvent) {
+        this.expectingEvent = false;
+      } else { // change happend in another tab!
+        this.handleGetSnapshots();
+      }
+    });
+    
     this.state = {
       snapshots: [],
       waiting: true,
@@ -23,7 +34,15 @@ export class HistoryPanel extends Component {
     };
   }
 
+  componentWillUnmount() {
+    this.emitter.removeAllListeners();
+  }
+
   componentDidMount() {
+    this.handleGetSnapshots();
+  }
+
+  handleGetSnapshots() {
     this.snapshotApiCall(`/api/history/snapshot/${this.netID}`, 'GET');
   }
 
@@ -53,9 +72,11 @@ export class HistoryPanel extends Component {
     }
   }
 
-
   snapshotApiCall(url, method) {
     // All of the endpoints in the history API return the list of snapshots.
+    if(method !== 'GET') {
+      this.expectingEvent = true;
+    }
     this.setState({ waiting: true });
     fetch(url, { method })
       .then(res => res.json())

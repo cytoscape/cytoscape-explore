@@ -345,6 +345,22 @@ export class CytoscapeSyncher {
       })
     );
 
+    // Listen for changes to snapshot documents
+    this.remoteDb.changes({
+      since: 'now',
+      live: true,
+      include_docs: false
+    })
+    .on('change', change => {
+      if(change.id.startsWith('snapshot')) {
+        this.emitter.emit('snapshot');
+      }
+    })
+    .on('error', err => {
+      log('PouchDB error', err);
+    });
+
+
     // handle remote updates:
     this.synchHandler = (this.localDb.sync(this.remoteDb, { 
         live: true, 
