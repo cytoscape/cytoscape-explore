@@ -4,7 +4,6 @@ import { Button, IconButton, CircularProgress, Tooltip, Collapse } from "@materi
 import { List, ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { TransitionGroup } from 'react-transition-group';
 import { NetworkEditorController } from './controller';
-import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
 import CloudIcon from '@material-ui/icons/Cloud';
 import RestoreIcon from '@material-ui/icons/Restore';
@@ -20,35 +19,32 @@ export class HistoryPanel extends Component {
       snapshots: [],
       waiting: true
     };
+  }
 
-    // Do an initial load of the snapshots
-    fetch(`/api/history/snapshot/${this.netID}`)
-      .then(res => res.json())
-      .then(snapshots  => this.setState({ snapshots, waiting: false }))
-      .catch(() => this.setState({ waiting: false }));
+  componentDidMount() {
+    this.snapshotApiCall(`/api/history/snapshot/${this.netID}`, 'GET');
   }
 
   handleTakeSnapshot() {
-    this.setState({ waiting: true });
-    fetch(`/api/history/snapshot/${this.netID}`, { method: 'POST' })
-      .then(res => res.json())
-      .then(snapshots  => this.setState({ snapshots, waiting: false }))
-      .catch(() => this.setState({ waiting: false }));
+    this.snapshotApiCall(`/api/history/snapshot/${this.netID}`, 'POST');
   }
 
   handleDeleteShapshot(snapID) {
-    this.setState({ waiting: true });
-    fetch(`/api/history/snapshot/${this.netID}/${snapID}`, { method: 'DELETE' })
-      .then(res => res.json())
-      .then(snapshots  => this.setState({ snapshots, waiting: false }))
-      .catch(() => this.setState({ waiting: false }));
+    this.snapshotApiCall(`/api/history/snapshot/${this.netID}/${snapID}`, 'DELETE');
   }
 
   handleRestoreShapshot(snapID) {
-  //   this.setState({ waiting: true });
-  //   fetch(`/api/history/restore/${this.netID}/${snapID}`, { method: 'POST' })
-  //     .then(()  => this.setState({ waiting: false }))
-  //     .catch(() => this.setState({ waiting: false }));
+    //this.runSnapshotApiCall(`/api/history/restore/${this.netID}/${snapID}`, 'POST');
+  }
+
+  snapshotApiCall(url, method) {
+    // All of the endpoints in the history API return the list of snapshots.
+    this.setState({ waiting: true });
+    fetch(url, { method })
+      .then(res => res.json())
+      .then(snapshots => snapshots.sort((a, b) => b.timestamp - a.timestamp))
+      .then(snapshots  => this.setState({ snapshots, waiting: false }))
+      .catch(() => this.setState({ waiting: false }));
   }
 
   render() {
@@ -91,13 +87,13 @@ export class HistoryPanel extends Component {
     return <div style={{ paddingTop: '10px' }}>
       <SnapshotButton />
       <List sx={{ width: '100%' }}>
-      <TransitionGroup>
-        { this.state.snapshots.map(snapshot =>
-          <Collapse  key={snapshot.id} >
-            <SnapshotListItem snapshot={snapshot} />
-          </Collapse>
-        )}
-      </TransitionGroup>
+        <TransitionGroup>
+          { this.state.snapshots.map(snapshot =>
+            <Collapse key={snapshot.id}>
+              <SnapshotListItem snapshot={snapshot} />
+            </Collapse>
+          )}
+        </TransitionGroup>
       </List>
     </div>;
   }

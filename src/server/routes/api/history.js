@@ -10,6 +10,11 @@ const getNetworkDocURL = (id) => `${COUCHDB_URL}/${id}/${id}`;
 const getSnapshotDocURL = (id, snapID) => `${COUCHDB_URL}/${id}/${snapID}`;
 const getSnapshotViewURL = (id) => `${COUCHDB_URL}/${id}/${SNAPSHOTS_VIEW}`;
 
+const removeQuotes = str => {
+  if(str.charAt(0) === '"' && str.charAt(str.length-1) === '"')
+    return str.substr(1, str.length-2);
+  return str;
+};
 
 async function takeSnapshot(id) {
   const snapID = createSnapshotID();
@@ -59,7 +64,13 @@ async function getSnapshots(id) {
 async function deleteSnapshot(id, snapID) {
   const snapURL = getSnapshotDocURL(id, snapID);
 
-  const response = await fetch(snapURL, { method: 'DELETE' });
+  const headRes = await fetch(snapURL, { method: 'HEAD' });
+  if(!headRes.ok) {
+    new Error("Cannot get rev for snapshot document " + response.err);
+  }
+  const rev = removeQuotes(headRes.headers.get('ETag'));
+
+  const response = await fetch(`${snapURL}?rev=${rev}`, { method: 'DELETE' });
   if(!response.ok) {
     new Error("Cannot delete snapshots view " + response.err);
   }
