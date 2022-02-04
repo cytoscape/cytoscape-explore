@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
-import EventEmitter from 'eventemitter3';
+import PropTypes from 'prop-types';
 
-import { LoginController } from '../login/controller';
+import AccountButton from '../login/AccountButton';
 import ImportWizard from '../network-import/import-wizard';
 import Cy3ImportSubWizard from '../network-import/cy3-import-wizard';
 import NDExImportSubWizard from '../network-import/ndex-import-wizard';
@@ -25,19 +25,10 @@ export class Content extends Component {
   constructor(props) {
     super(props);
 
-    this.bus = new EventEmitter();
-    this.controllers = {
-      loginController: new LoginController(this.bus),
-    };
-
     this.state = {
       dialogName: null,
       wizardInfo: null,
     };
-  }
-
-  componentWillUnmount() {
-    this.bus.removeAllListeners();
   }
 
   createNewNetwork() {
@@ -61,8 +52,6 @@ export class Content extends Component {
   }
 
   onCloseDialog() {
-    console.log('... closed ...');
-
     this.setState({
       dialogName: null,
       wizardInfo: null,
@@ -73,7 +62,6 @@ export class Content extends Component {
     // Fetch the sample file
     const res1 = await fetch('/sample-data/galFiltered-cx2.json');
     const cx2 = await res1.json();
-    console.log(cx2);
 
     // Ask the server to import the json data
     const res2 = await fetch( `/api/document/cx`, {
@@ -91,14 +79,14 @@ export class Content extends Component {
 
   render() {
     const { dialogName, wizardInfo } = this.state;
-    const { classes } = this.props;
+    const { controllers, classes } = this.props;
     
     const wizardProps = {};
 
     if (wizardInfo) {
       for (const k of wizardInfo.props) {
-        if (this.controllers[k] != null)
-          wizardProps[k] = this.controllers[k];
+        if (controllers[k] != null)
+          wizardProps[k] = controllers[k];
       }
     }
 
@@ -161,20 +149,35 @@ export class Content extends Component {
   }
 
   renderHeader() {
-    const { classes } = this.props;
+    const { classes, controllers } = this.props;
+    const loginController = controllers.loginController;
 
     return (
       <AppBar position="static" color='default'>
         <Toolbar variant="regular">
-          <Tooltip arrow placement="bottom" title="Cytoscape Explore Home">
-            <IconButton 
-              aria-label='close' 
-              onClick={() => location.href = '/'}
-            >
-              <AppLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />
-            </IconButton>
-          </Tooltip>
-          <Typography variant="h5" className={classes.h5}>Cytoscape Explore</Typography>
+          <Grid container alignItems='center' justifyContent="space-between">
+            <Grid item>
+
+              <Grid container alignItems='center'>
+                <Grid item>
+                  <Tooltip arrow placement="bottom" title="Cytoscape Explore Home">
+                    <IconButton 
+                      aria-label='close' 
+                      onClick={() => location.href = '/'}
+                    >
+                      <AppLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" className={classes.h5}>Cytoscape Explore</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <AccountButton controller={loginController}/>
+            </Grid>
+          </Grid>
         </Toolbar>
       </AppBar>
     );
@@ -323,9 +326,6 @@ const WIZARDS = [
 
 const useStyles = theme => ({
   root: {
-    // flexGrow: 1,
-    // margin: 0,
-    // padding: 0,
     alignContent: 'center',
   },
   container: {
@@ -363,5 +363,9 @@ const useStyles = theme => ({
     lineHeight: '200%',
   },
 });
+
+Content.propTypes = {
+  controllers: PropTypes.object.isRequired,
+};
 
 export default withStyles(useStyles)(Content);

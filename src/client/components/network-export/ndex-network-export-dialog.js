@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
+import Cytoscape from 'cytoscape';
+import { LoginController } from '../login/controller';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import _ from 'lodash';
 import {
@@ -37,6 +38,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { CX_DATA_KEY } from '../../../model/import-export/cx/cx-util';
 
 export class CopyLink extends Component {
+
   constructor(props) {
     super(props);
 
@@ -83,7 +85,9 @@ export class NDExExportDialog extends Component {
 
   constructor(props) {
     super(props);
+    
     this.controller = props.controller;
+    this.cy = props.cy;
     this.onClose = props.onClose;
 
     this.onGoogleLogout = () => this.dirty();
@@ -111,7 +115,7 @@ export class NDExExportDialog extends Component {
   }
 
   exportNetworkToNDEx(){
-    const cy = this.controller.cy;
+    const cy = this.cy;
     const ndexClient = this.controller.ndexClient;
     const id = cy.data('id');
     this.setState({loading: true});
@@ -145,6 +149,7 @@ export class NDExExportDialog extends Component {
   }
 
   render() {
+    const cy = this.cy;
     const isAuthenticated = this.props.controller.ndexClient.authenticationType != null && this.props.controller.ndexClient._authToken != null;
 
     const step0Content = !isAuthenticated ? (
@@ -156,7 +161,7 @@ export class NDExExportDialog extends Component {
       </DialogContent>
     ) : (
       <DialogContent dividers className="export-ndex-network-content" >
-      {_.get(this.controller.cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], null) != null ?
+      {_.get(cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], null) != null ?
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -172,7 +177,7 @@ export class NDExExportDialog extends Component {
           <div>Incompatible properties found in your network:</div>
             {Object.entries(
               _.groupBy(
-                _.get(this.controller.cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], []),
+                _.get(cy.data(), [CX_DATA_KEY, 'incompatible-cx-properties'], []),
                 vpName => vpName.split('_')[0]
             )).map(([group, entries]) => {
               return (
@@ -203,8 +208,8 @@ export class NDExExportDialog extends Component {
         autoFocus={true}
         label={'Network name'}
         placeholder={'My network'}
-        onChange={(evt) => { this.props.controller.cy.data('name', evt.target.value); this.dirty();}}
-        value={this.props.controller.cy.data('name')}
+        onChange={(evt) => { cy.data('name', evt.target.value); this.dirty(); }}
+        value={cy.data('name')}
       />
       <InputLabel id="network-visibility-select">Visibility</InputLabel>
       <Select
@@ -276,7 +281,7 @@ export class NDExExportDialog extends Component {
         <DialogContent dividers className="export-ndex-network-content" >
         <Alert variant="outlined" severity="success">
             <AlertTitle>Confirm Network Export</AlertTitle>
-            <p><b>{this.props.controller.cy.data('name')} has been exported to NDEx</b> </p>
+            <p><b>{cy.data('name')} has been exported to NDEx</b> </p>
         </Alert>
 
         <CopyLink title={'NDEx Network URL'} linkContent={this.state.ndexNetworkURL}/>
@@ -313,7 +318,8 @@ export class NDExExportDialog extends Component {
 }
 
 NDExExportDialog.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
+  controller: PropTypes.instanceOf(LoginController).isRequired,
+  cy: PropTypes.instanceOf(Cytoscape).isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };

@@ -1,26 +1,5 @@
-.header {
-  border-bottom: 2px solid #050505;
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-}
-
-.header .logo {
-  width: 48px;
-  height: 48px;
-  background-size: cover;
-  margin-top: 0.25em;
-  margin-bottom: 0.25em;
-  margin-right: 1em;
-}
-
 .header .menu-button {
   margin-right: 2em;
-}
-
-.header .grow {
-  flex-grow: 1;
 }
 
 .header-title-area {
@@ -37,11 +16,6 @@
 
 .header-tools > * {
   display: inline-block !important;
-}
-
-.header-separator {
-  width: 1em;
-  display: inline-block;
 }
 
 .share-button-popover-heading {

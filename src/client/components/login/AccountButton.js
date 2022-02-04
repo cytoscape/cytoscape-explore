@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import UserInfoPopover from "./UserInfoPopover";
 import GoogleLoginButton from "./GoogleLoginButton";
 
-import { NetworkEditorController } from '../controller';
+import { LoginController } from './controller';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -122,8 +122,7 @@ const AccountButton = ({controller}) => {
 };
 
 AccountButton.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController)
+  controller: PropTypes.instanceOf(LoginController).isRequired,
 };
-
 
 export default AccountButton;

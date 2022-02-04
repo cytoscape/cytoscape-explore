@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { withStyles } from '@material-ui/core/styles';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { Button, IconButton } from '@material-ui/core';
-import { Grid, Divider } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { LinearProgress } from '@material-ui/core';
+
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
-import CancelIcon from '@material-ui/icons/Cancel';
-import { LoginController } from '../login/controller';
 
 export class ImportWizard extends React.Component {
 

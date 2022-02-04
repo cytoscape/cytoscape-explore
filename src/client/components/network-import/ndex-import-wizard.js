@@ -20,6 +20,11 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { LoginController } from '../login/controller';
 
+const STEPS = [
+  {
+    label: "Import From NDEx",
+  },
+];
 
 function isAuthenticated(ndexClient){
   return ndexClient.authenticationType != null && ndexClient._authToken != null;
@@ -86,9 +91,13 @@ export class NDExImportSubWizard extends React.Component {
   }
 
   componentDidMount() {
+    const { setSteps, setCurrentStep } = this.props.wizardCallbacks;
+    setSteps({ steps: STEPS });
+    setCurrentStep(this.state);
+
     this.updateButtons(this.state);
 
-    if(isAuthenticated(this.controller.ndexClient)){
+    if (isAuthenticated(this.controller.ndexClient)) {
       this.fetchMyNetworks();
     }
   }
