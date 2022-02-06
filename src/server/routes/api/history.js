@@ -5,12 +5,12 @@ import { COUCHDB_URL } from '../../env';
 import { SNAPSHOTS_VIEW } from '../../../model/couch-design-doc';
 
 
-const createSnapshotID = () => `snapshot_${uuid()}`;
-const getNetworkDocURL = (id) => `${COUCHDB_URL}/${id}/${id}`;
-const getSnapshotDocURL = (id, snapID) => `${COUCHDB_URL}/${id}/${snapID}`;
-const getSnapshotViewURL = (id) => `${COUCHDB_URL}/${id}/${SNAPSHOTS_VIEW}`;
+export const createSnapshotID = () => `snapshot_${uuid()}`;
+export const getNetworkDocURL = (id) => `${COUCHDB_URL}/${id}/${id}`;
+export const getSnapshotDocURL = (id, snapID) => `${COUCHDB_URL}/${id}/${snapID}`;
+export const getSnapshotViewURL = (id) => `${COUCHDB_URL}/${id}/${SNAPSHOTS_VIEW}`;
 
-const removeQuotes = str => {
+export const removeQuotes = str => {
   if(str.charAt(0) === '"' && str.charAt(str.length-1) === '"')
     return str.substr(1, str.length-2);
   return str;

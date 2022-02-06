@@ -1,50 +1,30 @@
 import Express from 'express';
-import PouchDB  from 'pouchdb';
 import Cytoscape from 'cytoscape';
-import _ from 'lodash';
 import VizMapper from '../../../model/vizmapper';
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
-import { COUCHDB_PASSWORD, COUCHDB_URL, COUCHDB_USER, USE_COUCH_AUTH } from '../../env';
+import fetch from 'node-fetch';
+import { getNetworkDocURL, getSnapshotDocURL } from './history';
 
 // TODO Rewrite this to use 'import'
 const cytosnap = require('cytosnap');
 const snap = cytosnap();
-
 
 function objMap(obj, f) {
   return Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, f(v)]));
 }
 
 
-async function getThumbnail(id, width, height) {
+async function getThumbnail(id, snapID, width, height) {
   await snap.start();
-  console.log("Cytosnap stared 4!");
-
-  const db = createPouchInstance(id);
-  console.log("PouchDB instance created!");
-
-  try {
-    const image = await db.getAttachment(id, 'network.png');
-    console.log("got image from attachment");
-    return image;
-  } catch(err) {
-    console.log("can't get attachment");
-  }
-
-  const image = await createThumbnail(db, id, width, height);
-  console.log("create image and attach it");
-  try {
-    const doc = await db.get(id);
-    var attachment = new Buffer(image, 'base64');
-    await db.putAttachment(id, 'network.png', doc._rev, attachment, 'image/png');
-  } catch(err2) {
-    console.log("error setting attachment: " + JSON.stringify(err2));
-  }
+  console.log("Cytosnap stared!");
+  // TODO if its a snapshot then get atachment from couchdb  
+  const image = await createThumbnail(id, snapID, width, height);
+  // TODO if its a snapshot then save the attachment to couchdb
   return image;
 }
 
-async function createThumbnail(db, id, width, height) {
-  const { elements, style } = await createCytoscapeElementsAndStyle(db, id);
+async function createThumbnail(id, snapID, width, height) {
+  const { elements, style } = await createCytoscapeElementsAndStyle(id, snapID);
 
   const options = {
     // cytoscape.js options
@@ -68,31 +48,20 @@ async function createThumbnail(db, id, width, height) {
 }
 
 
-async function createCytoscapeElementsAndStyle(db, id) {
-  const docs = await db.allDocs({ include_docs: true });
-  if(docs.total_rows === 0) {
-    new Error(`The database is empty: ${id}`);
+async function createCytoscapeElementsAndStyle(id, snapID) {
+  const docURL = snapID ? getSnapshotDocURL(id, snapID) : getNetworkDocURL(id);
+
+  const response = await fetch(docURL);
+  if(!response.ok) {
+    new Error(`Cannot fetch network document: ${id}`);
   }
+  const json = await response.json();
 
   const cy = new Cytoscape();
-  let elements = [];
-  
-  for(let i = 0; i < docs.rows.length; i++) {
-    let row = docs.rows[i];
-    let { doc } = row;
-
-    if(row.id === id) {
-      cy.data(_.clone(doc.data));
-    } else if(row.id !== 'snapshots') { // TODO Remove the check for 'snapshots'
-      elements.push({
-        data: _.clone(doc.data),
-        position: _.clone(doc.position),
-      });
-    }
-  }
-  if(elements.length > 0){
-    cy.add(elements); 
-  }
+  if(json.data)
+    cy.data(json.data); 
+  if(json.elements)
+    cy.add(json.elements); 
 
   const vizmapper = new VizMapper(cy, null);
 
@@ -101,11 +70,11 @@ async function createCytoscapeElementsAndStyle(db, id) {
   const edgeStyleProps = Object.keys(_styles['edge'] || {});
 
   const style = [{
-      selector: 'node',
-      style: objMap(DEFAULT_NODE_STYLE, val => val.stringValue)
-    },{
-      selector: 'edge',
-      style: objMap(DEFAULT_EDGE_STYLE, val => val.stringValue)
+    selector: 'node',
+    style: objMap(DEFAULT_NODE_STYLE, val => val.stringValue)
+  },{
+    selector: 'edge',
+    style: objMap(DEFAULT_EDGE_STYLE, val => val.stringValue)
   }];
 
   cy.elements().forEach(ele => {
@@ -120,24 +89,9 @@ async function createCytoscapeElementsAndStyle(db, id) {
     });
   });
 
-  return { elements, style };
+  return { elements: json.elements, style };
 }
 
-
-// TODO When/if the database format changes to store the entire network in a single 
-// document, then we can just use fetch and the couch http API to get the document. 
-// For now using Pouch is more convenient because it automatically starts a replication 
-// that pulls in a consistent snapshot of the network at the time the replication starts.
-function createPouchInstance(id) {
-  let options = {};
-  if (USE_COUCH_AUTH) {
-    options.auth = {
-      username: COUCHDB_USER,
-      password: COUCHDB_PASSWORD
-    };
-  }
-  return new PouchDB(`${COUCHDB_URL}/${id}`, options);
-}
 
 
 
@@ -147,8 +101,9 @@ http.get('/:id', async function(req, res, next) {
   try {
     const { id } = req.params;
     const { w = 400, h = 300 } = req.query || {};
+    const snapID = req.query && req.query.snapshot;
 
-    const imageEncoded = await getThumbnail(id, +w, +h);
+    const imageEncoded = await getThumbnail(id, snapID, +w, +h);
     const image = Buffer.from(imageEncoded, 'base64');
 
     res.writeHead(200, {
