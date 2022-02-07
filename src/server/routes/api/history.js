@@ -93,17 +93,14 @@ async function restoreSnapshot(id, snapID) {
   }
 
   const snapshot = await snapRes.json();
-  delete snapshot._id;
-  delete snapshot._rev;
-  delete snapshot.snapshot;
-  delete snapshot.timestamp;
 
   const putResponse = await fetch(docURL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       _rev: rev,
-      ...snapshot
+      data: snapshot.data,
+      elements: snapshot.elements,
     })
   });
   if(!putResponse.ok) {

@@ -3,7 +3,7 @@ import Cytoscape from 'cytoscape';
 import VizMapper from '../../../model/vizmapper';
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
 import fetch from 'node-fetch';
-import { getNetworkDocURL, getSnapshotDocURL } from './history';
+import { getNetworkDocURL, getSnapshotDocURL, removeQuotes } from './history';
 
 // TODO Rewrite this to use 'import'
 const cytosnap = require('cytosnap');
@@ -17,15 +17,58 @@ function objMap(obj, f) {
 async function getThumbnail(id, snapID, width, height) {
   await snap.start();
   console.log("Cytosnap stared!");
-  // TODO if its a snapshot then get atachment from couchdb  
-  const image = await createThumbnail(id, snapID, width, height);
-  // TODO if its a snapshot then save the attachment to couchdb
+
+  // If its a thumbnail of the live network document then just create and return it.
+  if(!snapID) {
+    console.log("no snapID, generating thumbnail for network doc");
+    const docURL = getNetworkDocURL(id);
+    const { image } = await createThumbnail(docURL, width, height);
+    return image;
+  }
+
+  // If its a thumbnail of a snapshot, then we can cache it as an attachment on the snapshot document.
+  const docURL = getSnapshotDocURL(id, snapID);
+
+  // Check if there's already a thumbnail attached to the snapshot document.
+  // TODO What if the width/height is different?????
+  const getRes = await fetch(`${docURL}/network.png`);
+  if(getRes.status === 200) {
+    const image = await getRes.text(); // base64
+    return image;
+  }
+
+  const { image, rev } = await createThumbnail(docURL, width, height);
+
+  // Save the attachment
+  await fetch(`${docURL}/network.png`, { 
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'image/png',
+      'If-Match': rev
+    },
+    body: image
+  });
+
   return image;
 }
 
-async function createThumbnail(id, snapID, width, height) {
-  const { elements, style } = await createCytoscapeElementsAndStyle(id, snapID);
 
+async function createThumbnail(docURL, width, height) {
+  const response = await fetch(docURL);
+  if(!response.ok) {
+    new Error(`Cannot fetch network document: ${response.err}`);
+  }
+  const rev = removeQuotes(response.headers.get('ETag'));
+
+  const json = await response.json();
+  const { elements, style } = await createCytoscapeElementsAndStyle(json);
+  const image = await runCytosnap(elements, style, width, height);
+
+  return { image, rev };
+}
+
+
+async function runCytosnap(elements, style, width, height) {
   const options = {
     // cytoscape.js options
     elements, // cytoscape.js elements json
@@ -48,15 +91,7 @@ async function createThumbnail(id, snapID, width, height) {
 }
 
 
-async function createCytoscapeElementsAndStyle(id, snapID) {
-  const docURL = snapID ? getSnapshotDocURL(id, snapID) : getNetworkDocURL(id);
-
-  const response = await fetch(docURL);
-  if(!response.ok) {
-    new Error(`Cannot fetch network document: ${id}`);
-  }
-  const json = await response.json();
-
+async function createCytoscapeElementsAndStyle(json) {
   const cy = new Cytoscape();
   if(json.data)
     cy.data(json.data); 
