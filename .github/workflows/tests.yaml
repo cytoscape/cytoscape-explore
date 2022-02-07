@@ -7,12 +7,13 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.eslintrc.json'
+      - '.github/workflows/tests.yaml'
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     container: node:14.15.4
-
+    
     services:
       couchdb:
         image: couchdb:2.3.1
@@ -20,6 +21,10 @@ jobs:
         - 5984:5984
 
     steps:
+      - name: Wait for CouchDB
+        run: |
+          sleep 15 && curl http://couchdb:5984/    
+    
       - name: Check out repository code
         uses: actions/checkout@v2
 
@@ -35,7 +40,7 @@ jobs:
           NODE_ENV: development
           PORT: 3000
           LOG_LEVEL: info
-          COUCHDB_URL: http://localhost:5984
+          COUCHDB_URL: http://couchdb:5984
           USE_COUCH_AUTH: false
           COUCHDB_USER: admin
           COUCHDB_PASSWORD: admin
