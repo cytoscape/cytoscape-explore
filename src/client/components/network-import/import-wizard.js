@@ -169,7 +169,7 @@ export class ImportWizard extends React.Component {
                   endIcon={<CheckCircleIcon />}
                   onClick={() => this.handleFinish()}
                 >
-                  Finish
+                  Import
                 </Button>
               </Grid>
             }

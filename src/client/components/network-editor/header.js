@@ -198,7 +198,7 @@ export class Header extends Component {
                     onClick={() => this.showDialog('ndex-network-export')}
                   />
                   <ToolbarDivider unrelated />
-                  <AccountButton controller={loginController}/>
+                  <AccountButton controller={loginController} />
                   {/* <ToolbarButton
                     title="Debug"
                     icon={<DebugIcon />}

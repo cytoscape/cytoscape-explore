@@ -157,7 +157,6 @@ export class Content extends Component {
         <Toolbar variant="regular">
           <Grid container alignItems='center' justifyContent="space-between">
             <Grid item>
-
               <Grid container alignItems='center'>
                 <Grid item>
                   <Tooltip arrow placement="bottom" title="Cytoscape Explore Home">
@@ -175,7 +174,7 @@ export class Content extends Component {
               </Grid>
             </Grid>
             <Grid item>
-              <AccountButton controller={loginController}/>
+              <AccountButton controller={loginController} size='medium' />
             </Grid>
           </Grid>
         </Toolbar>

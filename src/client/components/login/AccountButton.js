@@ -14,16 +14,20 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "inline-block",
   },
-  avatar: {
+  small: {
     width: theme.spacing(3),
     height: theme.spacing(3),
+  },
+  medium: {
+    width: theme.spacing(5),
+    height: theme.spacing(5),
   },
 }));
 
 const DEV_SERVER_ID =
   "802839698598-mrrd3iq3jl06n6c2fo1pmmc8uugt9ukq.apps.googleusercontent.com";
 
-const AccountButton = ({controller}) => {
+const AccountButton = ({ controller, size = 'small' }) => {
   const classes = useStyles();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -65,13 +69,13 @@ const AccountButton = ({controller}) => {
     let userImageUrl = userInfo.imageUrl;
     if (userImageUrl === undefined || userImageUrl === null) {
       return (
-        <Avatar className={classes.avatar}>
+        <Avatar className={classes[size]}>
           {userName.trim().substring(0, 1)}
         </Avatar>
       );
     } else {
       return (
-        <Avatar className={classes.avatar} color="inherit" src={userImageUrl} />
+        <Avatar className={classes[size]} color="inherit" src={userImageUrl} />
       );
     }
   };
@@ -89,6 +93,7 @@ const AccountButton = ({controller}) => {
         controller={controller}
         clientId={DEV_SERVER_ID}
         responseHandler={responseHandler}
+        size={size}
       />
     );
   }
@@ -99,7 +104,7 @@ const AccountButton = ({controller}) => {
     <div className={classes.root}>
       <Tooltip arrow placement="bottom" title={`You are signed in as ${userInfo.name}`}>
         <IconButton
-          size="small"
+          size={size}
           edge="end"
           color="inherit"
           aria-haspopup="true"
@@ -123,6 +128,7 @@ const AccountButton = ({controller}) => {
 
 AccountButton.propTypes = {
   controller: PropTypes.instanceOf(LoginController).isRequired,
+  size: PropTypes.oneOf(['small', 'medium']),
 };
 
 export default AccountButton;

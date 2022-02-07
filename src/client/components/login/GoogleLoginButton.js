@@ -13,7 +13,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 // 3. on emit login request
 // 4. emit click event on the iconbutton ref
 
-const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controller}) => {
+const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controller, size = "small" }) => {
   let loginRef = useRef(null);
 
   useEffect(() => {
@@ -29,14 +29,14 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controll
         <Tooltip arrow placement="bottom" title={"Sign in with Google"}>
           <IconButton
             ref={loginRef}
-            size="small"
+            size={size}
             edge="end"
             color="inherit"
             aria-label="menu"
             aria-haspopup="true"
             onClick={renderProps.onClick}
           >
-            <AccountCircle />
+            <AccountCircle fontSize={size === 'small' ? 'medium' : 'large' } />
           </IconButton>
         </Tooltip>
       )}
@@ -53,6 +53,7 @@ GoogleLoginButton.propTypes = {
   clientId: PropTypes.string.isRequired,
   responseHandler: PropTypes.func.isRequired,
   controller: PropTypes.instanceOf(LoginController),
+  size: PropTypes.oneOf(['small', 'medium']),
 };
 
 export default GoogleLoginButton;
