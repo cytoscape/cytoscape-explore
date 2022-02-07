@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, IconButton, CircularProgress, Tooltip, Collapse } from "@material-ui/core";
-import { List, ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
+import { List, ImageListItem, ImageListItemBar } from "@material-ui/core";
 import { TransitionGroup } from 'react-transition-group';
 import { NetworkEditorController } from './controller';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
-import CloudIcon from '@material-ui/icons/Cloud';
 import RestoreIcon from '@material-ui/icons/Restore';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ConfirmDialog from './confirm-dialog';
@@ -73,10 +72,10 @@ export class HistoryPanel extends Component {
   }
 
   snapshotApiCall(url, method) {
-    // All of the endpoints in the history API return the list of snapshots.
     if(method !== 'GET') {
       this.expectingEvent = true;
     }
+    // All of the endpoints in the history API return the list of snapshots.
     this.setState({ waiting: true });
     fetch(url, { method })
       .then(res => res.json())
@@ -86,7 +85,7 @@ export class HistoryPanel extends Component {
   }
 
   render() {
-    const SnapshotButton = () => 
+    return <div style={{ paddingTop: '10px' }}>
       <Button
         className='history-panel-take-snapshot'
         variant='contained'
@@ -94,45 +93,8 @@ export class HistoryPanel extends Component {
         startIcon={this.state.waiting ? <CircularProgress size={20} /> : <AddAPhotoIcon/>} 
         onClick={() => this.handleTakeSnapshot()}>
         Take Snapshot
-      </Button>;
-
-    const SnapshotListItem = ({ snapshot })=> {
-      const timestamp = new Date(snapshot.timestamp);
-      const date = timestamp.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
-      const time = timestamp.toLocaleString("en-US", { minute: 'numeric', hour: 'numeric' });
-      return <ListItem key={snapshot.id}>
-        <ListItemAvatar>
-          <Avatar><CloudIcon/></Avatar>
-        </ListItemAvatar>
-        <ListItemText primary={date} secondary={time} />
-        <ListItemSecondaryAction>
-          <Tooltip arrow title="Restore">
-            <IconButton size='small' color='secondary'
-                onClick={() => this.handleRestoreShapshot(snapshot.id)}>
-                <RestoreIcon fontSize='small'/>
-            </IconButton>
-          </Tooltip>
-          <Tooltip arrow title="Delete">
-            <IconButton size='small' color='secondary' 
-              onClick={() => this.handleDeleteShapshot(snapshot.id)}>
-              <DeleteForeverIcon fontSize='small'/>
-            </IconButton>
-          </Tooltip>
-        </ListItemSecondaryAction>
-      </ListItem>;
-    };
-
-    return <div style={{ paddingTop: '10px' }}>
-      <SnapshotButton />
-      <List sx={{ width: '100%' }}>
-        <TransitionGroup>
-          { this.state.snapshots.map(snapshot =>
-            <Collapse key={snapshot.id}>
-              <SnapshotListItem snapshot={snapshot} />
-            </Collapse>
-          )}
-        </TransitionGroup>
-      </List>
+      </Button>
+      { this.renderImageList() }
       <ConfirmDialog 
         open={this.state.dialogOpen} 
         title='Restore Snapshot?'
@@ -142,6 +104,52 @@ export class HistoryPanel extends Component {
       />
     </div>;
   }
+
+  renderImageList() {
+    const SnapshotImageListItem = ({ snapshot, width=240, height=150 })=> {
+      const timestamp = new Date(snapshot.timestamp);
+      const date = timestamp.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+      const time = timestamp.toLocaleString("en-US", { minute: 'numeric', hour: 'numeric' });
+      return <ImageListItem key={snapshot.id}>
+        <div style={{ height: '5px' }} />
+        <img
+          src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${width}&h=${height}`}
+          width={width}
+          height={height}
+          loading="lazy"
+        />
+        <ImageListItemBar title={date} subtitle={time}
+          actionIcon={
+            <div>
+              <Tooltip arrow title="Restore">
+                <IconButton size='small'
+                    onClick={() => this.handleRestoreShapshot(snapshot.id)}>
+                    <RestoreIcon fontSize='small'/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip arrow title="Delete">
+                <IconButton size='small'
+                  onClick={() => this.handleDeleteShapshot(snapshot.id)}>
+                  <DeleteForeverIcon fontSize='small'/>
+                </IconButton>
+              </Tooltip>
+            </div>
+          }
+        />
+      </ImageListItem>;
+    };
+
+    return <List sx={{ width: 240 }}>
+      <TransitionGroup>
+        { this.state.snapshots.map(snapshot =>
+          <Collapse key={snapshot.id}>
+            <SnapshotImageListItem snapshot={snapshot} />
+          </Collapse>
+        )}
+      </TransitionGroup>
+    </List>;
+  }
+
 }
 HistoryPanel.propTypes = {
   controller: PropTypes.instanceOf(NetworkEditorController),
