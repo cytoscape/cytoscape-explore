@@ -106,30 +106,34 @@ export class HistoryPanel extends Component {
   }
 
   renderImageList() {
-    const SnapshotImageListItem = ({ snapshot, width=240, height=150 })=> {
+    const Thumbnail = ({ snapshot, width=240, height=150 }) => {
+      // Multiply the width/height when generating the image, makes it look much crisper on retina displays.
+      const [ w, h ] = [ width * 2, height * 2 ];
+      return <img
+        src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${w}&h=${h}`}
+        width={width}
+        height={height}
+        loading="lazy"
+      />;
+    };
+
+    const SnapshotImageListItem = ({ snapshot })=> {
       const timestamp = new Date(snapshot.timestamp);
       const date = timestamp.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
       const time = timestamp.toLocaleString("en-US", { minute: 'numeric', hour: 'numeric' });
       return <ImageListItem key={snapshot.id}>
         <div style={{ height: '5px' }} />
-        <img
-          src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${width}&h=${height}`}
-          width={width}
-          height={height}
-          loading="lazy"
-        />
+        <Thumbnail snapshot={snapshot} />
         <ImageListItemBar title={date} subtitle={time}
           actionIcon={
             <div>
               <Tooltip arrow title="Restore">
-                <IconButton size='small'
-                    onClick={() => this.handleRestoreShapshot(snapshot.id)}>
+                <IconButton size='small' onClick={() => this.handleRestoreShapshot(snapshot.id)}>
                     <RestoreIcon fontSize='small'/>
                 </IconButton>
               </Tooltip>
               <Tooltip arrow title="Delete">
-                <IconButton size='small'
-                  onClick={() => this.handleDeleteShapshot(snapshot.id)}>
+                <IconButton size='small' onClick={() => this.handleDeleteShapshot(snapshot.id)}>
                   <DeleteForeverIcon fontSize='small'/>
                 </IconButton>
               </Tooltip>
