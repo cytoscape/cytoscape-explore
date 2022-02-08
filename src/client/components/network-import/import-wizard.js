@@ -108,9 +108,6 @@ export class ImportWizard extends React.Component {
     if (steps && step && steps.length > 0) {
       optional = steps[step - 1].optional === true;
       title = steps[step - 1].label;
-    
-      if (steps.length > 1)
-        title = step + ' of ' + steps.length + (title ? " \u2014 " + title : '');
     }
 
     return (
@@ -126,7 +123,7 @@ export class ImportWizard extends React.Component {
           disableTypography
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}
         >
-          <h2>{ title }</h2>
+          <h2>{ title }{ optional ? <sup style={{ fontWeight: 'normal', fontSize: 'smaller', paddingLeft: 10 }}>(optional)</sup> : '' }</h2>
           <IconButton 
             aria-label='close' 
             onClick={() => this.handleCancel()}>
