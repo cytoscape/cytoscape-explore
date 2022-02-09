@@ -99,6 +99,7 @@ async function restoreSnapshot(id, snapID) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       _rev: rev,
+      restoredFromSnapshot: true,
       data: snapshot.data,
       elements: snapshot.elements,
     })

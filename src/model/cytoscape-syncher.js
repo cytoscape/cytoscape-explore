@@ -404,7 +404,10 @@ export class CytoscapeSyncher {
 
               this.cy.scratch({ rev });
 
-              this.emitter.emit('cy', doc.data);
+              this.emitter.emit('cy', { 
+                data: doc.data, 
+                restored: doc.restoredFromSnapshot 
+              });
             } else {
               // if in future we use multiple docs per network, then we'd need to apply those doc updates here
             }

@@ -76,6 +76,13 @@ export class NetworkEditorController {
         padding: DEFAULT_PADDING
       },
     };
+
+    // When a network snapshot is restored automatically call fit content.
+    this.cySyncher.emitter.on('cy', ({ restored }) => {
+      if(restored) {
+        this.cy.fit(DEFAULT_PADDING);
+      }
+    });
   }
 
   /**

@@ -115,6 +115,7 @@ export class HistoryPanel extends Component {
     const Thumbnail = ({ snapshot, width=240, height=150 }) => {
       // Multiply the width/height * 2 when generating the image, makes it look much crisper on retina displays.
       return <Image 
+        disableTransition
         imageStyle={{ width, height }}
         aspectRatio={ width / height }
         src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${width*2}&h=${height*2}`}
