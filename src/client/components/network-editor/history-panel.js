@@ -10,6 +10,8 @@ import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import ConfirmDialog from './confirm-dialog';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 
+const SNAPSHOT_LIMIT = 30; // Totally arbitrary number
+
 export class HistoryPanel extends Component {
 
   constructor(props) {
@@ -85,11 +87,14 @@ export class HistoryPanel extends Component {
   }
 
   render() {
+    const buttonDisabled = this.state.waiting 
+      || (this.state.snapshots && this.state.snapshots.length >= SNAPSHOT_LIMIT);
+
     return <div style={{ paddingTop: '10px' }}>
       <Button
         className='history-panel-take-snapshot'
         variant='contained'
-        disabled={this.state.waiting}
+        disabled={buttonDisabled}
         startIcon={this.state.waiting ? <CircularProgress size={20} /> : <AddAPhotoIcon/>} 
         onClick={() => this.handleTakeSnapshot()}>
         Take Snapshot
