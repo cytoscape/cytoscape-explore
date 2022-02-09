@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, IconButton, CircularProgress, Tooltip, Collapse } from "@material-ui/core";
 import { List, ImageListItem, ImageListItemBar } from "@material-ui/core";
+import Image from 'material-ui-image';
 import { TransitionGroup } from 'react-transition-group';
 import { NetworkEditorController } from './controller';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
@@ -112,13 +113,11 @@ export class HistoryPanel extends Component {
 
   renderImageList() {
     const Thumbnail = ({ snapshot, width=240, height=150 }) => {
-      // Multiply the width/height when generating the image, makes it look much crisper on retina displays.
-      const [ w, h ] = [ width * 2, height * 2 ];
-      return <img
-        src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${w}&h=${h}`}
-        width={width}
-        height={height}
-        loading="lazy"
+      // Multiply the width/height * 2 when generating the image, makes it look much crisper on retina displays.
+      return <Image 
+        imageStyle={{ width, height }}
+        aspectRatio={ width / height }
+        src={`/api/thumbnail/${this.netID}?snapshot=${snapshot.id}&w=${width*2}&h=${height*2}`}
       />;
     };
 
