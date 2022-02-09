@@ -8,16 +8,14 @@ import { getNetworkDocURL, getSnapshotDocURL, removeQuotes } from './history';
 // TODO Rewrite this to use 'import'
 const cytosnap = require('cytosnap');
 const snap = cytosnap();
+snap.start();
+console.log("Cytosnap stared!");
 
 function objMap(obj, f) {
   return Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, f(v)]));
 }
 
-
 async function getThumbnail(id, snapID, width, height) {
-  await snap.start();
-  console.log("Cytosnap stared!");
-
   // If its a thumbnail of the live network document then just create and return it.
   if(!snapID) {
     console.log("no snapID, generating thumbnail for network doc");
