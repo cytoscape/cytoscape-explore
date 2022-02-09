@@ -7,8 +7,7 @@ import { getNetworkDocURL, getSnapshotDocURL, removeQuotes } from './history';
 
 // TODO Rewrite this to use 'import'
 const cytosnap = require('cytosnap');
-const snap = cytosnap();
-snap.start();
+
 console.log("Cytosnap stared!");
 
 function objMap(obj, f) {
@@ -67,6 +66,9 @@ async function createThumbnail(docURL, width, height) {
 
 
 async function runCytosnap(elements, style, width, height) {
+  const snap = cytosnap();
+  await snap.start();
+
   const options = {
     // cytoscape.js options
     elements, // cytoscape.js elements json

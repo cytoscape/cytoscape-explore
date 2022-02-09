@@ -148,6 +148,7 @@ http.delete('/snapshot/:id/:snapID', async function(req, res, next) {
 http.post('/restore/:id/:snapID', async function(req, res, next) {
   try {
     const { id, snapID } = req.params;
+    await takeSnapshot(id);
     await restoreSnapshot(id, snapID);
     const snapshots = await getSnapshots(id);
     res.send(JSON.stringify(snapshots));
