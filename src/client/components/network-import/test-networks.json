@@ -1,0 +1,93 @@
+[
+    {
+      "externalId": "4ae2709d-3055-11ec-94bf-525400c25d22",
+      "name": "Multi-Scale Integrated Cell (MuSIC) v1",
+      "edgeCount": 87,
+      "nodeCount": 70,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "8b3faf53-3056-11ec-94bf-525400c25d22",
+      "name": "galFiltered.sif",
+      "edgeCount": 359,
+      "nodeCount": 330,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "8b51d7c5-3056-11ec-94bf-525400c25d22",
+      "name": "Rapid glucocorticoid signaling",
+      "edgeCount": 17,
+      "nodeCount": 12,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "8b957078-3056-11ec-94bf-525400c25d22",
+      "name": "WP408 - Oxidative stress response - Homo sapiens",
+      "edgeCount": 16,
+      "nodeCount": 56,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "8baf882a-3056-11ec-94bf-525400c25d22",
+      "name": "Neurotransmitters release",
+      "edgeCount": 40,
+      "nodeCount": 35,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "8bd2797c-3056-11ec-94bf-525400c25d22",
+      "name": "Gene Regulatory Subtype-specific Network of TCGA-BRCA",
+      "edgeCount": 2315,
+      "nodeCount": 2359,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f625f9ef-3055-11ec-94bf-525400c25d22",
+      "name": "DNA Damage Association Score (DAS) network",
+      "edgeCount": 11913,
+      "nodeCount": 336,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f950ad02-3055-11ec-94bf-525400c25d22",
+      "name": "IMEx / IntAct Coronavirus Dataset, collapsed edges",
+      "edgeCount": 3735,
+      "nodeCount": 2233,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f96b39e4-3055-11ec-94bf-525400c25d22",
+      "name": "Network-Based Classification (GBM, Fig. 4A)",
+      "edgeCount": 64,
+      "nodeCount": 18,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f99975d6-3055-11ec-94bf-525400c25d22",
+      "name": "HNSCC_DIS",
+      "edgeCount": 1677,
+      "nodeCount": 675,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f9aeab88-3055-11ec-94bf-525400c25d22",
+      "name": "MCF7_All_PPI>=0.9",
+      "edgeCount": 557,
+      "nodeCount": 228,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f9ca49da-3055-11ec-94bf-525400c25d22",
+      "name": "NeST Map - Main Model",
+      "edgeCount": 466,
+      "nodeCount": 395,
+      "owner": "testtesttest"
+    },
+    {
+      "externalId": "f9dce77c-3055-11ec-94bf-525400c25d22",
+      "name": "Hierarchical model of host cell biology affected by SARS-CoV-2 infection",
+      "edgeCount": 180,
+      "nodeCount": 169,
+      "owner": "testtesttest"
+    }
+  ]
