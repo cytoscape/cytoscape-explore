@@ -1,6 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { NDEx } from '@js4cytoscape/ndex-client';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
+import { styleFactory } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
 import { UndoSupport } from '../undo/undo';

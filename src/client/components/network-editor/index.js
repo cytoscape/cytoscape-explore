@@ -117,12 +117,12 @@ export class NetworkEditor extends Component {
   }
 
   render() {
-    const { params, controller } = this;
+    const { controller } = this;
 
     const controllers = {
       loginController: this.props.loginController,
       networkEditorController: controller,
-    }
+    };
 
     return (
       <ThemeProvider theme={theme}>

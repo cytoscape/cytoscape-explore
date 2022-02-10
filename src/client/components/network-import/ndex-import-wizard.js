@@ -1,7 +1,5 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Radio from '@material-ui/core/Radio';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
@@ -365,6 +364,7 @@ const useStyles = theme => ({
 
 Content.propTypes = {
   controllers: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(useStyles)(Content);
