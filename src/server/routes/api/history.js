@@ -16,27 +16,28 @@ export const removeQuotes = str => {
   return str;
 };
 
+
 async function takeSnapshot(id) {
   const snapID = createSnapshotID();
   const docURL = getNetworkDocURL(id);
   const snapURL = getSnapshotDocURL(id, snapID);
 
+  // Fetch the current rev of the network document.
   const response = await fetch(docURL);
   if(!response.ok) {
     new Error("Cannot load network document for " + id);
   }
-
   const body = await response.json();
-  delete body._id;
-  delete body._rev;
 
+  // Create a snapshot document that is a copy of the network document.
   const putResponse = await fetch(snapURL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       snapshot: true,
       timestamp: Date.now(),
-      ...body
+      data: body.data,
+      elements: body.elements,
     })
   });
   if(!putResponse.ok) {
@@ -48,11 +49,14 @@ async function takeSnapshot(id) {
 async function getSnapshots(id) {
   const viewURL = getSnapshotViewURL(id);
 
+  // Call the snapshots view, this is like a query that returns a list of all the snapshots.
   const response = await fetch(viewURL);
   if(!response.ok) {
     new Error("Cannot query snapshots view " + response.err);
   }
   const body = await response.json();
+
+  // Reformat the data a bit.
   const snapshots = body.rows.map(snap => ({
     id: snap.key, 
     timestamp: snap.value.timestamp 
@@ -64,12 +68,14 @@ async function getSnapshots(id) {
 async function deleteSnapshot(id, snapID) {
   const snapURL = getSnapshotDocURL(id, snapID);
 
+  // Get the rev of the snapshot document
   const headRes = await fetch(snapURL, { method: 'HEAD' });
   if(!headRes.ok) {
     new Error("Cannot get rev for snapshot document " + headRes.err);
   }
   const rev = removeQuotes(headRes.headers.get('ETag'));
 
+  // Delete the snapshot document, must supply the rev
   const response = await fetch(`${snapURL}?rev=${rev}`, { method: 'DELETE' });
   if(!response.ok) {
     new Error("Cannot delete snapshots view " + response.err);
@@ -81,25 +87,27 @@ async function restoreSnapshot(id, snapID) {
   const docURL = getNetworkDocURL(id);
   const snapURL = getSnapshotDocURL(id, snapID);
 
+  // Get the current rev of the network document.
   const headRes = await fetch(docURL, { method: 'HEAD' });
   if(!headRes.ok) {
     new Error("Cannot get rev for network document " + headRes.err);
   }
   const rev = removeQuotes(headRes.headers.get('ETag'));
 
+  // Get the entire snapshot document.
   const snapRes = await fetch(snapURL, { method: 'GET' });
   if(!snapRes.ok) {
     new Error("Cannot get snapshot document " + snapRes.err);
   }
-
   const snapshot = await snapRes.json();
 
+  // Overwrite the network doucment with the contents of the snapshot.
   const putResponse = await fetch(docURL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       _rev: rev,
-      restoredFromSnapshot: true,
+      restoredFromSnapshot: true, // This flag tells the client that 'fit content' should be called.
       data: snapshot.data,
       elements: snapshot.elements,
     })
@@ -112,6 +120,7 @@ async function restoreSnapshot(id, snapID) {
 
 
 const http = Express.Router();
+// All the endpoints return the list of snapshots.
 
 http.get('/snapshot/:id', async function(req, res, next) {
   try {
@@ -148,6 +157,8 @@ http.delete('/snapshot/:id/:snapID', async function(req, res, next) {
 http.post('/restore/:id/:snapID', async function(req, res, next) {
   try {
     const { id, snapID } = req.params;
+    // Take a new snapshot of the current network before restoring the given snapshot.
+    // This is to prevent the user from accidentailly losing their work, without prompting with a confirm dialog.
     await takeSnapshot(id);
     await restoreSnapshot(id, snapID);
     const snapshots = await getSnapshots(id);
