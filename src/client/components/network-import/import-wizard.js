@@ -5,11 +5,10 @@ import { withStyles } from '@material-ui/core/styles';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { Button, IconButton } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { LinearProgress } from '@material-ui/core';
+import { LinearProgress, MobileStepper } from '@material-ui/core';
 
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
 
 export class ImportWizard extends React.Component {
@@ -18,17 +17,17 @@ export class ImportWizard extends React.Component {
     super(props);
 
     this.wizardCallbacks = {
-      _onFinish:   () => null,
-      _onContinue: () => null,
-      _onCancel:   () => null,
-      _onBack:     () => null,
-      onFinish:   (f) => this.wizardCallbacks._onFinish = f,
-      onContinue: (f) => this.wizardCallbacks._onContinue = f,
-      onCancel:   (f) => this.wizardCallbacks._onCancel = f,
-      onBack:     (f) => this.wizardCallbacks._onBack = f,
-      setSteps:   (s) => this.handleSteps(s),
+      _onFinish:    () => null,
+      _onContinue:  () => null,
+      _onCancel:    () => null,
+      _onBack:      () => null,
+      onFinish:    (f) => this.wizardCallbacks._onFinish = f,
+      onContinue:  (f) => this.wizardCallbacks._onContinue = f,
+      onCancel:    (f) => this.wizardCallbacks._onCancel = f,
+      onBack:      (f) => this.wizardCallbacks._onBack = f,
+      setCanContinue:  (b) => this.handleCanContinue(b),
+      setSteps:        (s) => this.handleSteps(s),
       setCurrentStep:  (s) => this.handleCurrentStep(s),
-      setButtonState:  (s) => this.handleButtonState(s),
       closeWizard:      () => this.setState({ open: false }),
       returnToSelector: () => this.handleReturnToSelector(),
       sanity: 99,
@@ -39,10 +38,7 @@ export class ImportWizard extends React.Component {
       steps: null,
       step: null,
       loading: false,
-      // button state... can be 'enabled', 'disabled' or 'hidden'
-      nextButton: 'hidden',
-      backButton: 'hidden',
-      finishButton: 'hidden',
+      canContinue: false,
     };
   }
 
@@ -69,10 +65,8 @@ export class ImportWizard extends React.Component {
   }
 
   handleReturnToSelector() {
-    this.setState({ 
-      backButton: 'hidden',
-      nextButton: 'hidden',
-      finishButton: 'hidden',
+    this.setState({
+      canContinue: false,
       steps: null,
       step: null,
     });
@@ -88,17 +82,13 @@ export class ImportWizard extends React.Component {
       this.setState({ step });
   }
 
-  handleButtonState({ nextButton, backButton, finishButton }) {
-    if (nextButton)
-      this.setState({ nextButton });
-    if (backButton)
-      this.setState({ backButton });
-    if (finishButton)
-      this.setState({ finishButton });
+  handleCanContinue({ canContinue }) {
+    this.setState({ canContinue });
   }
 
   render() {
-    const { steps, step, loading } = this.state;
+    const { steps, step, loading, canContinue } = this.state;
+    const { classes } = this.props;
     const Wizard = this.props.wizard;
     const wizardProps = this.props.wizardProps || {};
     
@@ -109,6 +99,8 @@ export class ImportWizard extends React.Component {
       optional = steps[step - 1].optional === true;
       title = steps[step - 1].label;
     }
+
+    const PROGRESS_HEIGHT = 4;
 
     return (
       <Dialog
@@ -134,56 +126,46 @@ export class ImportWizard extends React.Component {
           style={{ padding: '8px 24px' }}
           dividers
         >
-          <>
-            { loading &&
-              <LinearProgress />
-            }
-            { <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} /> }
-          </>
+          <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} />
         </DialogContent>
-        <DialogActions>
+        <LinearProgress style={{ height: PROGRESS_HEIGHT, visibility: loading ? 'inherit' : 'hidden' }} />
+        <DialogActions style={{ marginTop: -PROGRESS_HEIGHT }}>
           <Grid container justifyContent="space-between" spacing={2}>
-            { this.state.backButton !== 'hidden' &&
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={loading || this.state.backButton !== 'enabled'}
-                  startIcon={<KeyboardArrowLeftIcon />}
-                  onClick={() => this.handleBack()}
-                >
-                  Back
-                </Button>
-              </Grid>
-            }
-            <Grid item style={{ flexGrow: 1 }} />
-            { this.state.finishButton !== 'hidden' &&
-              <Grid item>
-                <Button
-                  disabled={loading || this.state.finishButton !== 'enabled'}
-                  variant="contained"
-                  color="primary"
-                  endIcon={<CheckCircleIcon />}
-                  onClick={() => this.handleFinish()}
-                >
-                  Import
-                </Button>
-              </Grid>
-            }
-            { this.state.nextButton !== 'hidden' &&
-              <Grid item>
-                <Button
-                  autoFocus
-                  disabled={loading || this.state.nextButton !== 'enabled'}
-                  variant="contained"
-                  color="primary"
-                  endIcon={<KeyboardArrowRightIcon />}
-                  onClick={() => this.handleContinue()}
-                >
-                  Next
-                </Button>
-              </Grid>
-            }
+            <Grid item className={classes.root}>
+              { steps && (
+                <MobileStepper
+                  variant="dots"
+                  steps={steps.length}
+                  position="static"
+                  activeStep={step - 1}
+                  classes={{ root: classes.stepperRoot, dots: (steps.length > 1 ? classes.visibleSteps : classes.hiddenSteps) }}
+                  backButton={
+                    <Button
+                      variant="contained"
+                      className={classes.button}
+                      style={{ visibility: step > 1 ? 'inherit' : 'hidden' }}
+                      startIcon={<KeyboardArrowLeftIcon />}
+                      onClick={() => this.handleBack()}
+                      disabled={step === 1}
+                    >
+                      Back
+                    </Button>
+                  }
+                  nextButton={
+                    <Button
+                      variant="contained"
+                      color={step === steps.length ? 'primary' : 'default'}
+                      className={classes.button}
+                      endIcon={step === steps.length ? null : <KeyboardArrowRightIcon />}
+                      onClick={() => step === steps.length ? this.handleFinish() : this.handleContinue()}
+                      disabled={loading || !canContinue}
+                    >
+                      { step === steps.length ? 'Import' : 'Next' }
+                    </Button>
+                  }
+                />
+              )}
+            </Grid>
           </Grid>
         </DialogActions>
       </Dialog>
@@ -194,26 +176,24 @@ export class ImportWizard extends React.Component {
 const useStyles = theme => ({
   root: {
     flexGrow: 1,
-    width: '100%',
-    margin: 0,
   },
-  item: {
-    margin: 0,
+  stepperRoot: {
+    backgroundColor: 'transparent',
+  },
+  visibleSteps: {
+    visibility: 'inherit',
+  },
+  hiddenSteps: {
+    visibility: 'hidden',
   },
   button: {
-    margin: 0,
-    textTransform: 'unset',
-  },
-  label: {
-    textTransform: 'none',
-  },
-  startIcon: {
-    marginLeft: 0,
-    marginRight: 0,
+    minWidth: 92, // Just so the 'Back', 'Next' and 'Import' buttons have the same size
+    // textTransform: 'unset',
   },
 });
 
 ImportWizard.propTypes = {
+  classes: PropTypes.object.isRequired,
   wizard: PropTypes.func.isRequired,
   wizardProps: PropTypes.any,
   open: PropTypes.bool.isRequired,

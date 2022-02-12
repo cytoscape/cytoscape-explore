@@ -78,8 +78,8 @@ class ExcelImportSubWizard extends React.Component {
     const { setSteps, setCurrentStep } = this.props.wizardCallbacks;
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
-    
-    this.updateButtons(this.state);
+
+    this.updateCanContinue(this.state);
   }
 
   componentWillUnmount() {
@@ -95,30 +95,6 @@ class ExcelImportSubWizard extends React.Component {
 
       if (chartConfigs)
         this.createPreviewCharts(chartConfigs);
-    }
-  }
-
-  updateButtons(state) {
-    const { step, edgeData, nodeData, hasNodeFile } = state;
-    const { setButtonState } = this.props.wizardCallbacks;
-
-    // Note: backButton is always visible by default
-    if (step === 1) {
-      if (!edgeData || edgeData.length === 0)
-        setButtonState({ backButton: 'hidden', nextButton: 'disabled', finishButton: 'hidden' });
-      else
-        setButtonState({ backButton: 'hidden', nextButton: 'enabled', finishButton: 'hidden' });
-    } else if (step === 2) {
-      setButtonState({ backButton: 'enabled', nextButton: 'enabled', finishButton: 'hidden' });
-    } else if (step === 3) {
-      if (hasNodeFile === false)
-        setButtonState({ backButton: 'enabled', nextButton: 'hidden', finishButton: 'enabled' });
-      else if (!nodeData || nodeData.length === 0)
-        setButtonState({ backButton: 'enabled', nextButton: 'disabled', finishButton: 'hidden' });
-      else
-        setButtonState({ backButton: 'enabled', nextButton: 'enabled', finishButton: 'hidden' });
-    } else if (step === 4) {
-      setButtonState({ backButton: 'enabled', nextButton: 'hidden', finishButton: 'enabled' });
     }
   }
 
@@ -151,7 +127,7 @@ class ExcelImportSubWizard extends React.Component {
         }
 
         this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData, edgeChartConfigs });
-        this.updateButtons({ ...this.state, json });
+        this.updateCanContinue({ ...this.state, json });
         this.handleContinue();
       });
     }
@@ -189,7 +165,7 @@ class ExcelImportSubWizard extends React.Component {
         }
 
         this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData, nodeChartConfigs });
-        this.updateButtons({ ...this.state, json });
+        this.updateCanContinue({ ...this.state, json });
         this.handleContinue();
       });
     }
@@ -197,12 +173,12 @@ class ExcelImportSubWizard extends React.Component {
 
   handleEdgeFileDelete() {
       this.setState({ edgeFile: null, edgeData: null, node1IdAttr: null, node2IdAttr: null, edgePreviewData: null, edgeChartConfigs: null });
-      this.updateButtons({ ...this.state, edgeFile: null, edgeData: null });
+      this.updateCanContinue({ ...this.state, edgeFile: null, edgeData: null });
   }
 
   handleNodeFileDelete() {
     this.setState({ nodeFile: null, nodeData: null, nodeIdAttr: null, nodePreviewData: null, nodeChartConfigs: null });
-    this.updateButtons({ ...this.state, nodeFile: null, nodeData: null});
+    this.updateCanContinue({ ...this.state, nodeFile: null, nodeData: null});
   }
 
   readFile(file, handleData) {
@@ -441,9 +417,33 @@ class ExcelImportSubWizard extends React.Component {
     this.setState({ step });
     
     this.props.wizardCallbacks.setCurrentStep({ step });
-    this.updateButtons({ ...this.state, step });
+    this.updateCanContinue({ ...this.state, step });
     
     return step;
+  }
+
+  updateCanContinue(state) {
+    const { step, edgeData, nodeData, hasNodeFile } = state;
+    const { setCanContinue } = this.props.wizardCallbacks;
+
+    let b = false;
+
+    if (step === 1) {
+      b = edgeData && edgeData.length > 0;
+    } else if (step === 2) {
+      b =  true;
+    } else if (step === 3) {
+      if (hasNodeFile == null)
+        b =  false;
+      else if (hasNodeFile === false)
+        b =  true;
+      else if (hasNodeFile === true)
+        b =  nodeData && nodeData.length > 0;
+    } else if (step === 4) {
+      b =  true;
+    }
+
+    setCanContinue({ canContinue: b });
   }
 
   handleContinue() {
@@ -455,6 +455,15 @@ class ExcelImportSubWizard extends React.Component {
     
     if (step === 0)
       this.props.wizardCallbacks.returnToSelector();
+  }
+
+  handleHasNodeFileRadio(evt) {
+    const hasNodeFile = evt.target.value === 'true';
+    this.setState({ hasNodeFile });
+    this.updateCanContinue({ ...this.state, hasNodeFile });
+
+    const steps = hasNodeFile ? STEPS : STEPS.slice(0, -1);
+    this.props.wizardCallbacks.setSteps({ steps });
   }
 
   render() {
@@ -508,18 +517,12 @@ class ExcelImportSubWizard extends React.Component {
   renderTableUpload({ group, initialFile, onChange, onDelete }) {
     const { hasNodeFile } = this.state;
 
-    const handleNodeFileRadio = (evt) => {
-      const b = evt.target.value === 'true';
-      this.setState({ hasNodeFile: b });
-      this.updateButtons({ ...this.state, hasNodeFile: b });
-    };
-
     return (
       <div className={`excel-import ${group}-import`}>
         { group === NODE && (
           <FormControl component="fieldset" style={{ marginBottom: theme.spacing(2) }}>
             <FormLabel component="legend">Do you have a file for node attributes?</FormLabel>
-            <RadioGroup name="has-node-file" value={'' + hasNodeFile} onChange={(evt) => handleNodeFileRadio(evt)}>
+            <RadioGroup name="has-node-file" value={'' + hasNodeFile} onChange={(evt) => this.handleHasNodeFileRadio(evt)}>
               <Grid container alignItems="center" spacing={2}>
                 <Grid item>
                   <FormControlLabel label="Yes" value="true" control={<Radio />} />
@@ -562,7 +565,7 @@ class ExcelImportSubWizard extends React.Component {
     );
   }
 
-  renderPreview({ group, initialFile, data, previewData, chartConfigs }) {
+  renderPreview({ group, data, previewData, chartConfigs }) {
     const { node1IdAttr, node2IdAttr, nodeIdAttr } = this.state;
 
     const rowCount = data ? data.length : 0;
