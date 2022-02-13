@@ -169,4 +169,18 @@ describe('History (Snapshots)', () => {
     expect(res4.ok).to.be.false;
   });
 
+
+  it('creates thumbnails', async () => {
+    // Take a snapshot
+    const res1 = await fetch(`${SERVER}/api/history/snapshot/${id}`, { method: 'POST' });
+    const snapshots1 = await res1.json();
+    const snapID = snapshots1[0].id;
+
+    // Create a thumbnail
+    const res2 = await fetch(`${SERVER}/api/thumbnail/${id}?snapshot=${snapID}`, { method: 'GET' });
+    expect(res2.ok).to.be.true;
+    const type = res2.headers.get('content-type');
+    expect(type).to.eql('image/png');
+  });
+
 });
