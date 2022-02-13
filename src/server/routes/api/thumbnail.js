@@ -53,7 +53,7 @@ async function getThumbnail(id, snapID, width, height) {
 async function createThumbnail(docURL, width, height) {
   const response = await fetch(docURL);
   if(!response.ok) {
-    new Error(`Cannot fetch network document: ${response.err}`);
+    throw new Error(`Cannot fetch network document: ${docURL}`);
   }
   const rev = removeQuotes(response.headers.get('ETag'));
 

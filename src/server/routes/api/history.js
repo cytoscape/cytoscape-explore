@@ -25,7 +25,7 @@ async function takeSnapshot(id) {
   // Fetch the current rev of the network document.
   const response = await fetch(docURL);
   if(!response.ok) {
-    new Error("Cannot load network document for " + id);
+    throw new Error(`Cannot load network document ${id}`);
   }
   const body = await response.json();
 
@@ -41,7 +41,7 @@ async function takeSnapshot(id) {
     })
   });
   if(!putResponse.ok) {
-    new Error("Cannot create snapshot document for " + id);
+    throw new Error(`Cannot create snapshot document for ${id}`);
   }
 }
 
@@ -52,7 +52,7 @@ async function getSnapshots(id) {
   // Call the snapshots view, this is like a query that returns a list of all the snapshots.
   const response = await fetch(viewURL);
   if(!response.ok) {
-    new Error("Cannot query snapshots view " + response.err);
+    throw new Error(`Cannot query snapshots view for ${id}`);
   }
   const body = await response.json();
 
@@ -71,14 +71,14 @@ async function deleteSnapshot(id, snapID) {
   // Get the rev of the snapshot document
   const headRes = await fetch(snapURL, { method: 'HEAD' });
   if(!headRes.ok) {
-    new Error("Cannot get rev for snapshot document " + headRes.err);
+    throw new Error(`Cannot find snapshot document ${id}/${snapID}`);
   }
   const rev = removeQuotes(headRes.headers.get('ETag'));
 
   // Delete the snapshot document, must supply the rev
   const response = await fetch(`${snapURL}?rev=${rev}`, { method: 'DELETE' });
   if(!response.ok) {
-    new Error("Cannot delete snapshots view " + response.err);
+    throw new Error(`Cannot delete snapshots view for ${id}/${snapID}`);
   }
 }
 
@@ -90,14 +90,14 @@ async function restoreSnapshot(id, snapID) {
   // Get the current rev of the network document.
   const headRes = await fetch(docURL, { method: 'HEAD' });
   if(!headRes.ok) {
-    new Error("Cannot get rev for network document " + headRes.err);
+    throw new Error(`Cannot find network document ${id}`);
   }
   const rev = removeQuotes(headRes.headers.get('ETag'));
 
   // Get the entire snapshot document.
   const snapRes = await fetch(snapURL, { method: 'GET' });
   if(!snapRes.ok) {
-    new Error("Cannot get snapshot document " + snapRes.err);
+    throw new Error(`Cannot find snapshot document ${id}/${snapID}`);
   }
   const snapshot = await snapRes.json();
 
@@ -113,7 +113,7 @@ async function restoreSnapshot(id, snapID) {
     })
   });
   if(!putResponse.ok) {
-    new Error("Cannot restore snapshot document for " + id);
+    throw new Error(`Cannot restore snapshot document for ${id}/${snapID}`);
   }
 }
 

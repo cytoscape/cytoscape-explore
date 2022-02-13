@@ -156,10 +156,17 @@ describe('History (Snapshots)', () => {
 
 
   it('handles errors', async () => {
-    // TODO: snapshot a network that doesn't exist
-    // TODO: delete a snapshot that doesn't exist
-    // TODO: restore a snapshot that doesn't exist
-  });
+    const res1 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'GET' });
+    expect(res1.ok).to.be.false;
 
+    const res2 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'POST' });
+    expect(res2.ok).to.be.false;
+
+    const res3 = await fetch(`${SERVER}/api/history/snapshot/bogus_id/bogus_id`, { method: 'DELETE' });
+    expect(res3.ok).to.be.false;
+
+    const res4 = await fetch(`${SERVER}/api/history/restore/bogus_id/bogus_id`, { method: 'POST' });
+    expect(res4.ok).to.be.false;
+  });
 
 });
