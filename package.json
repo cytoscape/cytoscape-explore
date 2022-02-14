@@ -73,7 +73,7 @@
     "material-ui-image": "^3.3.2",
     "mathjs": "^9.5.1",
     "morgan": "^1.10.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "pouchdb": "^7.2.1",
     "pouchdb-adapter-memory": "^7.2.1",
     "prop-types": "^15.7.2",
