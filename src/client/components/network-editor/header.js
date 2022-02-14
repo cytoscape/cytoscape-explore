@@ -275,7 +275,7 @@ const useStyles = theme => ({
 ToolbarButton.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.element.isRequired,
-  color: PropTypes.Color,
+  color: PropTypes.string,
   onClick: PropTypes.func.isRequired,
 };
 
