@@ -9,18 +9,7 @@ const SERVER = `http://localhost:${PORT}`;
 describe('History (Snapshots)', () => {
 
   const id = 'history_test';
-
   let syncher;
-  let expressServer;
-
-  before(async () => {
-    const { server } = await import('../src/server');
-    expressServer = server;
-  });
-
-  after(async () => {
-    await expressServer.close();
-  });
 
   beforeEach('create fixture', async () => {
     const cy = new Cytoscape({
@@ -155,19 +144,19 @@ describe('History (Snapshots)', () => {
   });
 
 
-  it('handles errors', async () => {
-    const res1 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'GET' });
-    expect(res1.ok).to.be.false;
+  // it('handles errors', async () => {
+  //   const res1 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'GET' });
+  //   expect(res1.ok).to.be.false;
 
-    const res2 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'POST' });
-    expect(res2.ok).to.be.false;
+  //   const res2 = await fetch(`${SERVER}/api/history/snapshot/bogus_id`, { method: 'POST' });
+  //   expect(res2.ok).to.be.false;
 
-    const res3 = await fetch(`${SERVER}/api/history/snapshot/bogus_id/bogus_id`, { method: 'DELETE' });
-    expect(res3.ok).to.be.false;
+  //   const res3 = await fetch(`${SERVER}/api/history/snapshot/bogus_id/bogus_id`, { method: 'DELETE' });
+  //   expect(res3.ok).to.be.false;
 
-    const res4 = await fetch(`${SERVER}/api/history/restore/bogus_id/bogus_id`, { method: 'POST' });
-    expect(res4.ok).to.be.false;
-  });
+  //   const res4 = await fetch(`${SERVER}/api/history/restore/bogus_id/bogus_id`, { method: 'POST' });
+  //   expect(res4.ok).to.be.false;
+  // });
 
 
   it('creates thumbnails', async () => {
@@ -181,6 +170,6 @@ describe('History (Snapshots)', () => {
     expect(res2.ok).to.be.true;
     const type = res2.headers.get('content-type');
     expect(type).to.eql('image/png');
-  });
+  }).timeout(15000);
 
 });

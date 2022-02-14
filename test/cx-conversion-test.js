@@ -10,15 +10,11 @@ PouchDB.plugin(PouchDBMemoryAdapter);
 
 import CytoscapeSyncher from '../src/model/cytoscape-syncher';
 
-import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 import { CX_DATA_KEY, exportCXEdgeID, exportCXNodeID, getCXType, getCXValue, IS_CX_ELE } from '../src/model/import-export/cx/cx-util';
 import { labelLocationMapper } from '../src/model/import-export/cx';
 import { STYLE_TYPE } from '../src/model/style';
 
 describe('Importing CX networks to CE', () => {
-  before(() => {
-    registerCytoscapeExtensions();
-  });
 
   it('converts nodel label position CX values to CE', () => {
     const input = {
@@ -44,7 +40,7 @@ describe('Importing CX networks to CE', () => {
           "value": "bottom",
           "stringValue": "bottom"
         }
-    }
+    };
 
     expect(labelLocationMapper.valueCvtr(input)).to.deep.equal(output);
     // sanity check an issue where the labelLocationMapper would produce
@@ -69,7 +65,7 @@ describe('Importing CX networks to CE', () => {
 
       expect(cy.data(CX_DATA_KEY) != null).to.equal(true);
       cy.nodes().forEach(n => {
-        expect(n.data(IS_CX_ELE)).to.equal(true)
+        expect(n.data(IS_CX_ELE)).to.equal(true);
         expect(isNaN(exportCXNodeID(n.id()))).to.equal(false);
       });
       cy.edges().forEach(e => {
