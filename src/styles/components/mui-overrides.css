@@ -1,8 +1,9 @@
 
 .MuiPopover-root .MuiPaper-root,
 .MuiMenu-root .MuiPaper-root {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(33, 33, 33, 0.8);
   backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.66);
 }
 
 .MuiSlider-colorSecondary .MuiSlider-valueLabel {

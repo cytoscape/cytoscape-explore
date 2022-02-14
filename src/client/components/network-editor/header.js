@@ -1,24 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
+
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
+import { DEFAULT_PADDING } from '../layout/defaults';
+import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
+import TitleEditor from './title-editor';
+import { UndoButton } from '../undo/undo-button'; // eslint-disable-line
+import AccountButton from '../login/AccountButton';
+import ShareButton from './share-button';
+
+import { withStyles } from '@material-ui/core/styles';
+
 import { AppBar, Toolbar } from '@material-ui/core';
-import { MenuList, MenuItem} from "@material-ui/core";
-import { Box, Popover, Tooltip, IconButton} from '@material-ui/core';
-import { AppLogoIcon } from '../svg-icons';
-import SearchIcon from '@material-ui/icons/Search';
-import DebugIcon from '@material-ui/icons/BugReport';
+import { Grid, Divider } from '@material-ui/core';
+import { Popover, MenuList, MenuItem} from "@material-ui/core";
+import { Tooltip } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
+
+import { AppLogoIcon, NDExLogoIcon } from '../svg-icons';
+import SearchIcon from '@material-ui/icons/Search'; // eslint-disable-line
+import DebugIcon from '@material-ui/icons/BugReport'; // eslint-disable-line
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import DrawEdgeIcon from '@material-ui/icons/CallMade';
-import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
-import TitleEditor from './title-editor';
-import ImportWizard from '../network-import/import-wizard';
-import { UndoButton } from '../undo/undo-button';
-import AccountButton from './google-login/AccountButton';
-import { DEFAULT_PADDING } from '../layout/defaults';
-import ShareButton from './share-button';
 
 /**
  * The network editor's header or app bar.
@@ -28,13 +33,36 @@ export class Header extends Component {
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
-    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
+
+    this.loginController = props.controllers.loginController;
+    this.controller = props.controllers.networkEditorController;
+    this.busProxy = new EventEmitterProxy(this.controller.bus);
+
     this.state = {
       menu: null,
       anchorEl: null,
       dialogId: null,
     };
+  }
+
+  createNewNetwork() {
+    let create = async () => {
+      let res = await fetch('/api/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: {},
+          elements: []
+        })
+      });
+
+      let urls = await res.json();
+      location.href = `/document/${urls.id}/${urls.secret}`;
+    };
+
+    create();
   }
 
   handleClick(event, menuName) {
@@ -82,7 +110,6 @@ export class Header extends Component {
 
   componentDidMount() {
     const dirty = () => this.setState({ dirty: Date.now() });
-
     this.busProxy.on('toggleDrawMode', dirty);
   }
 
@@ -90,180 +117,171 @@ export class Header extends Component {
     this.busProxy.removeAllListeners();
   }
 
-  // temp: should be somewhere else, e.g. in network management page
-  createNewNetwork(){
-    let create = async () => {
-      let res = await fetch('/api/document', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          data: {},
-          elements: [
-          ]
-        })
-      });
-
-      let body = await res.json();
-
-      console.log('Created network', body);
-
-      window.open(`${body.privateUrl}`);
-    };
-
-    create();
-  }
-
-  async loadGAL() {
-    const { cy } = this.controller;
-
-    const res = await fetch('/sample-data/gal.json');
-    const netJson = await res.json();
-
-    cy.elements().remove();
-
-    cy.add(netJson);
-
-    cy.layout({ name: 'grid' }).run();
-  }
-
   render() {
     const { anchorEl, menuName, dialogName } = this.state;
-    const controller = this.controller;
+    const { classes } = this.props;
+    const { loginController, controller } = this;
+
+    const ToolbarDivider = ({ unrelated }) => {
+      return <Divider orientation="vertical" flexItem variant="middle" className={unrelated ? classes.unrelatedDivider : classes.divider} />;
+    };
     
     return (
       <>
-        <div className="header">
-          <AppBar position="relative" color='default'>
-            <Toolbar variant="dense">
-              <AppLogoIcon {...logoIconProps} />
-              <div className="header-title-area">
-                <TitleEditor controller={controller} />
-                <div className="header-title-save-status">Edits saved</div>
-              </div>
+        <AppBar position="relative" color='default'>
+          <Toolbar variant="dense">
+            <Grid container alignItems='center' justifyContent="space-between">
+              <Grid item>
+                <Grid container alignItems='center' className={classes.root}>
+                  <Grid item>
+                    <Tooltip arrow placement="bottom" title="Cytoscape Explore Home">
+                      <IconButton 
+                        aria-label='close' 
+                        onClick={() => location.href = '/'}
+                      >
+                        <AppLogoIcon viewBox="0 0 64 64" p={0} m={0} style={{ fontSize: 28 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item>
+                    <div className="header-title-area">
+                      <TitleEditor controller={controller} />
+                      <div className="header-title-save-status">Edits saved</div>
+                    </div>
+                  </Grid>
+                </Grid>
+              </Grid>
 
-              <div className="grow" />
-
-              <Box className="header-tools" color="secondary.main">
-                <Tooltip arrow placement="bottom" title="Add Node">
-                  <IconButton size="small" color="inherit" onClick={() => controller.addNode()}>
-                    <AddNodeIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip arrow placement="bottom" title="Draw Edge">
-                  <IconButton size="small" edge="start" className="tool-panel-button"
-                    onClick={() => controller.toggleDrawMode()}
+              <Grid item>
+                <Grid container alignItems="center" color="secondary.main" className={classes.root}>
+                  <ToolbarButton
+                    title="Add Node"
+                    icon={<AddNodeIcon />}
+                    onClick={() => controller.addNode()}
+                  />
+                  <ToolbarDivider />
+                  <ToolbarButton
+                    title="Draw Edge"
+                    icon={<DrawEdgeIcon />}
                     color={controller.drawModeEnabled ? 'primary' : 'inherit'}
-                  >
-                    <DrawEdgeIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <div className="header-separator"></div>
-
-                <Tooltip arrow placement="bottom" title="Delete Selected">
-                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.deletedSelectedElements()}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <div className="header-separator"></div>
-
-                <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
-
-                <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
-
-                <div className="header-separator"></div>
-
-                <Tooltip arrow placement="bottom" title="Fit Network">
-                  <IconButton size="small" edge="start" color="inherit" onClick={() => controller.cy.fit(DEFAULT_PADDING)}>
-                    <FitScreenIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <div className="header-separator"></div>
-
-                <ShareButton controller={controller}/>
-
-                <div className="header-separator"></div>
-                
-                <Tooltip arrow placement="bottom" title="Search">
-                  <IconButton size="small" edge="start" color="inherit" aria-label="search">
-                    <SearchIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <div className="header-separator"></div>
-
-                <AccountButton controller={this.controller}/>
-
-                <div className="header-separator"></div>
-
-                <Tooltip arrow placement="bottom" title="Debug">
-                  <IconButton size="small" edge="end" color="inherit" aria-label="menu" aria-haspopup="true" onClick={e => this.handleClick(e, 'main')}>
-                    <DebugIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Toolbar>
-
-            {anchorEl && (
-              <Popover
-                id="menu-popover"
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={() => this.handleClose()}
-              >
-                {menuName === 'account' && (
-                  <MenuList>
-                    <MenuItem disabled={true} onClick={() => this.handleClose()}>NDEx Account</MenuItem>
-                    <MenuItem disabled={true} onClick={() => this.handleClose()}>Sign Out</MenuItem>
-                  </MenuList>
-                )}
-                {menuName === 'main' && !dialogName && (
-                  <MenuList>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('network-import')}>Import Network</MenuItem>
-                    <MenuItem disabled={false} onClick={() => this.showDialog('ndex-network-export')}>Export Network To NDEx</MenuItem>
-                    <MenuItem onClick={() => this.createNewNetwork()}>Create new network</MenuItem>
-                    <MenuItem onClick={() => this.loadGAL()}>Replace Network with GAL</MenuItem>
-                  </MenuList>
-                )}
-              </Popover>
-            )}
-          </AppBar>
-        </div>
-        {dialogName === 'network-import' && (
-          <ImportWizard
-            id="network-import"
-            controller={this.controller}
+                    onClick={() => controller.toggleDrawMode()}
+                  />
+                  <ToolbarDivider />
+                  <ToolbarButton
+                    title="Delete Selected"
+                    icon={<DeleteIcon />}
+                    onClick={() => controller.deletedSelectedElements()}
+                  />
+                  <ToolbarDivider unrelated />
+                  {/* <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
+                  <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
+                  <ToolbarDivider unrelated /> */}
+                  <ToolbarButton
+                    title="Fit Network"
+                    icon={<FitScreenIcon />}
+                    onClick={() => controller.cy.fit(DEFAULT_PADDING)}
+                  />
+                  {/* <ToolbarDivider unrelated />
+                  <ToolbarButton
+                    title="Search"
+                    icon={<SearchIcon />}
+                    onClick={() => console.log('Search NOT IMPLEMENTED...')}
+                  /> */}
+                  <ToolbarDivider unrelated />
+                  <ShareButton controller={controller}/>
+                  <ToolbarDivider />
+                  <ToolbarButton
+                    title="Export Network To NDEx"
+                    icon={<NDExLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />}
+                    onClick={() => this.showDialog('ndex-network-export')}
+                  />
+                  <ToolbarDivider unrelated />
+                  <AccountButton controller={loginController} />
+                  {/* <ToolbarButton
+                    title="Debug"
+                    icon={<DebugIcon />}
+                    onClick={e => this.handleClick(e, 'debug')} 
+                  /> */}
+                </Grid>
+              </Grid>
+            </Grid>
+          </Toolbar>
+          {anchorEl && (
+            <Popover
+              id="menu-popover"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => this.handleClose()}
+            >
+              {menuName === 'account' && (
+                <MenuList>
+                  <MenuItem disabled={true} onClick={() => this.handleClose()}>NDEx Account</MenuItem>
+                  <MenuItem disabled={true} onClick={() => this.handleClose()}>Sign Out</MenuItem>
+                </MenuList>
+              )}
+              {/* {menuName === 'debug' && !dialogName && (
+                <MenuList>
+                  <MenuItem disabled={false} onClick={() => this.showDialog('dialog-name')}>Item Title Here</MenuItem>
+                </MenuList>
+              )} */}
+            </Popover>
+          )}
+        </AppBar>
+        { dialogName === 'ndex-network-export' && (
+          <NDExNetworkExportDialog
+            id="ndex-network-export"
+            controller={loginController}
+            cy={controller.cy}
             open={true}
             onClose={() => this.hideDialog()}
           />
-        )}
-        {dialogName === 'ndex-network-export' && (
-            <NDExNetworkExportDialog
-                id="ndex-network-export"
-                controller={this.controller}
-                open={true}
-                onClose={() => this.hideDialog()}
-            />
         )}
       </>
     );
   }
 }
 
-const logoIconProps = {
-  viewBox: '0 0 64 64',
-  style: { width: 'auto', fontSize: 28, margin: 0, },
-  p: 0,
-  m: 0,
+class ToolbarButton extends Component {
+
+  render() {
+    const { title, icon, color, onClick } = this.props;
+
+    return (
+      <Tooltip arrow placement="bottom" title={title}>
+        <IconButton size="small" color={color || 'inherit'} onClick={onClick}>
+          { icon }
+        </IconButton>
+      </Tooltip>
+    );
+  }
+}
+
+const useStyles = theme => ({
+  root: {
+    width: 'fit-content',
+  },
+  divider: {
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
+    width: 0,
+  },
+  unrelatedDivider: {
+    marginLeft: theme.spacing(1.5),
+    marginRight: theme.spacing(1.5),
+    width: 0,
+  },
+});
+
+ToolbarButton.propTypes = {
+  title: PropTypes.string.isRequired,
+  icon: PropTypes.element.isRequired,
+  color: PropTypes.Color,
+  onClick: PropTypes.func.isRequired,
 };
 
 Header.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
+  controllers: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
-export default Header;
+export default withStyles(useStyles)(Header);

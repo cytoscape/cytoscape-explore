@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
 import theme from '../../theme';
 import Cytoscape from 'cytoscape';
 import _ from 'lodash';
@@ -33,7 +32,6 @@ class ExcelImportSubWizard extends React.Component {
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
 
     props.wizardCallbacks.onContinue(() => this.handleContinue());
     props.wizardCallbacks.onFinish(() => this.handleFinish());
@@ -92,17 +90,15 @@ class ExcelImportSubWizard extends React.Component {
 
     // Note: backButton is always visible by default
     if (step === 1) {
-      if (!edgeData || edgeData.length === 0) {
-        setButtonState({ nextButton: 'disabled', cancelButton: 'hidden', finishButton: 'hidden' });
-      } else {
-        setButtonState({ nextButton: 'enabled', cancelButton: 'hidden', finishButton: 'enabled' });
-      }
+      if (!edgeData || edgeData.length === 0)
+        setButtonState({ backButton: 'hidden', nextButton: 'disabled', finishButton: 'hidden' });
+      else
+        setButtonState({ backButton: 'hidden', nextButton: 'enabled', finishButton: 'enabled' });
     } else if (step === 2) {
-      if (!nodeData || nodeData.length === 0) {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
-      } else {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
-      }
+      if (!nodeData || nodeData.length === 0)
+        setButtonState({ backButton: 'enabled', nextButton: 'hidden', finishButton: 'enabled' });
+      else
+        setButtonState({ backButton: 'enabled', nextButton: 'hidden', finishButton: 'enabled' });
     }
   }
 
@@ -238,9 +234,7 @@ class ExcelImportSubWizard extends React.Component {
 
     // Navigate to the new document
     const urls = await res.json();
-
-    this.props.wizardCallbacks.closeWizard();
-    location.replace(`/document/${urls.id}/${urls.secret}`); 
+    location.href = `/document/${urls.id}/${urls.secret}`;
   }
 
   createCyElements(edgeData, nodeData) {
@@ -762,7 +756,6 @@ const chartOptions = {
 };
 
 ExcelImportSubWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
   wizardCallbacks: PropTypes.any,
 };
 

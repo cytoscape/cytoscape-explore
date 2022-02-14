@@ -1,7 +1,5 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Radio from '@material-ui/core/Radio';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
@@ -18,8 +16,13 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { NetworkEditorController } from '../network-editor/controller';
+import { LoginController } from '../login/controller';
 
+const STEPS = [
+  {
+    label: "Import From NDEx",
+  },
+];
 
 function isAuthenticated(ndexClient){
   return ndexClient.authenticationType != null && ndexClient._authToken != null;
@@ -41,12 +44,12 @@ function TabPanel(props) {
   );
 }
 
-
 export class NDExImportSubWizard extends React.Component {
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
+
+    this.controller = props.loginController;
 
     props.wizardCallbacks.onContinue(() => this.handleContinue());
     props.wizardCallbacks.onFinish(() => this.handleFinish());
@@ -66,11 +69,10 @@ export class NDExImportSubWizard extends React.Component {
     });
 
     // update state when receiving google login events from the bus
-    props.controller.bus.on('googleLogin', this.onGoogleLogin);
-
-    props.controller.bus.on('googleLogout', this.onGoogleLogout);
+    this.controller.bus.on('googleLogin', this.onGoogleLogin);
+    this.controller.bus.on('googleLogout', this.onGoogleLogout);
     
-    const authenticated = isAuthenticated(this.props.controller.ndexClient);
+    const authenticated = isAuthenticated(this.controller.ndexClient);
 
     this.state = {
       step: 1,
@@ -81,28 +83,32 @@ export class NDExImportSubWizard extends React.Component {
       error: null,
       loading: false,
       selectedId: null,
-      searchAccountNetworks: isAuthenticated(this.props.controller.ndexClient),
-      showAccountNetworksTabs: isAuthenticated(this.props.controller.ndexClient)
+      searchAccountNetworks: isAuthenticated(this.controller.ndexClient),
+      showAccountNetworksTabs: isAuthenticated(this.controller.ndexClient)
     };
   }
 
   componentDidMount() {
+    const { setSteps, setCurrentStep } = this.props.wizardCallbacks;
+    setSteps({ steps: STEPS });
+    setCurrentStep(this.state);
+
     this.updateButtons(this.state);
 
-    if(isAuthenticated(this.props.controller.ndexClient)){
+    if (isAuthenticated(this.controller.ndexClient)) {
       this.fetchMyNetworks();
     }
   }
 
   componentWillUnmount(){
-    this.props.controller.bus.removeListener('googleLogin', this.onGoogleLogin);
-    this.props.controller.bus.removeListener('googleLogout', this.onGoogleLogout);
+    this.controller.bus.removeListener('googleLogin', this.onGoogleLogin);
+    this.controller.bus.removeListener('googleLogout', this.onGoogleLogout);
   }
 
   fetchMyNetworks(){
     this.setState({ loading: true });
 
-    const ndexClient = this.props.controller.ndexClient;
+    const ndexClient = this.controller.ndexClient;
 
     let searchFn = async () => {
       if(isAuthenticated(ndexClient)){
@@ -125,12 +131,12 @@ export class NDExImportSubWizard extends React.Component {
 
 
   fetchSearchResults(searchString) {
-    if(!searchString)
+    if (!searchString)
       return;
 
     this.setState({ loading: true });
 
-    const ndexClient = this.props.controller.ndexClient;
+    const ndexClient = this.controller.ndexClient;
 
     let searchFn = async () => {
         let results = await ndexClient.searchNetworks(searchString);
@@ -151,13 +157,13 @@ export class NDExImportSubWizard extends React.Component {
     // Note: backButton is always visible by default
     if (step === 1) {
       if (loading) {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'enabled', finishButton: 'hidden' });
+        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
       } else if (error || (data == null && myNetworks == null)) {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'hidden' });
+        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
       } else if (selectedId) {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
+        setButtonState({ nextButton: 'hidden', finishButton: 'enabled' });
       } else {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'disabled' });
+        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
       }
     }
   }
@@ -165,7 +171,7 @@ export class NDExImportSubWizard extends React.Component {
   async handleFinish() {
     const bodyObj = { ndexUUID: this.state.selectedId };
 
-    isAuthenticated(this.props.controller.ndexClient) ? bodyObj.authToken = this.props.controller.ndexClient._authToken : null;
+    isAuthenticated(this.controller.ndexClient) ? bodyObj.authToken = this.controller.ndexClient._authToken : null;
 
     const res = await fetch( `/api/document/cx-import`, {
           method: 'POST',
@@ -175,10 +181,10 @@ export class NDExImportSubWizard extends React.Component {
           body: JSON.stringify(bodyObj)
         }
     );
-
+    
     const urls = await res.json();
 
-    location.replace('/document/' + urls.id + '/'+ urls.secret);
+    location.replace('/document/' + urls.id);
   }
 
   handleContinue() {
@@ -222,7 +228,7 @@ export class NDExImportSubWizard extends React.Component {
             !this.state.showAccountNetworksTabs ? <div style={{marginLeft: '1em'}}>
               <Link href="" onClick={(e) => {
                 e.preventDefault();
-                this.props.controller.bus.emit('openGoogleLogin');
+                this.controller.bus.emit('openGoogleLogin');
               }}>Sign in to NDEx</Link> to browse your networks
             </div> : null
           }
@@ -369,8 +375,8 @@ TabPanel.propTypes = {
 };
 
 NDExImportSubWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
-  wizardCallbacks: PropTypes.any
+  loginController: PropTypes.instanceOf(LoginController).isRequired,
+  wizardCallbacks: PropTypes.any.isRequired,
 };
 
 export default NDExImportSubWizard;
