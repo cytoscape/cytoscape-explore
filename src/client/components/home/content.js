@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
@@ -100,7 +99,7 @@ export class Content extends Component {
             <Grid item xs={12}>
               <Paper className={classes.paper}>
                 <Typography variant="body1" gutterBottom className={classes.body1}>
-                  Use Cytoscape Explore to visualize and analyze complex networks.
+                  Create publication-ready network figures for your papers with Cytoscape Explore.
                 </Typography>
               </Paper>
             </Grid>
@@ -113,7 +112,7 @@ export class Content extends Component {
                       <Grid container spacing={2}>
                         <Grid item xs={12} className={classes.root}>
                           <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
-                            Create a New Network:
+                            Start a New Network:
                           </Typography>
                         </Grid>
                         <Grid item xs={12} className={classes.root}>
@@ -124,8 +123,11 @@ export class Content extends Component {
                   </Grid>
                   <Grid item xs={12} className={classes.root}>
                     <Paper className={classes.paper}>
+                      <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
+                        Demo:
+                      </Typography>
                       <Typography variant="body1" gutterBottom className={classes.body1}>
-                        You can also try this <Link component="button" variant="body1" onClick={() => this.loadSampleNetwork()} >sample network</Link>.
+                        You can also try this <Link component="a" style={{ cursor: 'pointer' }} onClick={() => this.loadSampleNetwork()} >sample network</Link>.
                       </Typography>
                     </Paper>
                   </Grid>
@@ -201,7 +203,7 @@ export class Content extends Component {
             spacing={2}
           >
             <Grid item>
-              <Typography variant="subtitle2">Empty:</Typography>
+              <Typography variant="subtitle2">Create New:</Typography>
             </Grid>
             <Grid item>
               <Button
@@ -212,11 +214,14 @@ export class Content extends Component {
                 classes={{
                   root: classes.button,
                   startIcon: classes.startIcon,
+                  label: classes.emptyButtonLabel,
                 }}
-                style={{minWidth: 172, minHeight: 176}}
-                startIcon={<AddIcon style={{fontSize: 44}} />}
+                style={{ minWidth: 172, minHeight: 176 }}
+                startIcon={<AddIcon style={{ fontSize: 44 }} />}
                 onClick={() => this.createNewNetwork()}
-              />
+              >
+                Empty
+              </Button>
             </Grid>
           </Grid>
         </Grid>
@@ -350,6 +355,10 @@ const useStyles = theme => ({
     marginLeft: 0,
     marginRight: 0,
   },
+  emptyButtonLabel: {
+    flexDirection: 'column',
+    paddingTop: 25,
+  },
   h5: {
     flexGrow: 1,
   },
@@ -365,6 +374,7 @@ const useStyles = theme => ({
 
 Content.propTypes = {
   controllers: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(useStyles)(Content);

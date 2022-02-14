@@ -1,13 +1,11 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { DEFAULT_PADDING } from '../layout/defaults';
-import { NetworkEditorController } from './controller';
 import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
 import TitleEditor from './title-editor';
-import { UndoButton } from '../undo/undo-button';
+import { UndoButton } from '../undo/undo-button'; // eslint-disable-line
 import AccountButton from '../login/AccountButton';
 import ShareButton from './share-button';
 
@@ -16,12 +14,12 @@ import { withStyles } from '@material-ui/core/styles';
 import { AppBar, Toolbar } from '@material-ui/core';
 import { Grid, Divider } from '@material-ui/core';
 import { Popover, MenuList, MenuItem} from "@material-ui/core";
-import { Tooltip, Typography, } from '@material-ui/core';
-import { Button, IconButton } from '@material-ui/core';
+import { Tooltip } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 
 import { AppLogoIcon, NDExLogoIcon } from '../svg-icons';
-import SearchIcon from '@material-ui/icons/Search';
-import DebugIcon from '@material-ui/icons/BugReport';
+import SearchIcon from '@material-ui/icons/Search'; // eslint-disable-line
+import DebugIcon from '@material-ui/icons/BugReport'; // eslint-disable-line
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
 import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
@@ -274,8 +272,16 @@ const useStyles = theme => ({
   },
 });
 
+ToolbarButton.propTypes = {
+  title: PropTypes.string.isRequired,
+  icon: PropTypes.element.isRequired,
+  color: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
+};
+
 Header.propTypes = {
   controllers: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(useStyles)(Header);
