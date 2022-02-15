@@ -29,7 +29,6 @@ export class ImportWizard extends React.Component {
       setSteps:        (s) => this.handleSteps(s),
       setCurrentStep:  (s) => this.handleCurrentStep(s),
       closeWizard:      () => this.setState({ open: false }),
-      returnToSelector: () => this.handleReturnToSelector(),
       sanity: 99,
     };
 
@@ -62,14 +61,6 @@ export class ImportWizard extends React.Component {
   handleFinish() {
     this.setState({ loading: true });
     this.wizardCallbacks._onFinish && this.wizardCallbacks._onFinish();
-  }
-
-  handleReturnToSelector() {
-    this.setState({
-      canContinue: false,
-      steps: null,
-      step: null,
-    });
   }
 
   handleSteps({ steps }) {

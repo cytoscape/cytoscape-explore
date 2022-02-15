@@ -10,6 +10,7 @@ import theme from '../../theme';
 
 import { Chart } from 'react-chartjs-2';
 import { DropzoneArea } from 'material-ui-dropzone';
+import { Slide } from '@material-ui/core';
 import { Grid, Paper, IconButton, Tooltip } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
 import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@material-ui/core';
@@ -534,18 +535,16 @@ class ExcelImportSubWizard extends React.Component {
             </RadioGroup>
           </FormControl>
         )}
-        { (group === EDGE || hasNodeFile) && (
-          <div className="dropzone-background">
-            <DropzoneArea
-              acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
-              filesLimit={1}
-              // initialFiles={initialFile ? [initialFile] : []}
-              onChange={files => onChange(files, onChange)}
-              showPreviews={false}
-              showPreviewsInDropzone={false}
-            />
-          </div>
-        )}
+        <div style={{ minHeight: 256 }}>
+          { group === EDGE && (
+            this.renderDropzoneArea({ onChange })
+          )}
+          { group === NODE && hasNodeFile != null && (
+            <Slide in={hasNodeFile} direction="up">
+              { this.renderDropzoneArea({ onChange }) }
+            </Slide>
+          )}
+        </div>
         { initialFile && (group === EDGE || hasNodeFile) && (
           <footer style={{ marginTop: 4 }}>
             <Tooltip title="Remove file and try again">
@@ -561,6 +560,21 @@ class ExcelImportSubWizard extends React.Component {
             <b>{initialFile.name}</b>
           </footer>
         )}
+      </div>
+    );
+  }
+
+  renderDropzoneArea({ onChange }) {
+    return (
+      <div className="dropzone-background">
+        <DropzoneArea
+          acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
+          filesLimit={1}
+          // initialFiles={initialFile ? [initialFile] : []}
+          onChange={files => onChange(files, onChange)}
+          showPreviews={false}
+          showPreviewsInDropzone={false}
+        />
       </div>
     );
   }
