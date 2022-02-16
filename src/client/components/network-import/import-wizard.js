@@ -6,6 +6,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/
 import { Button, IconButton } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
 import { LinearProgress, MobileStepper } from '@material-ui/core';
+import { Slide } from '@material-ui/core';
 
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
@@ -36,9 +37,14 @@ export class ImportWizard extends React.Component {
       open: true,
       steps: null,
       step: null,
+      forward: false,
+      backward: false,
       loading: false,
       canContinue: false,
     };
+
+    this.lastStep = 0;
+    this.exited = true; // Will indicate whether or not the next/back transition has exited
   }
 
   handleCancel() {
@@ -69,8 +75,11 @@ export class ImportWizard extends React.Component {
   }
 
   handleCurrentStep({ step }) {
-    if (step)
-      this.setState({ step });
+    if (step) {
+      const forward = step > 0 && step > this.state.step;
+      const backward = step > 0 && step < this.state.step;
+      this.setState({ step, forward, backward });
+    }
   }
 
   handleCanContinue({ canContinue }) {
@@ -78,7 +87,7 @@ export class ImportWizard extends React.Component {
   }
 
   render() {
-    const { steps, step, loading, canContinue } = this.state;
+    const { steps, step, forward, backward, loading, canContinue } = this.state;
     const { classes } = this.props;
     const Wizard = this.props.wizard;
     const wizardProps = this.props.wizardProps || {};
@@ -92,6 +101,22 @@ export class ImportWizard extends React.Component {
     }
 
     const PROGRESS_HEIGHT = 4;
+    
+    // The animation on the wizard content must always exit before it enters the trasition again,
+    // so we need to keep track of this 'exited' flag in order to trigger the forward/backward state in the right moment.
+    const onEntered = () => {
+      this.exited = false;
+      this.lastStep = step;
+    };
+    const onExited = () => {
+      this.exited = true;
+      this.setState({ forward, backward });
+    };
+
+    const enterAnimation = (forward || backward) && this.exited;
+    const animate =
+      enterAnimation && step != this.lastStep // don't animate the same step again (it may me re-rendered to update a component)
+      && ((forward && this.lastStep > 0) || (backward && this.lastStep > 1)); // don't animate the first step, unless it's going backwards from step 2.
 
     return (
       <Dialog
@@ -107,9 +132,7 @@ export class ImportWizard extends React.Component {
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}
         >
           <h2>{ title }{ optional ? <sup style={{ fontWeight: 'normal', fontSize: 'smaller', paddingLeft: 10 }}>(optional)</sup> : '' }</h2>
-          <IconButton 
-            aria-label='close' 
-            onClick={() => this.handleCancel()}>
+          <IconButton aria-label='close' onClick={() => this.handleCancel()}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -117,7 +140,16 @@ export class ImportWizard extends React.Component {
           style={{ padding: '8px 24px' }}
           dividers
         >
-          <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} />
+          <Slide
+            in={enterAnimation}
+            direction={forward ? 'left' : 'right'}
+            exit={false}
+            timeout={{ enter: (animate ? 250 : 0) }} // To look like we turned off the animation when rendering the same step again
+            onEntered={onEntered}
+            onExited={onExited}
+          >
+            <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} />
+          </Slide>
         </DialogContent>
         <LinearProgress style={{ height: PROGRESS_HEIGHT, visibility: loading ? 'inherit' : 'hidden' }} />
         <DialogActions style={{ marginTop: -PROGRESS_HEIGHT }}>

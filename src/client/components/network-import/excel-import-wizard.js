@@ -10,7 +10,7 @@ import theme from '../../theme';
 
 import { Chart } from 'react-chartjs-2';
 import { DropzoneArea } from 'material-ui-dropzone';
-import { Slide } from '@material-ui/core';
+import { Fade, Slide } from '@material-ui/core';
 import { Grid, Paper, IconButton, Tooltip } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
 import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@material-ui/core';
@@ -73,6 +73,8 @@ class ExcelImportSubWizard extends React.Component {
     this.handleNodeFileChange = this.handleNodeFileChange.bind(this);
     this.handleEdgeFileDelete = this.handleEdgeFileDelete.bind(this);
     this.handleNodeFileDelete = this.handleNodeFileDelete.bind(this);
+
+    this.autoContinue = false;
   }
 
   componentDidMount() {
@@ -96,6 +98,13 @@ class ExcelImportSubWizard extends React.Component {
 
       if (chartConfigs)
         this.createPreviewCharts(chartConfigs);
+    }
+
+    if (this.autoContinue) {
+      this.autoContinue = false;
+
+      // Delay the auto-continue just enough to show that the excel file has been added
+      setTimeout(() => this.handleContinue(), 250);
     }
   }
 
@@ -129,7 +138,8 @@ class ExcelImportSubWizard extends React.Component {
 
         this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData, edgeChartConfigs });
         this.updateCanContinue({ ...this.state, json });
-        this.handleContinue();
+
+        this.autoContinue = json != null && json.length > 0; // Don't call this.handleContinue(), otherwise the "next step" animation will be messed up!
       });
     }
   }
@@ -167,7 +177,8 @@ class ExcelImportSubWizard extends React.Component {
 
         this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData, nodeChartConfigs });
         this.updateCanContinue({ ...this.state, json });
-        this.handleContinue();
+
+        this.autoContinue = json != null && json.length > 0; // Don't call this.handleContinue(), otherwise the "next step" animation will be messed up!
       });
     }
   }
@@ -546,19 +557,21 @@ class ExcelImportSubWizard extends React.Component {
           )}
         </div>
         { initialFile && (group === EDGE || hasNodeFile) && (
-          <footer style={{ marginTop: 4 }}>
-            <Tooltip title="Remove file and try again">
-              <IconButton
-                variant="outlined"
-                color="primary"
-                size="small"
-                onClick={() => onDelete()}
-              >
-                <HighlightOffIcon />
-              </IconButton>
-            </Tooltip>
-            <b>{initialFile.name}</b>
-          </footer>
+          <Fade in={initialFile != null} timeout={{ enter: 750 }}>
+            <footer style={{ marginTop: 4 }}>
+              <Tooltip title="Remove file and try again">
+                <IconButton
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => onDelete()}
+                >
+                  <HighlightOffIcon />
+                </IconButton>
+              </Tooltip>
+              <b>{initialFile.name}</b>
+            </footer>
+          </Fade>
         )}
       </div>
     );
