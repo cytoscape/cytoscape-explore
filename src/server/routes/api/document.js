@@ -23,11 +23,11 @@ const makeNetworkId = () => 'cy' + uuid();
  * being initialized.
  *
 **/
- const postCX2Network = async (importBody, req, res, next) => {
+const postCX2Network = async (importBody, req, res, next) => {
   try {
     const body = req.body;
     const id = makeNetworkId();
-    const cy = new Cytoscape();
+    const cy = new Cytoscape({ styleEnabled: true });
     const secret = uuid();
     const publicUrl = `${BASE_URL}/document/${id}`;
     const privateUrl = `${publicUrl}/${secret}`;
@@ -35,6 +35,8 @@ const makeNetworkId = () => 'cy' + uuid();
     cy.data({ id });
     const cySyncher = new CytoscapeSyncher(cy, secret);
     importBody(cy, body);
+
+    maybeApplyLayout(cy);
 
     await cySyncher.create();
 
@@ -191,6 +193,28 @@ const getNetwork = async (exportCy, req, res, next) => {
   } catch(err) {
     next(err);
   }
+};
+
+/**
+ * Apply a simple layout to the passed Cytoscape network, if it looks like it hasn't been done already.
+ */
+const maybeApplyLayout = (cy) => {
+  // Check whether all nodes are positioned at (0,0)
+  const nodes = cy.nodes();
+  let apply = nodes.length > 0;
+
+  for (const n of nodes) {
+    const pos = n.position();
+    
+    if (pos.x != 0 || pos.y != 0) {
+      apply = false;
+      break;
+    }
+  }
+
+  // Apply the grid layout
+  if (apply)
+    cy.layout({ name: 'grid', avoidOverlap: true }).run();
 };
 
 /**
