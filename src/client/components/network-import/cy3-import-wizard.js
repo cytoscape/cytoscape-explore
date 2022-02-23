@@ -44,23 +44,24 @@ export class Cy3ImportSubWizard extends React.Component {
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
 
-    this.updateButtons(this.state);
+    this.updateCanContinue(this.state);
     this.fetchNetworkData();
   }
 
-  updateButtons(state) {
+  updateCanContinue(state) {
     const { step, data, error, loading, selectedSUID } = state;
-    const { setButtonState } = this.props.wizardCallbacks;
+    const { setCanContinue } = this.props.wizardCallbacks;
 
-    // Note: backButton is always visible by default
+    let b = false;
+
     if (step == 1) {
       if (loading || error || !data || data.length === 0)
-        setButtonState({ nextButton: 'hidden', finishButton: 'disbled' });
+        b = false;
       else if (selectedSUID)
-        setButtonState({ nextButton: 'hidden', finishButton: 'enabled'  });
-      else
-        setButtonState({ nextButton: 'hidden', finishButton: 'disbled'  });
+        b = true;
     }
+
+    setCanContinue({ canContinue: b });
   }
 
   fetchNetworkData() {
@@ -95,7 +96,7 @@ export class Cy3ImportSubWizard extends React.Component {
       )
       .then(data => data.sort(compareByName))
       .then(data => this.setState({ data, error: null, loading: false }))
-      .then(() => this.updateButtons({ ...this.state, loading: false }))
+      .then(() => this.updateCanContinue({ ...this.state, loading: false }))
       .catch(err => this.setState({ error: err, loading: false }))
     )
     .catch(err => this.setState({ error: err, loading: false }));
@@ -154,7 +155,7 @@ export class Cy3ImportSubWizard extends React.Component {
     this.setState({ step });
 
     this.props.wizardCallbacks.setCurrentStep({ step });
-    this.updateButtons({ ...this.state, step });
+    this.updateCanContinue({ ...this.state, step });
     
     return step;
   }
@@ -250,7 +251,7 @@ export class Cy3ImportSubWizard extends React.Component {
 
     const handleNetworkSelect = (selectedSUID) => {
       this.setState({ selectedSUID });
-      this.updateButtons({ ...this.state, selectedSUID });
+      this.updateCanContinue({ ...this.state, selectedSUID });
     };
 
     // The first image will fill the entire width of the component,

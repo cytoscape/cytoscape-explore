@@ -93,7 +93,7 @@ export class NDExImportSubWizard extends React.Component {
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
 
-    this.updateButtons(this.state);
+    this.updateCanContinue(this.state);
 
     if (isAuthenticated(this.controller.ndexClient)) {
       this.fetchMyNetworks();
@@ -125,7 +125,7 @@ export class NDExImportSubWizard extends React.Component {
 
   return searchFn()
     .then(myNetworks => this.setState({ myNetworks, myNetworksError: null, loading: false }))
-    .then(() => this.updateButtons({ ...this.state, loading: false }))
+    .then(() => this.updateCanContinue({ ...this.state, loading: false }))
     .catch(error => this.setState({ myNetworks: null, myNetworksError: error, loading: false }));
   }
 
@@ -146,26 +146,24 @@ export class NDExImportSubWizard extends React.Component {
 
   searchFn()
     .then(data => this.setState({ data, error: null, loading: false }))
-    .then(() => this.updateButtons({ ...this.state, loading: false }))
+    .then(() => this.updateCanContinue({ ...this.state, loading: false }))
     .catch(error => this.setState({ data: null, error, loading: false }));
   }
 
-  updateButtons(state) {
-    const { step, data, error, loading, selectedId, myNetworks, myNetworksError } = state;
-    const { setButtonState } = this.props.wizardCallbacks;
+  updateCanContinue(state) {
+    const { step, data, error, selectedId, myNetworks } = state;
+    const { setCanContinue } = this.props.wizardCallbacks;
 
-    // Note: backButton is always visible by default
-    if (step === 1) {
-      if (loading) {
-        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
-      } else if (error || (data == null && myNetworks == null)) {
-        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
-      } else if (selectedId) {
-        setButtonState({ nextButton: 'hidden', finishButton: 'enabled' });
-      } else {
-        setButtonState({ nextButton: 'hidden', finishButton: 'disabled' });
-      }
+    let b = false;
+
+    if (step === 1 ) {
+      if (error || (data == null && myNetworks == null))
+        b = false;
+      else if (selectedId)
+        b = true;
     }
+
+    setCanContinue({ canContinue: b });
   }
 
   async handleFinish() {
@@ -190,7 +188,7 @@ export class NDExImportSubWizard extends React.Component {
   handleContinue() {
     const step = this.state.step + 1;
     this.setState({ step });
-    this.updateButtons({ ...this.state, step });
+    this.updateCanContinue({ ...this.state, step });
   }
 
   handleBack() {
@@ -305,7 +303,7 @@ export class NDExImportSubWizard extends React.Component {
     const runSearch = (event) => {
       event.preventDefault();
       this.setState({ loading: true, selectedId: null });
-      this.updateButtons( { ...this.state, loading: true });
+      this.updateCanContinue( { ...this.state, loading: true });
       this.fetchSearchResults(searchString);
     };
 
@@ -332,7 +330,7 @@ export class NDExImportSubWizard extends React.Component {
   renderNetworkList(ndexNetworkReults) {
     const handleNetworkSelection = (selectedId) => {
       this.setState({ selectedId });
-      this.updateButtons({ ...this.state, selectedId });
+      this.updateCanContinue({ ...this.state, selectedId });
     };
     return (
       <TableContainer component={Paper}>
