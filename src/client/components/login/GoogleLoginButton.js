@@ -1,19 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import GoogleLogin from "react-google-login";
-import IconButton from "@material-ui/core/IconButton";
+
+import { LoginController } from './controller';
+
+import { IconButton, Tooltip } from "@material-ui/core";
+
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import { Tooltip } from "@material-ui/core";
-
-import { NetworkEditorController } from '../controller';
-
 
 // 1. create ref
 // 2. hook up bus
 // 3. on emit login request
 // 4. emit click event on the iconbutton ref
 
-const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controller}) => {
+const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controller, size = "small" }) => {
   let loginRef = useRef(null);
 
   useEffect(() => {
@@ -29,14 +29,14 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controll
         <Tooltip arrow placement="bottom" title={"Sign in with Google"}>
           <IconButton
             ref={loginRef}
-            size="small"
+            size={size}
             edge="end"
             color="inherit"
             aria-label="menu"
             aria-haspopup="true"
             onClick={renderProps.onClick}
           >
-            <AccountCircle />
+            <AccountCircle fontSize={size === 'small' ? 'medium' : 'large' } />
           </IconButton>
         </Tooltip>
       )}
@@ -52,7 +52,8 @@ const GoogleLoginButton = ({ clientId = "", responseHandler = () => {}, controll
 GoogleLoginButton.propTypes = {
   clientId: PropTypes.string.isRequired,
   responseHandler: PropTypes.func.isRequired,
-  controller: PropTypes.instanceOf(NetworkEditorController)
+  controller: PropTypes.instanceOf(LoginController),
+  size: PropTypes.oneOf(['small', 'medium']),
 };
 
 export default GoogleLoginButton;

@@ -1,128 +1,63 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
+
+import { withStyles } from '@material-ui/core/styles';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
-import { Button, IconButton, Tooltip, Fade } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { LinearProgress } from '@material-ui/core';
+import { LinearProgress, MobileStepper } from '@material-ui/core';
+import { Slide } from '@material-ui/core';
+
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CloseIcon from '@material-ui/icons/Close';
-import CancelIcon from '@material-ui/icons/Cancel';
-import DescriptionIcon from '@material-ui/icons/Description';
-import { Cy3LogoIcon, NDExLogoIcon } from '../svg-icons';
-import Cy3ImportSubWizard from './cy3-import-wizard';
-import ExcelImportSubWizard from './excel-import-wizard';
-import { NetworkEditorController } from '../network-editor/controller';
-import NDExImportSubWizard from './ndex-import-wizard';
-
-const PARENT_STEP = {
-  SELECT_A_WIZARD: "SELECT_A_WIZARD",
-  SUB_WIZARD: "SUB_WIZARD"
-};
-
-const SUB_WIZARD = {
-  UNSELECTED: null,
-  CY3: "CY3",
-  NDEX: "NDEX",
-  EXCEL: "EXCEL"
-};
-
-const itemStyle = {
-  padding: '6px',
-};
-
-const logoIconProps = {
-  viewBox: '0 0 64 64',
-  p: 0,
-  m: 0,
-};
-
-const logoIconStyle = {
-  width: 'auto',
-  fontSize: '2rem',
-  margin: 0, 
-  fill: '#fff',
-};
-
-const WIZARDS = [
-  {
-    id: SUB_WIZARD.CY3,
-    label: "Cytoscape 3",
-    tooltip: "Cytoscape Desktop",
-    icon: <Cy3LogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
-    color: '#ea9123',
-  },
-  {
-    id: SUB_WIZARD.NDEX,
-    label: "NDEx",
-    tooltip: "ndexbio.org",
-    icon: <NDExLogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
-    color: '#0087d2',
-  },
-  {
-    id: SUB_WIZARD.EXCEL,
-    label: "Excel File",
-    tooltip: "Excel or CSV file",
-    icon: <DescriptionIcon style={{...logoIconStyle}} />,
-    color: '#107c41',
-  },
-];
 
 export class ImportWizard extends React.Component {
 
   constructor(props){
     super(props);
-    this.controller = props.controller;
 
     this.wizardCallbacks = {
-      _onFinish:   () => null,
-      _onContinue: () => null,
-      _onCancel:   () => null,
-      _onBack:     () => null,
-      onFinish:   (f) => this.wizardCallbacks._onFinish = f,
-      onContinue: (f) => this.wizardCallbacks._onContinue = f,
-      onCancel:   (f) => this.wizardCallbacks._onCancel = f,
-      onBack:     (f) => this.wizardCallbacks._onBack = f,
-      setSteps:   (s) => this.handleSteps(s),
+      _onFinish:    () => null,
+      _onContinue:  () => null,
+      _onCancel:    () => null,
+      _onBack:      () => null,
+      onFinish:    (f) => this.wizardCallbacks._onFinish = f,
+      onContinue:  (f) => this.wizardCallbacks._onContinue = f,
+      onCancel:    (f) => this.wizardCallbacks._onCancel = f,
+      onBack:      (f) => this.wizardCallbacks._onBack = f,
+      setCanContinue:  (b) => this.handleCanContinue(b),
+      setSteps:        (s) => this.handleSteps(s),
       setCurrentStep:  (s) => this.handleCurrentStep(s),
-      setButtonState:  (s) => this.handleButtonState(s),
       closeWizard:      () => this.setState({ open: false }),
-      returnToSelector: () => this.handleReturnToSelector(),
       sanity: 99,
     };
 
     this.state = {
       open: true,
-      parentStep: PARENT_STEP.SELECT_A_WIZARD,
-      subWizard: SUB_WIZARD.UNSELECTED,
       steps: null,
       step: null,
+      forward: false,
+      backward: false,
       loading: false,
-      // button state... can be 'enabled', 'disabled' or 'hidden'
-      nextButton: 'hidden',
-      backButton: 'hidden',
-      finishButton: 'hidden',
-      cancelButton: 'enabled',
+      canContinue: false,
     };
+
+    this.lastStep = 0;
+    this.exited = true; // Will indicate whether or not the next/back transition has exited
   }
 
   handleCancel() {
     this.setState({ open: false });
+
+    this.wizardCallbacks._onClose && this.wizardCallbacks._onClose();
+    this.wizardCallbacks._onCancel && this.wizardCallbacks._onCancel();
+    
     this.props.onClose && this.props.onClose();
-    this.wizardCallbacks._onCancel();
   }
 
   handleContinue() {
-    if (this.state.parentStep == PARENT_STEP.SELECT_A_WIZARD) {
-      this.setState({ 
-        parentStep: PARENT_STEP.SUB_WIZARD,
-        subWizard: this.state.subWizardButton,
-        backButton: 'enabled'
-      });
-    } 
-    this.wizardCallbacks._onContinue();
+    this.wizardCallbacks._onContinue && this.wizardCallbacks._onContinue();
   }
 
   handleBack() {
@@ -131,19 +66,7 @@ export class ImportWizard extends React.Component {
 
   handleFinish() {
     this.setState({ loading: true });
-    this.wizardCallbacks._onFinish();
-  }
-
-  handleReturnToSelector() {
-    this.setState({ 
-      parentStep: PARENT_STEP.SELECT_A_WIZARD,
-      backButton: 'hidden',
-      nextButton: 'hidden',
-      finishButton: 'hidden',
-      cancelButton: 'enabled',
-      steps: null,
-      step: null,
-    });
+    this.wizardCallbacks._onFinish && this.wizardCallbacks._onFinish();
   }
 
   handleSteps({ steps }) {
@@ -152,23 +75,22 @@ export class ImportWizard extends React.Component {
   }
 
   handleCurrentStep({ step }) {
-    if (step)
-      this.setState({ step });
+    if (step) {
+      const forward = step > 0 && step > this.state.step;
+      const backward = step > 0 && step < this.state.step;
+      this.setState({ step, forward, backward });
+    }
   }
 
-  handleButtonState({ nextButton, backButton, finishButton, cancelButton }) {
-    if (nextButton)
-      this.setState({ nextButton });
-    if (backButton)
-      this.setState({ backButton });
-    if (finishButton)
-      this.setState({ finishButton });
-    if (cancelButton)
-      this.setState({ cancelButton });
+  handleCanContinue({ canContinue }) {
+    this.setState({ canContinue });
   }
 
   render() {
-    const { steps, step, loading } = this.state;
+    const { steps, step, forward, backward, loading, canContinue } = this.state;
+    const { classes } = this.props;
+    const Wizard = this.props.wizard;
+    const wizardProps = this.props.wizardProps || {};
     
     let optional = false;
     let title;
@@ -176,10 +98,25 @@ export class ImportWizard extends React.Component {
     if (steps && step && steps.length > 0) {
       optional = steps[step - 1].optional === true;
       title = steps[step - 1].label;
-    
-      if (steps.length > 1)
-        title = step + ' of ' + steps.length + (title ? " \u2014 " + title : '');
     }
+
+    const PROGRESS_HEIGHT = 4;
+    
+    // The animation on the wizard content must always exit before it enters the trasition again,
+    // so we need to keep track of this 'exited' flag in order to trigger the forward/backward state in the right moment.
+    const onEntered = () => {
+      this.exited = false;
+      this.lastStep = step;
+    };
+    const onExited = () => {
+      this.exited = true;
+      this.setState({ forward, backward });
+    };
+
+    const enterAnimation = (forward || backward) && this.exited;
+    const animate =
+      enterAnimation && step != this.lastStep // don't animate the same step again (it may me re-rendered to update a component)
+      && ((forward && this.lastStep > 0) || (backward && this.lastStep > 1)); // don't animate the first step, unless it's going backwards from step 2.
 
     return (
       <Dialog
@@ -194,10 +131,8 @@ export class ImportWizard extends React.Component {
           disableTypography
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}
         >
-          <h2>{ this.renderTitleText() }</h2>
-          <IconButton 
-            aria-label='close' 
-            onClick={() => this.handleCancel()}>
+          <h2>{ title }{ optional ? <sup style={{ fontWeight: 'normal', fontSize: 'smaller', paddingLeft: 10 }}>(optional)</sup> : '' }</h2>
+          <IconButton aria-label='close' onClick={() => this.handleCancel()}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -205,185 +140,87 @@ export class ImportWizard extends React.Component {
           style={{ padding: '8px 24px' }}
           dividers
         >
-          <>
-            { loading &&
-              <LinearProgress />
-            }
-            { title &&
-              <h3>{ title }{ optional ? <sup style={{fontWeight: 'normal', paddingLeft: 10}}>(optional)</sup> : '' }</h3>
-            }
-            { this.renderPage() }
-          </>
+          <Slide
+            in={enterAnimation}
+            direction={forward ? 'left' : 'right'}
+            exit={false}
+            timeout={{ enter: (animate ? 250 : 0) }} // To look like we turned off the animation when rendering the same step again
+            onEntered={onEntered}
+            onExited={onExited}
+          >
+            <Wizard wizardCallbacks={this.wizardCallbacks} {...wizardProps} />
+          </Slide>
         </DialogContent>
-        <DialogActions>
-          <Grid container justifyContent="space-between" spacing={10}>
-            <Grid item>
-              { this.state.backButton !== 'hidden' &&
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={loading || this.state.backButton !== 'enabled'}
-                  startIcon={<KeyboardArrowLeftIcon />}
-                  onClick={() => this.handleBack()}
-                >
-                  Back
-                </Button>
-              }
-            </Grid>
-            <Grid item>
-              <Grid container justifyContent="space-between" spacing={2}>
-                { this.state.cancelButton !== 'hidden' &&
-                  <Grid item>
+        <LinearProgress style={{ height: PROGRESS_HEIGHT, visibility: loading ? 'inherit' : 'hidden' }} />
+        <DialogActions style={{ marginTop: -PROGRESS_HEIGHT }}>
+          <Grid container justifyContent="space-between" spacing={2}>
+            <Grid item className={classes.root}>
+              { steps && (
+                <MobileStepper
+                  variant="dots"
+                  steps={steps.length}
+                  position="static"
+                  activeStep={step - 1}
+                  classes={{ root: classes.stepperRoot, dots: (steps.length > 1 ? classes.visibleSteps : classes.hiddenSteps) }}
+                  backButton={
                     <Button
-                      disabled={this.state.cancelButton !== 'enabled'}
-                      variant="outlined"
-                      color="primary"
-                      endIcon={<CancelIcon />}
-                      onClick={() => this.handleCancel()}
-                    >
-                      Cancel
-                    </Button>
-                  </Grid>
-                }
-                { this.state.finishButton !== 'hidden' &&
-                  <Grid item>
-                    <Button
-                      disabled={loading || this.state.finishButton !== 'enabled'}
                       variant="contained"
-                      color="primary"
-                      endIcon={<CheckCircleIcon />}
-                      onClick={() => this.handleFinish()}
+                      className={classes.button}
+                      style={{ visibility: step > 1 ? 'inherit' : 'hidden' }}
+                      startIcon={<KeyboardArrowLeftIcon />}
+                      onClick={() => this.handleBack()}
+                      disabled={step === 1}
                     >
-                      Finish
+                      Back
                     </Button>
-                  </Grid>
-                }
-                { this.state.nextButton !== 'hidden' &&
-                  <Grid item>
+                  }
+                  nextButton={
                     <Button
-                      autoFocus
-                      disabled={loading || this.state.nextButton !== 'enabled'}
                       variant="contained"
-                      color="primary"
-                      endIcon={<KeyboardArrowRightIcon />}
-                      onClick={() => this.handleContinue()}
+                      color={step === steps.length ? 'primary' : 'default'}
+                      className={classes.button}
+                      endIcon={step === steps.length ? null : <KeyboardArrowRightIcon />}
+                      onClick={() => step === steps.length ? this.handleFinish() : this.handleContinue()}
+                      disabled={loading || !canContinue}
                     >
-                      Next
+                      { step === steps.length ? 'Import' : 'Next' }
                     </Button>
-                  </Grid>
-                }
-              </Grid>
+                  }
+                />
+              )}
             </Grid>
           </Grid>
         </DialogActions>
       </Dialog>
     );
   }
-  
-  renderTitleText() {
-    switch(this.state.parentStep) {
-      case PARENT_STEP.SELECT_A_WIZARD: return "Import Network";
-      case PARENT_STEP.SUB_WIZARD:
-        switch(this.state.subWizard) {
-          case SUB_WIZARD.CY3:   return "Import from Cytoscape Desktop";
-          case SUB_WIZARD.NDEX:  return "Import from NDEx";
-          case SUB_WIZARD.EXCEL: return "Import from Excel File";
-        }
-        break;
-    }
-  }
-
-  renderPage() {
-    switch(this.state.parentStep) {
-      case PARENT_STEP.SELECT_A_WIZARD: 
-        return this.renderWizardSelector();
-      case PARENT_STEP.SUB_WIZARD:
-        return this.renderSubWizard();
-    }
-  }
-
-  renderWizardSelector() {
-    const classes = useStyles();
-
-    const handleButton = (subWizardButton) => {
-      this.setState({ 
-        parentStep: PARENT_STEP.SUB_WIZARD,
-        subWizard: subWizardButton,
-        backButton: 'enabled'
-      });
-      this.wizardCallbacks._onContinue();
-    };
-
-    return (
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        className={classes.root}
-        spacing={2}
-        style={{margin: 8}}
-      >
-        <Grid item xs={12}>
-          <Grid container direction="column" justifycontent="center" spacing={4}>
-            {WIZARDS.map((w) => (
-              <Grid key={w.id} item style={{...itemStyle}}>
-                <Tooltip
-                  arrow
-                  placement="right"
-                  enterDelay={500}
-                  TransitionComponent={Fade}
-                  TransitionProps={{timeout: 600}}
-                  title={<span style={{fontSize: '0.8rem'}}>{w.tooltip}</span>}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    className={classes.button}
-                    style={{backgroundColor: w.color, textTransform: 'unset', fontWeight: 'bold', minWidth: '180px', justifyContent: "flex-start"}}
-                    startIcon={w.icon}
-                    onClick={() => handleButton(w.id)}
-                  >
-                    {w.label}
-                  </Button>
-                </Tooltip>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-  }
-
-  renderSubWizard() {
-    switch(this.state.subWizard) {
-      case SUB_WIZARD.CY3: 
-        return <Cy3ImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-      case SUB_WIZARD.NDEX:
-        return <NDExImportSubWizard controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-      case SUB_WIZARD.EXCEL: 
-        return <ExcelImportSubWizard  controller={this.controller} wizardCallbacks={this.wizardCallbacks} />;
-    }
-  }
-
 }
 
-function useStyles() {
-  return makeStyles((theme) => ({
-    root: {
-      flexGrow: 1,
-      width: '100%',
-    },
-    button: {
-      margin: theme.spacing(1),
-    },
-  }));
-}
+const useStyles = theme => ({
+  root: {
+    flexGrow: 1,
+  },
+  stepperRoot: {
+    backgroundColor: 'transparent',
+  },
+  visibleSteps: {
+    visibility: 'inherit',
+  },
+  hiddenSteps: {
+    visibility: 'hidden',
+  },
+  button: {
+    minWidth: 92, // Just so the 'Back', 'Next' and 'Import' buttons have the same size
+    // textTransform: 'unset',
+  },
+});
 
 ImportWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
+  classes: PropTypes.object.isRequired,
+  wizard: PropTypes.func.isRequired,
+  wizardProps: PropTypes.any,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
 };
 
-export default ImportWizard;
+export default withStyles(useStyles)(ImportWizard);

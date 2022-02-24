@@ -1,16 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NetworkEditorController } from '../network-editor/controller';
-import theme from '../../theme';
 import Cytoscape from 'cytoscape';
 import _ from 'lodash';
 import * as XLSX from "xlsx";
 import { mean, std } from 'mathjs';
 import * as gaussian from 'gaussian';
+
+import theme from '../../theme';
+
 import { Chart } from 'react-chartjs-2';
 import { DropzoneArea } from 'material-ui-dropzone';
+import { Fade, Slide } from '@material-ui/core';
 import { Grid, Paper, IconButton, Tooltip } from '@material-ui/core';
 import { Table, TableBody, TableCell, TableContainer, TableHead , TableRow } from '@material-ui/core';
+import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@material-ui/core';
+
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 
 const STEPS = [
@@ -18,10 +22,19 @@ const STEPS = [
     label: "Enter Your Edge Table",
   },
   {
+    label: "Preview Edge Data",
+  },
+  {
     label: "Enter Your Node Table",
     optional: true,
   },
+  {
+    label: "Preview Node Data",
+  },
 ];
+
+const EDGE = "Edge";
+const NODE = "Node";
 
 const NODE_COLOR = "#0571B0";
 const EDGE_COLOR = "#A6CADF";
@@ -33,7 +46,6 @@ class ExcelImportSubWizard extends React.Component {
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
 
     props.wizardCallbacks.onContinue(() => this.handleContinue());
     props.wizardCallbacks.onFinish(() => this.handleFinish());
@@ -41,6 +53,7 @@ class ExcelImportSubWizard extends React.Component {
 
     this.state = {
       step: 1,
+      hasNodeFile: null,
       edgeFile: null,
       nodeFile: null,
       edgeData: null,
@@ -60,14 +73,16 @@ class ExcelImportSubWizard extends React.Component {
     this.handleNodeFileChange = this.handleNodeFileChange.bind(this);
     this.handleEdgeFileDelete = this.handleEdgeFileDelete.bind(this);
     this.handleNodeFileDelete = this.handleNodeFileDelete.bind(this);
+
+    this.autoContinue = false;
   }
 
   componentDidMount() {
     const { setSteps, setCurrentStep } = this.props.wizardCallbacks;
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
-    
-    this.updateButtons(this.state);
+
+    this.updateCanContinue(this.state);
   }
 
   componentWillUnmount() {
@@ -78,31 +93,18 @@ class ExcelImportSubWizard extends React.Component {
     const { step, edgeChartConfigs, nodeChartConfigs } = this.state;
 
     // Recreate preview charts
-    if (step === 1 || step === 2) {
-      const chartConfigs = step === 1 ? edgeChartConfigs : nodeChartConfigs;
+    if (step === 2 || step === 4) {
+      const chartConfigs = step === 2 ? edgeChartConfigs : nodeChartConfigs;
 
       if (chartConfigs)
         this.createPreviewCharts(chartConfigs);
     }
-  }
 
-  updateButtons(state) {
-    const { step, edgeData, nodeData } = state;
-    const { setButtonState } = this.props.wizardCallbacks;
+    if (this.autoContinue) {
+      this.autoContinue = false;
 
-    // Note: backButton is always visible by default
-    if (step === 1) {
-      if (!edgeData || edgeData.length === 0) {
-        setButtonState({ nextButton: 'disabled', cancelButton: 'hidden', finishButton: 'hidden' });
-      } else {
-        setButtonState({ nextButton: 'enabled', cancelButton: 'hidden', finishButton: 'enabled' });
-      }
-    } else if (step === 2) {
-      if (!nodeData || nodeData.length === 0) {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
-      } else {
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled' });
-      }
+      // Delay the auto-continue just enough to show that the excel file has been added
+      setTimeout(() => this.handleContinue(), 250);
     }
   }
 
@@ -135,7 +137,9 @@ class ExcelImportSubWizard extends React.Component {
         }
 
         this.setState({ edgeFile: f, networkName: fileName, edgeData: json, node1IdAttr, node2IdAttr, edgePreviewData, edgeChartConfigs });
-        this.updateButtons({ ...this.state, json });
+        this.updateCanContinue({ ...this.state, json });
+
+        this.autoContinue = json != null && json.length > 0; // Don't call this.handleContinue(), otherwise the "next step" animation will be messed up!
       });
     }
   }
@@ -172,19 +176,21 @@ class ExcelImportSubWizard extends React.Component {
         }
 
         this.setState({ nodeFile: f, nodeData: json, nodeIdAttr, nodePreviewData, nodeChartConfigs });
-        this.updateButtons({ ...this.state, json });
+        this.updateCanContinue({ ...this.state, json });
+
+        this.autoContinue = json != null && json.length > 0; // Don't call this.handleContinue(), otherwise the "next step" animation will be messed up!
       });
     }
   }
 
   handleEdgeFileDelete() {
       this.setState({ edgeFile: null, edgeData: null, node1IdAttr: null, node2IdAttr: null, edgePreviewData: null, edgeChartConfigs: null });
-      this.updateButtons({ ...this.state, edgeFile: null, edgeData: null });
+      this.updateCanContinue({ ...this.state, edgeFile: null, edgeData: null });
   }
 
   handleNodeFileDelete() {
     this.setState({ nodeFile: null, nodeData: null, nodeIdAttr: null, nodePreviewData: null, nodeChartConfigs: null });
-    this.updateButtons({ ...this.state, nodeFile: null, nodeData: null});
+    this.updateCanContinue({ ...this.state, nodeFile: null, nodeData: null});
   }
 
   readFile(file, handleData) {
@@ -210,10 +216,10 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   async handleFinish() {
-    const { networkName, edgeData, nodeData } = this.state;
+    const { networkName, edgeData, nodeData, hasNodeFile } = this.state;
 
     const data = { name: networkName };
-    const elements = this.createCyElements(edgeData, nodeData);
+    const elements = this.createCyElements(edgeData, (hasNodeFile ? nodeData : null));
 
     // Create another Cytoscape instance, just so we can apply a layout
     const cy = new Cytoscape({ styleEnabled: true });
@@ -238,9 +244,7 @@ class ExcelImportSubWizard extends React.Component {
 
     // Navigate to the new document
     const urls = await res.json();
-
-    this.props.wizardCallbacks.closeWizard();
-    location.replace(`/document/${urls.id}/${urls.secret}`); 
+    location.href = `/document/${urls.id}/${urls.secret}`;
   }
 
   createCyElements(edgeData, nodeData) {
@@ -425,9 +429,33 @@ class ExcelImportSubWizard extends React.Component {
     this.setState({ step });
     
     this.props.wizardCallbacks.setCurrentStep({ step });
-    this.updateButtons({ ...this.state, step });
+    this.updateCanContinue({ ...this.state, step });
     
     return step;
+  }
+
+  updateCanContinue(state) {
+    const { step, edgeData, nodeData, hasNodeFile } = state;
+    const { setCanContinue } = this.props.wizardCallbacks;
+
+    let b = false;
+
+    if (step === 1) {
+      b = edgeData && edgeData.length > 0;
+    } else if (step === 2) {
+      b =  true;
+    } else if (step === 3) {
+      if (hasNodeFile == null)
+        b =  false;
+      else if (hasNodeFile === false)
+        b =  true;
+      else if (hasNodeFile === true)
+        b =  nodeData && nodeData.length > 0;
+    } else if (step === 4) {
+      b =  true;
+    }
+
+    setCanContinue({ canContinue: b });
   }
 
   handleContinue() {
@@ -441,6 +469,15 @@ class ExcelImportSubWizard extends React.Component {
       this.props.wizardCallbacks.returnToSelector();
   }
 
+  handleHasNodeFileRadio(evt) {
+    const hasNodeFile = evt.target.value === 'true';
+    this.setState({ hasNodeFile });
+    this.updateCanContinue({ ...this.state, hasNodeFile });
+
+    const steps = hasNodeFile ? STEPS : STEPS.slice(0, -1);
+    this.props.wizardCallbacks.setSteps({ steps });
+  }
+
   render() {
     this.destroyPreviewCharts();
 
@@ -452,93 +489,154 @@ class ExcelImportSubWizard extends React.Component {
   }
 
   renderContent() {
-    const { step } = this.state;
-
-    if (step === 1)
-      return this.renderTableUpload(this.state.edgeFile, this.handleEdgeFileChange, this.handleEdgeFileDelete);
-    else if (step === 2)
-      return this.renderTableUpload(this.state.nodeFile, this.handleNodeFileChange, this.handleNodeFileDelete);
-  }
-  
-  renderTableUpload(initialFile, onChange, onDelete) {
-    const { step, edgeData, nodeData } = this.state;
-    const { node1IdAttr, node2IdAttr, nodeIdAttr } = this.state;
+    const { step, edgeFile, nodeFile, edgeData, nodeData } = this.state;
     const { edgePreviewData, nodePreviewData, edgeChartConfigs, nodeChartConfigs } = this.state;
 
-    const group = step === 1 ? "Edge" : "Node";
-    const data = step === 1 ? edgeData : nodeData;
+    switch (step) {
+      case 1:
+        return this.renderTableUpload({
+          group: "Edge",
+          initialFile: edgeFile,
+          onChange: this.handleEdgeFileChange,
+          onDelete: this.handleEdgeFileDelete,
+        });
+      case 2:
+        return this.renderPreview({
+          group: "Edge",
+          initialFile: edgeFile,
+          data: edgeData,
+          previewData: edgePreviewData,
+          chartConfigs: edgeChartConfigs,
+      });
+      case 3:
+        return this.renderTableUpload({
+          group: "Node",
+          initialFile: nodeFile, 
+          onChange: this.handleNodeFileChange,
+          onDelete: this.handleNodeFileDelete,
+        });
+      case 4:
+        return this.renderPreview({
+          group: "Node",
+          initialFile: nodeFile,
+          data: nodeData,
+          previewData: nodePreviewData,
+          chartConfigs: nodeChartConfigs,
+        });
+    }
+  }
+  
+  renderTableUpload({ group, initialFile, onChange, onDelete }) {
+    const { hasNodeFile } = this.state;
+
+    return (
+      <div className={`excel-import ${group}-import`}>
+        { group === NODE && (
+          <FormControl component="fieldset" style={{ marginBottom: theme.spacing(2) }}>
+            <FormLabel component="legend">Do you have a file for node attributes?</FormLabel>
+            <RadioGroup name="has-node-file" value={'' + hasNodeFile} onChange={(evt) => this.handleHasNodeFileRadio(evt)}>
+              <Grid container alignItems="center" spacing={2}>
+                <Grid item>
+                  <FormControlLabel label="Yes" value="true" control={<Radio />} />
+                </Grid>
+                <Grid item>
+                  <FormControlLabel label="No" value="false" control={<Radio />} />
+                </Grid>
+              </Grid>
+            </RadioGroup>
+          </FormControl>
+        )}
+        <div style={{ minHeight: 256 }}>
+          { group === EDGE && (
+            this.renderDropzoneArea({ onChange })
+          )}
+          { group === NODE && hasNodeFile != null && (
+            <Slide in={hasNodeFile} direction="up">
+              { this.renderDropzoneArea({ onChange }) }
+            </Slide>
+          )}
+        </div>
+        { initialFile && (group === EDGE || hasNodeFile) && (
+          <Fade in={initialFile != null} timeout={{ enter: 750 }}>
+            <footer style={{ marginTop: 4 }}>
+              <Tooltip title="Remove file and try again">
+                <IconButton
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => onDelete()}
+                >
+                  <HighlightOffIcon />
+                </IconButton>
+              </Tooltip>
+              <b>{initialFile.name}</b>
+            </footer>
+          </Fade>
+        )}
+      </div>
+    );
+  }
+
+  renderDropzoneArea({ onChange }) {
+    return (
+      <div className="dropzone-background">
+        <DropzoneArea
+          acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
+          filesLimit={1}
+          // initialFiles={initialFile ? [initialFile] : []}
+          onChange={files => onChange(files, onChange)}
+          showPreviews={false}
+          showPreviewsInDropzone={false}
+        />
+      </div>
+    );
+  }
+
+  renderPreview({ group, data, previewData, chartConfigs }) {
+    const { node1IdAttr, node2IdAttr, nodeIdAttr } = this.state;
+
     const rowCount = data ? data.length : 0;
 
-    const isEdge = step === 1 && edgePreviewData && edgePreviewData.length === 3;
-    const isLoop = step === 1 && edgePreviewData && edgePreviewData.length === 2;
-    const isNode = step === 2 && nodePreviewData && nodePreviewData.length === 1;
+    const isEdge = group === EDGE && previewData.length === 3;
+    const isLoop = group === EDGE && previewData.length === 2;
+    const isNode = group === NODE && previewData.length === 1;
 
-    let previewImg, previewData, chartConfigs;
+    let previewImg, elData;
 
     if (isEdge) {
       // Regular edge preview (2 nodes)
       previewImg = this.edgePreviewImg();
-      previewData = edgePreviewData[2];
-      chartConfigs = edgeChartConfigs;
+      elData = previewData[2];
     } else if (isLoop) {
       // 'Loop' edge preview (1 node)
       previewImg = this.loopPreviewImg();
-      previewData = edgePreviewData[1];
-      chartConfigs = edgeChartConfigs;
+      elData = previewData[1];
     } else if (isNode) {
       // Ndge preview (1 node)
       previewImg = this.nodePreviewImg();
-      previewData = nodePreviewData[0];
-      chartConfigs = nodeChartConfigs;
+      elData = previewData[0];
     }
 
-    let keys = previewData ? Object.keys(previewData.data) : [];
+    let keys = elData ? Object.keys(elData.data) : [];
     keys = keys.filter(k => this.isPreviewKey(k));
 
     return (
       <div className={`excel-import ${group}-import`}>
-        {!initialFile && (
-          <div className="dropzone-background">
-            <DropzoneArea
-              acceptedFiles={['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'text/plain']}
-              filesLimit={1}
-              initialFiles={initialFile ? [initialFile] : []}
-              onChange={files => onChange(files, onChange)}
-              showPreviews={false}
-              showPreviewsInDropzone={false}
-            />
-          </div>
-        )}
-        {initialFile && (
-          <div style={{marginTop: 24, marginBottom: 24, marginLeft: -20, textAlign: 'center'}}>
-            <Tooltip title="Remove file and try again">
-              <IconButton
-                variant="outlined"
-                color="primary"
-                size="small"
-                onClick={() => onDelete()}
-              >
-                <HighlightOffIcon />
-              </IconButton>
-            </Tooltip>
-            <b>{initialFile.name}</b>
-            <footer style={{marginLeft: 8}}>({rowCount} row{rowCount > 1 ? "s" : ""})</footer>
-          </div>
-        )}
-        {data && previewImg && (
-          <Paper variant="outlined" className="import-preview">
+        { previewImg && (
+          <div className="import-preview">
             <Grid
               container
               direction="column"
               alignItems="center"
             >
-              <h4 style={{width: '100%', textAlign: 'left', marginTop: '5px', padding: '0 15px'}}>
-                PREVIEW &#8212; {group} from the First Row:
+              <h4 style={{ width: '100%', textAlign: 'left', marginTop: '5px', padding: '0 15px' }}>
+                First Row:
+                <footer style={{ fontWeight: 'normal', fontSize: 'smaller' }}>( Total: {rowCount} row{rowCount > 1 ? "s" : ""} )</footer>
               </h4>
-              {isLoop && keys.length > 0 && (
-                this.renderDataTable(previewData, keys, chartConfigs, "down", { marginBottom: -6 }, { marginLeft: -28 })
+              { isLoop && keys.length > 0 && (
+                this.renderDataTable(elData, keys, chartConfigs, "down", { marginBottom: -6 }, { marginLeft: -28 })
               )}
-              {isEdge && (
+              { isEdge && (
                 <Grid
                   container
                   direction="row"
@@ -553,20 +651,20 @@ class ExcelImportSubWizard extends React.Component {
                   </Grid>
                 </Grid>
               )}
-              {isNode && (
+              { isNode && (
                 this.renderNodeIdAttrLabel(nodeIdAttr, "down", { marginBottom: -2 })
               )}
               <div id="import-preview-image">
                 { previewImg }
               </div>
-              {isLoop && (
+              { isLoop && (
                 this.renderNodeIdAttrLabel(node1IdAttr + " | " + node2IdAttr, "up", { marginTop: -4 })
               )}
-              {(isEdge || isNode) && keys.length > 0 && (
-                this.renderDataTable(previewData, keys, chartConfigs, "up", { marginTop: (isEdge? -20 : -10) })
+              { (isEdge || isNode) && keys.length > 0 && (
+                this.renderDataTable(elData, keys, chartConfigs, "up", { marginTop: (isEdge? -20 : -10) })
               )}
             </Grid>
-          </Paper>
+          </div>
         )}
       </div>
     );
@@ -581,11 +679,11 @@ class ExcelImportSubWizard extends React.Component {
         alignItems="center"
         style={gridStyle}
       >
-        {arrowDirection === "up" && (
+        { arrowDirection === "up" && (
           <div className="arrow-up" />
         )}
         <div className="popper-content">{ nodeIdAttr }</div>
-        {arrowDirection === "down" && (
+        { arrowDirection === "down" && (
           <div className="arrow-down" />
         )}
       </Grid>
@@ -619,11 +717,11 @@ class ExcelImportSubWizard extends React.Component {
               <TableBody>
                 <TableRow>
                   {keys && keys.map((k) => (
-                      <TableCell key={k} style={{textAlign: 'center'}}>
+                      <TableCell key={k} style={{ textAlign: 'center' }}>
                         {chartConfigs && chartConfigs[k] != null ?
                           <canvas
                             id={`chart-${k.replaceAll(' ', '_')}`}
-                            style={{width: '128px', height: '64px'}}
+                            style={{ width: '128px', height: '64px' }}
                           />
                         :
                           <>{ data[k] + '' }</>
@@ -762,7 +860,6 @@ const chartOptions = {
 };
 
 ExcelImportSubWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
   wizardCallbacks: PropTypes.any,
 };
 

@@ -1,6 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { NDEx } from '@js4cytoscape/ndex-client';
-import { styleFactory, LinearColorStyleValue, LinearNumberStyleValue, NumberStyleStruct, ColorStyleStruct } from '../../../model/style'; // eslint-disable-line
+import { styleFactory } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
@@ -8,7 +7,7 @@ import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE, DEFAULT_NODE_MAPPING_STYLE_VALUES, DEFAULT_EDGE_MAPPING_STYLE_VALUES } from '../../../model/style';
 import { DEFAULT_PADDING } from '../layout/defaults';
-import { NDEX_API_URL } from '../../env';
+
 /**
  * The network editor controller contains all high-level model operations that the network
  * editor view can perform.
@@ -17,7 +16,6 @@ import { NDEX_API_URL } from '../../env';
  * @property {CytoscapeSyncher} cySyncher The syncher that corresponds to the graph instance
  * @property {EventEmitter} bus The event bus that the controller emits on after every operation
  * @property {VizMapper} vizmapper The vizmapper for managing style
- * @property {NDEx} ndexClient The API client for the ndex rest server
  */
 export class NetworkEditorController {
   /**
@@ -41,9 +39,6 @@ export class NetworkEditorController {
 
     /** @type {NetworkAnalyser} */
     this.networkAnalyser = new NetworkAnalyser(cy, bus);
-
-    /** @type {NDEx} */
-    this.ndexClient = new NDEx(NDEX_API_URL);
 
     this.drawModeEnabled = false;
 
@@ -90,62 +85,6 @@ export class NetworkEditorController {
    */
   editable() {
     return this.cySyncher.editable();
-  }
-
-  /**
-   * Replaces the current network with the passed one.
-   * @param {Object} [elements] Cytoscape elements object
-   * @param {Object} [data] Cytoscape data object
-   * @param {Object} [style] Optional Cytoscape Style object
-   */
-  setNetwork(elements, data, style) {
-    this.cy.elements().remove();
-    this.cy.data({ name: data.name }); // TODO: Set other NETWORK attributes, but ignore some of them (e.g. 'selected').
-    this.cy.add(elements);
-
-    if (style) {
-      // TODO: This convertions are only necessary until we receive the correct Style object ====
-      // Let's just convert a few for testing purpose...
-      style.defaults.map((el) => {
-        const { visualProperty: k, value: v } = el;
-
-        if (v != null) {
-          if (k === "NODE_FILL_COLOR") {
-            this.vizmapper.node('background-color', styleFactory.color(v));
-          } else if (k === "NODE_SHAPE") {
-            this.vizmapper.node('shape', styleFactory.string(v.toLowerCase()));
-          } else if (k === "NODE_BORDER_WIDTH") {
-            this.vizmapper.node('border-width', styleFactory.number(v));
-          } else if (k === "NODE_BORDER_PAINT") {
-            this.vizmapper.node('border-color', styleFactory.color(v));
-          } else if (k === "EDGE_STROKE_UNSELECTED_PAINT") {
-            this.vizmapper.edge('line-color', styleFactory.color(v));
-          } else if (k === "EDGE_WIDTH") {
-            this.vizmapper.edge('width', styleFactory.number(v));
-          } else if (k === "EDGE_LINE_TYPE") {
-            let cv = 'solid';
-            if (v == 'DOT') cv = 'dotted';
-            else if (v.includes('DASH')) cv = 'dashed';
-            this.vizmapper.edge('line-style', styleFactory.string(cv));
-          } else if (k === "NETWORK_BACKGROUND_PAINT") {
-            this.setNetworkBackgroundColor(v);
-          }
-        }
-      });
-      // ========================================================================================
-    }
-
-    // Do not apply any layout if at least one original node has a 'position' object
-    const nodes = elements.nodes;
-    const hasPositions = nodes && nodes.length > 0 && nodes[0].position != null;
-
-    if (hasPositions) {
-      this.cy.fit(DEFAULT_PADDING);
-    } else {
-      this.applyLayout({ name: 'grid' });
-    }
-
-    this.bus.emit('setNetwork', this.cy);
   }
 
   setNetworkBackgroundColor(color) {

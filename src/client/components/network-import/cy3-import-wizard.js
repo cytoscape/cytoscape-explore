@@ -6,7 +6,6 @@ import { ImageList, ImageListItem, ImageListItemBar } from '@material-ui/core';
 import { Button, IconButton, Tooltip } from '@material-ui/core';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import Link from '@material-ui/core/Link';
-import { NetworkEditorController } from '../network-editor/controller';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
@@ -26,7 +25,6 @@ export class Cy3ImportSubWizard extends React.Component {
 
   constructor(props) {
     super(props);
-    this.controller = props.controller;
 
     props.wizardCallbacks.onContinue(() => this.handleContinue());
     props.wizardCallbacks.onFinish(() => this.handleFinish());
@@ -46,23 +44,24 @@ export class Cy3ImportSubWizard extends React.Component {
     setSteps({ steps: STEPS });
     setCurrentStep(this.state);
 
-    this.updateButtons(this.state);
+    this.updateCanContinue(this.state);
     this.fetchNetworkData();
   }
 
-  updateButtons(state) {
+  updateCanContinue(state) {
     const { step, data, error, loading, selectedSUID } = state;
-    const { setButtonState } = this.props.wizardCallbacks;
+    const { setCanContinue } = this.props.wizardCallbacks;
 
-    // Note: backButton is always visible by default
+    let b = false;
+
     if (step == 1) {
       if (loading || error || !data || data.length === 0)
-        setButtonState({ nextButton: 'hidden', cancelButton: 'enabled', finishButton: 'disbled' });
+        b = false;
       else if (selectedSUID)
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'enabled'  });
-      else
-        setButtonState({ nextButton: 'hidden', cancelButton: 'hidden', finishButton: 'disbled'  });
+        b = true;
     }
+
+    setCanContinue({ canContinue: b });
   }
 
   fetchNetworkData() {
@@ -81,20 +80,23 @@ export class Cy3ImportSubWizard extends React.Component {
         networks.map(net =>
           Promise.all([
             fetch(`${CY3_URL}/v1/networks/${net.SUID}/nodes/count`).then(res => res.json()),
-            fetch(`${CY3_URL}/v1/networks/${net.SUID}/edges/count`).then(res => res.json())
+            fetch(`${CY3_URL}/v1/networks/${net.SUID}/edges/count`).then(res => res.json()),
+            fetch(`${CY3_URL}/v1/networks/${net.SUID}/views`).then(res => res.ok ? res.json() : [])
+
           ])
-          .then(counts => ({ 
+          .then(arr => ({ 
               name: net.name, 
               SUID: net.SUID, 
-              nodeCount: counts[0].count, 
-              edgeCount: counts[1].count 
+              nodeCount: arr[0].count, 
+              edgeCount: arr[1].count,
+              views: arr[2], // The SUIDs of the network's views or an empty array
             }
           ))
         )
       )
       .then(data => data.sort(compareByName))
       .then(data => this.setState({ data, error: null, loading: false }))
-      .then(() => this.updateButtons({ ...this.state, loading: false }))
+      .then(() => this.updateCanContinue({ ...this.state, loading: false }))
       .catch(err => this.setState({ error: err, loading: false }))
     )
     .catch(err => this.setState({ error: err, loading: false }));
@@ -118,8 +120,8 @@ export class Cy3ImportSubWizard extends React.Component {
     const fetchNetworkOrView = async (netId, viewId) => {
       // If no views, import just the network
       const url = viewId ?
-        `${CY3_URL}/v1/networks/${netId}/views/${viewId}` :
-        `${CY3_URL}/v1/networks/${netId}`; 
+        `${CY3_URL}/v1/networks/${netId}/views/${viewId}.cx?version=2` :
+        `${CY3_URL}/v1/networks/${netId}.cx?version=2`;
       const res = await fetch(url);
       
       if (!res.ok) {
@@ -129,30 +131,23 @@ export class Cy3ImportSubWizard extends React.Component {
       }
     };
 
-    // Return the Style for the passed view
-    const fetchStyle = async (netId, viewId) => {
-      const res = await fetch(`${CY3_URL}/v1/networks/${netId}/views/${viewId}/currentStyle`);
-      
-      if (!res.ok) {
-        throw new Error(`CyREST error! status: ${res.status}`);
-      } else {
-        return await res.json();
-      }
-    };
+    const netId = this.state.selectedSUID;
+    const viewIds = await fetchViewIds(netId);
+    const viewId = viewIds && viewIds.length > 0 ? viewIds[0] : undefined;
+    const cx = await fetchNetworkOrView(netId, viewId);
 
-    try {
-      const netId = this.state.selectedSUID;
-      const viewIds = await fetchViewIds(netId);
-      const viewId = viewIds && viewIds.length > 0 ? viewIds[0] : undefined;
-      const net = await fetchNetworkOrView(netId, viewId);
-      const style = viewId ? await fetchStyle(netId, viewId) : undefined;
-      
-      this.controller.setNetwork(net.elements, net.data, style);
-    } catch(e) {
-      console.log(e); // TODO Show error to user
-    }
+    const res = await fetch( `/api/document/cx`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(cx),
+    });
 
-    this.props.wizardCallbacks.closeWizard();
+    const urls = await res.json();
+
+    // this.props.wizardCallbacks.closeWizard();
+    location.replace(`/document/${urls.id}/${urls.secret}`);
   }
 
   updateStep(nextStep) {
@@ -160,7 +155,7 @@ export class Cy3ImportSubWizard extends React.Component {
     this.setState({ step });
 
     this.props.wizardCallbacks.setCurrentStep({ step });
-    this.updateButtons({ ...this.state, step });
+    this.updateCanContinue({ ...this.state, step });
     
     return step;
   }
@@ -174,6 +169,16 @@ export class Cy3ImportSubWizard extends React.Component {
 
     if (step == 0)
       this.props.wizardCallbacks.returnToSelector();
+  }
+
+  getNetworkImageUrl(suid, views, w, h) {
+    if (views.length > 0) {
+      return (w > h)
+        ? `${CY3_URL}/v1/networks/${suid}/views/first.png?w=${w}`
+        : `${CY3_URL}/v1/networks/${suid}/views/first.png?h=${h}`;
+    }
+
+    return '/images/no-views.svg';
   }
 
   render() {
@@ -226,14 +231,6 @@ export class Cy3ImportSubWizard extends React.Component {
     );
   }
 
-  getNetworkImageUrl(suid, w, h) {
-    const url = (w > h)
-      ? `${CY3_URL}/v1/networks/${suid}/views/first.png?w=${w}`
-      : `${CY3_URL}/v1/networks/${suid}/views/first.png?h=${h}`;
-
-    return url;
-  }
-
   renderNetworkListSkeleton() {
     const classes = useStyles();
 
@@ -254,7 +251,7 @@ export class Cy3ImportSubWizard extends React.Component {
 
     const handleNetworkSelect = (selectedSUID) => {
       this.setState({ selectedSUID });
-      this.updateButtons({ ...this.state, selectedSUID });
+      this.updateCanContinue({ ...this.state, selectedSUID });
     };
 
     // The first image will fill the entire width of the component,
@@ -281,7 +278,7 @@ export class Cy3ImportSubWizard extends React.Component {
             }}
           >
             <img
-              src={this.getNetworkImageUrl(net.SUID, (odd && idx === 0 ? IMG_GAP + 2 * IMG_WIDTH : IMG_WIDTH), IMG_HEIGHT)}
+              src={this.getNetworkImageUrl(net.SUID, net.views, (odd && idx === 0 ? IMG_GAP + 2 * IMG_WIDTH : IMG_WIDTH), IMG_HEIGHT)}
               alt={net.name}
               style={{backgroundColor: theme.palette.background.paper}}
             />
@@ -305,7 +302,6 @@ export class Cy3ImportSubWizard extends React.Component {
       </div>
     );
   }
-  
 }
 
 function useStyles() {
@@ -324,7 +320,6 @@ function useStyles() {
 }
 
 Cy3ImportSubWizard.propTypes = {
-  controller: PropTypes.instanceOf(NetworkEditorController),
   wizardCallbacks: PropTypes.any
 };
 

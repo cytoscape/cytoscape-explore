@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@material-ui/core/styles';
-import { NetworkEditorController } from '../network-editor/controller';
+import { NetworkEditorController } from './controller';
 import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { Tooltip, InputBase } from '@material-ui/core';
 
