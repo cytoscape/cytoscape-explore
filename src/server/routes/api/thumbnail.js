@@ -4,11 +4,8 @@ import VizMapper from '../../../model/vizmapper';
 import { DEFAULT_NODE_STYLE, DEFAULT_EDGE_STYLE } from '../../../model/style';
 import fetch from 'node-fetch';
 import { getNetworkDocURL, getSnapshotDocURL, removeQuotes } from './history';
+import cytosnap from 'cytosnap';
 
-// TODO Rewrite this to use 'import'
-const cytosnap = require('cytosnap');
-
-console.log("Cytosnap stared!");
 
 function objMap(obj, f) {
   return Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, f(v)]));
