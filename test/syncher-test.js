@@ -21,20 +21,8 @@ describe('CytoscapeSyncher', function() {
   let id = 'test'; // test network id
   let secret = 'secret';
   let defSyncInt;
-  let expressServer, expressApp;
 
   this.timeout(10000);
-
-  before(async () => {
-    const { server, app } = await import('../src/server');
-
-    expressServer = server;
-    expressApp = app;
-  });
-
-  after(async () => {
-    expressServer.close();
-  });
 
   beforeEach(async () => {
     defSyncInt = CytoscapeSyncher.synchInterval;

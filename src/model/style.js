@@ -371,7 +371,7 @@ export const styleFactory = {
    * @property {Number} multiplier The data attribute that's mapped
    * @returns {DependantNumberStyleStruct} The style value object (JSON)
    */
-  dependantNumber: (property, multiplier) => {
+  dependantNumber: (property, multiplier, defaultValue) => {
     return {
       type: STYLE_TYPE.NUMBER,
       mapping: MAPPING.DEPENDANT,
@@ -379,7 +379,7 @@ export const styleFactory = {
         property,
         multiplier
       },
-      stringValue: `${multiplier}`
+      stringValue: `${defaultValue}`
     };
   },
 
@@ -540,7 +540,7 @@ export const NODE_STYLE_PROPERTIES = [
 export const DEFAULT_NODE_STYLE = {
   'background-color': styleFactory.color('#888'),
   'width': styleFactory.number(30),
-  'height': styleFactory.dependantNumber('width', 1.0),
+  'height': styleFactory.dependantNumber('width', 1.0, 30),
   'label': styleFactory.stringPassthrough('name'),
   'border-color': styleFactory.color('#888'),
   'border-width': styleFactory.number(1),
