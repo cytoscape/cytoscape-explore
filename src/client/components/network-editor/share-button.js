@@ -5,7 +5,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import ImageIcon from '@material-ui/icons/Image';
 import LandscapeIcon from '@material-ui/icons/Landscape';
-import { Button, ClickAwayListener, FormLabel, IconButton, Popover, TextField, Tooltip } from '@material-ui/core';
+import { Button, ClickAwayListener, FormLabel, Grid, IconButton, Popover, TextField, Tooltip } from '@material-ui/core';
 import { RadioGroup, Radio, FormControlLabel, FormControl } from '@material-ui/core';
 import { saveAs } from 'file-saver';
 import { NetworkEditorController } from './controller';
@@ -87,13 +87,6 @@ export class ShareButton extends React.Component {
     const SectionHeader = ({ icon, text }) => 
       <div className='share-button-popover-heading'> {icon} &nbsp; {text} </div>;
 
-    const IconShareButton = () => 
-      <Tooltip arrow placement="bottom" title="Share">
-        <IconButton size="small" color="inherit">
-          <ScreenShareIcon />
-        </IconButton>
-      </Tooltip>;
-
     const ShareLinkForm = () => 
       <div className='share-button-popover-content'>
         <SectionHeader icon={<ScreenShareIcon/>} text="Share link to network" />
@@ -120,46 +113,47 @@ export class ShareButton extends React.Component {
         </div>
       </div>;
 
-    const ImageRadio = ({ label, value, onClick }) =>
-      <FormControlLabel label={label} value={value} control={<Radio size='small' onClick={() => onClick(value)}/>} />;
-
     const ExportImageForm = () => {
       const handleType = imageType => this.setState({ imageType }); 
       const handleSize = imageSize => this.setState({ imageSize: ImageSize[imageSize] });
       const handleArea = imageArea => this.setState({ imageArea });
+      const ImageRadio = ({ label, value, onClick }) =>
+        <FormControlLabel label={label} value={value} control={<Radio size='small' onClick={() => onClick(value)}/>} />;
       // Note: For some reason the RadioGroup.onChange handler does not fire, using Radio.onClick instead.
       // May have something to do with this: https://github.com/mui/material-ui/issues/9336
       return <div className='share-button-popover-content'>
         <SectionHeader icon={<LandscapeIcon/>} text="Export Image" />
         <div style={{ paddingLeft:'10px' }}>
-          <div>
-            <FormControl>
-              <FormLabel>Format</FormLabel>
-              <RadioGroup row value={this.state.imageType}>
-                <ImageRadio label="PNG" value={ImageType.PNG} onClick={handleType} />
-                <ImageRadio label="JPG" value={ImageType.JPG} onClick={handleType} />
-              </RadioGroup>
-            </FormControl>
-          </div>
-          <div>
-            <FormControl>
-              <FormLabel>Size</FormLabel>
-              <RadioGroup row value={this.state.imageSize.value}>
-                <ImageRadio label="Small"  value={ImageSize.SMALL.value}  onClick={handleSize} />
-                <ImageRadio label="Medium" value={ImageSize.MEDIUM.value} onClick={handleSize} />
-                <ImageRadio label="Large"  value={ImageSize.LARGE.value}  onClick={handleSize} />
-              </RadioGroup>
-            </FormControl>
-          </div>
-          <div>
-            <FormControl>
-              <FormLabel>Area</FormLabel>
-              <RadioGroup row value={this.state.imageArea}>
-                <ImageRadio label="Visible Area"   value={ImageArea.VIEW} onClick={handleArea} />
-                <ImageRadio label="Entire Network" value={ImageArea.FULL} onClick={handleArea} />
-              </RadioGroup>
-            </FormControl>
-          </div>
+          <Grid container alignItems="flex-start" spacing={3}>
+            <Grid item>
+              <FormControl>
+                <FormLabel>Size</FormLabel>
+                <RadioGroup value={this.state.imageSize.value}>
+                  <ImageRadio label="Small"  value={ImageSize.SMALL.value}  onClick={handleSize} />
+                  <ImageRadio label="Medium" value={ImageSize.MEDIUM.value} onClick={handleSize} />
+                  <ImageRadio label="Large"  value={ImageSize.LARGE.value}  onClick={handleSize} />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl>
+                <FormLabel>Format</FormLabel>
+                <RadioGroup value={this.state.imageType}>
+                  <ImageRadio label="PNG" value={ImageType.PNG} onClick={handleType} />
+                  <ImageRadio label="JPG" value={ImageType.JPG} onClick={handleType} />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl>
+                <FormLabel>Area</FormLabel>
+                <RadioGroup  value={this.state.imageArea}>
+                  <ImageRadio label="Visible Area"   value={ImageArea.VIEW} onClick={handleArea} />
+                  <ImageRadio label="Entire Network" value={ImageArea.FULL} onClick={handleArea} />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+          </Grid>
         </div>
         <div className='share-button-popover-buttons'>
           <Button variant='outlined' startIcon={<ImageIcon />} onClick={() => this.handleExportImage()}>
@@ -172,7 +166,11 @@ export class ShareButton extends React.Component {
     return <div> 
       <div>
         <span onClick={evt => this.handlePopoverOpen(evt.currentTarget)}>
-          <IconShareButton/>
+          <Tooltip arrow placement="bottom" title="Share">
+            <IconButton size="small" color="inherit">
+              <ScreenShareIcon />
+            </IconButton>
+          </Tooltip>
         </span>
       </div>
       <Popover
