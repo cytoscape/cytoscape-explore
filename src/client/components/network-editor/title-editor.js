@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@material-ui/core/styles';
 import { NetworkEditorController } from './controller';
-import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { Tooltip, InputBase } from '@material-ui/core';
 
 /**
@@ -16,7 +15,6 @@ export class TitleEditor extends Component {
   constructor(props) {
     super(props);
     this.controller = props.controller;
-    this.busProxy = new EventEmitterProxy(this.props.controller.bus);
     this.state = {
       networkName: this.controller.cy.data('name'),
     };
@@ -25,11 +23,6 @@ export class TitleEditor extends Component {
   }
 
   componentDidMount() {
-    const onSetNetwork = (cy) => {
-      this.setState({ networkName: cy.data('name') });
-      this.addCyListeners();
-    };
-    this.busProxy.on('setNetwork', onSetNetwork);
     this.addCyListeners();
   }
 

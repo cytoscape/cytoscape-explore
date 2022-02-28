@@ -41,6 +41,8 @@ export class NetworkEditor extends Component {
       window.controller = this.controller;
     }
 
+    this.onDataChanged = this.onDataChanged.bind(this);
+
     this.cy.style().fromJson([
       {
         selector: 'node',
@@ -109,11 +111,29 @@ export class NetworkEditor extends Component {
     enableSync();
   }
 
-  componentWillUnmount(){
+  onDataChanged(event) {
+    console.log("\n- onDataChanged: " + event.cy.data('name'));
+    console.log(this.cySyncher);
+    const id = event.cy.data('id');
+    const secret = this.cySyncher.secret;
+    const name = event.cy.data('name');
+    this.props.loginController.updateRecentNetwork({ id, secret, name });
+  }
+
+  componentDidMount() {
+    const id = this.cy.data('id');
+    const secret = this.cySyncher.secret;
+    this.props.loginController.saveRecentNetwork({ id, secret });
+    
+    this.cy.on('data', this.onDataChanged);
+  }
+
+  componentWillUnmount() {
+    this.cy.removeListener('data', this.onDataChanged);
     this.eh.destroy();
     this.cySyncher.destroy(); // disable live synch for now...
-    this.cy.destroy();
     this.bus.removeAllListeners();
+    this.cy.destroy();
   }
 
   render() {
