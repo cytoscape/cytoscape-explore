@@ -171,17 +171,14 @@ export class NDExImportSubWizard extends React.Component {
 
 
   fetchTestNetworks() {
-    // this.setState({ loading: true });
-    console.log('here');
+    this.setState({ loading: true });
 
     let fetchFn = async () => {
-      console.log(this.props);
       const testNetworkSetId = 'a929eccf-893d-11ec-b777-767437b87d4a';
       const ndexClient = this.controller.ndexClient;
       const testNetworks = await ndexClient.getNetworkSet(testNetworkSetId);
       const testNetworkSummaries = await Promise.all(testNetworks.networks.map(networkId => ndexClient.getNetworkSummary(networkId)));
 
-      console.log(testNetworkSummaries);
       return { 
         numFound: testNetworkSummaries.length,
         start: 0,
@@ -350,7 +347,6 @@ export class NDExImportSubWizard extends React.Component {
       if(testNetworks.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        console.log(testNetworks);
         return this.renderNetworkList(testNetworks.networks, (selectedId) => {
           this.setState({
             selectedId
