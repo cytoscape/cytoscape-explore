@@ -5,7 +5,8 @@ import EmailIcon from '@material-ui/icons/Email';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import ImageIcon from '@material-ui/icons/Image';
 import LandscapeIcon from '@material-ui/icons/Landscape';
-import { Button, ClickAwayListener, IconButton, Paper, Popover, TextField, Tooltip } from '@material-ui/core';
+import { Button, ClickAwayListener, IconButton, Popover, TextField, Tooltip } from '@material-ui/core';
+import { saveAs } from 'file-saver';
 import { NetworkEditorController } from './controller';
 
 export class ShareButton extends React.Component {
@@ -13,6 +14,7 @@ export class ShareButton extends React.Component {
   constructor(props) {
     super(props);
     this.url = window.location.href;
+    this.controller = props.controller;
     this.state = {
       popoverAnchorEl: null,
       tooltipOpen: false,
@@ -29,12 +31,12 @@ export class ShareButton extends React.Component {
     navigator.clipboard.writeText(this.url);
   }
 
-  handleExportImage(type) {
-    if(type === 'png') {
-      console.log("Export PNG!");
-    } else if(type === 'jpg') {
-      console.log("Export JPG!");
-    }
+  async handleExportImage(type ) {
+    if(type !== 'png' || type !== 'jpg')
+      return;
+    const { cy } = this.controller;
+    const blob = await cy[type]({ output:'blob-promise' });
+    saveAs(blob, 'cytoscape_explore.' + type);
   }
 
   handlePopoverOpen(target) {

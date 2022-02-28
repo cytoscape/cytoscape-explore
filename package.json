@@ -65,6 +65,7 @@
     "eventemitter3": "^3.1.2",
     "express": "^4.17.1",
     "express-http-proxy": "^1.6.2",
+    "file-saver": "^2.0.5",
     "fready": "^1.0.0",
     "gaussian": "^1.2.0",
     "http-proxy-middleware": "^0.19.1",
