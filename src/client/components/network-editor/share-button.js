@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import ScreenShareIcon from '@material-ui/icons/ScreenShare';
 import EmailIcon from '@material-ui/icons/Email';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import ImageIcon from '@material-ui/icons/Image';
+import LandscapeIcon from '@material-ui/icons/Landscape';
 import { Button, ClickAwayListener, IconButton, Paper, Popover, TextField, Tooltip } from '@material-ui/core';
 import { NetworkEditorController } from './controller';
 
@@ -27,10 +29,37 @@ export class ShareButton extends React.Component {
     navigator.clipboard.writeText(this.url);
   }
 
+  handleExportImage(type) {
+    if(type === 'png') {
+      console.log("Export PNG!");
+    } else if(type === 'jpg') {
+      console.log("Export JPG!");
+    }
+  }
+
+  handlePopoverOpen(target) {
+    this.setState({ 
+      popoverAnchorEl: target, 
+      tooltipOpen: false 
+    });
+  }
+
+  handlePopoverClose() {
+    this.setState({ 
+      popoverAnchorEl: null, 
+      tooltipOpen: false 
+    });
+  }
+
+  handleTooltip(tooltipOpen) {
+    this.setState({ tooltipOpen });
+  }
+
   render() {
-    const handlePopoverOpen = event => this.setState({ popoverAnchorEl: event.currentTarget, tooltipOpen: false });
-    const handlePopoverClose = () => this.setState({ popoverAnchorEl: null, tooltipOpen: false });
-    const handleTooltip = open => this.setState({ tooltipOpen: open });
+    const SectionHeader = ({ icon, text }) => 
+      <div className='share-button-popover-heading'>
+        {icon} &nbsp; {text}
+      </div>;
 
     const IconShareButton = () => 
       <Tooltip arrow placement="bottom" title="Share">
@@ -44,27 +73,22 @@ export class ShareButton extends React.Component {
         Send by email
       </Button>;
 
-    const PopoverForm = () => 
+    const ShareLinkForm = () => 
       <div className='share-button-popover-content'>
-        <div className='share-button-popover-heading'>
-          <ScreenShareIcon/> &nbsp; Share link to network
-        </div>
+        <SectionHeader icon={<ScreenShareIcon/>} text="Share link to network" />
         <TextField defaultValue={this.url} variant="outlined" size="small" />
         <div className='share-button-popover-buttons'>
           <EmailButton/>
-          <ClickAwayListener onClickAway={() => handleTooltip(false)}>
+          <ClickAwayListener onClickAway={() => this.handleTooltip(false)}>
             <div>
-              <Tooltip arrow
+              <Tooltip arrow disableFocusListener disableHoverListener disableTouchListener
                 PopperProps={{ disablePortal: true }}
-                onClose={() => handleTooltip(false)}
+                onClose={() => this.handleTooltip(false)}
                 open={this.state.tooltipOpen}
-                disableFocusListener
-                disableHoverListener
-                disableTouchListener
                 placement="right"
                 title="Copied!"
               >
-                <Button startIcon={<FileCopyIcon />} onClick={() => { this.handleCopyToClipboard(); handleTooltip(true); }}> 
+                <Button startIcon={<FileCopyIcon />} onClick={() => { this.handleCopyToClipboard(); this.handleTooltip(true); }}> 
                   Copy to Clipboard
                 </Button>
               </Tooltip>
@@ -73,19 +97,36 @@ export class ShareButton extends React.Component {
         </div>
       </div>;
 
+    const ImageExportButton = ({ type }) =>
+      <Button startIcon={<ImageIcon />} onClick={() => this.handleExportImage(type)}>
+        Export { type === 'png' ? "PNG" : "JPEG" } Image
+      </Button>;
+
+    const ExportImageForm = () => 
+      <div className='share-button-popover-content'>
+        <SectionHeader icon={<LandscapeIcon/>} text="Export Image" />
+        <div className='share-button-popover-buttons'>
+          <ImageExportButton type='png' />
+          <ImageExportButton type='jpg' />
+        </div>
+      </div>; 
+
     return <div> 
       <div>
-        <span onClick={handlePopoverOpen}><IconShareButton/></span>
+        <span onClick={evt => this.handlePopoverOpen(evt.currentTarget)}>
+          <IconShareButton/>
+        </span>
       </div>
       <Popover
         className='share-button-popover'
         open={Boolean(this.state.popoverAnchorEl)}
         anchorEl={this.state.popoverAnchorEl}
-        onClose={handlePopoverClose}
+        onClose={() => this.handlePopoverClose()}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <PopoverForm />
+        <ShareLinkForm />
+        <ExportImageForm />
       </Popover>
     </div>;
   }
