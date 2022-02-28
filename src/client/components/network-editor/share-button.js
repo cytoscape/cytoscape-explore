@@ -5,9 +5,27 @@ import EmailIcon from '@material-ui/icons/Email';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import ImageIcon from '@material-ui/icons/Image';
 import LandscapeIcon from '@material-ui/icons/Landscape';
-import { Button, ClickAwayListener, IconButton, Popover, TextField, Tooltip } from '@material-ui/core';
+import { Button, ClickAwayListener, FormLabel, IconButton, Popover, TextField, Tooltip } from '@material-ui/core';
+import { RadioGroup, Radio, FormControlLabel, FormControl } from '@material-ui/core';
 import { saveAs } from 'file-saver';
 import { NetworkEditorController } from './controller';
+
+const ImageSize = {
+  SMALL:  { value:'SMALL',  scale: 0.3 },
+  MEDIUM: { value:'MEDIUM', scale: 1.0 },
+  LARGE:  { value:'LARGE',  scale: 3.0 },
+};
+
+const ImageType = {
+  PNG: 'png',
+  JPG: 'jpg',
+};
+
+const ImageArea = {
+  FULL: 'full',
+  VIEW: 'view',
+};
+
 
 export class ShareButton extends React.Component {
 
@@ -18,6 +36,9 @@ export class ShareButton extends React.Component {
     this.state = {
       popoverAnchorEl: null,
       tooltipOpen: false,
+      imageType: ImageType.PNG,
+      imageSize: ImageSize.MEDIUM,
+      imageArea: ImageArea.VIEW,
     };
   }
 
@@ -31,12 +52,17 @@ export class ShareButton extends React.Component {
     navigator.clipboard.writeText(this.url);
   }
 
-  async handleExportImage(type ) {
-    if(type !== 'png' || type !== 'jpg')
-      return;
+  async handleExportImage() {
     const { cy } = this.controller;
-    const blob = await cy[type]({ output:'blob-promise' });
-    saveAs(blob, 'cytoscape_explore.' + type);
+    const { imageType, imageSize, imageArea } = this.state;
+
+    const blob = await cy[imageType]({ 
+      output:'blob-promise',
+      full: imageArea === ImageArea.FULL,
+      scale: imageSize.scale,
+    });
+
+    saveAs(blob, `cytoscape_explore.${imageType}`);
   }
 
   handlePopoverOpen(target) {
@@ -59,9 +85,7 @@ export class ShareButton extends React.Component {
 
   render() {
     const SectionHeader = ({ icon, text }) => 
-      <div className='share-button-popover-heading'>
-        {icon} &nbsp; {text}
-      </div>;
+      <div className='share-button-popover-heading'> {icon} &nbsp; {text} </div>;
 
     const IconShareButton = () => 
       <Tooltip arrow placement="bottom" title="Share">
@@ -70,17 +94,14 @@ export class ShareButton extends React.Component {
         </IconButton>
       </Tooltip>;
 
-    const EmailButton = () => 
-      <Button startIcon={<EmailIcon />} onClick={() => this.handleOpenEmail()}>
-        Send by email
-      </Button>;
-
     const ShareLinkForm = () => 
       <div className='share-button-popover-content'>
         <SectionHeader icon={<ScreenShareIcon/>} text="Share link to network" />
         <TextField defaultValue={this.url} variant="outlined" size="small" />
         <div className='share-button-popover-buttons'>
-          <EmailButton/>
+          <Button variant='outlined' startIcon={<EmailIcon />} onClick={() => this.handleOpenEmail()}>
+            Send by email
+          </Button>
           <ClickAwayListener onClickAway={() => this.handleTooltip(false)}>
             <div>
               <Tooltip arrow disableFocusListener disableHoverListener disableTouchListener
@@ -90,7 +111,7 @@ export class ShareButton extends React.Component {
                 placement="right"
                 title="Copied!"
               >
-                <Button startIcon={<FileCopyIcon />} onClick={() => { this.handleCopyToClipboard(); this.handleTooltip(true); }}> 
+                <Button variant='outlined' startIcon={<FileCopyIcon />} onClick={() => { this.handleCopyToClipboard(); this.handleTooltip(true); }}> 
                   Copy to Clipboard
                 </Button>
               </Tooltip>
@@ -99,19 +120,54 @@ export class ShareButton extends React.Component {
         </div>
       </div>;
 
-    const ImageExportButton = ({ type }) =>
-      <Button startIcon={<ImageIcon />} onClick={() => this.handleExportImage(type)}>
-        Export { type === 'png' ? "PNG" : "JPEG" } Image
-      </Button>;
+    const ImageRadio = ({ label, value, onClick }) =>
+      <FormControlLabel label={label} value={value} control={<Radio size='small' onClick={() => onClick(value)}/>} />;
 
-    const ExportImageForm = () => 
-      <div className='share-button-popover-content'>
+    const ExportImageForm = () => {
+      const handleType = imageType => this.setState({ imageType }); 
+      const handleSize = imageSize => this.setState({ imageSize: ImageSize[imageSize] });
+      const handleArea = imageArea => this.setState({ imageArea });
+      // Note: For some reason the RadioGroup.onChange handler does not fire, using Radio.onClick instead.
+      // May have something to do with this: https://github.com/mui/material-ui/issues/9336
+      return <div className='share-button-popover-content'>
         <SectionHeader icon={<LandscapeIcon/>} text="Export Image" />
-        <div className='share-button-popover-buttons'>
-          <ImageExportButton type='png' />
-          <ImageExportButton type='jpg' />
+        <div style={{ paddingLeft:'10px' }}>
+          <div>
+            <FormControl>
+              <FormLabel>Format</FormLabel>
+              <RadioGroup row value={this.state.imageType}>
+                <ImageRadio label="PNG" value={ImageType.PNG} onClick={handleType} />
+                <ImageRadio label="JPG" value={ImageType.JPG} onClick={handleType} />
+              </RadioGroup>
+            </FormControl>
+          </div>
+          <div>
+            <FormControl>
+              <FormLabel>Size</FormLabel>
+              <RadioGroup row value={this.state.imageSize.value}>
+                <ImageRadio label="Small"  value={ImageSize.SMALL.value}  onClick={handleSize} />
+                <ImageRadio label="Medium" value={ImageSize.MEDIUM.value} onClick={handleSize} />
+                <ImageRadio label="Large"  value={ImageSize.LARGE.value}  onClick={handleSize} />
+              </RadioGroup>
+            </FormControl>
+          </div>
+          <div>
+            <FormControl>
+              <FormLabel>Area</FormLabel>
+              <RadioGroup row value={this.state.imageArea}>
+                <ImageRadio label="Visible Area"   value={ImageArea.VIEW} onClick={handleArea} />
+                <ImageRadio label="Entire Network" value={ImageArea.FULL} onClick={handleArea} />
+              </RadioGroup>
+            </FormControl>
+          </div>
         </div>
-      </div>; 
+        <div className='share-button-popover-buttons'>
+          <Button variant='outlined' startIcon={<ImageIcon />} onClick={() => this.handleExportImage()}>
+            Export Image
+          </Button>
+        </div>
+      </div>;
+    };
 
     return <div> 
       <div>
