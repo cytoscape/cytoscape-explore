@@ -5,7 +5,7 @@ import { LoginController } from '../login/controller';
 
 import { withStyles } from '@material-ui/core/styles';
 
-import { Box, Container, Paper, Grid } from '@material-ui/core';
+import { Container, Paper, Grid } from '@material-ui/core';
 import { Typography, Tooltip } from '@material-ui/core';
 import { Popover, MenuList, MenuItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
@@ -14,6 +14,8 @@ import { Button, IconButton } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+
+const DEF_NETWORK_NAME = 'Untitled Network';
 
 export class RecentNetworksGrid extends Component {
 
@@ -83,7 +85,7 @@ export class RecentNetworksGrid extends Component {
   }
 
   async deleteNetwork(id, refresh) {
-    const res = await fetch(`/api/document/${id}`, {
+    await fetch(`/api/document/${id}`, {
       method: 'DELETE',
     }).then(() => {
       console.log('DELETE fetch completed!!!');
@@ -140,13 +142,13 @@ export class RecentNetworksGrid extends Component {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item style={{ justifyContent: 'center' }}>
-              <div>
-                <Container className={classes.container}>
-                  { recentNetworks.map((obj, idx) =>
-                    this.renderItem(obj, idx)
-                  )}
-                </Container>
+              <Grid item style={{ justifyContent: 'center', paddingBottom: 80 }}>
+                <div>
+                  <Container className={classes.container}>
+                    { recentNetworks.map((obj, idx) =>
+                      this.renderItem(obj, idx)
+                    )}
+                  </Container>
                 </div>
               </Grid>
               { anchorEl && currentItem && (
@@ -165,6 +167,10 @@ export class RecentNetworksGrid extends Component {
   renderItem(obj, idx) {
     const { classes } = this.props;
 
+    const name = obj.name ? obj.name : DEF_NETWORK_NAME;
+    const thumbnail = obj.thumbnail ? `data:image/png;base64,${obj.thumbnail}` : '/images/_temp.png' ; // TODO delete _temp.png
+    const bgColor = '#c0c0c0'; // TODO
+
     return (
       <Paper
         key={idx}
@@ -174,17 +180,14 @@ export class RecentNetworksGrid extends Component {
       >
         <Grid container direction="column" alignItems="stretch" justifyContent="center" className={classes.root}>
           <Grid item className={classes.item}>
-            <Box
-              className={classes.box}
-              style={{ backgroundImage: 'url(/images/_temp.png)' }}
-            />
+            <img src={thumbnail} className={classes.thumbnail} style={{ background: bgColor }} />
           </Grid>
           <Grid item className={classes.item}>
             <Grid container direction="column" alignItems="stretch" justifyContent="center" className={classes.metadata}>
               <Grid item className={classes.item}>
-                <Tooltip title={obj.name}>
+                <Tooltip title={name}>
                   <Typography variant="body2" className={classes.body2}>
-                    { obj.name ? obj.name : 'Untitled Network' }
+                    { name }
                   </Typography>
                 </Tooltip>
               </Grid>
@@ -249,6 +252,7 @@ export class RecentNetworksGrid extends Component {
 
   renderConfirmationDialog() {
     const { confirm, confirmFn, currentItem } = this.state;
+    const name = currentItem.name ? currentItem.name : DEF_NETWORK_NAME;
 
     const handleClose = () => {
       this.setState({ confirm: false, confirmFn: null, currentItem: null });
@@ -266,7 +270,7 @@ export class RecentNetworksGrid extends Component {
         <DialogTitle>Delete Network?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            The network &quot;{currentItem.id}&quot; will be permanently deleted.
+            The network &quot;<b>{name}</b>&quot; will be permanently deleted.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -311,12 +315,10 @@ const useStyles = theme => ({
     margin: theme.spacing(1),
     cursor: 'pointer',
   },
-  box: {
+  thumbnail: {
     width: 172,
     height: 172,
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '172px 172px',
-    backgroundPosition: 'center',
+    objectFit: 'contain',
   },
   button: {
     margin: 0,

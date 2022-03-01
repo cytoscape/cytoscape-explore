@@ -145,8 +145,6 @@ export class Cy3ImportSubWizard extends React.Component {
     });
 
     const urls = await res.json();
-
-    // this.props.wizardCallbacks.closeWizard();
     location.replace(`/document/${urls.id}/${urls.secret}`);
   }
 

@@ -16,6 +16,8 @@ import Main from './main';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
+const CY_EVENTS = 'data add remove move layoutstop viewport';
+
 export class NetworkEditor extends Component {
 
   constructor(props) {
@@ -41,7 +43,7 @@ export class NetworkEditor extends Component {
       window.controller = this.controller;
     }
 
-    this.onDataChanged = this.onDataChanged.bind(this);
+    this.onCyEvents = this.onCyEvents.bind(this);
 
     this.cy.style().fromJson([
       {
@@ -111,25 +113,22 @@ export class NetworkEditor extends Component {
     enableSync();
   }
 
-  onDataChanged(event) {
-    console.log("\n- onDataChanged: " + event.cy.data('name'));
-    console.log(this.cySyncher);
-    const id = event.cy.data('id');
+  onCyEvents() {
+    console.log("  -- onCyEvents: " + this.cy.data('name'));
     const secret = this.cySyncher.secret;
-    const name = event.cy.data('name');
-    this.props.loginController.updateRecentNetwork({ id, secret, name });
+    this.props.loginController.updateRecentNetwork({ secret, cy: this.cy });
   }
 
   componentDidMount() {
-    const id = this.cy.data('id');
     const secret = this.cySyncher.secret;
-    this.props.loginController.saveRecentNetwork({ id, secret });
-    
-    this.cy.on('data', this.onDataChanged);
+    this.props.loginController.saveRecentNetwork({ secret, cy: this.cy });
+    this._debounceCyEvents = _.debounce(this.onCyEvents, 500);
+
+    this.cy.on(CY_EVENTS, this._debounceCyEvents);
   }
 
   componentWillUnmount() {
-    this.cy.removeListener('data', this.onDataChanged);
+    this.cy.removeListener(CY_EVENTS, this._debounceCyEvents);
     this.eh.destroy();
     this.cySyncher.destroy(); // disable live synch for now...
     this.bus.removeAllListeners();

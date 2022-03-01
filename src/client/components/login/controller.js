@@ -23,37 +23,28 @@ import { NDEX_API_URL } from '../../env';
     this.ndexClient = new NDEx(NDEX_API_URL);
   }
 
-  /**
-   * Saves the passed network id to the local data store.
-   * @param {string} id The netowk id
-   * @param {string} secret The scecret associated with the network
-   */
-   saveRecentNetwork({ id, secret }) {
+   saveRecentNetwork({ secret, cy }) {console.log("\n== SAVE");
+    const id = cy.data('id');
     const now = new Date();
     const opened = now.getTime();
+    const value = this._localStorageValue({ secret, opened: opened, cy });
     
-    LocalForage.setItem(id, { secret, opened }, (err, val) => {
-      console.log(err);
-      console.log(val);
+    LocalForage.setItem(id, value, (err, val) => {
+      // console.log(err);
+      // console.log(val);
       this.getRecentNetworks();
     });
   }
 
-  updateRecentNetwork({ id, secret, name }) {
-    const now = new Date();
-    const modified = now.getTime();
+  updateRecentNetwork({ secret, cy }) {console.log("\t-- UPDATE...");
+    const id = cy.data('id');
    
     LocalForage.getItem(id).then((val) => {
-      const newValue = {
-        secret,
-        name,
-        opened: val ? val.opened : modified,
-        modified 
-      };
+      const newValue = this._localStorageValue({ secret, opened: val.opened, cy });
       LocalForage.setItem(id, newValue, (err, val) => {
-        console.log("Updating LocalForage...");
-        console.log(err);
-        console.log(val);
+        // console.log("Updating LocalForage...");
+        // console.log(err);
+        // console.log(val);
         this.getRecentNetworks();
       });
     }).catch((err) => {
@@ -65,10 +56,12 @@ import { NDEX_API_URL } from '../../env';
     const nets = [];
 
     LocalForage.iterate((val, id, idx) => {
-      console.log({ idx, id, ...val });
+      // console.log({ idx, id, ...val });
       nets.push({ id, ...val });
     }).then(() => {
-      console.log('Iteration has completed');
+      // Sort by 'opened' date
+      nets.sort((o1, o2) => o2.opened - o1.opened);
+
       if (callback)
         callback(nets);
     }).catch((err) => {
@@ -78,7 +71,6 @@ import { NDEX_API_URL } from '../../env';
 
   removeRecentNetwork(id, callback) {
     LocalForage.removeItem(id).then(() => {
-      console.log('Removed Recent Network: ' + id);
       if (callback)
         callback();
     }).catch((err) => {
@@ -88,11 +80,25 @@ import { NDEX_API_URL } from '../../env';
 
   clearRecentNetworks(callback) {
     LocalForage.clear().then(() => {
-      console.log('Removed All Recent Networks');
       if (callback)
         callback();
     }).catch((err) => {
       console.log(err);
     });
+  }
+
+  _localStorageValue({ secret, opened, cy }) {
+    const name = cy.data('name');
+    const now = new Date();
+    const modified = now.getTime();
+    const thumbnail = cy.png({ output: 'base64', maxWidth: 342, maxHeight: 342, full: true, bg: '#ffffff' });
+
+    return {
+      secret,
+      name,
+      thumbnail,
+      opened: opened ? opened : modified,
+      modified,
+    };
   }
 }
