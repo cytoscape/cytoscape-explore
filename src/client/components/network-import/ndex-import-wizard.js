@@ -184,7 +184,7 @@ export class NDExImportSubWizard extends React.Component {
         start: 0,
         networks: testNetworkSummaries
       };
-    }
+    };
 
     return fetchFn()
       .then(testNetworks => {
@@ -192,7 +192,7 @@ export class NDExImportSubWizard extends React.Component {
       })
       .catch(error => {
         console.log(error);
-        this.setState({testNetworks: null, error, loading: false})
+        this.setState({testNetworks: null, error, loading: false});
       });
   }
 
@@ -210,7 +210,7 @@ export class NDExImportSubWizard extends React.Component {
         }
     );
     const newDocInfo = await res.json();
-    const url = '/document/' + newDocInfo.id + '/'+ newDocInfo.secret
+    const url = '/document/' + newDocInfo.id + '/'+ newDocInfo.secret;
     
     if(openNewTab){
       const newTab = window.open(url, "_blank");
