@@ -58,6 +58,7 @@ export class ShareButton extends React.Component {
 
     const blob = await cy[imageType]({ 
       output:'blob-promise',
+      bg: 'white',
       full: imageArea === ImageArea.FULL,
       scale: imageSize.scale,
     });
