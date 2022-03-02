@@ -63,7 +63,11 @@ async function createThumbnail(docURL, width, height) {
 
 
 async function runCytosnap(elements, style, width, height) {
-  const snap = cytosnap();
+  const snap = cytosnap({
+    puppeteer: {
+      args: process.env.TESTING == 'true' ? ['--no-sandbox'] : [] // required for ci tests
+    }
+  });
   await snap.start();
 
   const options = {
