@@ -33,7 +33,7 @@
     "lint": "run-s lint:*",
     "fix": "run-s fix:*",
     "watch": "run-p watch:*",
-    "test:mocha": "cross-env TESTING=true mocha -r dotenv/config -r esm",
+    "test:mocha": "cross-env TESTING=true mocha -r dotenv/config -r esm --exit",
     "test:bundle": "run-s bundle",
     "test": "run-s test:mocha test:bundle lint"
   },
