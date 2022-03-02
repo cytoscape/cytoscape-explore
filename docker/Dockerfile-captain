@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 RUN NODE_ENV=development npm ci # dev b/c we need dev deps
+RUN npm test # ensure test instances always past tests before deploying
 RUN NODE_ENV=production npm run build # build the clientside app in prod mode
 
 EXPOSE 3000
