@@ -22,7 +22,7 @@ export class Main extends Component {
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     const container = document.getElementById('cy');
     this.cy.mount(container);
     this.cy.resize();
@@ -98,7 +98,7 @@ export class Main extends Component {
 }
 
 class NetworkBackground extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       bgColor: 'white',
@@ -106,11 +106,11 @@ class NetworkBackground extends Component {
     this.busProxy = new EventEmitterProxy(this.props.controller.bus);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.busProxy.on('setNetworkBackgroundColor', (color) => this.setState({ bgColor: color }));
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.busProxy.removeAllListeners();
   }
 

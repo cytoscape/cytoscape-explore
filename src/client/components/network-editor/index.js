@@ -114,7 +114,6 @@ export class NetworkEditor extends Component {
   }
 
   onCyEvents() {
-    console.log("  -- onCyEvents: " + this.cy.data('name'));
     const secret = this.cySyncher.secret;
     this.props.loginController.updateRecentNetwork({ secret, cy: this.cy });
   }
