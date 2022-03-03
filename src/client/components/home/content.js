@@ -19,6 +19,7 @@ import { AppLogoIcon } from '../svg-icons';
 import { Cy3LogoIcon, NDExLogoIcon } from '../svg-icons';
 import DescriptionIcon from '@material-ui/icons/Description';
 import AddIcon from '@material-ui/icons/Add';
+import theme from '../../theme';
 
 export class Content extends Component {
 
@@ -99,40 +100,46 @@ export class Content extends Component {
       <div className={classes.root} style={{ height: '100%' }}>
         { this.renderHeader() }
         <div className={classes.root} style={{ height: '100%', overflowY: 'scroll' }}>
-          <Grid container justifyContent="center" spacing={3}>
-            { /* === LEFT Panel ===================================================== */ }
-            <Grid item className={classes.root}>
-              <Container className={classes.container}>
-                <Typography variant="body1" gutterBottom className={classes.body1}>
-                  Create publication-ready network figures <br />for your papers<br />with Cytoscape Explore.
-                </Typography>
-                <Typography variant="body1" gutterBottom className={classes.body1}>
-                  Try this <Link component="a" style={{ cursor: 'pointer' }} onClick={() => this.loadSampleNetwork()}>sample network</Link>.
-                </Typography>
-              </Container>
-            </Grid>
-            { /* === RIGHT Panel ==================================================== */ }
-            <Grid item className={classes.root}>
-              <Grid container direction="column" spacing={3}>
-                <Grid item xs={12}>
-                  <Container className={classes.container}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} className={classes.root}>
-                        <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
-                          Start a New Network
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} className={classes.root}>
-                        { this.renderStart() }
-                      </Grid>
-                    </Grid>
+          <Grid container direction="column" alignItems="stretch" alignContent="stretch" justifyContent="flex-start">
+            { /* === TOP Panel ==================================================================== */ }
+            <Grid item>
+              <Grid container direction="row" alignItems="stretch" alignContent="stretch" justifyContent="center" spacing={3}>
+                { /* === LEFT Panel ===================================================== */ }
+                <Grid item className={classes.root}>
+                  <Container direction="column" className={classes.container}>
+                    <Typography variant="body1" gutterBottom className={classes.body1}>
+                      Create publication-ready network figures <br />for your papers<br />with Cytoscape Explore.
+                    </Typography>
+                    <Typography variant="body1" gutterBottom className={classes.body1}>
+                      Try this <Link component="a" style={{ cursor: 'pointer' }} onClick={() => this.loadSampleNetwork()}>sample network</Link>.
+                    </Typography>
                   </Container>
+                </Grid>
+                { /* === RIGHT Panel ==================================================== */ }
+                <Grid item className={classes.root}>
+                  <Grid container direction="row" spacing={3}>
+                    <Grid item xs={12}>
+                      <Container className={classes.container}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} className={classes.root}>
+                            <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
+                              Start a New Network
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} className={classes.root}>
+                            { this.renderStart() }
+                          </Grid>
+                        </Grid>
+                      </Container>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <RecentNetworksGrid controller={loginController} />
+            { /* === BOTTOM Panel ================================================================= */ }
+            <Grid item>
+              <RecentNetworksGrid controller={loginController} />
+            </Grid>
           </Grid>
           { dialogName === 'network-import' && (
             <ImportWizard
@@ -186,20 +193,9 @@ export class Content extends Component {
     const { classes } = this.props;
 
     return (
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="stretch"
-        spacing={4}
-      >
+      <Grid container direction="row" justifyContent="center" alignItems="stretch" spacing={4}>
         <Grid item>
-          <Grid
-            container
-            direction="column"
-            className={classes.root}
-            spacing={2}
-          >
+          <Grid container direction="column" className={classes.root} spacing={2}>
             <Grid item>
               <Typography variant="subtitle2">Create New:</Typography>
             </Grid>
@@ -224,12 +220,7 @@ export class Content extends Component {
           </Grid>
         </Grid>
         <Grid item>
-          <Grid
-            container
-            direction="column"
-            className={classes.root}
-            spacing={2}
-          >
+          <Grid container direction="column" className={classes.root} spacing={2}>
             <Grid item>
               <Typography variant="subtitle2">Import From:</Typography>
             </Grid>
@@ -253,7 +244,7 @@ export class Content extends Component {
     };
 
     return (
-      <Grid container direction="column" justifycontent="center" spacing={2}>
+      <Grid container direction="column" alignItems="stretch" justifycontent="center" spacing={2}>
         { WIZARDS.map((w) => (
           <Grid key={w.id} item>
             <Tooltip
