@@ -38,7 +38,7 @@
     "test": "run-s test:mocha test:bundle lint"
   },
   "dependencies": {
-    "@js4cytoscape/ndex-client": "https://gitpkg.now.sh/cytoscape/js4cytoscape/packages/ndex-client?develop",
+    "@js4cytoscape/ndex-client": "0.3.2",
     "@material-ui/core": "^4.12.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
