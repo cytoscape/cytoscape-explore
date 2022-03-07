@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { NDEx } from '@js4cytoscape/ndex-client';
+import { NDEx } from 'ndex-client';
 import { NDEX_API_URL } from '../../env';
 
 /**
