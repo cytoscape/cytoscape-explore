@@ -42,6 +42,8 @@ describe('CytoscapeSyncher', function() {
     });
 
     cy2.data({ id });
+
+    await delay();
   });
 
   afterEach(async () => {

@@ -17,4 +17,6 @@ before(async () => {
 after(async () => {
   await expressServer.close();
   console.log("stopped express server");
+
+  // TODO stop cytosnap instance(s)
 });
