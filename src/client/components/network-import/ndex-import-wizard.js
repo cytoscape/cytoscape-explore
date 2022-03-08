@@ -18,15 +18,13 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { LoginController } from '../login/controller';
 
-<<<<<<< HEAD
 const STEPS = [
   {
     label: "Import From NDEx",
   },
 ];
-=======
-import testNetworks from './test-networks.json';
->>>>>>> d06bca0 (add tab for testing ndex networks)
+
+import debug from '../../debug';
 
 function isAuthenticated(ndexClient){
   return ndexClient.authenticationType != null && ndexClient._authToken != null;
@@ -83,6 +81,8 @@ export class NDExImportSubWizard extends React.Component {
       browseNdexTabId: authenticated ? 0 : 1,
       myNetworks: null,
       myNetworksError: null,
+      testNetworks: null,
+      testNetworksError: null,
       data: null,
       error: null,
       loading: false,
@@ -166,8 +166,37 @@ export class NDExImportSubWizard extends React.Component {
       else if (selectedId)
         b = true;
     }
-
     setCanContinue({ canContinue: b });
+  }
+
+
+  fetchTestNetworks() {
+    // this.setState({ loading: true });
+    console.log('here');
+
+    let fetchFn = async () => {
+      console.log(this.props);
+      const testNetworkSetId = 'a929eccf-893d-11ec-b777-767437b87d4a';
+      const ndexClient = this.controller.ndexClient;
+      const testNetworks = await ndexClient.getNetworkSet(testNetworkSetId);
+      const testNetworkSummaries = await Promise.all(testNetworks.networks.map(networkId => ndexClient.getNetworkSummary(networkId)));
+
+      console.log(testNetworkSummaries);
+      return { 
+        numFound: testNetworkSummaries.length,
+        start: 0,
+        networks: testNetworkSummaries
+      };
+    }
+
+    return fetchFn()
+      .then(testNetworks => {
+        this.setState({ testNetworks, testNetworksError: null, loading: false});
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({testNetworks: null, error, loading: false})
+      });
   }
 
   async handleFinish(openNewTab = false) {
@@ -231,7 +260,9 @@ export class NDExImportSubWizard extends React.Component {
             this.setState({browseNdexTabId: newTabId});
             break;
           case 2:
-            this.setState({browseNdexTabId: newTabId});
+            this.fetchTestNetworks().then( () => {
+              this.setState({browseNdexTabId: newTabId});
+            });
             break;
           default:
             this.setState({browseNdexTabId: 1});
@@ -251,7 +282,7 @@ export class NDExImportSubWizard extends React.Component {
           <Tabs value={this.state.browseNdexTabId} onChange={handleTabChange} aria-label="browse NDEx tabs">
             <Tab label="Browse my networks" {...a11yProps(0)} disabled={!this.state.showAccountNetworksTabs}/>
             <Tab label="SEARCH NDEx" style={{textTransform: 'none'}} {...a11yProps(1)} />
-            <Tab label="TEST NDEx NETWORK SET" style={{textTransform: 'none'}} {...a11yProps(1)} />
+            { debug.enabled() ? <Tab label="TEST NDEx NETWORK SET" style={{textTransform: 'none'}} {...a11yProps(1)} /> : null }
           </Tabs>
           <TabPanel value={this.state.browseNdexTabId} index={0}>
             <div style={{ marginTop: 10 }}>
@@ -266,18 +297,18 @@ export class NDExImportSubWizard extends React.Component {
               { this.renderSearchResultsArea() }
             </div>
           </TabPanel>
-          <TabPanel  value={this.state.browseNdexTabId} index={2}>
+          { debug.enabled() ? <TabPanel  value={this.state.browseNdexTabId} index={2}>
             <div style={{ marginTop: 10 }}>
               { this.renderTestNetworkList() }
             </div>
-          </TabPanel>
+          </TabPanel> : null}
         </div>
       );
   }
 
   selectNetworkEntry(selectedId){
       this.setState({ selectedId });
-      this.updateButtons({ ...this.state, selectedId });
+      this.updateCanContinue({...this.state, loading: false, selectedId});
   }
 
   renderSearchResultsArea() {
@@ -289,7 +320,7 @@ export class NDExImportSubWizard extends React.Component {
       if(data.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        return this.renderNetworkList(data.networks, () => this.selectNetworkEntry());
+        return this.renderNetworkList(data.networks, (selectedId) => this.selectNetworkEntry(selectedId));
       }
     }
     return null;
@@ -304,31 +335,30 @@ export class NDExImportSubWizard extends React.Component {
       if(myNetworks.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        return this.renderNetworkList(myNetworks.networks, () => this.selectNetworkEntry());
+        return this.renderNetworkList(myNetworks.networks, (selectedId) => this.selectNetworkEntry(selectedId));
       }
     }
     return null;
   }
 
   renderTestNetworkList() {
-    // const ndexClient = this.props.controller.ndexClient;
-    // const testNetworks = await ndexClient.getNetworkSet('a929eccf-893d-11ec-b777-767437b87d4a');
-    // const testNetworkSummaries = await Promise.all(testNetworks.networks.map(networkId => ndexClient.getNetworkSummary(networkId)));
-    // console.log(testNetworkSummaries);
-    // const minimalTestNetworkSummaries = testNetworkSummaries.map(s => ({
-    //   externalId: s.externalId,
-    //   name: s.name,
-    //   edgeCount: s.edgeCount,
-    //   nodeCount: s.nodeCount,
-    //   owner: s.owner,
-    // }));
-    // console.log(JSON.stringify(minimalTestNetworkSummaries, null, 2));
-
-    return this.renderNetworkList(testNetworks, (selectedNetworkId) => {
-      this.setState({
-        selectedId: selectedNetworkId
-      }, () => this.handleFinish(true));
-    });
+    const { loading, testNetworks } = this.state;
+    if(loading) {
+      return this.renderLoading();
+    }
+    if(testNetworks) {
+      if(testNetworks.networks.length == 0) {
+        return this.renderEmpty();
+      } else {
+        console.log(testNetworks);
+        return this.renderNetworkList(testNetworks.networks, (selectedId) => {
+          this.setState({
+            selectedId
+          }, () => this.handleFinish(true));
+        });
+      }
+    }
+    return null;
   }
 
   renderLoading() {
