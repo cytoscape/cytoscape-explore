@@ -3,17 +3,15 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 import { IconButton, Tooltip } from '@material-ui/core';
+
 import { DiamondIcon, EllipseIcon, HexagonIcon, OctagonIcon, RectangleIcon, RoundRectangleIcon, RhomboidIcon, TriangleIcon, VeeIcon } from '../svg-icons';
 import { CircleArrowIcon, DiamondArrowIcon, NoneArrowIcon, SquareArrowIcon, TeeArrowIcon, TriangleArrowIcon, TriangleCrossArrowIcon } from '../svg-icons';
 import { DashedLineIcon, DottedLineIcon, SolidLineIcon } from '../svg-icons';
 
-
-const nodeIconProps = {
-  viewBox: '0 0 32 32',
-  style: { fontSize: 24, margin: 0, color: 'grey' },  // TODO why does the color have to be set here??? Doesn't seem right.
+const iconProps = {
+  style: { fontSize: 24, margin: 0 },
   p: 0,
   m: 0,
-  
 };
 
 /*
@@ -22,29 +20,29 @@ const nodeIconProps = {
  */
 const allShapes = {
   node: [
-    { name: 'ellipse', label: 'Ellipse', icon: <EllipseIcon {...nodeIconProps} /> },
-    { name: 'rectangle', label: 'Rectangle', icon: <RectangleIcon {...nodeIconProps} /> },
-    { name: 'round-rectangle', label: 'Round Rectangle', icon: <RoundRectangleIcon {...nodeIconProps} /> },
-    { name: 'triangle', label: 'Triangle', icon: <TriangleIcon {...nodeIconProps} /> },
-    { name: 'diamond', label: 'Diamond', icon: <DiamondIcon {...nodeIconProps} /> },
-    { name: 'hexagon', label: 'Hexagon', icon: <HexagonIcon {...nodeIconProps} /> },
-    { name: 'octagon', label: 'Octagon', icon: <OctagonIcon {...nodeIconProps} /> },
-    { name: 'rhomboid', label: 'Parallelogram', icon: <RhomboidIcon {...nodeIconProps} /> },
-    { name: 'vee', label: 'V', icon: <VeeIcon {...nodeIconProps} /> },
+    { name: 'ellipse', label: 'Ellipse', icon: <EllipseIcon {...iconProps} /> },
+    { name: 'rectangle', label: 'Rectangle', icon: <RectangleIcon {...iconProps} /> },
+    { name: 'round-rectangle', label: 'Round Rectangle', icon: <RoundRectangleIcon {...iconProps} /> },
+    { name: 'triangle', label: 'Triangle', icon: <TriangleIcon {...iconProps} /> },
+    { name: 'diamond', label: 'Diamond', icon: <DiamondIcon {...iconProps} /> },
+    { name: 'hexagon', label: 'Hexagon', icon: <HexagonIcon {...iconProps} /> },
+    { name: 'octagon', label: 'Octagon', icon: <OctagonIcon {...iconProps} /> },
+    { name: 'rhomboid', label: 'Parallelogram', icon: <RhomboidIcon {...iconProps} /> },
+    { name: 'vee', label: 'V', icon: <VeeIcon {...iconProps} /> },
   ],
   line: [
-    { name: 'solid', label: 'Solid', icon: <SolidLineIcon {...nodeIconProps} /> },
-    { name: 'dotted', label: 'Dots', icon: <DottedLineIcon {...nodeIconProps} /> },
-    { name: 'dashed', label: 'Dash', icon: <DashedLineIcon {...nodeIconProps} /> },
+    { name: 'solid', label: 'Solid', icon: <SolidLineIcon {...iconProps} /> },
+    { name: 'dotted', label: 'Dots', icon: <DottedLineIcon {...iconProps} /> },
+    { name: 'dashed', label: 'Dash', icon: <DashedLineIcon {...iconProps} /> },
   ],
   arrow: [
-    { name: 'none', label: 'None', icon: <NoneArrowIcon {...nodeIconProps} /> },
-    { name: 'triangle', label: 'Delta', icon: <TriangleArrowIcon {...nodeIconProps} /> },
-    { name: 'circle', label: 'Circle', icon: <CircleArrowIcon {...nodeIconProps} /> },
-    { name: 'square', label: 'Square', icon: <SquareArrowIcon {...nodeIconProps} /> },
-    { name: 'diamond', label: 'Diamond', icon: <DiamondArrowIcon {...nodeIconProps} /> },
-    { name: 'tee', label: 'T', icon: <TeeArrowIcon {...nodeIconProps} /> },
-    { name: 'triangle-cross', label: 'Cross Delta', icon: <TriangleCrossArrowIcon {...nodeIconProps} /> },
+    { name: 'none', label: 'None', icon: <NoneArrowIcon {...iconProps} /> },
+    { name: 'triangle', label: 'Delta', icon: <TriangleArrowIcon {...iconProps} /> },
+    { name: 'circle', label: 'Circle', icon: <CircleArrowIcon {...iconProps} /> },
+    { name: 'square', label: 'Square', icon: <SquareArrowIcon {...iconProps} /> },
+    { name: 'diamond', label: 'Diamond', icon: <DiamondArrowIcon {...iconProps} /> },
+    { name: 'tee', label: 'T', icon: <TeeArrowIcon {...iconProps} /> },
+    { name: 'triangle-cross', label: 'Cross Delta', icon: <TriangleCrossArrowIcon {...iconProps} /> },
   ]
 };
 

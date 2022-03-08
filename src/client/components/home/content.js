@@ -19,7 +19,6 @@ import { AppLogoIcon } from '../svg-icons';
 import { Cy3LogoIcon, NDExLogoIcon } from '../svg-icons';
 import DescriptionIcon from '@material-ui/icons/Description';
 import AddIcon from '@material-ui/icons/Add';
-import theme from '../../theme';
 
 export class Content extends Component {
 
@@ -171,7 +170,7 @@ export class Content extends Component {
                       aria-label='close' 
                       onClick={() => location.href = '/'}
                     >
-                      <AppLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />
+                      <AppLogoIcon fontSize="large" />
                     </IconButton>
                   </Tooltip>
                 </Grid>
@@ -274,12 +273,6 @@ export class Content extends Component {
   }
 }
 
-const logoIconProps = {
-  viewBox: '0 0 64 64',
-  p: 0,
-  m: 0,
-};
-
 const logoIconStyle = {
   width: 'auto',
   fontSize: '2rem',
@@ -292,7 +285,7 @@ const WIZARDS = [
     id: "ndex",
     label: "NDEx",
     tooltip: "ndexbio.org",
-    icon: <NDExLogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
+    icon: <NDExLogoIcon style={{...logoIconStyle}} />,
     color: '#0087d2',
     wizard: NDExImportSubWizard,
     props: [ 'loginController' ],
@@ -310,7 +303,7 @@ const WIZARDS = [
     id: "cy3",
     label: "Cytoscape 3",
     tooltip: "Cytoscape Desktop",
-    icon: <Cy3LogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
+    icon: <Cy3LogoIcon style={{...logoIconStyle}} />,
     color: '#ea9123',
     wizard: Cy3ImportSubWizard,
     props: [],

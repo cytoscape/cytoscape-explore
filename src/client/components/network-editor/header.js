@@ -16,13 +16,11 @@ import { Popover, MenuList, MenuItem} from "@material-ui/core";
 import { Tooltip } from '@material-ui/core';
 import { IconButton } from '@material-ui/core';
 
-import { AppLogoIcon, NDExLogoIcon } from '../svg-icons';
+import { AppLogoIcon, AddNodeIcon, DrawEdgeIcon, NDExLogoIcon } from '../svg-icons';
 import SearchIcon from '@material-ui/icons/Search'; // eslint-disable-line
 import DebugIcon from '@material-ui/icons/BugReport'; // eslint-disable-line
 import FitScreenIcon from '@material-ui/icons/Fullscreen';
-import AddNodeIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
-import DrawEdgeIcon from '@material-ui/icons/CallMade';
 
 /**
  * The network editor's header or app bar.
@@ -138,7 +136,7 @@ export class Header extends Component {
                         aria-label='close' 
                         onClick={() => location.href = '/'}
                       >
-                        <AppLogoIcon viewBox="0 0 64 64" p={0} m={0} style={{ fontSize: 28 }} />
+                        <AppLogoIcon style={{ fontSize: 28 }} />
                       </IconButton>
                     </Tooltip>
                   </Grid>
@@ -189,7 +187,7 @@ export class Header extends Component {
                   <ToolbarDivider />
                   <ToolbarButton
                     title="Export Network To NDEx"
-                    icon={<NDExLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />}
+                    icon={<NDExLogoIcon style={{ fontSize: 28 }} />}
                     onClick={() => this.showDialog('ndex-network-export')}
                   />
                   <ToolbarDivider unrelated />
@@ -263,8 +261,8 @@ const useStyles = theme => ({
     width: 0,
   },
   unrelatedDivider: {
-    marginLeft: theme.spacing(1.5),
-    marginRight: theme.spacing(1.5),
+    marginLeft: theme.spacing(2.5),
+    marginRight: theme.spacing(2.5),
     width: 0,
   },
 });

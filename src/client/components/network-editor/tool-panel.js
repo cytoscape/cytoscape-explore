@@ -11,6 +11,7 @@ import { NodeSizeStyleSection, NodeLabelPositionStylePicker } from '../style/sty
 import { LayoutPanel } from '../layout/layout-panel';
 import { HistoryPanel } from './history-panel';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import { LayoutIcon } from '../svg-icons';
 
 function SidePanel({ title, onClose, children }) {
   return <div>
@@ -31,8 +32,6 @@ SidePanel.propTypes = {
   onClose: PropTypes.func,
 };
 
-
-
 export class ToolPanel extends Component {
   constructor(props){
     super(props);
@@ -43,7 +42,7 @@ export class ToolPanel extends Component {
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     const dirty = () => this.setState({ dirty: Date.now() });
     this.busProxy.on('toggleDrawMode', dirty);
   }
@@ -52,7 +51,7 @@ export class ToolPanel extends Component {
     this.busProxy.removeAllListeners();
   }
 
-  render(){
+  render() {
     const { controller } = this.props;
     const { toolRender } = this.state;
 
@@ -71,11 +70,14 @@ export class ToolPanel extends Component {
         
         return <Tooltip arrow placement="left" title={title}>
           <IconButton size="small" color={color} onClick={buttonOnClick}>
-            <i className="material-icons">{icon}</i>
+            {typeof(icon) === 'string' ? (
+              <i className="material-icons">{ icon }</i>
+            ) : (
+              <>{ icon }</>
+            )}
           </IconButton>
         </Tooltip>;
     };
-
 
     return (<div className="tool-panel">
       <Drawer 
@@ -97,7 +99,7 @@ export class ToolPanel extends Component {
         <ToolButton 
           title="Layout"
           tool="layout"
-          icon="bolt" // bubble_chart"  "scatter_plot"  "grain"
+          icon={<LayoutIcon />}
           render={() =>
             <SidePanel title="Layout" onClose={closePanel}>
               <LayoutPanel controller={controller} />
