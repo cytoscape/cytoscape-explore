@@ -231,7 +231,6 @@ export class NetworkEditorController {
     return res;
   }
 
-
   /**
    * Return the discrete default mapping value.
    * @param {String} selector 'node' or 'edge'

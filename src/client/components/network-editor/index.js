@@ -16,6 +16,8 @@ import Main from './main';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
+const CY_EVENTS = 'data add remove move layoutstop viewport';
+
 export class NetworkEditor extends Component {
 
   constructor(props) {
@@ -40,6 +42,8 @@ export class NetworkEditor extends Component {
       window.cySyncher = this.cySyncher;
       window.controller = this.controller;
     }
+
+    this.onCyEvents = this.onCyEvents.bind(this);
 
     this.cy.style().fromJson([
       {
@@ -109,11 +113,25 @@ export class NetworkEditor extends Component {
     enableSync();
   }
 
-  componentWillUnmount(){
+  onCyEvents() {
+    const secret = this.cySyncher.secret;
+    this.props.loginController.updateRecentNetwork({ secret, cy: this.cy });
+  }
+
+  componentDidMount() {
+    const secret = this.cySyncher.secret;
+    this.props.loginController.saveRecentNetwork({ secret, cy: this.cy });
+    this._debounceCyEvents = _.debounce(this.onCyEvents, 500);
+
+    this.cy.on(CY_EVENTS, this._debounceCyEvents);
+  }
+
+  componentWillUnmount() {
+    this.cy.removeListener(CY_EVENTS, this._debounceCyEvents);
     this.eh.destroy();
     this.cySyncher.destroy(); // disable live synch for now...
-    this.cy.destroy();
     this.bus.removeAllListeners();
+    this.cy.destroy();
   }
 
   render() {

@@ -240,6 +240,9 @@ export class CytoscapeSyncher {
   }
 
   async delete() {
+    console.log("\n\n[--] ");
+    console.log(this.localDb);
+    console.log(this.remoteDb);
     await this.localDb.destroy();
     await this.remoteDb.destroy();
   }

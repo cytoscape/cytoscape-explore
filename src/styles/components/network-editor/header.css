@@ -12,6 +12,7 @@
   opacity: 0.666;
   font-size: 0.8em;
   margin-top: 0.25em;
+  padding-left: 2px;
 }
 
 .header-tools > * {
