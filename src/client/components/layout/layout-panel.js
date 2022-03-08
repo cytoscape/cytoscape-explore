@@ -52,19 +52,8 @@ export class LayoutPanel extends Component {
         options = this.controller.getLayoutOptions(name);
       }
       
-      if(!this.positionSnapshot) {
-        this.positionSnapshot = this.controller.getNodePositionsSnapshot();
-      }
-
       this.applyLayout(options);
     }
-  }
-
-  componentWillUnmount() {
-    if(this.positionSnapshot) {
-      this.controller.postLayoutUndoEdit(this.positionSnapshot);
-    }
-    this.positionSnapshot = null;
   }
 
   handleOptionsChange(options) {

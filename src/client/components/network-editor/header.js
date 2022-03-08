@@ -5,7 +5,6 @@ import { EventEmitterProxy } from '../../../model/event-emitter-proxy';
 import { DEFAULT_PADDING } from '../layout/defaults';
 import NDExNetworkExportDialog from '../network-export/ndex-network-export-dialog';
 import TitleEditor from './title-editor';
-import { UndoButton } from '../undo/undo-button'; // eslint-disable-line
 import AccountButton from '../login/AccountButton';
 import ShareButton from './share-button';
 
@@ -173,9 +172,7 @@ export class Header extends Component {
                     onClick={() => controller.deletedSelectedElements()}
                   />
                   <ToolbarDivider unrelated />
-                  {/* <UndoButton type='undo' icon='undo' title='Undo' controller={controller} />
-                  <UndoButton type='redo' icon='redo' title='Redo' controller={controller} />
-                  <ToolbarDivider unrelated /> */}
+
                   <ToolbarButton
                     title="Fit Network"
                     icon={<FitScreenIcon />}

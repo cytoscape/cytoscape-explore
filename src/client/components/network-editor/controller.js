@@ -2,7 +2,6 @@ import EventEmitter from 'eventemitter3';
 import { styleFactory } from '../../../model/style'; // eslint-disable-line
 import { CytoscapeSyncher } from '../../../model/cytoscape-syncher'; // eslint-disable-line
 import { NetworkAnalyser } from './network-analyser';
-import { UndoSupport } from '../undo/undo';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
 import Color from 'color'; // eslint-disable-line
 import { VizMapper } from '../../../model/vizmapper'; //eslint-disable-line
@@ -41,10 +40,6 @@ export class NetworkEditorController {
     /** @type {NetworkAnalyser} */
     this.networkAnalyser = new NetworkAnalyser(cy, bus);
 
-    /** @type {UndoSupport} */
-    this.undoSupport = new UndoSupport(this);
-    this._initSyncUndoListeners();
-
     this.drawModeEnabled = false;
 
     // Save the last used layout optionst
@@ -76,24 +71,13 @@ export class NetworkEditorController {
         padding: DEFAULT_PADDING
       },
     };
-  }
 
-  _initSyncUndoListeners() {
-    // Comment out UNDO edits for syncher events for now
-
-    // const addEle = (ele) => {
-    //   this.undoSupport.post({
-    //     title: (ele.isNode() ? "Add Node" : "Add Edge") + " (remote)",
-    //     tag: 'sync-add',
-    //     undo: () => ele.cy().remove(ele),
-    //     redo: () => ele.cy().add(ele)
-    //   }, true);
-    // };
-
-    this.cySyncher.emitter.on('add',    () => this.undoSupport.invalidate()); // node/edge added
-    this.cySyncher.emitter.on('remove', () => this.undoSupport.invalidate()); // node/edge removed
-    this.cySyncher.emitter.on('ele',    () => this.undoSupport.invalidate()); // node position change
-    this.cySyncher.emitter.on('cy',     () => this.undoSupport.invalidate()); // style/bypass change
+    // When a network snapshot is restored automatically call fit content.
+    this.cySyncher.emitter.on('cy', ({ restored }) => {
+      if(restored) {
+        this.cy.fit(DEFAULT_PADDING);
+      }
+    });
   }
 
   /**
@@ -127,32 +111,6 @@ export class NetworkEditorController {
     this.layout.run();
   }
 
-  getNodePositionsSnapshot() {
-    const positionMap = new Map();
-    this.cy.nodes().forEach(node => {
-      positionMap.set(node.id(), { ...node.position() });
-    });
-    return positionMap;
-  }
-
-  postLayoutUndoEdit(positionMap) {
-    const positionsBefore = positionMap;
-    const positionsAfter  = this.getNodePositionsSnapshot();
-
-    const setPositions = (snapshot) => {
-      for(const [id, position] of snapshot.entries()) {
-        this.cy.nodes(`#${id}`).position(position);
-      }
-      this.cy.center();
-    };
-
-    this.undoSupport.post({
-      title: "Layout",
-      undo: () => setPositions(positionsBefore),
-      redo: () => setPositions(positionsAfter)
-    });
-  }
-
   /**
    * Returns the last used layout options for the passed layout name,
    * or the default values if the layout has not been applied yet.
@@ -181,14 +139,6 @@ export class NetworkEditorController {
       }
     };
     const node = this.cy.add(nodeData);
-
-    let undoNode = node;
-    this.undoSupport.post({
-      title: 'Add Node',
-      undo: () => this.cy.remove(undoNode),
-      redo: () => undoNode = this.cy.add(nodeData)
-    });
-
     this.bus.emit('addNode', node);
   }
 
@@ -235,20 +185,11 @@ export class NetworkEditorController {
    */
   deletedSelectedElements() {
     let selectedEles = this.cy.$(':selected');
-
     if(selectedEles.empty()) {
       selectedEles = this.cy.elements();
     }
 
     const deletedEls = selectedEles.remove();
-
-    // TODO If I delete nodes then what about the adjacent edges?
-    this.undoSupport.post({
-      title: "Delete Elements",
-      undo: () => this.cy.add(deletedEls),
-      redo: () => this.cy.remove(deletedEls)
-    });
-
     this.bus.emit('deletedSelectedElements', deletedEls);
   }
 

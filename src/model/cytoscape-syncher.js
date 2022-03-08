@@ -5,6 +5,7 @@ import PouchDB  from 'pouchdb';
 import { DocumentNotFoundError } from './errors';
 import _ from 'lodash';
 import Cytoscape from 'cytoscape'; // eslint-disable-line
+import { COUCH_DESIGN_DOC }  from './couch-design-doc';
 
 const COUCHDB_URL = process.env.COUCHDB_URL;
 const COUCHDB_USER = process.env.COUCHDB_USER;
@@ -154,12 +155,13 @@ export class CytoscapeSyncher {
       elements: copy(cy.elements().map(getEleDBJson))
     };
 
+    await localDb.put(COUCH_DESIGN_DOC);
+
     const putRes = await localDb.put(doc);
-
     this.cy.scratch({ rev: putRes.rev });
-
+    
     // do initial, one-way synch from local db to server db
-    const info = await localDb.replicate.to(remoteDb);
+    const info = await localDb.replicate.to(remoteDb, { doc_ids: [docId, COUCH_DESIGN_DOC._id] });
 
     if( info.errors != null && info.errors.length > 0 ){
       const err = new Error('CytoscapeSyncher create failed');
@@ -191,7 +193,7 @@ export class CytoscapeSyncher {
     }
 
     // do initial, one-way synch from server db to local db
-    const info = await localDb.replicate.from(remoteDb);
+    const info = await localDb.replicate.from(remoteDb, { doc_ids: [docId] });
 
     if( info.errors != null && info.errors.length > 0 ){
       const err = new Error('CytoscapeSyncher load failed');
@@ -346,8 +348,28 @@ export class CytoscapeSyncher {
       })
     );
 
+    // Listen for changes to snapshot documents
+    this.remoteDb.changes({
+      since: 'now',
+      live: true,
+      include_docs: false
+    })
+    .on('change', change => {
+      if(change.id.startsWith('snapshot')) {
+        this.emitter.emit('snapshot');
+      }
+    })
+    .on('error', err => {
+      log('PouchDB error', err);
+    });
+
+
     // handle remote updates:
-    this.synchHandler = ( this.localDb.sync(this.remoteDb, { live: true, retry: true })
+    this.synchHandler = (this.localDb.sync(this.remoteDb, { 
+        live: true, 
+        retry: true,
+        doc_ids: [this.docId]
+      })
       .on('change', info => {
         log('PouchDB change', info);
         log(_.get(info, ['change', 'docs']));
@@ -385,7 +407,10 @@ export class CytoscapeSyncher {
 
               this.cy.scratch({ rev });
 
-              this.emitter.emit('cy', doc.data);
+              this.emitter.emit('cy', { 
+                data: doc.data, 
+                restored: doc.restoredFromSnapshot 
+              });
             } else {
               // if in future we use multiple docs per network, then we'd need to apply those doc updates here
             }

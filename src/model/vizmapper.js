@@ -93,11 +93,11 @@ export class VizMapper {
     /** @type CytoscapeSyncher */
     this.cySyncher = cySyncher;
 
-    this.syncherProxy = new EventEmitterProxy(this.cySyncher.emitter);
+    // this.syncherProxy = new EventEmitterProxy(this.cySyncher.emitter);
   }
 
   destroy(){
-    this.cyEmitterProxy.removeAllListeners();
+    // this.cyEmitterProxy.removeAllListeners();
   }
 
   /**
