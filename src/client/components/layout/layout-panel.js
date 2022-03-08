@@ -5,14 +5,15 @@ import { NetworkEditorController } from '../network-editor/controller';
 import FCosePanel from './fcose-panel';
 import ConcentricPanel from './concentric-panel';
 import DagrePanel from './dagre-panel';
+
 import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Button from '@material-ui/core/Button';
 import Tab from '@material-ui/core/Tab';
-import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
 import Tooltip from '@material-ui/core/Tooltip';
+
+import { CircularLayoutIcon, ClusteredLayoutIcon, HierarchicalLayoutIcon } from '../svg-icons';
 
 export class LayoutPanel extends Component {
 
@@ -62,7 +63,6 @@ export class LayoutPanel extends Component {
 
   render() {
     const { value, layouts } = this.state;
-    const classes = useStyles();
 
     return (
       <div className="layout-panel">
@@ -101,7 +101,6 @@ export class LayoutPanel extends Component {
 }
 
 const iconProps = {
-  viewBox: '0 0 96 64',
   style: { width: 'auto', fontSize: 38, margin: 0 },
   p: 0,
   m: 0,
