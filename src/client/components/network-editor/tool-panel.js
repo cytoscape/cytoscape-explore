@@ -11,7 +11,7 @@ import { NodeSizeStyleSection, NodeLabelPositionStylePicker } from '../style/sty
 import { LayoutPanel } from '../layout/layout-panel';
 import { HistoryPanel } from './history-panel';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { LayoutIcon } from '../svg-icons';
+import { LayoutIcon, NodeLabelIcon } from '../svg-icons';
 
 function SidePanel({ title, onClose, children }) {
   return <div>
@@ -179,7 +179,7 @@ export class ToolPanel extends Component {
 
         <ToolButton 
           title="Node Label" 
-          icon="text_format"
+          icon={<NodeLabelIcon />}
           tool="node_label"
           render={() =>
             <SidePanel title="Node Label" onClose={closePanel}>
