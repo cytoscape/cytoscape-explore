@@ -2,7 +2,7 @@ import Express from 'express';
 import uuid from 'uuid';
 import Cytoscape from 'cytoscape';
 import CytoscapeSyncher from '../../../model/cytoscape-syncher';
-import ndexClient from 'ndex-client';
+import ndexClient from '@js4cytoscape/ndex-client';
 import PouchDB  from 'pouchdb';
 
 import { BASE_URL, NDEX_API_URL } from '../../env';

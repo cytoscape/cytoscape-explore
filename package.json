@@ -73,7 +73,7 @@
     "material-ui-image": "^3.3.2",
     "mathjs": "^9.5.1",
     "morgan": "^1.10.0",
-    "ndex-client": "git+https://github.com/ndexbio/ndex-js-client.git#develop",
+    "@js4cytoscape/ndex-client": "0.3.2",
     "node-fetch": "^2.6.7",
     "pouchdb": "^7.2.1",
     "pouchdb-adapter-memory": "^7.2.1",
