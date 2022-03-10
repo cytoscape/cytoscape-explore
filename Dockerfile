@@ -12,7 +12,6 @@ RUN apt-get update \
 
 COPY . .
 RUN NODE_ENV=development npm ci # dev b/c we need dev deps
-RUN npm test # ensure test instances always pass tests before deploying
 RUN NODE_ENV=production npm run build # build the clientside app in prod mode
 
 EXPOSE 3000
