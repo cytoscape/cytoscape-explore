@@ -3,14 +3,12 @@
  * in order for webpack to replace the text properly.
  *
  *
- * Default values are specified in /env-defaults.js
+ * Default values are specified in /.env
  *
  * You can normalise the values (e.g. with `parseInt()`, as all env vars are
  * strings).
  */
 
-import { env, envInt } from '../../env-defaults';
-
-export const NODE_ENV = env('NODE_ENV');
-export const PORT = envInt('PORT');
-export const NDEX_API_URL = env('NDEX_API_URL');
+export const NODE_ENV = process.env.NODE_ENV;
+export const PORT = parseInt(process.env.PORT, 10);
+export const NDEX_API_URL = process.env.NDEX_API_URL;
