@@ -6,11 +6,12 @@ import ImportWizard from '../network-import/import-wizard';
 import Cy3ImportSubWizard from '../network-import/cy3-import-wizard';
 import NDExImportSubWizard from '../network-import/ndex-import-wizard';
 import ExcelImportSubWizard from '../network-import/excel-import-wizard';
+import RecentNetworksGrid from './recent-networks-grid';
 
 import { withStyles } from '@material-ui/core/styles';
 
 import { AppBar, Toolbar } from '@material-ui/core';
-import { Grid, Paper, Fade } from '@material-ui/core';
+import { Grid, Container, Fade } from '@material-ui/core';
 import { Tooltip, Typography, Link } from '@material-ui/core';
 import { Button, IconButton } from '@material-ui/core';
 
@@ -30,6 +31,10 @@ export class Content extends Component {
     };
   }
 
+  loadNetwork(id, secret) {
+    location.href = `/document/${id}/${secret}`;
+  }
+
   createNewNetwork() {
     let create = async () => {
       let res = await fetch('/api/document', {
@@ -44,7 +49,7 @@ export class Content extends Component {
       });
 
       let urls = await res.json();
-      location.href = `/document/${urls.id}/${urls.secret}`;
+      this.loadNetwork(urls.id, urls.secret);
     };
 
     create();
@@ -63,7 +68,7 @@ export class Content extends Component {
     const cx2 = await res1.json();
 
     // Ask the server to import the json data
-    const res2 = await fetch( `/api/document/cx`, {
+    const res2 = await fetch(`/api/document/cx`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,12 +78,13 @@ export class Content extends Component {
 
     // Navigate to the new document
     const urls = await res2.json();
-    location.href = `/document/${urls.id}/${urls.secret}`;
+    this.loadNetwork(urls.id, urls.secret);
   }
 
   render() {
     const { dialogName, wizardInfo } = this.state;
     const { controllers, classes } = this.props;
+    const loginController = controllers.loginController;
     
     const wizardProps = {};
 
@@ -90,50 +96,48 @@ export class Content extends Component {
     }
 
     return (
-        <div
-          className={classes.root}
-          style={{ height: '100%', /*background: 'url(/images/home-banner.png)', backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center top'*/ }}
-        >
-          { this.renderHeader() }
-          <Grid container direction="column" spacing={3} className={classes.root}>
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                <Typography variant="body1" gutterBottom className={classes.body1}>
-                  Create publication-ready network figures for your papers with Cytoscape Explore.
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid container spacing={3}>
-              <Grid item xs={3} className={classes.root}>{ /* LEFT Panel... */ }</Grid>
-              <Grid item xs={6} className={classes.root}>
-                <Grid container direction="column" spacing={3}>
-                  <Grid item xs={12}>
-                    <Paper className={classes.paper}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} className={classes.root}>
-                          <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
-                            Start a New Network:
-                          </Typography>
+      <div className={classes.root} style={{ height: '100%' }}>
+        { this.renderHeader() }
+        <div className={classes.root} style={{ height: '100%', overflowY: 'scroll' }}>
+          <Grid container direction="column" alignItems="stretch" alignContent="stretch" justifyContent="flex-start">
+            { /* === TOP Panel ==================================================================== */ }
+            <Grid item>
+              <Grid container direction="row" alignItems="stretch" alignContent="stretch" justifyContent="center" spacing={3}>
+                { /* === LEFT Panel ===================================================== */ }
+                <Grid item className={classes.root}>
+                  <Container direction="column" className={classes.container}>
+                    <Typography variant="body1" gutterBottom className={classes.body1}>
+                      Create publication-ready network figures <br />for your papers<br />with Cytoscape Explore.
+                    </Typography>
+                    <Typography variant="body1" gutterBottom className={classes.body1}>
+                      Try this <Link component="a" style={{ cursor: 'pointer' }} onClick={() => this.loadSampleNetwork()}>sample network</Link>.
+                    </Typography>
+                  </Container>
+                </Grid>
+                { /* === RIGHT Panel ==================================================== */ }
+                <Grid item className={classes.root}>
+                  <Grid container direction="row" spacing={3}>
+                    <Grid item xs={12}>
+                      <Container className={classes.container}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} className={classes.root}>
+                            <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
+                              Start a New Network
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} className={classes.root}>
+                            { this.renderStart() }
+                          </Grid>
                         </Grid>
-                        <Grid item xs={12} className={classes.root}>
-                          { this.renderStart() }
-                        </Grid>
-                      </Grid>
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={12} className={classes.root}>
-                    <Paper className={classes.paper}>
-                      <Typography variant="subtitle1" gutterBottom className={classes.subtitle1}>
-                        Demo:
-                      </Typography>
-                      <Typography variant="body1" gutterBottom className={classes.body1}>
-                        You can also try this <Link component="a" style={{ cursor: 'pointer' }} onClick={() => this.loadSampleNetwork()} >sample network</Link>.
-                      </Typography>
-                    </Paper>
+                      </Container>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={3}>{ /* RIGHT Panel... */ }</Grid>
+            </Grid>
+            { /* === BOTTOM Panel ================================================================= */ }
+            <Grid item>
+              <RecentNetworksGrid controller={loginController} />
             </Grid>
           </Grid>
           { dialogName === 'network-import' && (
@@ -146,7 +150,7 @@ export class Content extends Component {
             />
           )}
         </div>
-        
+      </div>
     );
   }
 
@@ -166,7 +170,7 @@ export class Content extends Component {
                       aria-label='close' 
                       onClick={() => location.href = '/'}
                     >
-                      <AppLogoIcon viewBox="0 0 64 64" fontSize="large" p={0} m={0} />
+                      <AppLogoIcon fontSize="large" />
                     </IconButton>
                   </Tooltip>
                 </Grid>
@@ -188,20 +192,9 @@ export class Content extends Component {
     const { classes } = this.props;
 
     return (
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="stretch"
-        spacing={4}
-      >
+      <Grid container direction="row" justifyContent="center" alignItems="stretch" spacing={4}>
         <Grid item>
-          <Grid
-            container
-            direction="column"
-            className={classes.root}
-            spacing={2}
-          >
+          <Grid container direction="column" className={classes.root} spacing={2}>
             <Grid item>
               <Typography variant="subtitle2">Create New:</Typography>
             </Grid>
@@ -226,12 +219,7 @@ export class Content extends Component {
           </Grid>
         </Grid>
         <Grid item>
-          <Grid
-            container
-            direction="column"
-            className={classes.root}
-            spacing={2}
-          >
+          <Grid container direction="column" className={classes.root} spacing={2}>
             <Grid item>
               <Typography variant="subtitle2">Import From:</Typography>
             </Grid>
@@ -255,7 +243,7 @@ export class Content extends Component {
     };
 
     return (
-      <Grid container direction="column" justifycontent="center" spacing={2}>
+      <Grid container direction="column" alignItems="stretch" justifycontent="center" spacing={2}>
         { WIZARDS.map((w) => (
           <Grid key={w.id} item>
             <Tooltip
@@ -285,12 +273,6 @@ export class Content extends Component {
   }
 }
 
-const logoIconProps = {
-  viewBox: '0 0 64 64',
-  p: 0,
-  m: 0,
-};
-
 const logoIconStyle = {
   width: 'auto',
   fontSize: '2rem',
@@ -303,7 +285,7 @@ const WIZARDS = [
     id: "ndex",
     label: "NDEx",
     tooltip: "ndexbio.org",
-    icon: <NDExLogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
+    icon: <NDExLogoIcon style={{...logoIconStyle}} />,
     color: '#0087d2',
     wizard: NDExImportSubWizard,
     props: [ 'loginController' ],
@@ -321,7 +303,7 @@ const WIZARDS = [
     id: "cy3",
     label: "Cytoscape 3",
     tooltip: "Cytoscape Desktop",
-    icon: <Cy3LogoIcon {...logoIconProps} style={{...logoIconStyle}} />,
+    icon: <Cy3LogoIcon style={{...logoIconStyle}} />,
     color: '#ea9123',
     wizard: Cy3ImportSubWizard,
     props: [],
@@ -333,9 +315,9 @@ const useStyles = theme => ({
     alignContent: 'center',
   },
   container: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(12, 1fr)',
-    gridGap: theme.spacing(3),
+    margin: theme.spacing(1),
+    padding: theme.spacing(2),
+    overflow: 'auto',
   },
   paper: {
     padding: theme.spacing(2),
@@ -367,6 +349,7 @@ const useStyles = theme => ({
     textAlign: 'center',
   },
   body1: {
+    marginTop: theme.spacing(6),
     textAlign: 'center',
     lineHeight: '200%',
   },

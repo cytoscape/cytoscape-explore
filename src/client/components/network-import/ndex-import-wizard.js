@@ -24,6 +24,8 @@ const STEPS = [
   },
 ];
 
+import debug from '../../debug';
+
 function isAuthenticated(ndexClient){
   return ndexClient.authenticationType != null && ndexClient._authToken != null;
 }
@@ -79,6 +81,8 @@ export class NDExImportSubWizard extends React.Component {
       browseNdexTabId: authenticated ? 0 : 1,
       myNetworks: null,
       myNetworksError: null,
+      testNetworks: null,
+      testNetworksError: null,
       data: null,
       error: null,
       loading: false,
@@ -162,11 +166,37 @@ export class NDExImportSubWizard extends React.Component {
       else if (selectedId)
         b = true;
     }
-
     setCanContinue({ canContinue: b });
   }
 
-  async handleFinish() {
+
+  fetchTestNetworks() {
+    this.setState({ loading: true });
+
+    let fetchFn = async () => {
+      const testNetworkSetId = 'a929eccf-893d-11ec-b777-767437b87d4a';
+      const ndexClient = this.controller.ndexClient;
+      const testNetworks = await ndexClient.getNetworkSet(testNetworkSetId);
+      const testNetworkSummaries = await Promise.all(testNetworks.networks.map(networkId => ndexClient.getNetworkSummary(networkId)));
+
+      return { 
+        numFound: testNetworkSummaries.length,
+        start: 0,
+        networks: testNetworkSummaries
+      };
+    };
+
+    return fetchFn()
+      .then(testNetworks => {
+        this.setState({ testNetworks, testNetworksError: null, loading: false});
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({testNetworks: null, error, loading: false});
+      });
+  }
+
+  async handleFinish(openNewTab = false) {
     const bodyObj = { ndexUUID: this.state.selectedId };
 
     isAuthenticated(this.controller.ndexClient) ? bodyObj.authToken = this.controller.ndexClient._authToken : null;
@@ -179,10 +209,15 @@ export class NDExImportSubWizard extends React.Component {
           body: JSON.stringify(bodyObj)
         }
     );
+    const newDocInfo = await res.json();
+    const url = '/document/' + newDocInfo.id + '/'+ newDocInfo.secret;
     
-    const urls = await res.json();
-
-    location.replace('/document/' + urls.id);
+    if(openNewTab){
+      const newTab = window.open(url, "_blank");
+      newTab.focus();
+    } else {
+      location.replace(url);
+    }
   }
 
   handleContinue() {
@@ -213,10 +248,21 @@ export class NDExImportSubWizard extends React.Component {
       };
 
       const handleTabChange = (e, newTabId) => {
-        if(newTabId === 0){
-          this.setState({browseNdexTabId: newTabId}, () => this.fetchMyNetworks());
-        } else {
-          this.setState({browseNdexTabId: newTabId});
+
+        switch(newTabId){
+          case 0:
+            this.setState({browseNdexTabId: newTabId}, () => this.fetchMyNetworks());
+            break;
+          case 1:
+            this.setState({browseNdexTabId: newTabId});
+            break;
+          case 2:
+            this.fetchTestNetworks().then( () => {
+              this.setState({browseNdexTabId: newTabId});
+            });
+            break;
+          default:
+            this.setState({browseNdexTabId: 1});
         }
       };
 
@@ -233,6 +279,7 @@ export class NDExImportSubWizard extends React.Component {
           <Tabs value={this.state.browseNdexTabId} onChange={handleTabChange} aria-label="browse NDEx tabs">
             <Tab label="Browse my networks" {...a11yProps(0)} disabled={!this.state.showAccountNetworksTabs}/>
             <Tab label="SEARCH NDEx" style={{textTransform: 'none'}} {...a11yProps(1)} />
+            { debug.enabled() ? <Tab label="TEST NDEx NETWORK SET" style={{textTransform: 'none'}} {...a11yProps(1)} /> : null }
           </Tabs>
           <TabPanel value={this.state.browseNdexTabId} index={0}>
             <div style={{ marginTop: 10 }}>
@@ -247,8 +294,18 @@ export class NDExImportSubWizard extends React.Component {
               { this.renderSearchResultsArea() }
             </div>
           </TabPanel>
+          { debug.enabled() ? <TabPanel  value={this.state.browseNdexTabId} index={2}>
+            <div style={{ marginTop: 10 }}>
+              { this.renderTestNetworkList() }
+            </div>
+          </TabPanel> : null}
         </div>
       );
+  }
+
+  selectNetworkEntry(selectedId){
+      this.setState({ selectedId });
+      this.updateCanContinue({...this.state, loading: false, selectedId});
   }
 
   renderSearchResultsArea() {
@@ -260,7 +317,7 @@ export class NDExImportSubWizard extends React.Component {
       if(data.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        return this.renderNetworkList(data.networks);
+        return this.renderNetworkList(data.networks, (selectedId) => this.selectNetworkEntry(selectedId));
       }
     }
     return null;
@@ -275,7 +332,26 @@ export class NDExImportSubWizard extends React.Component {
       if(myNetworks.networks.length == 0) {
         return this.renderEmpty();
       } else {
-        return this.renderNetworkList(myNetworks.networks);
+        return this.renderNetworkList(myNetworks.networks, (selectedId) => this.selectNetworkEntry(selectedId));
+      }
+    }
+    return null;
+  }
+
+  renderTestNetworkList() {
+    const { loading, testNetworks } = this.state;
+    if(loading) {
+      return this.renderLoading();
+    }
+    if(testNetworks) {
+      if(testNetworks.networks.length == 0) {
+        return this.renderEmpty();
+      } else {
+        return this.renderNetworkList(testNetworks.networks, (selectedId) => {
+          this.setState({
+            selectedId
+          }, () => this.handleFinish(true));
+        });
       }
     }
     return null;
@@ -327,11 +403,7 @@ export class NDExImportSubWizard extends React.Component {
     );
   }
 
-  renderNetworkList(ndexNetworkReults) {
-    const handleNetworkSelection = (selectedId) => {
-      this.setState({ selectedId });
-      this.updateCanContinue({ ...this.state, selectedId });
-    };
+  renderNetworkList(ndexNetworkReults, onSelectedFn) {
     return (
       <TableContainer component={Paper}>
         <Table size="large" aria-label="network table">
@@ -348,7 +420,7 @@ export class NDExImportSubWizard extends React.Component {
             { ndexNetworkReults.map(network => (
               <TableRow key={network.externalId} 
                 selected={this.state.selectedId === network.externalId}
-                onClick={() => handleNetworkSelection(network.externalId)}
+                onClick={() => onSelectedFn(network.externalId)}
                 className="ndex-import-network-entry"
               >
                 <TableCell align="center">

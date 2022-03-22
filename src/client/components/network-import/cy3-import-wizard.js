@@ -145,8 +145,6 @@ export class Cy3ImportSubWizard extends React.Component {
     });
 
     const urls = await res.json();
-
-    // this.props.wizardCallbacks.closeWizard();
     location.replace(`/document/${urls.id}/${urls.secret}`);
   }
 
@@ -238,7 +236,7 @@ export class Cy3ImportSubWizard extends React.Component {
       <ImageList rowHeight={IMG_HEIGHT} gap={IMG_GAP} className={classes.imageList} style={{backgroundColor: theme.palette.divider}}>
         {[0, 1].map((val) => (
           <ImageListItem key={val} button='false' cols={1}>
-            <Skeleton variant="rect" width={IMG_WIDTH} height={IMG_HEIGHT} style={{backgroundColor: theme.palette.background.paper}} />
+            <Skeleton variant="rect" width={IMG_WIDTH} height={IMG_HEIGHT} />
           </ImageListItem>
         ))}
       </ImageList>

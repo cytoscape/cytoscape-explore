@@ -167,7 +167,7 @@ const importNDExNetworkById = async (req, res, next) => {
 };
 
 /**
- * Get a network
+ * Get a network.
  * @param {Function} exportCy A function that takes (cy) and returns the desired format
  * @param {Express.Request} req The HTTP request
  * @param {Express.Response} res The HTTP response
@@ -191,6 +191,35 @@ const getNetwork = async (exportCy, req, res, next) => {
 
     res.send(payload);
   } catch(err) {
+    next(err);
+  }
+};
+
+/**
+ * Delete a network from the database.
+ * @param {Express.Request} req The HTTP request
+ * @param {Express.Response} res The HTTP response
+ * @param {Express.NextFunction} next The Express next(err) function
+ */
+const deleteNetwork = async (req, res, next) => {
+  try {
+    console.log("\n\nDELETE...");
+    console.log(req.params);
+    const { id } = req.params;
+    console.log("\n[ - ] DELETE: " + id);
+    
+    const cy = new Cytoscape();
+    cy.data({ id });
+
+    const cySyncher = new CytoscapeSyncher(cy);
+    await cySyncher.delete();
+
+    cySyncher.destroy();
+    cy.destroy();
+
+    res.end();
+  } catch(err) {
+    console.log(err);
     next(err);
   }
 };
@@ -229,6 +258,13 @@ http.post('/', async function(req, res, next) {
  */
 http.get('/:id', async function(req, res, next){
   await getNetwork(exportJSON, req, res, next);
+});
+
+/**
+ * Delete a network document
+ */
+http.delete('/:id', async function(req, res, next){
+  await deleteNetwork(req, res, next);
 });
 
 /**
