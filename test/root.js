@@ -3,7 +3,9 @@ import { registerCytoscapeExtensions } from '../src/model/cy-extensions';
 let expressServer;
 
 
-before(async () => {
+before(async function() {
+  this.timeout(15000);
+
   console.log("registering cytoscape extensions");
   registerCytoscapeExtensions();
 
@@ -14,7 +16,7 @@ before(async () => {
 });
 
 
-after(async () => {
+after(async function() {
   await expressServer.close();
   console.log("stopped express server");
 

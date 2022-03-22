@@ -58,7 +58,7 @@ let conf = {
   },
 
   plugins: [
-    new DotEnvPlugin(),
+    new DotEnvPlugin({ defaults: true }),
 
     isProfile ? new BundleAnalyzerPlugin() : null
   ].filter( isNonNil )

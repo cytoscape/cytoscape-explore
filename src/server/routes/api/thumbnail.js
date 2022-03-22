@@ -6,6 +6,13 @@ import fetch from 'node-fetch';
 import { getNetworkDocURL, getSnapshotDocURL, removeQuotes } from './history';
 import cytosnap from 'cytosnap';
 
+const snap = cytosnap({
+  puppeteer: {
+    args: ['--headless', '--disable-dev-shm-usage', '--no-sandbox', '--disable-setuid-sandbox', '--no-zygote']
+  }
+});
+
+const snapStart = snap.start();
 
 function objMap(obj, f) {
   return Object.fromEntries(Object.entries(obj).map(([k,v]) => [k, f(v)]));
@@ -63,12 +70,7 @@ async function createThumbnail(docURL, width, height) {
 
 
 async function runCytosnap(elements, style, width, height) {
-  const snap = cytosnap({
-    puppeteer: {
-      args: process.env.TESTING == 'true' ? ['--no-sandbox'] : [] // required for ci tests
-    }
-  });
-  await snap.start();
+  await snapStart;
 
   const options = {
     // cytoscape.js options
