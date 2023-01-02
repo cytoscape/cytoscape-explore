@@ -100,7 +100,7 @@
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.1",
-    "babel-loader": "^8.1.0",
+    "babel-loader": "^8.3.0",
     "chai": "^4.2.0",
     "core-js": "^3.6.4",
     "cross-env": "^5.2.1",
@@ -122,9 +122,9 @@
     "rimraf": "^2.7.1",
     "stylelint": "^13.2.1",
     "stylelint-config-standard": "^20.0.0",
-    "webpack": "^4.42.0",
+    "webpack": "^5.75.0",
     "webpack-bundle-analyzer": "^3.6.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^5.0.1"
   },
   "engines": {
     "node": "14"
